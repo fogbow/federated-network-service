@@ -10,17 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 public class DefaultController {
 
 	// TODO: this should be retrieved from a configuration file.
-	private final String forwardFogbowUrl = "forward:localhost:8080/%s";
+	private final String forwardFogbowUrl = "forward:localhost:8080%s";
 
-	@RequestMapping(value = "/**/{[path:[^\\.]*}")
+	// remove /computes and /federatedNetworks from regex.
+	@RequestMapping(value = "/**")
 	public ModelAndView method(final HttpServletRequest request) {
 		final String url = request.getRequestURI();
-		String fogbowEndpoint = "";
+		String fogbowEndpoint = String.format(forwardFogbowUrl, url);
 
-		if (url.startsWith("/static")) {
-			fogbowEndpoint = String.format(forwardFogbowUrl, url);
-		}
 		return new ModelAndView(fogbowEndpoint);
-
 	}
 }
