@@ -1,4 +1,4 @@
-package fogbow.federatednetworkservice;
+package org.fogbow.federatednetwork;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

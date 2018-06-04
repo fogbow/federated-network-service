@@ -1,4 +1,4 @@
-package fogbow.federatednetworkservice;
+package org.fogbow.federatednetwork;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
