@@ -7,12 +7,12 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-public class DefaultController {
+public class DefaultRestHandler {
 
 	// TODO: this should be retrieved from a configuration file.
 	private final String forwardFogbowUrl = "forward:localhost:8080%s";
 
-	// remove /computes and /federatedNetworks from regex.
+	// TODO: remove /computes and /federatedNetworks from regex.
 	@RequestMapping(value = "/**")
 	public ModelAndView method(final HttpServletRequest request) {
 		final String url = request.getRequestURI();

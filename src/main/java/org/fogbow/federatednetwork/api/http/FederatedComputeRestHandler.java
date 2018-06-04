@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = FederatedComputeController.COMPUTE_ENDPOINT)
-public class FederatedComputeController {
+@RequestMapping(value = FederatedComputeRestHandler.COMPUTE_ENDPOINT)
+public class FederatedComputeRestHandler {
 
-	public static final String COMPUTE_ENDPOINT = "compute";
+	public static final String COMPUTE_ENDPOINT = "computes";
 
 }
