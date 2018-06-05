@@ -7,7 +7,7 @@ public class FederatedComputeController {
 	public void activateCompute(ComputeOrder computeOrder, String federatedNetworkId){
 		// if network not full
 		// get unused ip
-		// add an User Data
+		// add an User Data (script, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT)
 		// send to Core
 	}
 

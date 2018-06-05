@@ -108,7 +108,7 @@ public class FederatedNetworkController {
 							+ federatedNetworkId);
 		}
 		for (String member : membersSet) {
-			federatedNetwork.addFederationNetworkMember(new String(member));
+			federatedNetwork.addFederationNetworkMember(member);
 		}
 
 		if (!this.database.addFederatedNetwork(federatedNetwork, user)) {
