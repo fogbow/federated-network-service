@@ -22,44 +22,23 @@ public class FederatedNetwork {
 
 	public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
 
-	public FederatedNetwork(String id, String cidrNotation, String label, Set<String> allowedMembers) {
+	public FederatedNetwork(String cidrNotation, String label, Set<String> allowedMembers) {
+		this.id = String.valueOf(UUID.randomUUID());
+
 		// the reason for this to start at '1' is because the first ip is allocated
 		// as the virtual ip address
 		this.ipsServed = 1;
 		this.freedIps = new LinkedList<String>();
 		this.orderIpMap = new HashMap<String, String>();
 
-		this.id = id;
 		this.cidrNotation = cidrNotation;
 		this.label = label;
 		this.allowedMembers = allowedMembers;
 	}
 
-	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
-		if (this.orderIpMap.containsKey(orderId)) {
-			return this.orderIpMap.get(orderId);
-		}
-		String freeIp = null;
-		if (freedIps.isEmpty()) {
-			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
-			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
-			int candidateIpAddress = lowAddress + ipsServed;
-			if (!subnetInfo.isInRange(candidateIpAddress)) {
-				throw new SubnetAddressesCapacityReachedException(
-						FederatedNetwork.NO_FREE_IPS_MESSAGE);
-			} else {
-				ipsServed++;
-				freeIp = toIpAddress(candidateIpAddress);
-			}
-		} else {
-			freeIp = freedIps.poll();
-		}
-		this.orderIpMap.put(orderId, freeIp);
-		return freeIp;
-	}
-
-	private SubnetUtils.SubnetInfo getSubnetInfo() {
-		return new SubnetUtils(cidrNotation).getInfo();
+	public FederatedNetwork(String id, String cidrNotation, String label, Set<String> allowedMembers) {
+		this(cidrNotation, label, allowedMembers);
+		this.id = id;
 	}
 
 	public boolean isIpAddressFree(String address) {
@@ -85,16 +64,6 @@ public class FederatedNetwork {
 		}
 
 		freedIps.add(ipAddress);
-	}
-
-	private String toIpAddress(int value) {
-		byte[] bytes = BigInteger.valueOf(value).toByteArray();
-		try {
-			InetAddress address = InetAddress.getByAddress(bytes);
-			return address.toString().replaceAll("/", "");
-		} catch (UnknownHostException e) {
-			return null;
-		}
 	}
 
 	public void addFederationNetworkMember(String member) {
@@ -147,5 +116,43 @@ public class FederatedNetwork {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
+		if (this.orderIpMap.containsKey(orderId)) {
+			return this.orderIpMap.get(orderId);
+		}
+		String freeIp = null;
+		if (freedIps.isEmpty()) {
+			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
+			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+			int candidateIpAddress = lowAddress + ipsServed;
+			if (!subnetInfo.isInRange(candidateIpAddress)) {
+				throw new SubnetAddressesCapacityReachedException(
+						FederatedNetwork.NO_FREE_IPS_MESSAGE);
+			} else {
+				ipsServed++;
+				freeIp = toIpAddress(candidateIpAddress);
+			}
+		} else {
+			freeIp = freedIps.poll();
+		}
+		this.orderIpMap.put(orderId, freeIp);
+		return freeIp;
+	}
+
+	private SubnetUtils.SubnetInfo getSubnetInfo() {
+		return new SubnetUtils(cidrNotation).getInfo();
+	}
+
+
+	private String toIpAddress(int value) {
+		byte[] bytes = BigInteger.valueOf(value).toByteArray();
+		try {
+			InetAddress address = InetAddress.getByAddress(bytes);
+			return address.toString().replaceAll("/", "");
+		} catch (UnknownHostException e) {
+			return null;
+		}
 	}
 }

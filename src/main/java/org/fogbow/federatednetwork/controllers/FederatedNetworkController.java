@@ -13,11 +13,10 @@ import org.fogbowcloud.manager.core.models.token.FederationUser;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 
-public class FederatedNetworksController {
+public class FederatedNetworkController {
 
-	private static final Logger LOGGER = Logger.getLogger(FederatedNetworksController.class);
+	private static final Logger LOGGER = Logger.getLogger(FederatedNetworkController.class);
 
 	public static final String FEDERATED_NETWORK_AGENT_PUBLIC_IP_PROP = "federated_network_agent_public_ip";
 	private static final String DATABASE_FILE_PATH = "federated-networks.db";
@@ -26,29 +25,27 @@ public class FederatedNetworksController {
 
 	FederatedNetworksDB database;
 
-	public FederatedNetworksController() {
+	public FederatedNetworkController() {
 		this(new Properties());
 	}
 
-	public FederatedNetworksController(Properties properties) {
+	public FederatedNetworkController(Properties properties) {
 		this.properties = properties;
 		database = new FederatedNetworksDB(DATABASE_FILE_PATH);
 	}
 
-	public String create(FederationUser user, String label, String cidrNotation, Set<String> members) {
-		SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(cidrNotation);
+	public String create(FederatedNetwork federatedNetwork, FederationUser user) {
+		SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
 
 		if (!isValid(subnetInfo)) {
-			LOGGER.error("Subnet (" + cidrNotation + ") invalid");
+			LOGGER.error("Subnet (" + federatedNetwork.getCidr() + ") invalid");
 			return null;
 		}
 
-		boolean createdSuccessfully = callFederatedNetworkAgent(cidrNotation, subnetInfo.getLowAddress());
+		boolean createdSuccessfully = callFederatedNetworkAgent(federatedNetwork.getCidr(), subnetInfo.getLowAddress());
 		if (createdSuccessfully) {
-			String federatedNetworkId = String.valueOf(UUID.randomUUID());
-			FederatedNetwork federatedNetwork = new FederatedNetwork(federatedNetworkId, cidrNotation, label, members);
 			if (database.addFederatedNetwork(federatedNetwork, user)) {
-				return federatedNetworkId;
+				return federatedNetwork.getId();
 			} else {
 				return null;
 			}
@@ -91,7 +88,7 @@ public class FederatedNetworksController {
 		return database.getUserNetworks(user);
 	}
 
-	public FederatedNetwork getFederatedNetwork(FederationUser user, String federatedNetworkId) {
+	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) {
 		Collection<FederatedNetwork> allFederatedNetworks = this.getUserNetworks(user);
 		for (FederatedNetwork federatedNetwork : allFederatedNetworks) {
 			if (federatedNetwork.getId().equals(federatedNetworkId)) {
@@ -104,7 +101,7 @@ public class FederatedNetworksController {
 
 	public void updateFederatedNetworkMembers(FederationUser user, String federatedNetworkId,
 	                                          Set<String> membersSet) {
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(user, federatedNetworkId);
+		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -121,8 +118,8 @@ public class FederatedNetworksController {
 		}
 	}
 
-	public String getCIDRFromFederatedNetwork(FederationUser user, String federatedNetworkId) {
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(user, federatedNetworkId);
+	public String getCIDRFromFederatedNetwork(String federatedNetworkId, FederationUser user) {
+		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -133,7 +130,7 @@ public class FederatedNetworksController {
 
 	public String getAgentPublicIp() {
 		String agentPublicIp = getProperties()
-				.getProperty(FederatedNetworksController.FEDERATED_NETWORK_AGENT_PUBLIC_IP_PROP);
+				.getProperty(FederatedNetworkController.FEDERATED_NETWORK_AGENT_PUBLIC_IP_PROP);
 		if (agentPublicIp == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_PUBLIC_AGENT_IP_MESSAGE);
@@ -141,10 +138,9 @@ public class FederatedNetworksController {
 		return agentPublicIp;
 	}
 
-	public String getPrivateIpFromFederatedNetwork(FederationUser user, String federatedNetworkId,
-	                                               String orderId) throws SubnetAddressesCapacityReachedException {
+	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException {
 		LOGGER.info("Getting FN Ip to Order: " + orderId);
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(user, federatedNetworkId);
+		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -161,9 +157,9 @@ public class FederatedNetworksController {
 		return privateIp;
 	}
 
-	public void deleteFederatedNetwork(FederationUser user, String federatedNetworkId) {
+	public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user) {
 		LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(user, federatedNetworkId);
+		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -182,7 +178,7 @@ public class FederatedNetworksController {
 		}
 	}
 
-	protected FederatedNetworksController(Properties properties, String databaseFilePath) {
+	protected FederatedNetworkController(Properties properties, String databaseFilePath) {
 		this.properties = properties;
 		database = new FederatedNetworksDB(databaseFilePath);
 	}
