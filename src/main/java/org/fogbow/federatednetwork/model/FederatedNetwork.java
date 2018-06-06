@@ -86,6 +86,47 @@ public class FederatedNetwork {
 		return allowedMembers;
 	}
 
+	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
+		if (this.orderIpMap.containsKey(orderId)) {
+			return this.orderIpMap.get(orderId);
+		}
+		String freeIp = null;
+		if (freedIps.isEmpty()) {
+			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
+			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+			int candidateIpAddress = lowAddress + ipsServed;
+			if (!subnetInfo.isInRange(candidateIpAddress)) {
+				throw new SubnetAddressesCapacityReachedException(
+						FederatedNetwork.NO_FREE_IPS_MESSAGE);
+			} else {
+				ipsServed++;
+				freeIp = toIpAddress(candidateIpAddress);
+			}
+		} else {
+			freeIp = freedIps.poll();
+		}
+		this.orderIpMap.put(orderId, freeIp);
+		return freeIp;
+	}
+
+	public boolean isFull(){
+		if (freedIps.isEmpty()) {
+			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
+			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+			int candidateIpAddress = lowAddress + ipsServed;
+			if (subnetInfo.isInRange(candidateIpAddress)) {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		return true;
+	}
+
+	public Map<String, String> getOrderIpMap() {
+		return orderIpMap;
+	}
+
 	@Override
 	public String toString() {
 		return "FederatedNetwork [id=" + id + ", cidrNotation=" + cidrNotation + ", label=" + label
@@ -118,33 +159,9 @@ public class FederatedNetwork {
 		return true;
 	}
 
-	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
-		if (this.orderIpMap.containsKey(orderId)) {
-			return this.orderIpMap.get(orderId);
-		}
-		String freeIp = null;
-		if (freedIps.isEmpty()) {
-			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
-			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
-			int candidateIpAddress = lowAddress + ipsServed;
-			if (!subnetInfo.isInRange(candidateIpAddress)) {
-				throw new SubnetAddressesCapacityReachedException(
-						FederatedNetwork.NO_FREE_IPS_MESSAGE);
-			} else {
-				ipsServed++;
-				freeIp = toIpAddress(candidateIpAddress);
-			}
-		} else {
-			freeIp = freedIps.poll();
-		}
-		this.orderIpMap.put(orderId, freeIp);
-		return freeIp;
-	}
-
 	private SubnetUtils.SubnetInfo getSubnetInfo() {
 		return new SubnetUtils(cidrNotation).getInfo();
 	}
-
 
 	private String toIpAddress(int value) {
 		byte[] bytes = BigInteger.valueOf(value).toByteArray();
