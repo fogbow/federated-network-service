@@ -15,11 +15,21 @@ import java.io.IOException;
 
 public class ApplicationFacade {
 
+	private static ApplicationFacade instance;
+
 	private FederatedNetworkController federatedNetworksController;
 	private FederatedComputeController federatedComputeController;
 	private AaController aaController;
 
-	// TODO: Constructor missing
+	public static ApplicationFacade getInstance() {
+		synchronized (ApplicationFacade.class) {
+			if (instance == null) {
+				instance = new ApplicationFacade();
+			}
+			return instance;
+		}
+	}
+
 	// TODO: Change methods return type
 
 	public void createFederatedNetwork(FederatedNetwork federatedNetwork, String federationTokenValue)
@@ -80,5 +90,17 @@ public class ApplicationFacade {
 		this.aaController.authorize(federationUser, Operation.DELETE);
 
 		federatedComputeController.deleteCompute(computeOrderId, federationUser);
+	}
+
+	public void setAaController(AaController aaController) {
+		this.aaController = aaController;
+	}
+
+	public void setFederatedNetworksController(FederatedNetworkController federatedNetworksController) {
+		this.federatedNetworksController = federatedNetworksController;
+	}
+
+	public void setFederatedComputeController(FederatedComputeController federatedComputeController) {
+		this.federatedComputeController = federatedComputeController;
 	}
 }

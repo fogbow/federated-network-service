@@ -34,6 +34,7 @@ public class FederatedComputeController {
 				InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
 				String script = IOUtils.toString(inputStream);
 				UserData userData = new UserData(script, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+				// TODO: Change UserData to set required parameters, ex: federatedIp
 				ComputeOrder actualComputeOrder = createOrderWithUserData(computeOrder, userData);
 				// There's no setUserData in ComputeOrder
 			}
