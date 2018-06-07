@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork;
 
+import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbowcloud.manager.core.AaController;
 import org.fogbowcloud.manager.core.BehaviorPluginsHolder;
@@ -9,8 +10,18 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.fogbow.federatednetwork.ConfigurationConstants.*;
+
 @Component
 public class Main implements ApplicationRunner {
+
+	private static final Logger LOGGER = Logger.getLogger(Main.class);
+
+	public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
 
 	private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
@@ -27,10 +38,24 @@ public class Main implements ApplicationRunner {
 		AaController aaController =
 				new AaController(cloudPluginsHolder.getLocalIdentityPlugin(), behaviorPluginsHolder);
 
-		FederatedNetworkController federatedNetworkController = new FederatedNetworkController();
+		Properties properties = null;
+		try {
+			properties = new Properties();
+			FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
+			properties.load(input);
+		} catch (IOException e) {
+			LOGGER.error("", e);
+			System.exit(1);
+		}
 
-		applicationFacade.setAaController(aaController);
+		String permissionFilePath = properties.getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
+		String agentUser = properties.getProperty(FEDERATED_NETWORK_AGENT_USER);
+		String agentPrivateIp = properties.getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS);
+		String agentPublicIp = properties.getProperty(FEDERATED_NETWORK_AGENT_ADDRESS);
+
+		FederatedNetworkController federatedNetworkController = new FederatedNetworkController(
+				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp);
+
 		applicationFacade.setFederatedNetworkController(federatedNetworkController);
-
 	}
 }

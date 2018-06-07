@@ -18,7 +18,8 @@ public class FederatedNetwork {
 	private int ipsServed;
 	private Queue<String> freedIps;
 
-	private Map<String, String> orderIpMap;
+	// TODO: This class should be just a model. Create a new class to know the mapping of computeId and ip.
+	private Map<String, String> computeIpMap;
 
 	public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
 
@@ -29,7 +30,7 @@ public class FederatedNetwork {
 		// to the virtual ip address
 		this.ipsServed = 1;
 		this.freedIps = new LinkedList<String>();
-		this.orderIpMap = new HashMap<String, String>();
+		this.computeIpMap = new HashMap<String, String>();
 
 		this.cidrNotation = cidrNotation;
 		this.label = label;
@@ -87,8 +88,8 @@ public class FederatedNetwork {
 	}
 
 	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
-		if (this.orderIpMap.containsKey(orderId)) {
-			return this.orderIpMap.get(orderId);
+		if (this.computeIpMap.containsKey(orderId)) {
+			return this.computeIpMap.get(orderId);
 		}
 		String freeIp = null;
 		if (freedIps.isEmpty()) {
@@ -105,7 +106,7 @@ public class FederatedNetwork {
 		} else {
 			freeIp = freedIps.poll();
 		}
-		this.orderIpMap.put(orderId, freeIp);
+		this.computeIpMap.put(orderId, freeIp);
 		return freeIp;
 	}
 
@@ -123,15 +124,15 @@ public class FederatedNetwork {
 		return true;
 	}
 
-	public Map<String, String> getOrderIpMap() {
-		return orderIpMap;
+	public Map<String, String> getComputeIpMap() {
+		return computeIpMap;
 	}
 
 	@Override
 	public String toString() {
 		return "FederatedNetwork [id=" + id + ", cidrNotation=" + cidrNotation + ", label=" + label
 				+ ", allowedMembers=" + allowedMembers + ", ipsServed=" + ipsServed + ", freedIps="
-				+ freedIps + ", orderIpMap=" + orderIpMap + "]";
+				+ freedIps + ", computeIpMap=" + computeIpMap + "]";
 	}
 
 	@Override

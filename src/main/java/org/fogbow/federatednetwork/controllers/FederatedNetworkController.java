@@ -1,49 +1,45 @@
 package org.fogbow.federatednetwork.controllers;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.FederatedNetworksDB;
 import org.fogbow.federatednetwork.ProcessUtil;
+import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
-import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.token.FederationUser;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.Properties;
 import java.util.Set;
 
 public class FederatedNetworkController {
 
 	private static final Logger LOGGER = Logger.getLogger(FederatedNetworkController.class);
 
-	public static final String FEDERATED_NETWORK_AGENT_PUBLIC_IP_PROP = "federated_network_agent_public_ip";
 	private static final String DATABASE_FILE_PATH = "federated-networks.db";
 
-	private Properties properties;
+	private String permissionFilePath;
+	private String agentUser;
+	private String agentPublicIp;
+	private String agentPrivateIp;
 
-	FederatedNetworksDB database;
+	private FederatedNetworksDB database;
 
-	public FederatedNetworkController() {
-		this(new Properties());
+	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp, String agentPublicIp) {
+		this(permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, DATABASE_FILE_PATH);
 	}
 
-	public FederatedNetworkController(Properties properties) {
-		this.properties = properties;
-		database = new FederatedNetworksDB(DATABASE_FILE_PATH);
-	}
+	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp,
+	                                  String agentPublicIp, String databaseFilePath) {
+		this.permissionFilePath = permissionFilePath;
+		this.agentUser = agentUser;
+		this.agentPrivateIp = agentPrivateIp;
+		this.agentPublicIp = agentPublicIp;
 
-	protected FederatedNetworkController(Properties properties, String databaseFilePath) {
-		this.properties = properties;
-		database = new FederatedNetworksDB(databaseFilePath);
+		this.database = new FederatedNetworksDB(databaseFilePath);
 	}
 
 	public String create(FederatedNetwork federatedNetwork, FederationUser user) {
@@ -67,13 +63,9 @@ public class FederatedNetworkController {
 	}
 
 	public boolean callFederatedNetworkAgent(String cidrNotation, String virtualIpAddress) {
-		String permissionFilePath = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
-		String user = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER);
-		String serverAddress = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS);
-		String serverPrivateAddress = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS);
-
-		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFilePath, user + "@" + serverAddress,
-				"sudo", "/home/ubuntu/config-ipsec", serverPrivateAddress, serverAddress, cidrNotation, virtualIpAddress);
+		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
+				"StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
+				"sudo", "/home/ubuntu/config-ipsec", agentPrivateIp, agentPublicIp, cidrNotation, virtualIpAddress);
 		LOGGER.info("Trying to call agent with atts (" + cidrNotation + "): " + builder.command());
 
 		int resultCode = 0;
@@ -92,16 +84,12 @@ public class FederatedNetworkController {
 		return false;
 	}
 
-	public Properties getProperties() {
-		return properties;
-	}
-
-	public Collection<FederatedNetwork> getUserNetworks(FederationUser user) {
+	public Collection<FederatedNetwork> getUserFederatedNetworks(FederationUser user) {
 		return database.getUserNetworks(user);
 	}
 
 	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) {
-		Collection<FederatedNetwork> allFederatedNetworks = this.getUserNetworks(user);
+		Collection<FederatedNetwork> allFederatedNetworks = this.getUserFederatedNetworks(user);
 		for (FederatedNetwork federatedNetwork : allFederatedNetworks) {
 			if (federatedNetwork.getId().equals(federatedNetworkId)) {
 				return federatedNetwork;
@@ -140,16 +128,6 @@ public class FederatedNetworkController {
 		return federatedNetwork.getCidr();
 	}
 
-	public String getAgentPublicIp() {
-		String agentPublicIp = getProperties()
-				.getProperty(FederatedNetworkController.FEDERATED_NETWORK_AGENT_PUBLIC_IP_PROP);
-		if (agentPublicIp == null) {
-			throw new IllegalArgumentException(
-					FederatedNetworkConstants.NOT_FOUND_PUBLIC_AGENT_IP_MESSAGE);
-		}
-		return agentPublicIp;
-	}
-
 	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException {
 		LOGGER.info("Getting FN Ip to Order: " + orderId);
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
@@ -169,7 +147,7 @@ public class FederatedNetworkController {
 		return privateIp;
 	}
 
-	public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user) {
+	public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user) throws NotEmptyFederatedNetworkException {
 		LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
@@ -178,8 +156,11 @@ public class FederatedNetworkController {
 							+ federatedNetworkId);
 		}
 		LOGGER.info("Trying to delete federated network: " + federatedNetwork.toString());
-		//TODO: check if removeFederatedNetworkAgent is false (whether don't find script file, for example).
-		if(removeFederatedNetworkAgent(federatedNetwork.getCidr()) == true){
+		// TODO: check if deleteFederatedNetworkFromAgent is false (whether don't find script file, for example).
+		if (!federatedNetwork.getComputeIpMap().isEmpty()) {
+			throw new NotEmptyFederatedNetworkException();
+		}
+		if (deleteFederatedNetworkFromAgent(federatedNetwork.getCidr()) == true) {
 			LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
 			if (!this.database.delete(federatedNetwork, user)) {
 				LOGGER.info("Error to delete federated network: " + federatedNetwork.toString());
@@ -190,13 +171,9 @@ public class FederatedNetworkController {
 		}
 	}
 
-	public boolean removeFederatedNetworkAgent(String cidrNotation) {
-		String permissionFilePath = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
-		String user = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER);
-		String serverAddress = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS);
-
+	public boolean deleteFederatedNetworkFromAgent(String cidrNotation) {
 		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
-				"StrictHostKeyChecking=no", "-i", permissionFilePath, user + "@" + serverAddress,
+				"StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
 				"sudo", "/home/ubuntu/remove-network", cidrNotation);
 		LOGGER.info("Trying to remove network on agent with atts (" + cidrNotation + "): " + builder.command());
 
@@ -232,7 +209,7 @@ public class FederatedNetworkController {
 	public FederatedComputeInstance getCompute(String computeOrderId, FederationUser federationUser){
 		ComputeInstance computeInstance = null;
 		// get compute from Core
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		final Collection<FederatedNetwork> userNetworks = database.getUserFederatedNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
 			final String federatedIp = getFederatedIp(computeOrderId, federationUser);
 			if (!federatedIp.isEmpty()) {

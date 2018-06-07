@@ -1,7 +1,7 @@
 package org.fogbow.federatednetwork;
 
-import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
+import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 
 public class CoreRequester {
 

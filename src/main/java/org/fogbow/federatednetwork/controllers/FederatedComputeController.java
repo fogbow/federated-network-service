@@ -1,19 +1,15 @@
 package org.fogbow.federatednetwork.controllers;
 
 import org.apache.commons.io.IOUtils;
-import org.fogbow.federatednetwork.FederatedNetworksDB;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedComputeInstance;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
-import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
 import org.fogbowcloud.manager.core.models.token.FederationUser;
 import org.fogbowcloud.manager.core.plugins.cloud.compute.util.CloudInitUserDataBuilder;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.Map;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FederatedComputeController {
 
@@ -32,7 +28,7 @@ public class FederatedComputeController {
 
 	/*public static FederatedComputeInstance getCompute(ComputeInstance computeInstance){
 		// get compute from Core
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		final Collection<FederatedNetwork> userNetworks = database.getUserFederatedNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
 			final String federatedIp = getFederatedIp(computeOrderId, federationUser);
 			if (!federatedIp.isEmpty()) {
@@ -43,7 +39,7 @@ public class FederatedComputeController {
 	}
 
 	public static void deleteCompute(String computeOrderId, FederationUser federationUser){
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		final Collection<FederatedNetwork> userNetworks = database.getUserFederatedNetworks(federationUser);
 		// get federatedNetwork related to compute's IP.
 		final String federatedIp = getFederatedIp(computeOrderId, federationUser);
 
@@ -56,10 +52,10 @@ public class FederatedComputeController {
 	}
 
 	public static String getFederatedIp(String computeOrderId, FederationUser federationUser){
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		final Collection<FederatedNetwork> userNetworks = database.getUserFederatedNetworks(federationUser);
 		String federatedIp = "";
 		for (FederatedNetwork federatedNetwork: userNetworks){
-			final Map<String, String> orderIpMap = federatedNetwork.getOrderIpMap();
+			final Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
 			if (orderIpMap.containsKey(computeOrderId)) {
 				federatedIp = orderIpMap.get(computeOrderId);
 			}

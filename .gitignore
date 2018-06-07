@@ -30,3 +30,9 @@ mvnw.cmd
 
 ### Wrapper ###
 federated-network-service/
+
+### Permission files ###
+*.pem
+
+### DB files ###
+*.db
