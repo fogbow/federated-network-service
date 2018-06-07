@@ -26,7 +26,7 @@ public class FederatedNetwork {
 		this.id = String.valueOf(UUID.randomUUID());
 
 		// the reason for this to start at '1' is because the first ip is allocated
-		// as the virtual ip address
+		// to the virtual ip address
 		this.ipsServed = 1;
 		this.freedIps = new LinkedList<String>();
 		this.orderIpMap = new HashMap<String, String>();

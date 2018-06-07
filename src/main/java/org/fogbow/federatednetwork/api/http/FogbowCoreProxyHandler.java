@@ -41,7 +41,8 @@ public class FogbowCoreProxyHandler {
 		return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping("/**")
+//	@RequestMapping("(\\b(?!federatedNetwork.*\\b)\\w+)")
+	@RequestMapping("/{symbolicName:(\\b(?!federatedNetwork.*\\b)\\w+)}")
 	public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
 									 HttpMethod method, HttpServletRequest request, HttpServletResponse response)
 			throws URISyntaxException {
