@@ -31,12 +31,12 @@ public class FogbowCoreProxyHandler {
 		return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = ComputeOrdersController.COMPUTE_ENDPOINT + "/:id", method = GET)
+	@RequestMapping(value = ComputeOrdersController.COMPUTE_ENDPOINT + "/{id}", method = GET)
 	public ResponseEntity<String> getCompute() {
 		return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
-	@RequestMapping(value = ComputeOrdersController.COMPUTE_ENDPOINT + "/:id", method = DELETE)
+	@RequestMapping(value = ComputeOrdersController.COMPUTE_ENDPOINT + "/{id}", method = DELETE)
 	public ResponseEntity<String> deleteCompute() {
 		return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
 	}
