@@ -17,7 +17,7 @@ public class ApplicationFacade {
 
 	private static ApplicationFacade instance;
 
-	private FederatedNetworkController federatedNetworksController;
+	private FederatedNetworkController federatedNetworkController;
 	private FederatedComputeController federatedComputeController;
 	private AaController aaController;
 
@@ -39,7 +39,7 @@ public class ApplicationFacade {
 		// TODO:  Check if we really want to use core authorization plugin.
 		this.aaController.authorize(federationUser, Operation.CREATE);
 
-		federatedNetworksController.create(federatedNetwork, federationUser);
+		federatedNetworkController.create(federatedNetwork, federationUser);
 	}
 
 	public void getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
@@ -49,7 +49,7 @@ public class ApplicationFacade {
 		// TODO:  Check if we really want to use core authorization plugin.
 		this.aaController.authorize(federationUser, Operation.GET);
 
-		federatedNetworksController.getFederatedNetwork(federatedNetworkId, federationUser);
+		federatedNetworkController.getFederatedNetwork(federatedNetworkId, federationUser);
 	}
 
 	public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
@@ -59,7 +59,7 @@ public class ApplicationFacade {
 		// TODO:  Check if we really want to use core authorization plugin.
 		this.aaController.authorize(federationUser, Operation.DELETE);
 
-		federatedNetworksController.deleteFederatedNetwork(federatedNetworkId, federationUser);
+		federatedNetworkController.deleteFederatedNetwork(federatedNetworkId, federationUser);
 	}
 
 	public void createCompute(ComputeOrder computeOrder, String federatedNetworkId, String federationTokenValue)
@@ -72,7 +72,7 @@ public class ApplicationFacade {
 		federatedComputeController.activateCompute(computeOrder, federatedNetworkId, federationUser);
 	}
 
-	public void getCompute(String computeOrderId, String federationTokenValue)
+	/*public void getCompute(String computeOrderId, String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException {
 		this.aaController.authenticate(federationTokenValue);
 		FederationUser federationUser = this.aaController.getFederationUser(federationTokenValue);
@@ -90,14 +90,14 @@ public class ApplicationFacade {
 		this.aaController.authorize(federationUser, Operation.DELETE);
 
 		federatedComputeController.deleteCompute(computeOrderId, federationUser);
-	}
+	}*/
 
 	public void setAaController(AaController aaController) {
 		this.aaController = aaController;
 	}
 
-	public void setFederatedNetworksController(FederatedNetworkController federatedNetworksController) {
-		this.federatedNetworksController = federatedNetworksController;
+	public void setFederatedNetworkController(FederatedNetworkController federatedNetworkController) {
+		this.federatedNetworkController = federatedNetworkController;
 	}
 
 	public void setFederatedComputeController(FederatedComputeController federatedComputeController) {

@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.controllers;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ConfigurationConstants;
@@ -7,9 +8,15 @@ import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.FederatedNetworksDB;
 import org.fogbow.federatednetwork.ProcessUtil;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
+import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.token.FederationUser;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
@@ -32,6 +39,11 @@ public class FederatedNetworkController {
 	public FederatedNetworkController(Properties properties) {
 		this.properties = properties;
 		database = new FederatedNetworksDB(DATABASE_FILE_PATH);
+	}
+
+	protected FederatedNetworkController(Properties properties, String databaseFilePath) {
+		this.properties = properties;
+		database = new FederatedNetworksDB(databaseFilePath);
 	}
 
 	public String create(FederatedNetwork federatedNetwork, FederationUser user) {
@@ -178,11 +190,6 @@ public class FederatedNetworkController {
 		}
 	}
 
-	protected FederatedNetworkController(Properties properties, String databaseFilePath) {
-		this.properties = properties;
-		database = new FederatedNetworksDB(databaseFilePath);
-	}
-
 	public boolean removeFederatedNetworkAgent(String cidrNotation) {
 		String permissionFilePath = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
 		String user = getProperties().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER);
@@ -208,6 +215,33 @@ public class FederatedNetworkController {
 		LOGGER.error("Is not possible remove network on agent. Process command: " + resultCode);
 		return false;
 	}
+
+	public void activateCompute(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
+			throws SubnetAddressesCapacityReachedException, IOException {
+		if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
+			FederatedNetwork federatedNetwork;
+			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
+			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, computeOrder.getId(), federationUser);
+
+		}
+		// send to Core
+	}
+
+/*
+
+	public FederatedComputeInstance getCompute(String computeOrderId, FederationUser federationUser){
+		ComputeInstance computeInstance = null;
+		// get compute from Core
+		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		if (!userNetworks.isEmpty()) {
+			final String federatedIp = getFederatedIp(computeOrderId, federationUser);
+			if (!federatedIp.isEmpty()) {
+				// add federatedIp as a new attribute
+			}
+		}
+		return computeInstance;
+	}
+*/
 
 	private static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) {
 		return new SubnetUtils(cidrNotation).getInfo();
