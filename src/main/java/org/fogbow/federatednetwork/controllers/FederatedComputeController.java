@@ -16,7 +16,8 @@ import java.util.Map;
 
 public class FederatedComputeController {
 
-	public static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-installation";
+	private static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-installation";
+
 	private FederatedNetworkController federatedNetworkController;
 
 	private FederatedNetworksDB database;
