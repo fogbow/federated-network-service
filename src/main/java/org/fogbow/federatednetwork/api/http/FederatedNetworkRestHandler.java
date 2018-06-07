@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -16,14 +19,19 @@ public class FederatedNetworkRestHandler {
 
 	public static final String FEDERATED_NETWORK_ENDPOINT = "federatedNetworks";
 
-	@RequestMapping(method = POST)
-	public static final ResponseEntity<String> createFederatedNetwork() {
-		return new ResponseEntity<>(HttpStatus.CREATED);
-	}
-
 	@RequestMapping(value = "{id}", method = GET)
 	public static final ResponseEntity<FederatedNetwork> getFederatedNetwork() {
 		return new ResponseEntity<>(new FederatedNetwork("", "", null), HttpStatus.CREATED);
+	}
+
+	@RequestMapping(method = GET)
+	public static final ResponseEntity<List<FederatedNetwork>> getFederatedNetworks() {
+		return new ResponseEntity<>(new ArrayList<FederatedNetwork>(), HttpStatus.CREATED);
+	}
+
+	@RequestMapping(method = POST)
+	public static final ResponseEntity<String> createFederatedNetwork() {
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "{id}", method = DELETE)
