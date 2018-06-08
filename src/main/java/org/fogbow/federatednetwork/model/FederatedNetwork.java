@@ -11,11 +11,11 @@ import java.util.*;
 public class FederatedNetwork {
 
 	private String id;
-	private final String cidrNotation;
+	private String cidrNotation;
 	private String label;
 	private Set<String> allowedMembers;
 
-	private int ipsServed;
+	private int ipsServed = 1;
 	private Queue<String> freedIps;
 
 	// TODO: This class should be just a model. Create a new class to know the mapping of computeId and ip.
@@ -23,9 +23,9 @@ public class FederatedNetwork {
 
 	public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
 
-	public FederatedNetwork(String cidrNotation, String label, Set<String> allowedMembers) {
-		this.id = String.valueOf(UUID.randomUUID());
+	public FederatedNetwork() { }
 
+	public FederatedNetwork(String cidrNotation, String label, Set<String> allowedMembers) {
 		// the reason for this to start at '1' is because the first ip is allocated
 		// to the virtual ip address
 		this.ipsServed = 1;
@@ -35,11 +35,6 @@ public class FederatedNetwork {
 		this.cidrNotation = cidrNotation;
 		this.label = label;
 		this.allowedMembers = allowedMembers;
-	}
-
-	public FederatedNetwork(String id, String cidrNotation, String label, Set<String> allowedMembers) {
-		this(cidrNotation, label, allowedMembers);
-		this.id = id;
 	}
 
 	public boolean isIpAddressFree(String address) {
@@ -71,22 +66,6 @@ public class FederatedNetwork {
 		this.allowedMembers.add(member);
 	}
 
-	public String getLabel() {
-		return label;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getCidr() {
-		return getSubnetInfo().getCidrSignature();
-	}
-
-	public Set<String> getAllowedMembers() {
-		return allowedMembers;
-	}
-
 	public String nextFreeIp(String orderId) throws SubnetAddressesCapacityReachedException {
 		if (this.computeIpMap.containsKey(orderId)) {
 			return this.computeIpMap.get(orderId);
@@ -108,24 +87,6 @@ public class FederatedNetwork {
 		}
 		this.computeIpMap.put(orderId, freeIp);
 		return freeIp;
-	}
-
-	public boolean isFull(){
-		if (freedIps.isEmpty()) {
-			SubnetUtils.SubnetInfo subnetInfo = this.getSubnetInfo();
-			int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
-			int candidateIpAddress = lowAddress + ipsServed;
-			if (subnetInfo.isInRange(candidateIpAddress)) {
-				return false;
-			}
-		} else {
-			return false;
-		}
-		return true;
-	}
-
-	public Map<String, String> getComputeIpMap() {
-		return computeIpMap;
 	}
 
 	@Override
@@ -172,5 +133,61 @@ public class FederatedNetwork {
 		} catch (UnknownHostException e) {
 			return null;
 		}
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCidrNotation() {
+		return cidrNotation;
+	}
+
+	public void setCidrNotation(String cidrNotation) {
+		this.cidrNotation = cidrNotation;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Set<String> getAllowedMembers() {
+		return allowedMembers;
+	}
+
+	public void setAllowedMembers(Set<String> allowedMembers) {
+		this.allowedMembers = allowedMembers;
+	}
+
+	public int getIpsServed() {
+		return ipsServed;
+	}
+
+	public void setIpsServed(int ipsServed) {
+		this.ipsServed = ipsServed;
+	}
+
+	public Queue<String> getFreedIps() {
+		return freedIps;
+	}
+
+	public void setFreedIps(Queue<String> freedIps) {
+		this.freedIps = freedIps;
+	}
+
+	public Map<String, String> getComputeIpMap() {
+		return computeIpMap;
+	}
+
+	public void setComputeIpMap(Map<String, String> computeIpMap) {
+		this.computeIpMap = computeIpMap;
 	}
 }

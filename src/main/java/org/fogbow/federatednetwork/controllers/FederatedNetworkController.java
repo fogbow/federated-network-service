@@ -15,9 +15,7 @@ import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.token.FederationUser;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class FederatedNetworkController {
 
@@ -47,14 +45,16 @@ public class FederatedNetworkController {
 	}
 
 	public String create(FederatedNetwork federatedNetwork, FederationUser user) {
-		SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
+		initFederatedNetwork(federatedNetwork);
+
+		SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());
 
 		if (!isValid(subnetInfo)) {
-			LOGGER.error("Subnet (" + federatedNetwork.getCidr() + ") invalid");
+			LOGGER.error("Subnet (" + federatedNetwork.getCidrNotation() + ") invalid");
 			return null;
 		}
 
-		boolean createdSuccessfully = callFederatedNetworkAgent(federatedNetwork.getCidr(), subnetInfo.getLowAddress());
+		boolean createdSuccessfully = addFederatedNetworkOnAgent(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress());
 		if (createdSuccessfully) {
 			if (database.addFederatedNetwork(federatedNetwork, user)) {
 				return federatedNetwork.getId();
@@ -66,7 +66,14 @@ public class FederatedNetworkController {
 		return null;
 	}
 
-	public boolean callFederatedNetworkAgent(String cidrNotation, String virtualIpAddress) {
+	private void initFederatedNetwork(FederatedNetwork federatedNetwork) {
+		federatedNetwork.setId(String.valueOf(UUID.randomUUID()));
+		federatedNetwork.setIpsServed(1);
+		federatedNetwork.setFreedIps(new LinkedList<>());
+		federatedNetwork.setComputeIpMap(new HashMap<>());
+	}
+
+	public boolean addFederatedNetworkOnAgent(String cidrNotation, String virtualIpAddress) {
 		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
 				"StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
 				"sudo", "/home/ubuntu/config-ipsec", agentPrivateIp, agentPublicIp, cidrNotation, virtualIpAddress);
@@ -129,7 +136,7 @@ public class FederatedNetworkController {
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
 							+ federatedNetworkId);
 		}
-		return federatedNetwork.getCidr();
+		return federatedNetwork.getCidrNotation();
 	}
 
 	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException {
@@ -158,7 +165,7 @@ public class FederatedNetworkController {
 		if (!federatedNetwork.getComputeIpMap().isEmpty()) {
 			throw new NotEmptyFederatedNetworkException();
 		}
-		if (deleteFederatedNetworkFromAgent(federatedNetwork.getCidr()) == true) {
+		if (deleteFederatedNetworkFromAgent(federatedNetwork.getCidrNotation()) == true) {
 			LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
 			if (!this.database.delete(federatedNetwork, user)) {
 				LOGGER.info("Error to delete federated network: " + federatedNetwork.toString());
@@ -198,7 +205,7 @@ public class FederatedNetworkController {
 			FederatedNetwork federatedNetwork;
 			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
 			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, computeOrder.getId(), federationUser);
-			return FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidr());
+			return FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidrNotation());
 		}
 
 		return computeOrder;

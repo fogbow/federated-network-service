@@ -36,29 +36,6 @@ public class FogbowCoreProxyHandler {
 	public static final int PORT = 8080;
 	public static final String SERVER = "localhost";
 
-	public <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
-			throws URISyntaxException {
-		String requestUrl = request.getRequestURI();
-
-		URI uri = new URI("http", null, SERVER, PORT, null, null, null);
-		uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
-				.query(request.getQueryString()).build(true).toUri();
-
-		HttpHeaders headers = new HttpHeaders();
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			headers.set(headerName, request.getHeader(headerName));
-		}
-
-		HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
-
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.setErrorHandler(new NoOpErrorHandler());
-		ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
-		return response;
-	}
-
 	@RequestMapping("/**")
 	public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
 	                               HttpMethod method, HttpServletRequest request) throws
@@ -80,6 +57,29 @@ public class FogbowCoreProxyHandler {
 		}
 
 		return redirectRequest(body, method, request, String.class);
+	}
+
+	private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
+			throws URISyntaxException {
+		String requestUrl = request.getRequestURI();
+
+		URI uri = new URI("http", null, SERVER, PORT, null, null, null);
+		uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
+				.query(request.getQueryString()).build(true).toUri();
+
+		HttpHeaders headers = new HttpHeaders();
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String headerName = headerNames.nextElement();
+			headers.set(headerName, request.getHeader(headerName));
+		}
+
+		HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.setErrorHandler(new NoOpErrorHandler());
+		ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
+		return response;
 	}
 
 	private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
@@ -127,7 +127,7 @@ public class FogbowCoreProxyHandler {
 		return redirectRequest(body, method, request, String.class);
 	}
 
-	private static class NoOpErrorHandler implements ResponseErrorHandler {
+	private class NoOpErrorHandler implements ResponseErrorHandler {
 
 		@Override
 		public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
@@ -140,7 +140,7 @@ public class FogbowCoreProxyHandler {
 
 	}
 
-	class PostComputeBody {
+	private class PostComputeBody {
 
 		private ComputeOrder computeOrder;
 		private String federatedNetworkId;

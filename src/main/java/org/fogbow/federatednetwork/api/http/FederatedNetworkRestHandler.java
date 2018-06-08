@@ -21,7 +21,7 @@ public class FederatedNetworkRestHandler {
 
 	public static final String FEDERATED_NETWORK_ENDPOINT = "federatedNetworks";
 
-	@RequestMapping(method = POST)
+	@PostMapping
 	public static final ResponseEntity<String> createFederatedNetwork(@RequestBody FederatedNetwork federatedNetwork,
 	                                                                  @RequestHeader("federationTokenValue") String federationTokenValue)
 			throws OrderManagementException, UnauthorizedException, UnauthenticatedException {
@@ -30,30 +30,34 @@ public class FederatedNetworkRestHandler {
 		return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(method = GET)
+	@GetMapping
 	public static final ResponseEntity<Collection<FederatedNetwork>> getFederatedNetworks(@RequestHeader("federationTokenValue") String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException {
 
 		final Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(federationTokenValue);
-		return new ResponseEntity<>(federatedNetworks, HttpStatus.OK);
+		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
 	}
 
-	@RequestMapping(value = "{id}", method = GET)
-	public static final ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
+	@GetMapping(value = "/{federatedNetworkId}")
+	public static ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                         @RequestHeader("federationTokenValue") String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException, FederatedComputeNotFoundException {
 
-		final FederatedNetwork federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
-		return new ResponseEntity<>(federatedNetwork, HttpStatus.OK);
+		try {
+			final FederatedNetwork federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
+			return ResponseEntity.ok(federatedNetwork);
+		} catch (FederatedComputeNotFoundException e) {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
-	@RequestMapping(value = "{id}", method = DELETE)
-	public static final ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
+	@DeleteMapping(value = "/{federatedNetworkId}")
+	public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                  @RequestHeader("federationTokenValue") String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
 
 		ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
 }
