@@ -209,20 +209,30 @@ public class FederatedNetworkController {
 		return CoreRequester.createCompute(computeOrder);
 	}
 
-	public ComputeInstance getCompute(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+	public ComputeInstance getCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
 		ComputeInstance computeInstance = null;
-		ComputeInstance compute = CoreRequester.getCompute(computeOrderId);
+		ComputeInstance compute = CoreRequester.getCompute(computeId);
 
 		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
-			final String federatedIp = getFederatedIp(computeOrderId, federationUser);
+			final String federatedIp = getFederatedIp(computeId, federationUser);
 			if (!federatedIp.isEmpty()) {
 				computeInstance = new FederatedComputeInstance(compute, federatedIp);
 			} else {
 				throw new FederatedComputeNotFoundException();
 			}
 		}
+
 		return computeInstance;
+	}
+
+	public void deleteCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		for (FederatedNetwork federatedNetwork : userNetworks) {
+			federatedNetwork.getComputeIpMap().remove(computeId);
+		}
+
+		CoreRequester.deleteCompute(computeId);
 	}
 
 	private String getFederatedIp(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {

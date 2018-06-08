@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.api.http;
 
+import oracle.jrockit.jfr.jdkevents.ThrowableTracer;
 import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
@@ -60,8 +61,16 @@ public class FogbowCoreProxyHandler {
 	}
 
 	@RequestMapping(value = ComputeOrdersController.COMPUTE_ENDPOINT + "/{id}", method = DELETE)
-	public ResponseEntity<String> deleteCompute() {
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	public ResponseEntity<String> deleteCompute(@PathVariable String computeId,
+												@RequestHeader("federationTokenValue") String federationTokenValue) {
+		HttpStatus httpStatus = null;
+		try {
+			ApplicationFacade.getInstance().deleteCompute(computeId, federationTokenValue);
+			httpStatus = HttpStatus.NO_CONTENT;
+		} catch (Throwable e) {
+			httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return new ResponseEntity<>(httpStatus);
 	}
 
 	@RequestMapping("/**")
