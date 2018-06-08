@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.api.http;
 
 import org.fogbow.federatednetwork.ApplicationFacade;
+import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.exceptions.OrderManagementException;
@@ -40,7 +41,7 @@ public class FederatedNetworkRestHandler {
 	@RequestMapping(value = "{id}", method = GET)
 	public static final ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                         @RequestHeader("federationTokenValue") String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException {
+			throws UnauthenticatedException, UnauthorizedException, FederatedComputeNotFoundException {
 
 		final FederatedNetwork federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
 		return new ResponseEntity<>(federatedNetwork, HttpStatus.OK);
@@ -49,7 +50,7 @@ public class FederatedNetworkRestHandler {
 	@RequestMapping(value = "{id}", method = DELETE)
 	public static final ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                  @RequestHeader("federationTokenValue") String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException {
+			throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
 
 		ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

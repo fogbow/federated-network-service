@@ -2,7 +2,6 @@ package org.fogbow.federatednetwork.controllers;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.CoreRequester;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.FederatedNetworksDB;
 import org.fogbow.federatednetwork.ProcessUtil;
@@ -93,7 +92,7 @@ public class FederatedNetworkController {
 		return database.getUserNetworks(user);
 	}
 
-	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) {
+	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {
 		Collection<FederatedNetwork> allFederatedNetworks = this.getUserFederatedNetworks(user);
 		for (FederatedNetwork federatedNetwork : allFederatedNetworks) {
 			if (federatedNetwork.getId().equals(federatedNetworkId)) {
@@ -101,12 +100,12 @@ public class FederatedNetworkController {
 			}
 		}
 
-		return null;
+		throw new FederatedComputeNotFoundException();
 	}
 
 	public void updateFederatedNetworkMembers(FederationUser user, String federatedNetworkId,
-	                                          Set<String> membersSet) {
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
+	                                          Set<String> membersSet) throws FederatedComputeNotFoundException {
+		FederatedNetwork federatedNetwork = getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -123,8 +122,8 @@ public class FederatedNetworkController {
 		}
 	}
 
-	public String getCIDRFromFederatedNetwork(String federatedNetworkId, FederationUser user) {
-		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
+	public String getCIDRFromFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {
+		FederatedNetwork federatedNetwork = getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
 			throw new IllegalArgumentException(
 					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
@@ -133,17 +132,10 @@ public class FederatedNetworkController {
 		return federatedNetwork.getCidr();
 	}
 
-	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException {
+	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException {
 		LOGGER.info("Getting FN Ip to Order: " + orderId);
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
-		if (federatedNetwork == null) {
-			throw new IllegalArgumentException(
-					FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
-							+ federatedNetworkId);
-		}
-		LOGGER.info("FederatedNetwork: " + federatedNetwork.toString());
-		String privateIp = null;
-		privateIp = federatedNetwork.nextFreeIp(orderId);
+		String privateIp = federatedNetwork.nextFreeIp(orderId);
 		LOGGER.info("FederatedNetwork: " + federatedNetwork.toString());
 		if (!this.database.addFederatedNetwork(federatedNetwork, user)) {
 			throw new IllegalArgumentException(
@@ -152,7 +144,8 @@ public class FederatedNetworkController {
 		return privateIp;
 	}
 
-	public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user) throws NotEmptyFederatedNetworkException {
+	public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user) throws
+			NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
 		LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		if (federatedNetwork == null) {
@@ -198,53 +191,54 @@ public class FederatedNetworkController {
 		return false;
 	}
 
-	public String activateCompute(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
-			throws SubnetAddressesCapacityReachedException, IOException {
+	public ComputeOrder addFederatedAttributesIfApplied(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
+			throws SubnetAddressesCapacityReachedException, IOException, FederatedComputeNotFoundException {
+
 		if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
 			FederatedNetwork federatedNetwork;
 			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
 			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, computeOrder.getId(), federationUser);
-			computeOrder = FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidr());
+			return FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidr());
 		}
-		return CoreRequester.createCompute(computeOrder);
+
+		return computeOrder;
 	}
 
-	public ComputeInstance getCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
-		ComputeInstance computeInstance = null;
-		ComputeInstance compute = CoreRequester.getCompute(computeId);
+	public ComputeInstance addFederatedInstanceAttributesIfApplied(ComputeInstance computeInstance,
+	                                                               FederationUser federationUser, String federationTokenValue)
+			throws FederatedComputeNotFoundException {
 
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
-			final String federatedIp = getFederatedIp(computeId, federationUser);
-			if (!federatedIp.isEmpty()) {
-				computeInstance = new FederatedComputeInstance(compute, federatedIp);
-			} else {
-				throw new FederatedComputeNotFoundException();
+			String federatedIp = getAssociatedFederatedIp(computeInstance.getId(), federationUser);
+			if (federatedIp != null) {
+				return new FederatedComputeInstance(computeInstance, federatedIp);
 			}
 		}
 
 		return computeInstance;
 	}
 
-	public void deleteCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+	public void deleteCompute(String computeId, FederationUser federationUser, String federationTokenValue) throws FederatedComputeNotFoundException {
+		String federatedIp = getAssociatedFederatedIp(computeId, federationUser);
 		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		for (FederatedNetwork federatedNetwork : userNetworks) {
-			federatedNetwork.getComputeIpMap().remove(computeId);
-		}
-
-		CoreRequester.deleteCompute(computeId);
-	}
-
-	private String getFederatedIp(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
-		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
-		String federatedIp = "";
-		for (FederatedNetwork federatedNetwork: userNetworks){
-			final Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
-			if (orderIpMap.containsKey(computeOrderId)) {
-				federatedIp = orderIpMap.get(computeOrderId);
+			Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
+			if (orderIpMap.containsKey(computeId)) {
+				federatedNetwork.freeIp(federatedIp, computeId);
 			}
 		}
-		return federatedIp;
+	}
+
+	private String getAssociatedFederatedIp(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+		Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		for (FederatedNetwork federatedNetwork: userNetworks){
+			Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
+			if (orderIpMap.containsKey(computeOrderId)) {
+				return orderIpMap.get(computeOrderId);
+			}
+		}
+		return null;
 	}
 
 	private static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) {

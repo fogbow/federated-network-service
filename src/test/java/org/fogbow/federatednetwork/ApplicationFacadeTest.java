@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
+import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedException;
@@ -15,7 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ApplicationFacadeTest {
 
@@ -23,6 +24,8 @@ public class ApplicationFacadeTest {
 
 	@Before
 	public void setUp(){
+		deleteTestFiles();
+
 		String permissionFilePath = "fake-file.pem";
 		String agentUser = "fake-user";
 		String agentPrivateIp = "fake-private-ip";
@@ -36,11 +39,15 @@ public class ApplicationFacadeTest {
 
 	@After
 	public void clean() {
-		new File(TEST_DATABASE_FILE_PATH).delete();
+		deleteTestFiles();
+	}
+
+	private boolean deleteTestFiles() {
+		return new File(TEST_DATABASE_FILE_PATH).delete();
 	}
 
 	@Test
-	public void testCreateFederationNetwork() throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException {
+	public void testCreateFederationNetwork() throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
 		String cidrNotation = "10.0.0.0/24";
 		String label = "testNetwork";
 		Set<String> allowedMembers = new HashSet<>(Arrays.asList(new String[] {"member1", "member2"}));
@@ -49,12 +56,12 @@ public class ApplicationFacadeTest {
 		String fakeToken = "fake-token";
 
 		Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(fakeToken);
-		assertEquals(federatedNetworks.size(), 0);
+		assertEquals(0, federatedNetworks.size());
 
 		String createdFederatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork, fakeToken);
 
 		federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(fakeToken);
-		assertEquals(federatedNetworks.size(), 1);
+		assertEquals(1, federatedNetworks.size());
 
 		FederatedNetwork federatedNetworkById = ApplicationFacade.getInstance().getFederatedNetwork(
 				createdFederatedNetworkId, fakeToken);
@@ -64,7 +71,7 @@ public class ApplicationFacadeTest {
 		ApplicationFacade.getInstance().deleteFederatedNetwork(createdFederatedNetworkId, fakeToken);
 
 		federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(fakeToken);
-		assertEquals(federatedNetworks.size(), 0);
+		assertEquals(0, federatedNetworks.size());
 	}
 
 }

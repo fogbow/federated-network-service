@@ -58,12 +58,12 @@ public class FederatedNetwork {
 		return false;
 	}
 
-	public void freeIp(String ipAddress) {
+	public void freeIp(String ipAddress, String computeId) {
 		if (isIpAddressFree(ipAddress)) {
 			// TODO Signal the caller that it tried to free an already free address
 			return;
 		}
-
+		computeIpMap.remove(computeId);
 		freedIps.add(ipAddress);
 	}
 

@@ -9,4 +9,5 @@ public class FederatedComputeNotFoundException extends Exception {
 	public FederatedComputeNotFoundException() {
 		super(FederatedNetworkConstants.NOT_FOUND_FEDERATED_COMPUTE);
 	}
+
 }

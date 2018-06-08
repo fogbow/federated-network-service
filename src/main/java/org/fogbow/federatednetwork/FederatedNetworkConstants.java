@@ -15,4 +15,5 @@ public class FederatedNetworkConstants {
 	public static final String CANNOT_REMOVE_FEDERATED_NETWORK_IN_DATABASE = "Cannot remove Federated Network in Database with Id: ";
 	public static final String CANNOT_REMOVE_FEDERATED_NETWORK_HAS_COMPUTE_ASSOCIATED = "Cannot remove Federated Network in Database with Id: ";
 
+	public static final String FEDERATED_NETWORK_NOT_FOUND = "Federated network not found";
 }
