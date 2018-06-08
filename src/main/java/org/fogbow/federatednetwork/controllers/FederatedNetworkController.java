@@ -2,17 +2,22 @@ package org.fogbow.federatednetwork.controllers;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.CoreRequester;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.FederatedNetworksDB;
 import org.fogbow.federatednetwork.ProcessUtil;
+import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.token.FederationUser;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 public class FederatedNetworkController {
@@ -193,32 +198,44 @@ public class FederatedNetworkController {
 		return false;
 	}
 
-	public void activateCompute(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
+	public String activateCompute(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
 			throws SubnetAddressesCapacityReachedException, IOException {
 		if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
 			FederatedNetwork federatedNetwork;
 			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
 			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, computeOrder.getId(), federationUser);
-
+			computeOrder = FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidr());
 		}
-		// send to Core
+		return CoreRequester.createCompute(computeOrder);
 	}
 
-/*
-
-	public FederatedComputeInstance getCompute(String computeOrderId, FederationUser federationUser){
+	public ComputeInstance getCompute(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
 		ComputeInstance computeInstance = null;
-		// get compute from Core
-		final Collection<FederatedNetwork> userNetworks = database.getUserFederatedNetworks(federationUser);
+		ComputeInstance compute = CoreRequester.getCompute(computeOrderId);
+
+		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
 			final String federatedIp = getFederatedIp(computeOrderId, federationUser);
 			if (!federatedIp.isEmpty()) {
-				// add federatedIp as a new attribute
+				computeInstance = new FederatedComputeInstance(compute, federatedIp);
+			} else {
+				throw new FederatedComputeNotFoundException();
 			}
 		}
 		return computeInstance;
 	}
-*/
+
+	private String getFederatedIp(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
+		String federatedIp = "";
+		for (FederatedNetwork federatedNetwork: userNetworks){
+			final Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
+			if (orderIpMap.containsKey(computeOrderId)) {
+				federatedIp = orderIpMap.get(computeOrderId);
+			}
+		}
+		return federatedIp;
+	}
 
 	private static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) {
 		return new SubnetUtils(cidrNotation).getInfo();

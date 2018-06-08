@@ -1,12 +1,14 @@
 package org.fogbow.federatednetwork;
 
-import org.fogbow.federatednetwork.controllers.FederatedComputeController;
+import org.fogbow.federatednetwork.controllers.FederateComputeUtil;
 import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
+import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedException;
+import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceType;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.Order;
@@ -26,7 +28,7 @@ public class ApplicationFacade {
 	private static ApplicationFacade instance;
 
 	private FederatedNetworkController federatedNetworkController;
-	private FederatedComputeController federatedComputeController;
+	private FederateComputeUtil federateComputeUtil;
 
 	// TODO: Implement a singleton that loads a property for those plugins
 	private FederationIdentityPlugin federationIdentityPlugin = new FederationIdentityPlugin() {
@@ -76,8 +78,6 @@ public class ApplicationFacade {
 		return instance;
 	}
 
-	// TODO: Change methods return type
-
 	public String createFederatedNetwork(FederatedNetwork federatedNetwork, String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException {
 		authenticate(federationTokenValue);
@@ -117,14 +117,25 @@ public class ApplicationFacade {
 		federatedNetworkController.deleteFederatedNetwork(federatedNetworkId, federationUser);
 	}
 
-	public void createCompute(ComputeOrder computeOrder, String federatedNetworkId, String federationTokenValue)
+	public String createCompute(ComputeOrder computeOrder, String federatedNetworkId, String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException, SubnetAddressesCapacityReachedException, IOException {
 		authenticate(federationTokenValue);
 		FederationUser federationUser = getFederationUser(federationTokenValue);
 		// TODO:  Check if we really want to use core authorization plugin.
 		authorize(federationUser, Operation.CREATE);
 
-		federatedComputeController.activateCompute(computeOrder, federatedNetworkId, federationUser);
+		String computeId = federatedNetworkController.activateCompute(computeOrder, federatedNetworkId, federationUser);
+		return computeId;
+	}
+
+	public ComputeInstance getCompute(String computeOrderId, String federationTokenValue)
+			throws UnauthenticatedException, UnauthorizedException, FederatedComputeNotFoundException {
+		authenticate(federationTokenValue);
+		FederationUser federationUser = getFederationUser(federationTokenValue);
+		// TODO:  Check if we really want to use core authorization plugin.
+		authorize(federationUser, Operation.GET);
+
+		return federatedNetworkController.getCompute(computeOrderId, federationUser);
 	}
 
 	private void authenticate(String federationTokenValue) throws UnauthenticatedException {
@@ -143,15 +154,7 @@ public class ApplicationFacade {
 		return this.federationIdentityPlugin.getFederationUser(federationTokenValue);
 	}
 
-	/*public void getCompute(String computeOrderId, String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException {
-		this.aaController.authenticate(federationTokenValue);
-		FederationUser federationUser = this.aaController.getFederationUser(federationTokenValue);
-		// TODO:  Check if we really want to use core authorization plugin.
-		this.aaController.authorize(federationUser, Operation.GET);
-
-		federatedComputeController.getCompute(computeOrderId, federationUser);
-	}
+	/*
 
 	public void deleteCompute(String computeOrderId, String federationTokenValue)
 			throws UnauthenticatedException, UnauthorizedException {
@@ -160,14 +163,10 @@ public class ApplicationFacade {
 		// TODO:  Check if we really want to use core authorization plugin.
 		this.aaController.authorize(federationUser, Operation.DELETE);
 
-		federatedComputeController.deleteCompute(computeOrderId, federationUser);
+		federateComputeUtil.deleteCompute(computeOrderId, federationUser);
 	}*/
 
 	public void setFederatedNetworkController(FederatedNetworkController federatedNetworkController) {
 		this.federatedNetworkController = federatedNetworkController;
-	}
-
-	public void setFederatedComputeController(FederatedComputeController federatedComputeController) {
-		this.federatedComputeController = federatedComputeController;
 	}
 }
