@@ -15,10 +15,10 @@ public class FederateComputeUtil {
 	// TODO: Place this in a property conf.
 	private static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
 
-	protected static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
-	protected static final String RIGHT_IP = "#RIGHT_IP#";
-	protected static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
-	protected static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
+	public static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
+	public static final String RIGHT_IP = "#RIGHT_IP#";
+	public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
+	public static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
 
 	public static ComputeOrder addUserData(ComputeOrder computeOrder, String federatedComputeIp,
 	                                   String agentPublicIp, String cidr)
@@ -67,10 +67,10 @@ public class FederateComputeUtil {
 
 	private static String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp, String cidr) {
 		String isFederatedVM = "true";
-		script.replace(IS_FEDERATED_VM_KEY, isFederatedVM);
-		script.replace(LEFT_SOURCE_IP_KEY, federatedComputeIp);
-		script.replace(RIGHT_IP, agentPublicIp);
-		script.replace(RIGHT_SUBNET_KEY, cidr);
-		return script;
+		String scriptReplaced = script.replace(IS_FEDERATED_VM_KEY, isFederatedVM);
+		scriptReplaced = scriptReplaced.replace(LEFT_SOURCE_IP_KEY, federatedComputeIp);
+		scriptReplaced = scriptReplaced.replace(RIGHT_IP, agentPublicIp);
+		scriptReplaced = scriptReplaced.replace(RIGHT_SUBNET_KEY, cidr);
+		return scriptReplaced;
 	}
 }
