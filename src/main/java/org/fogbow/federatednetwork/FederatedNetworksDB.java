@@ -55,24 +55,26 @@ public class FederatedNetworksDB {
 		return federatedNetworks;
 	}
 
-	public boolean addFederatedNetwork(FederatedNetwork federatedNetwork, FederationUser user) {
+	/**
+	 * This method creates or updates a Federated Network
+	 * @param federatedNetwork
+	 * @param user
+	 * @return
+	 */
+	public void putFederatedNetwork(FederatedNetwork federatedNetwork, FederationUser user) {
 		DB database = openDatabase();
 		HTreeMap<Long, String> userIdToFedNetworks = extractHTreeMap(database);
 
-		try {
-			Set<FederatedNetwork> federatedNetworks = getFederatedNetworks(userIdToFedNetworks,
-					user);
-			if (federatedNetworks.contains(federatedNetwork)) {
-				federatedNetworks.remove(federatedNetwork);
-			}
-			federatedNetworks.add(federatedNetwork);
-			userIdToFedNetworks.put(user.getId(), gson.toJson(federatedNetworks));
-		} finally {
-			database.commit();
-			database.close();
+		Set<FederatedNetwork> federatedNetworks = getFederatedNetworks(userIdToFedNetworks,
+				user);
+		if (federatedNetworks.contains(federatedNetwork)) {
+			federatedNetworks.remove(federatedNetwork);
 		}
+		federatedNetworks.add(federatedNetwork);
+		userIdToFedNetworks.put(user.getId(), gson.toJson(federatedNetworks));
 
-		return true;
+		database.commit();
+		database.close();
 	}
 
 	public boolean delete(FederatedNetwork federatedNetwork, FederationUser user) {

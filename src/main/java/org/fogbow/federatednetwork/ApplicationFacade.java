@@ -115,7 +115,7 @@ public class ApplicationFacade {
         FederationUser federationUser = getFederationUser(federationTokenValue);
         authorize(federationUser, Operation.DELETE);
 
-        federatedNetworkController.deleteCompute(computeId, federationUser, federationTokenValue);
+        federatedNetworkController.deleteCompute(computeId, federationUser);
     }
 
     private void authenticate(String federationTokenValue) throws UnauthenticatedException {

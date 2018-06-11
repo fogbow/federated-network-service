@@ -56,11 +56,8 @@ public class FederatedNetworkController {
 
 		boolean createdSuccessfully = addFederatedNetworkOnAgent(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress());
 		if (createdSuccessfully) {
-			if (database.addFederatedNetwork(federatedNetwork, user)) {
-				return federatedNetwork.getId();
-			} else {
-				return null;
-			}
+			database.putFederatedNetwork(federatedNetwork, user);
+			return federatedNetwork.getId();
 		}
 
 		return null;
@@ -122,11 +119,7 @@ public class FederatedNetworkController {
 			federatedNetwork.addFederationNetworkMember(member);
 		}
 
-		if (!this.database.addFederatedNetwork(federatedNetwork, user)) {
-			throw new IllegalArgumentException(
-					FederatedNetworkConstants.CANNOT_UPDATE_FEDERATED_NETWORK_IN_DATABASE
-							+ federatedNetworkId);
-		}
+		this.database.putFederatedNetwork(federatedNetwork, user);
 	}
 
 	public String getCIDRFromFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {
@@ -144,10 +137,7 @@ public class FederatedNetworkController {
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		String privateIp = federatedNetwork.nextFreeIp(orderId);
 		LOGGER.info("FederatedNetwork: " + federatedNetwork.toString());
-		if (!this.database.addFederatedNetwork(federatedNetwork, user)) {
-			throw new IllegalArgumentException(
-					FederatedNetworkConstants.CANNOT_UPDATE_FEDERATED_NETWORK_IN_DATABASE);
-		}
+		this.database.putFederatedNetwork(federatedNetwork, user);
 		return privateIp;
 	}
 
@@ -226,13 +216,15 @@ public class FederatedNetworkController {
 		return computeInstance;
 	}
 
-	public void deleteCompute(String computeId, FederationUser federationUser, String federationTokenValue) throws FederatedComputeNotFoundException {
+	public void deleteCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
 		String federatedIp = getAssociatedFederatedIp(computeId, federationUser);
 		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		for (FederatedNetwork federatedNetwork : userNetworks) {
 			Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
 			if (orderIpMap.containsKey(computeId)) {
 				federatedNetwork.freeIp(federatedIp, computeId);
+				database.putFederatedNetwork(federatedNetwork, federationUser);
+				return;
 			}
 		}
 	}

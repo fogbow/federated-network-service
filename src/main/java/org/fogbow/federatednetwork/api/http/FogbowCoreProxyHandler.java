@@ -45,7 +45,7 @@ public class FogbowCoreProxyHandler {
 		final String requestUrl = request.getRequestURI();
 
 		// FIXME check if this works
-		if (requestUrl.equals(ComputeOrdersController.COMPUTE_ENDPOINT)) {
+		if (requestUrl.startsWith("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) {
 			switch (method) {
 				case POST:
 					return processPostCompute(body, method, request);
@@ -122,7 +122,11 @@ public class FogbowCoreProxyHandler {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
-		ApplicationFacade.getInstance().deleteCompute(request.getQueryString(), federationTokenValue);
+		String queryString = request.getRequestURI().replace(ComputeOrdersController.COMPUTE_ENDPOINT, "");
+		queryString = queryString.replace("/", "");
+
+
+		ApplicationFacade.getInstance().deleteCompute(queryString, federationTokenValue);
 
 		return redirectRequest(body, method, request, String.class);
 	}
