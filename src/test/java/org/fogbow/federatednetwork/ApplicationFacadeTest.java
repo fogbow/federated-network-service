@@ -132,8 +132,18 @@ public class ApplicationFacadeTest {
 
 		assertTrue(newComputeInstance instanceof FederatedComputeInstance);
 		FederatedComputeInstance federatedComputeInstance = (FederatedComputeInstance) newComputeInstance;
+		String federatedIp = federatedComputeInstance.getFederatedIp();
 
 		assertFalse(federatedComputeInstance.getFederatedIp().isEmpty());
+
+		FederationUser federationUser = Mockito.mock(FederationUser.class);
+		federatedNetwork = federatedNetworkController.getFederatedNetwork(createdFederatedNetworkId, federationUser);
+
+		assertFalse(federatedNetwork.isIpAddressFree(federatedIp));
+
+		federatedNetwork.freeIp(federatedIp, federatedComputeInstance.getId());
+
+		assertTrue(federatedNetwork.isIpAddressFree(federatedIp));
 	}
 
 	private ComputeOrder createOrder() {
