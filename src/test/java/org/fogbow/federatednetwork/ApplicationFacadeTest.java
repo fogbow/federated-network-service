@@ -7,13 +7,13 @@ import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
-import org.fogbowcloud.manager.core.exceptions.UnauthenticatedException;
+import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.models.token.FederationUser;
-import org.fogbowcloud.manager.core.plugins.exceptions.UnauthorizedException;
+import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,10 +21,7 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -63,7 +60,8 @@ public class ApplicationFacadeTest {
 	}
 
 	@Test
-	public void testFederatedNetwork() throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
+	public void testFederatedNetwork() throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException,
+			UnauthenticatedUserException, UnexpectedException {
 		String cidrNotation = "10.0.0.0/24";
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
@@ -95,8 +93,8 @@ public class ApplicationFacadeTest {
 
 
 	@Test
-	public void testCompute() throws UnauthenticatedException, UnauthorizedException,
-			FederatedComputeNotFoundException, IOException, SubnetAddressesCapacityReachedException {
+	public void testCompute() throws FederatedComputeNotFoundException, IOException,
+			SubnetAddressesCapacityReachedException, UnauthenticatedUserException, UnexpectedException {
 		String cidrNotation = "10.0.0.0/24";
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
@@ -124,8 +122,8 @@ public class ApplicationFacadeTest {
 		assertTrue(!userData.getExtraUserDataFileContent().contains(FederateComputeUtil.RIGHT_SUBNET_KEY));
 		assertTrue(!userData.getExtraUserDataFileContent().contains(FederateComputeUtil.IS_FEDERATED_VM_KEY));
 
-		ComputeInstance computeInstance = new ComputeInstance(fakeId, "host", 8, 1024, InstanceState.READY,
-				"fake-ip", "", "", "");
+		ComputeInstance computeInstance = new ComputeInstance(fakeId, InstanceState.READY, "host", 2,
+				1024, 30,"fake-ip");
 
 		ComputeInstance newComputeInstance = ApplicationFacade.getInstance().
 				addFederatedAttributesIfApplied(computeInstance, fakeToken);
@@ -149,9 +147,10 @@ public class ApplicationFacadeTest {
 	private ComputeOrder createOrder() {
 		FederationUser federationUser = Mockito.mock(FederationUser.class);
 		UserData userData = Mockito.mock(UserData.class);
-		String imageName = "fake-image-name";
+		String imageId = "fake-image-id";
 		String publicKey = "fake-public-key";
 		String fakeMember = "fake-member";
+		List<String> networksId = Arrays.asList(new String[]{"fake-net-id"});
 
 		ComputeOrder localOrder =
 				new ComputeOrder(
@@ -159,12 +158,13 @@ public class ApplicationFacadeTest {
 						federationUser,
 						fakeMember,
 						fakeMember,
-						8,
+						2,
 						1024,
 						30,
-						imageName,
+						imageId,
 						userData,
-						publicKey);
+						publicKey,
+						networksId);
 		return localOrder;
 	}
 

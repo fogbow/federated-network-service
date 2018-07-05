@@ -5,10 +5,10 @@ import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
-import org.fogbowcloud.manager.core.exceptions.UnauthenticatedException;
+import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.plugins.exceptions.UnauthorizedException;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Controller;
@@ -39,8 +39,8 @@ public class FogbowCoreProxyHandler {
 	@RequestMapping("/**")
 	public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
 	                               HttpMethod method, HttpServletRequest request) throws
-			URISyntaxException, IOException, UnauthenticatedException,
-			SubnetAddressesCapacityReachedException, UnauthorizedException, FederatedComputeNotFoundException {
+			URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
+			UnauthenticatedUserException, UnexpectedException {
 
 		final String requestUrl = request.getRequestURI();
 
@@ -83,8 +83,8 @@ public class FogbowCoreProxyHandler {
 	}
 
 	private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
-			FederatedComputeNotFoundException, UnauthenticatedException, SubnetAddressesCapacityReachedException,
-			UnauthorizedException, IOException, URISyntaxException {
+			FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
+			IOException, URISyntaxException, UnauthenticatedUserException, UnexpectedException {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -101,7 +101,7 @@ public class FogbowCoreProxyHandler {
 	}
 
 	private ResponseEntity<ComputeInstance> processGetCompute(String body, HttpMethod method, HttpServletRequest request)
-			throws URISyntaxException, FederatedComputeNotFoundException, UnauthorizedException, UnauthenticatedException {
+			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -118,7 +118,7 @@ public class FogbowCoreProxyHandler {
 	}
 
 	private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-			throws UnauthenticatedException, UnauthorizedException, FederatedComputeNotFoundException, URISyntaxException {
+			throws FederatedComputeNotFoundException, URISyntaxException, UnauthenticatedUserException, UnexpectedException {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

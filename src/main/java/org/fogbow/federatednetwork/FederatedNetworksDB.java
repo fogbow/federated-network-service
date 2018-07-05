@@ -3,7 +3,7 @@ package org.fogbow.federatednetwork;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
-import org.fogbowcloud.manager.core.models.token.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -28,15 +28,15 @@ public class FederatedNetworksDB {
 		return DBMaker.fileDB(new File(databaseFilePath)).make();
 	}
 
-	private HTreeMap<Long, String> extractHTreeMap(DB database) {
+	private HTreeMap<String, String> extractHTreeMap(DB database) {
         /* The keys for this map are the userId's and the values are
          * JSONArrays representing the networks for this user */
-		DB.HashMapMaker<Long, String> userToFedNetworks = database.hashMap(
-				"userToFedNetworks", Serializer.LONG, Serializer.STRING);
+		DB.HashMapMaker<String, String> userToFedNetworks = database.hashMap(
+				"userToFedNetworks", Serializer.STRING, Serializer.STRING);
 		return userToFedNetworks.createOrOpen();
 	}
 
-	private Set<FederatedNetwork> getFederatedNetworks(HTreeMap<Long, String> userIdToFedNetworks, FederationUser user) {
+	private Set<FederatedNetwork> getFederatedNetworks(HTreeMap<String, String> userIdToFedNetworks, FederationUser user) {
 		Set<FederatedNetwork> federatedNetworks;
 		if (userIdToFedNetworks.containsKey(user.getId())) {
 			String jsonNetworks = userIdToFedNetworks.get(user.getId());
@@ -63,7 +63,7 @@ public class FederatedNetworksDB {
 	 */
 	public void putFederatedNetwork(FederatedNetwork federatedNetwork, FederationUser user) {
 		DB database = openDatabase();
-		HTreeMap<Long, String> userIdToFedNetworks = extractHTreeMap(database);
+		HTreeMap<String, String> userIdToFedNetworks = extractHTreeMap(database);
 
 		Set<FederatedNetwork> federatedNetworks = getFederatedNetworks(userIdToFedNetworks,
 				user);
@@ -79,7 +79,7 @@ public class FederatedNetworksDB {
 
 	public boolean delete(FederatedNetwork federatedNetwork, FederationUser user) {
 		DB database = openDatabase();
-		HTreeMap<Long, String> userIdToFedNetworks = extractHTreeMap(database);
+		HTreeMap<String, String> userIdToFedNetworks = extractHTreeMap(database);
 
 		try {
 			Set<FederatedNetwork> federatedNetworks = getFederatedNetworks(userIdToFedNetworks,
@@ -100,7 +100,7 @@ public class FederatedNetworksDB {
 
 	public Set<FederatedNetwork> getUserNetworks(FederationUser user) {
 		DB database = openDatabase();
-		HTreeMap<Long, String> userIdToFedNetworks = extractHTreeMap(database);
+		HTreeMap<String, String> userIdToFedNetworks = extractHTreeMap(database);
 
 		try {
 			return getFederatedNetworks(userIdToFedNetworks, user);
@@ -111,11 +111,11 @@ public class FederatedNetworksDB {
 
 	public Set<FederatedNetwork> getAllFederatedNetworks() {
 		DB database = openDatabase();
-		HTreeMap<Long, String> userIdToFedNetworks = extractHTreeMap(database);
+		HTreeMap<String, String> userIdToFedNetworks = extractHTreeMap(database);
 
 		Set<FederatedNetwork> allFederatedNetworks = new HashSet<FederatedNetwork>();
 		try {
-			for (Long userId : userIdToFedNetworks.getKeys()) {
+			for (String userId : userIdToFedNetworks.getKeys()) {
 				for (FederatedNetwork federatedNetwork : parseFederatedNetworks(userIdToFedNetworks.get(userId))) {
 					allFederatedNetworks.add(federatedNetwork);
 				}

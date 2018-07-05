@@ -4,9 +4,8 @@ import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
-import org.fogbowcloud.manager.core.exceptions.OrderManagementException;
-import org.fogbowcloud.manager.core.exceptions.UnauthenticatedException;
-import org.fogbowcloud.manager.core.plugins.exceptions.UnauthorizedException;
+import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,7 @@ public class FederatedNetworkRestHandler {
 	@PostMapping
 	public static final ResponseEntity<String> createFederatedNetwork(@RequestBody FederatedNetwork federatedNetwork,
 	                                                                  @RequestHeader("federationTokenValue") String federationTokenValue)
-			throws OrderManagementException, UnauthorizedException, UnauthenticatedException {
+			throws UnauthenticatedUserException, UnexpectedException {
 
 		final String federatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork, federationTokenValue);
 		return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
@@ -32,7 +31,7 @@ public class FederatedNetworkRestHandler {
 
 	@GetMapping
 	public static final ResponseEntity<Collection<FederatedNetwork>> getFederatedNetworks(@RequestHeader("federationTokenValue") String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException {
+			throws UnauthenticatedUserException, UnexpectedException {
 
 		final Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(federationTokenValue);
 		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
@@ -41,7 +40,7 @@ public class FederatedNetworkRestHandler {
 	@GetMapping(value = "/{federatedNetworkId}")
 	public static ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                         @RequestHeader("federationTokenValue") String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException, FederatedComputeNotFoundException {
+			throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
 		try {
 			final FederatedNetwork federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
@@ -54,7 +53,7 @@ public class FederatedNetworkRestHandler {
 	@DeleteMapping(value = "/{federatedNetworkId}")
 	public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
 	                                                                  @RequestHeader("federationTokenValue") String federationTokenValue)
-			throws UnauthenticatedException, UnauthorizedException, NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
+			throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
 		ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

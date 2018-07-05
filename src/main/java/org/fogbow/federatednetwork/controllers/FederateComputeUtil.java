@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.plugins.cloud.compute.util.CloudInitUserDataBuilder;
+import org.fogbowcloud.manager.core.plugins.cloud.util.CloudInitUserDataBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class FederateComputeUtil {
 		ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUser(),
 				computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getvCPU(),
 				computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
-				userData, computeOrder.getPublicKey());
+				userData, computeOrder.getPublicKey(), computeOrder.getNetworksId());
 		return newCompute;
 	}
 
