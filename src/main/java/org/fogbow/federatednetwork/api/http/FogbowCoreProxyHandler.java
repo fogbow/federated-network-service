@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.api.http;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
@@ -20,9 +21,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.List;
 
 
 @Controller
@@ -50,7 +53,11 @@ public class FogbowCoreProxyHandler {
 				case POST:
 					return processPostCompute(body, method, request);
 				case GET:
-					return processGetCompute(body, method, request);
+					if (request.getRequestURI().equals("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) { // if it is a get all
+						return processGetAllCompute(body, method, request);
+					} else { // if it is a get by id
+						return processGetByIdCompute(body, method, request);
+					}
 				case DELETE:
 					return processDeleteCompute(body, method, request);
 			}
@@ -100,21 +107,39 @@ public class FogbowCoreProxyHandler {
 		return redirectRequest(gson.toJson(incrementedOrder), method, request, String.class);
 	}
 
-	private ResponseEntity<ComputeInstance> processGetCompute(String body, HttpMethod method, HttpServletRequest request)
+	private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
 			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
-
-		ResponseEntity<ComputeInstance> response = redirectRequest(body, method, request, ComputeInstance.class);
-		ComputeInstance computeInstance = response.getBody();
+		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
+		ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
 
 		if (computeInstance != null) {
 			ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
 			return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
 		}
+		return new ResponseEntity(computeInstance, HttpStatus.OK);
+	}
 
-		return response;
+	private ResponseEntity<List<ComputeInstance>> processGetAllCompute(String body, HttpMethod method, HttpServletRequest request)
+			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
+		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
+		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
+		Gson gson = new Gson();
+		Type ComputeInstanceListType = new TypeToken<List<ComputeInstance>>() {}.getType();
+
+		List<ComputeInstance> computeInstances = new Gson().fromJson(response.getBody(), ComputeInstanceListType);
+
+		for (int i = 0; i < computeInstances.size(); i++) {
+			ComputeInstance computeInstance = computeInstances.get(i);
+			if (computeInstance != null) {
+				ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().
+						addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
+				computeInstances.set(i, incrementedComputeInstance);
+			}
+		}
+		return new ResponseEntity(computeInstances, HttpStatus.OK);
 	}
 
 	private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
