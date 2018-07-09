@@ -4,6 +4,7 @@ import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
@@ -85,7 +86,7 @@ public class ApplicationFacade {
 
     // compute methods
 
-    public ComputeOrder addFederatedAttributesIfApplied(ComputeOrder computeOrder, String federatedNetworkId, String federationTokenValue)
+    public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrder federatedComputeOrder, String federationTokenValue)
             throws SubnetAddressesCapacityReachedException,
             IOException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
@@ -94,8 +95,7 @@ public class ApplicationFacade {
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.CREATE);
 
-        return federatedNetworkController.addFederatedAttributesIfApplied(computeOrder, federatedNetworkId,
-		        federationUser);
+        return federatedNetworkController.addFederatedAttributesIfApplied(federatedComputeOrder, federationUser);
     }
 
     public ComputeInstance addFederatedAttributesIfApplied(ComputeInstance computeInstance, String federationTokenValue)

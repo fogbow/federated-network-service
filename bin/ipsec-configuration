@@ -1,3 +1,4 @@
+#!/bin/sh
 config_setup="config setup
  charondebug=all
  uniqueids=yes

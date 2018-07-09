@@ -6,6 +6,7 @@ import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
@@ -107,9 +108,11 @@ public class ApplicationFacadeTest {
 
 		ComputeOrder computeOrder = createOrder();
 
+		FederatedComputeOrder federatedComputeOrder = new FederatedComputeOrder(computeOrder, createdFederatedNetworkId);
+
 
 		ComputeOrder actualComputeOrder = ApplicationFacade.getInstance().
-				addFederatedAttributesIfApplied(computeOrder, createdFederatedNetworkId, fakeToken);
+				addFederatedAttributesIfApplied(federatedComputeOrder, fakeToken);
 
 		assertEquals(computeOrder.getId(), actualComputeOrder.getId());
 

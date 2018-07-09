@@ -9,6 +9,7 @@ import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
@@ -188,17 +189,20 @@ public class FederatedNetworkController {
 		return false;
 	}
 
-	public ComputeOrder addFederatedAttributesIfApplied(ComputeOrder computeOrder, String federatedNetworkId, FederationUser federationUser)
+	public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser federationUser)
 			throws SubnetAddressesCapacityReachedException, IOException, FederatedComputeNotFoundException {
+
+		ComputeOrder incrementedComputeOrder = (ComputeOrder) federatedComputeOrder;
+		String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
 		if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
 			FederatedNetwork federatedNetwork;
 			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
-			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, computeOrder.getId(), federationUser);
-			return FederateComputeUtil.addUserData(computeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidrNotation());
+			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, incrementedComputeOrder.getId(), federationUser);
+			return FederateComputeUtil.addUserData(incrementedComputeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidrNotation());
 		}
 
-		return computeOrder;
+		return incrementedComputeOrder;
 	}
 
 	public ComputeInstance addFederatedInstanceAttributesIfApplied(ComputeInstance computeInstance,
@@ -209,6 +213,7 @@ public class FederatedNetworkController {
 		if (!userNetworks.isEmpty()) {
 			String federatedIp = getAssociatedFederatedIp(computeInstance.getId(), federationUser);
 			if (federatedIp != null) {
+				// set SshTunnelConnectionData into FederatedComputeInstance
 				return new FederatedComputeInstance(computeInstance, federatedIp);
 			}
 		}

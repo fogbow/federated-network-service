@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
@@ -97,14 +98,14 @@ public class FogbowCoreProxyHandler {
 
 		final Gson gson = new Gson();
 
-		PostComputeBody postComputeBody = gson.fromJson(body, PostComputeBody.class);
-		String federatedNetworkId = postComputeBody.getFederatedNetworkId();
-		ComputeOrder requestOrder = postComputeBody.getComputeOrder();
+		FederatedComputeOrder federatedComputeOrder = gson.fromJson(body, FederatedComputeOrder.class);
+//		ComputeOrder requestOrder = postComputeBody.getComputeOrder();
 
-		ComputeOrder incrementedOrder = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(
-				requestOrder, federatedNetworkId, federationTokenValue);
+		ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(
+				federatedComputeOrder, federationTokenValue);
 
-		return redirectRequest(gson.toJson(incrementedOrder), method, request, String.class);
+//		Set the orderId when core responds here.
+		return redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
 	}
 
 	private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
