@@ -97,12 +97,12 @@ public class FogbowCoreProxyHandler {
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
 		final Gson gson = new Gson();
-
 		FederatedComputeOrder federatedComputeOrder = gson.fromJson(body, FederatedComputeOrder.class);
 		ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(
 				federatedComputeOrder, federationTokenValue);
 
 		ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
+		// if response status was not successful, return the status
 		if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
 			return responseEntity;
 		}
@@ -118,13 +118,13 @@ public class FogbowCoreProxyHandler {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
-		ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
-
-		if (computeInstance != null) {
-			ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
-			return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
+		// if response status was not successful, return the status
+		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+			return new ResponseEntity<ComputeInstance>(response.getStatusCode());
 		}
-		return new ResponseEntity(computeInstance, HttpStatus.OK);
+		ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
+		ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
+		return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
 	}
 
 	private ResponseEntity<List<ComputeInstance>> processGetAllCompute(String body, HttpMethod method, HttpServletRequest request)
@@ -132,11 +132,13 @@ public class FogbowCoreProxyHandler {
 
 		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
 		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
-		Gson gson = new Gson();
+		// if response status was not successful, return the status
+		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+			return new ResponseEntity<List<ComputeInstance>>(response.getStatusCode());
+		}
 		Type ComputeInstanceListType = new TypeToken<List<ComputeInstance>>() {}.getType();
 
 		List<ComputeInstance> computeInstances = new Gson().fromJson(response.getBody(), ComputeInstanceListType);
-
 		for (int i = 0; i < computeInstances.size(); i++) {
 			ComputeInstance computeInstance = computeInstances.get(i);
 			if (computeInstance != null) {
