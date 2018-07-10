@@ -228,6 +228,7 @@ public class FederatedNetworkController {
 			String federatedIp = getAssociatedFederatedIp(computeInstance.getId(), federationUser);
 			if (federatedIp != null) {
 				FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
+				federatedComputeInstance.setSshTunnelConnectionData(computeInstance.getSshTunnelConnectionData());
 				return federatedComputeInstance;
 			}
 		}
