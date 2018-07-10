@@ -62,6 +62,12 @@ public class FederatedNetwork {
 		freedIps.add(ipAddress);
 	}
 
+	public void addIpUsage(String computeId, String ipAddress) {
+		this.computeIpMap.put(computeId, ipAddress);
+		// Do we really want to use queue?
+		freedIps.remove(ipAddress);
+	}
+
 	public void addFederationNetworkMember(String member) {
 		this.allowedMembers.add(member);
 	}

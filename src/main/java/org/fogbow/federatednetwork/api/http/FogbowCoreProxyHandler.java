@@ -99,13 +99,18 @@ public class FogbowCoreProxyHandler {
 		final Gson gson = new Gson();
 
 		FederatedComputeOrder federatedComputeOrder = gson.fromJson(body, FederatedComputeOrder.class);
-//		ComputeOrder requestOrder = postComputeBody.getComputeOrder();
-
 		ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(
 				federatedComputeOrder, federationTokenValue);
 
-//		Set the orderId when core responds here.
-		return redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
+		ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
+		if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+			return responseEntity;
+		}
+		// Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
+		// with the one created in fogbow-core, thats why we run an "updateOrderId" method.
+		String responseOrderId = responseEntity.getBody();
+		ApplicationFacade.getInstance().updateOrderId(federatedComputeOrder,responseOrderId, federationTokenValue);
+		return responseEntity;
 	}
 
 	private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)

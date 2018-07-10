@@ -205,6 +205,20 @@ public class FederatedNetworkController {
 		return incrementedComputeOrder;
 	}
 
+	public void updateOrderId(FederatedComputeOrder federatedCompute, String newId) throws FederatedComputeNotFoundException {
+		String oldId = federatedCompute.getId();
+		FederationUser federationUser = federatedCompute.getFederationUser();
+		String federatedIp = getAssociatedFederatedIp(oldId, federationUser);
+		if (federatedCompute != null) {
+			FederatedNetwork federatedNetwork;
+			federatedNetwork = getFederatedNetwork(federatedCompute.getFederatedNetworkId(), federationUser);
+			federatedNetwork.freeIp(federatedIp, oldId);
+			federatedNetwork.addIpUsage(newId, federatedIp);
+			database.putFederatedNetwork(federatedNetwork, federationUser);
+		}
+		federatedCompute.setId(newId);
+	}
+
 	public ComputeInstance addFederatedInstanceAttributesIfApplied(ComputeInstance computeInstance,
 	                                                               FederationUser federationUser, String federationTokenValue)
 			throws FederatedComputeNotFoundException {
@@ -213,8 +227,8 @@ public class FederatedNetworkController {
 		if (!userNetworks.isEmpty()) {
 			String federatedIp = getAssociatedFederatedIp(computeInstance.getId(), federationUser);
 			if (federatedIp != null) {
-				// set SshTunnelConnectionData into FederatedComputeInstance
-				return new FederatedComputeInstance(computeInstance, federatedIp);
+				FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
+				return federatedComputeInstance;
 			}
 		}
 

@@ -95,7 +95,15 @@ public class ApplicationFacade {
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.CREATE);
 
-        return federatedNetworkController.addFederatedAttributesIfApplied(federatedComputeOrder, federationUser);
+        ComputeOrder incrementedComputeOrder = federatedNetworkController.addFederatedAttributesIfApplied(federatedComputeOrder, federationUser);
+        return incrementedComputeOrder;
+    }
+
+    public void updateOrderId(FederatedComputeOrder federatedCompute, String newId, String federationTokenValue)
+            throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+        FederationUser federationUser = getFederationUser(federationTokenValue);
+        federatedCompute.setFederationUser(federationUser);
+        federatedNetworkController.updateOrderId(federatedCompute, newId);
     }
 
     public ComputeInstance addFederatedAttributesIfApplied(ComputeInstance computeInstance, String federationTokenValue)
