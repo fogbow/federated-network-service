@@ -54,11 +54,20 @@ public class FogbowCoreProxyHandler {
 				case POST:
 					return processPostCompute(body, method, request);
 				case GET:
-					if (request.getRequestURI().equals("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) { // if it is a get all
+					final String requestURI = request.getRequestURI();
+					String getAllRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/?$";
+					String getAllStatusRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/" +
+							ComputeOrdersController.STATUS_ENDPOINT + "/?$";
+					String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
+							ComputeOrdersController.STATUS_ENDPOINT + ").*$";
+					if (requestURI.matches(getAllRegex)) {
 						return processGetAllCompute(body, method, request);
-					} else { // if it is a get by id
+					} else if (requestURI.matches(getAllStatusRegex)){
+						break;
+					} else if (requestURI.matches(getByIdRegex)){
 						return processGetByIdCompute(body, method, request);
 					}
+					break;
 				case DELETE:
 					return processDeleteCompute(body, method, request);
 			}
