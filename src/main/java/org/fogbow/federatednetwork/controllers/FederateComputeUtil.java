@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.controllers;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
@@ -9,6 +10,8 @@ import org.fogbowcloud.manager.core.plugins.cloud.util.CloudInitUserDataBuilder;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class FederateComputeUtil {
 
@@ -26,8 +29,11 @@ public class FederateComputeUtil {
 		InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
 		String cloudInitScript = IOUtils.toString(inputStream);
 		String newScript = replaceScriptValues(cloudInitScript, federatedComputeIp, agentPublicIp, cidr);
+		byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
+		byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
+		String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
 
-		UserData userData = new UserData(newScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+		UserData userData = new UserData(encryptedScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
 		ComputeOrder actualComputeOrder = createComputeWithUserData(computeOrder, userData);
 		return actualComputeOrder;
 	}
@@ -71,6 +77,8 @@ public class FederateComputeUtil {
 		scriptReplaced = scriptReplaced.replace(LEFT_SOURCE_IP_KEY, federatedComputeIp);
 		scriptReplaced = scriptReplaced.replace(RIGHT_IP, agentPublicIp);
 		scriptReplaced = scriptReplaced.replace(RIGHT_SUBNET_KEY, cidr);
+		scriptReplaced = scriptReplaced.replace("\n", "[[\\n]]");
+		scriptReplaced = scriptReplaced.replace("\r", "");
 		return scriptReplaced;
 	}
 }
