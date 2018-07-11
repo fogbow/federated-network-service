@@ -2,7 +2,10 @@ package org.fogbow.federatednetwork.api.http;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
+import org.fogbow.federatednetwork.ConfigurationConstants;
+import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
@@ -21,21 +24,23 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.List;
-
+import java.util.Properties;
 
 @Controller
 public class FogbowCoreProxyHandler {
 
-	// TODO: Check the if path variable of federatedNetworkId works
+	private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
+	public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
 
-	public static final int PORT = 8080;
-	public static final String SERVER = "localhost";
+	public String coreBaseUrl = null;
+	public int corePort = -1;
 
 	@RequestMapping("/**")
 	public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
@@ -76,8 +81,11 @@ public class FogbowCoreProxyHandler {
 	private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
 			throws URISyntaxException {
 		String requestUrl = request.getRequestURI();
+		if (coreBaseUrl == null || coreBaseUrl.isEmpty() || corePort <= 0) {
+			readProperties();
+		}
 
-		URI uri = new URI("http", null, SERVER, PORT, null, null, null);
+		URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null, null, null);
 		uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
 				.query(request.getQueryString()).build(true).toUri();
 
@@ -94,6 +102,20 @@ public class FogbowCoreProxyHandler {
 		restTemplate.setErrorHandler(new NoOpErrorHandler());
 		ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
 		return response;
+	}
+
+	private void readProperties() {
+		Properties properties = null;
+		try {
+			properties = new Properties();
+			FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
+			properties.load(input);
+		} catch (IOException e) {
+			LOGGER.error("", e);
+			System.exit(1);
+		}
+		this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_BASE_URL);
+		this.corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
 	}
 
 	private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
@@ -181,27 +203,5 @@ public class FogbowCoreProxyHandler {
 		public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
 		}
 
-	}
-
-	private class PostComputeBody {
-
-		private ComputeOrder computeOrder;
-		private String federatedNetworkId;
-
-		public ComputeOrder getComputeOrder() {
-			return computeOrder;
-		}
-
-		public void setComputeOrder(ComputeOrder computeOrder) {
-			this.computeOrder = computeOrder;
-		}
-
-		public String getFederatedNetworkId() {
-			return federatedNetworkId;
-		}
-
-		public void setFederatedNetworkId(String federatedNetworkId) {
-			this.federatedNetworkId = federatedNetworkId;
-		}
 	}
 }

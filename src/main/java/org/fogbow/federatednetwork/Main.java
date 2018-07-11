@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.api.http.FogbowCoreProxyHandler;
 import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -17,8 +18,6 @@ public class Main implements ApplicationRunner {
 
 	private static final Logger LOGGER = Logger.getLogger(Main.class);
 
-	public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
-
 	private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
 	@Override
@@ -26,7 +25,7 @@ public class Main implements ApplicationRunner {
 		Properties properties = null;
 		try {
 			properties = new Properties();
-			FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
+			FileInputStream input = new FileInputStream(FogbowCoreProxyHandler.FEDERATED_NETWORK_CONF);
 			properties.load(input);
 		} catch (IOException e) {
 			LOGGER.error("", e);

@@ -2,10 +2,10 @@ package org.fogbow.federatednetwork;
 
 public class FederatedNetworkConstants {
 
-	public static final String FEDERATED_NETWORK_TERM = "federatedNetwork";
+	// String constants:
+	public static final String HTTP = "http";
 
-	public static final String FEDERATED_NETWORK_ID_TERM = "federatedNetworkId";
-
+	// Error messages:
 	public static final String NOT_FOUND_FEDERATED_NETWORK_MESSAGE = "Not found Federated Network with Id: ";
 	public static final String NOT_FOUND_PUBLIC_AGENT_IP_MESSAGE = "Not found Public Agent IP in Configuration File";
 	public static final String NOT_FOUND_FEDERATED_COMPUTE = "Not found Federated Compute in Database with Id: ";

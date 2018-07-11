@@ -1,0 +1,9 @@
+# Manager-core Configurations
+manager_core_port=
+manager_core_base_url=
+
+# Agent Configurations
+federated_network_agent_permission_file_path=
+federated_network_agent_user=
+federated_network_agent_private_address=
+federated_network_agent_address=
