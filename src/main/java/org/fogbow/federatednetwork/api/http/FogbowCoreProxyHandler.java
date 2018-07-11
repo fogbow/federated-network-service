@@ -34,9 +34,6 @@ public class FogbowCoreProxyHandler {
 
 	// TODO: Check the if path variable of federatedNetworkId works
 
-	// TODO: The header key should be retrieved from ComputeOrdersController
-	private static final String FEDERATION_TOKEN_VALUE_HEADER_KEY = "federationTokenValue";
-
 	public static final int PORT = 8080;
 	public static final String SERVER = "localhost";
 
@@ -103,7 +100,7 @@ public class FogbowCoreProxyHandler {
 			FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
 			IOException, URISyntaxException, UnauthenticatedUserException, UnexpectedException {
 
-		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
+		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
 		final Gson gson = new Gson();
 		FederatedComputeOrder federatedComputeOrder = gson.fromJson(body, FederatedComputeOrder.class);
@@ -125,7 +122,7 @@ public class FogbowCoreProxyHandler {
 	private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
 			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
-		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
+		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
 		// if response status was not successful, return the status
 		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -139,7 +136,7 @@ public class FogbowCoreProxyHandler {
 	private ResponseEntity<List<ComputeInstance>> processGetAllCompute(String body, HttpMethod method, HttpServletRequest request)
 			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
 
-		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
+		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
 		// if response status was not successful, return the status
 		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -162,7 +159,7 @@ public class FogbowCoreProxyHandler {
 	private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
 			throws FederatedComputeNotFoundException, URISyntaxException, UnauthenticatedUserException, UnexpectedException {
 
-		String federationTokenValue = request.getHeader(FEDERATION_TOKEN_VALUE_HEADER_KEY);
+		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
 		String queryString = request.getRequestURI().replace(ComputeOrdersController.COMPUTE_ENDPOINT, "");
 		queryString = queryString.replace("/", "");
