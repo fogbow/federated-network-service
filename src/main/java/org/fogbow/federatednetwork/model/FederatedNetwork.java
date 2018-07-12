@@ -2,6 +2,7 @@ package org.fogbow.federatednetwork.model;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbowcloud.manager.core.models.instances.InstanceState;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -21,11 +22,13 @@ public class FederatedNetwork {
 	// TODO: This class should be just a model. Create a new class to know the mapping of computeId and ip.
 	private Map<String, String> computeIpMap;
 
+	InstanceState state;
+
 	public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
 
 	public FederatedNetwork() { }
 
-	public FederatedNetwork(String cidrNotation, String label, Set<String> allowedMembers) {
+	public FederatedNetwork(String cidrNotation, String label, Set<String> allowedMembers, InstanceState state) {
 		// the reason for this to start at '1' is because the first ip is allocated
 		// to the virtual ip address
 		this.ipsServed = 1;
@@ -35,6 +38,7 @@ public class FederatedNetwork {
 		this.cidrNotation = cidrNotation;
 		this.label = label;
 		this.allowedMembers = allowedMembers;
+		this.state = state;
 	}
 
 	public boolean isIpAddressFree(String address) {
@@ -195,5 +199,13 @@ public class FederatedNetwork {
 
 	public void setComputeIpMap(Map<String, String> computeIpMap) {
 		this.computeIpMap = computeIpMap;
+	}
+
+	public InstanceState getState() {
+		return state;
+	}
+
+	public void setState(InstanceState state) {
+		this.state = state;
 	}
 }

@@ -37,6 +37,14 @@ public class FederatedNetworkRestHandler {
 		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
 	}
 
+	@GetMapping(value = "/" + ComputeOrdersController.STATUS_ENDPOINT)
+	public static final ResponseEntity<Collection<FederatedNetwork>> getFederatedNetworksStatus(@RequestHeader(required = false,
+			value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+			throws UnauthenticatedUserException, UnexpectedException {
+		final Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworksStatus(federationTokenValue);
+		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
+	}
+
 	@GetMapping(value = "/{federatedNetworkId}")
 	public static ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
                            @RequestHeader(required = false, value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)

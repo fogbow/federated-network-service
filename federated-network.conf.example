@@ -1,6 +1,6 @@
 # Manager-core Configurations
 manager_core_port=
-manager_core_base_url=
+manager_core_ip=
 
 # Agent Configurations
 federated_network_agent_permission_file_path=

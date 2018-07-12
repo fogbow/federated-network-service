@@ -112,7 +112,7 @@ public class FogbowCoreProxyHandler {
 			LOGGER.error("", e);
 			System.exit(1);
 		}
-		this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_BASE_URL);
+		this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
 		this.corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
 	}
 

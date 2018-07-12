@@ -12,6 +12,7 @@ import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
+import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 
@@ -59,6 +60,7 @@ public class FederatedNetworkController {
 
 		boolean createdSuccessfully = addFederatedNetworkOnAgent(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress());
 		if (createdSuccessfully) {
+			federatedNetwork.setState(InstanceState.READY);
 			database.putFederatedNetwork(federatedNetwork, user);
 			return federatedNetwork.getId();
 		}
@@ -97,6 +99,16 @@ public class FederatedNetworkController {
 
 	public Collection<FederatedNetwork> getUserFederatedNetworks(FederationUser user) {
 		return database.getUserNetworks(user);
+	}
+
+	public Collection<FederatedNetwork> getUserFederatedNetworksStatus(FederationUser user) {
+		Set<FederatedNetwork> allFederatedNetworks = database.getUserNetworks(user);
+		return getFederatedNetworksStatus(allFederatedNetworks);
+	}
+
+	private Collection<FederatedNetwork> getFederatedNetworksStatus(Set<FederatedNetwork> allFederatedNetworks) {
+		
+		return null;
 	}
 
 	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {

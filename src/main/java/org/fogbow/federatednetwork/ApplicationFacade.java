@@ -72,6 +72,16 @@ public class ApplicationFacade {
         return federatedNetworkController.getUserFederatedNetworks(federationUser);
     }
 
+    public Collection<FederatedNetwork> getFederatedNetworksStatus(String federationTokenValue) throws
+            UnauthenticatedUserException, UnexpectedException {
+        authenticate(federationTokenValue);
+        FederationUser federationUser = getFederationUser(federationTokenValue);
+        // TODO:  Check if we really want to use core authorization plugin.
+        authorize(federationUser, Operation.GET);
+
+        return federatedNetworkController.getUserFederatedNetworksStatus(federationUser);
+    }
+
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException,
             FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {

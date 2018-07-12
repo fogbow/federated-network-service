@@ -68,7 +68,7 @@ public class ApplicationFacadeTest {
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
 		Set<String> allowedMembers = new HashSet<>(Arrays.asList(new String[] {"member1", "member2"}));
-		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, OrderState.OPEN);
+		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, InstanceState.READY);
 
 		Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(fakeToken);
 		assertEquals(0, federatedNetworks.size());
@@ -101,7 +101,7 @@ public class ApplicationFacadeTest {
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
 		Set<String> allowedMembers = new HashSet<>(Arrays.asList(new String[] {"member1", "member2"}));
-		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, OrderState.OPEN);
+		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, InstanceState.READY);
 
 		doReturn(true).when(federatedNetworkController).addFederatedNetworkOnAgent(anyString(), anyString());
 

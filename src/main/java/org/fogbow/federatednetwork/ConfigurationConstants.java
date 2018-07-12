@@ -4,7 +4,7 @@ public class ConfigurationConstants {
 
 	// Manager Core Properties
 	public static final String MANAGER_CORE_PORT = "manager_core_port";
-	public static final String MANAGER_CORE_BASE_URL = "manager_core_base_url";
+	public static final String MANAGER_CORE_IP = "manager_core_ip";
 
 	// Federated Network Properties
 	public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH = "federated_network_agent_permission_file_path";
