@@ -11,6 +11,7 @@ import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedExce
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
@@ -101,14 +102,18 @@ public class FederatedNetworkController {
 		return database.getUserNetworks(user);
 	}
 
-	public Collection<FederatedNetwork> getUserFederatedNetworksStatus(FederationUser user) {
+	public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {
 		Set<FederatedNetwork> allFederatedNetworks = database.getUserNetworks(user);
 		return getFederatedNetworksStatus(allFederatedNetworks);
 	}
 
-	private Collection<FederatedNetwork> getFederatedNetworksStatus(Set<FederatedNetwork> allFederatedNetworks) {
-		
-		return null;
+	private Collection<InstanceStatus> getFederatedNetworksStatus(Set<FederatedNetwork> allFederatedNetworks) {
+		Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
+		for (FederatedNetwork federatedNetwork: allFederatedNetworks) {
+			InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), federatedNetwork.getState());
+			instanceStatusList.add(instanceStatus);
+		}
+		return instanceStatusList;
 	}
 
 	public FederatedNetwork getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {

@@ -7,6 +7,7 @@ import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
+import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,10 +39,10 @@ public class FederatedNetworkRestHandler {
 	}
 
 	@GetMapping(value = "/" + ComputeOrdersController.STATUS_ENDPOINT)
-	public static final ResponseEntity<Collection<FederatedNetwork>> getFederatedNetworksStatus(@RequestHeader(required = false,
+	public static final ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(@RequestHeader(required = false,
 			value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
 			throws UnauthenticatedUserException, UnexpectedException {
-		final Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworksStatus(federationTokenValue);
+		final Collection<InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworksStatus(federationTokenValue);
 		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
 	}
 

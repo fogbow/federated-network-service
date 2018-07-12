@@ -9,6 +9,7 @@ import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
+import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceType;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
@@ -72,7 +73,7 @@ public class ApplicationFacade {
         return federatedNetworkController.getUserFederatedNetworks(federationUser);
     }
 
-    public Collection<FederatedNetwork> getFederatedNetworksStatus(String federationTokenValue) throws
+    public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue) throws
             UnauthenticatedUserException, UnexpectedException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
