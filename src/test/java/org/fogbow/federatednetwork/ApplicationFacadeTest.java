@@ -13,6 +13,7 @@ import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
+import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.orders.UserData;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 import org.junit.After;
@@ -67,7 +68,7 @@ public class ApplicationFacadeTest {
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
 		Set<String> allowedMembers = new HashSet<>(Arrays.asList(new String[] {"member1", "member2"}));
-		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers);
+		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, OrderState.OPEN);
 
 		Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(fakeToken);
 		assertEquals(0, federatedNetworks.size());
@@ -100,7 +101,7 @@ public class ApplicationFacadeTest {
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
 		Set<String> allowedMembers = new HashSet<>(Arrays.asList(new String[] {"member1", "member2"}));
-		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers);
+		FederatedNetwork federatedNetwork = new FederatedNetwork(cidrNotation, label, allowedMembers, OrderState.OPEN);
 
 		doReturn(true).when(federatedNetworkController).addFederatedNetworkOnAgent(anyString(), anyString());
 

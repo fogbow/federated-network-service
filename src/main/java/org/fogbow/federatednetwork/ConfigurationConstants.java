@@ -11,4 +11,5 @@ public class ConfigurationConstants {
 	public static final String FEDERATED_NETWORK_AGENT_USER = "federated_network_agent_user";
 	public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS = "federated_network_agent_private_address";
 	public static final String FEDERATED_NETWORK_AGENT_ADDRESS = "federated_network_agent_address";
+	public static final String FEDERATED_NETWORK_PRE_SHARED_KEY = "federated_network_agent_pre_shared_key";
 }

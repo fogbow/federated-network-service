@@ -58,17 +58,15 @@ public class FogbowCoreProxyHandler {
 				case GET:
 					final String requestURI = request.getRequestURI();
 					String getAllRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/?$";
-					String getAllStatusRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/" +
-							ComputeOrdersController.STATUS_ENDPOINT + "/?$";
 					String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
-							ComputeOrdersController.STATUS_ENDPOINT + ").*$";
+							ComputeOrdersController.STATUS_ENDPOINT + "|" + ComputeOrdersController.QUOTA_ENDPOINT +
+							"|" + ComputeOrdersController.ALLOCATION_ENDPOINT + ").*$";
 					if (requestURI.matches(getAllRegex)) {
 						return processGetAllCompute(body, method, request);
-					} else if (requestURI.matches(getAllStatusRegex)){
-						break;
 					} else if (requestURI.matches(getByIdRegex)){
 						return processGetByIdCompute(body, method, request);
 					}
+					// If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
 					break;
 				case DELETE:
 					return processDeleteCompute(body, method, request);

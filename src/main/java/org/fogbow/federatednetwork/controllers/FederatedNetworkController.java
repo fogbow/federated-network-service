@@ -28,19 +28,21 @@ public class FederatedNetworkController {
 	private String agentUser;
 	private String agentPublicIp;
 	private String agentPrivateIp;
+	private String preSharedKey;
 
 	private FederatedNetworksDB database;
 
-	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp, String agentPublicIp) {
-		this(permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, DATABASE_FILE_PATH);
+	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp, String agentPublicIp, String preSharedKey) {
+		this(permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, DATABASE_FILE_PATH);
 	}
 
 	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp,
-	                                  String agentPublicIp, String databaseFilePath) {
+	                                  String agentPublicIp, String preSharedKey, String databaseFilePath) {
 		this.permissionFilePath = permissionFilePath;
 		this.agentUser = agentUser;
 		this.agentPrivateIp = agentPrivateIp;
 		this.agentPublicIp = agentPublicIp;
+		this.preSharedKey = preSharedKey;
 
 		this.database = new FederatedNetworksDB(databaseFilePath);
 	}
@@ -199,7 +201,7 @@ public class FederatedNetworkController {
 			FederatedNetwork federatedNetwork;
 			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
 			String federatedIp = getPrivateIpFromFederatedNetwork(federatedNetworkId, incrementedComputeOrder.getId(), federationUser);
-			return FederateComputeUtil.addUserData(incrementedComputeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidrNotation());
+			return FederateComputeUtil.addUserData(incrementedComputeOrder, federatedIp, agentPublicIp, federatedNetwork.getCidrNotation(), preSharedKey);
 		}
 
 		return incrementedComputeOrder;
@@ -209,9 +211,10 @@ public class FederatedNetworkController {
 		String oldId = federatedCompute.getId();
 		FederationUser federationUser = federatedCompute.getFederationUser();
 		String federatedIp = getAssociatedFederatedIp(oldId, federationUser);
-		if (federatedCompute != null) {
+		String federatedNetworkId = federatedCompute.getFederatedNetworkId();
+		if (federatedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
 			FederatedNetwork federatedNetwork;
-			federatedNetwork = getFederatedNetwork(federatedCompute.getFederatedNetworkId(), federationUser);
+			federatedNetwork = getFederatedNetwork(federatedNetworkId, federationUser);
 			federatedNetwork.freeIp(federatedIp, oldId);
 			federatedNetwork.addIpUsage(newId, federatedIp);
 			database.putFederatedNetwork(federatedNetwork, federationUser);

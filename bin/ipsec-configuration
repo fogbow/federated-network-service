@@ -44,7 +44,7 @@ if [ "true" = "#IS_FEDERATED_VM#" ]; then
 
     echo "$tmp_var" > /etc/ipsec.conf
 
-    echo ": PSK '123'" > /etc/ipsec.secrets
+    echo ": PSK '#PRE_SHARED_KEY#'" > /etc/ipsec.secrets
     ipsec rereadsecrets
     ipsec restart
 fi
