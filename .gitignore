@@ -24,8 +24,7 @@
 /nbdist/
 /.nb-gradle/
 
-### Mvnw files ###
-mvnw
+### Mvnw.cmd file ###
 mvnw.cmd
 
 ### Wrapper ###
