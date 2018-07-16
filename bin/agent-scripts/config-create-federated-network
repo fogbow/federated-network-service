@@ -36,4 +36,10 @@ peer_veth=`expr "$veth_size" + "1"`
 ip l add dev veth$veth_size type veth peer name veth$peer_veth
 ip addr add $virtualAddress dev veth$veth_size
 ifconfig veth$veth_size up
+
+# Agent container configuration mapper
+SYNCRONIZED_DIR="/etc/ipsec.d"
+mkdir -p $SYNCRONIZED_DIR
+yes | cp -f $absoluteIpsecConfPath $SYNCRONIZED_DIR/"ipsec.conf"
+
 ipsec restart
