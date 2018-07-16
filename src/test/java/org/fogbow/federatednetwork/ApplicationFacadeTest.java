@@ -45,9 +45,13 @@ public class ApplicationFacadeTest {
 		String agentUser = "fake-user";
 		String agentPrivateIp = "fake-private-ip";
 		String agentPublicIp = "fake-public-ip";
+		String agentPSK = "fake-psk";
+		String agentAddFedNetScriptPath = "fake-script-path";
+		String agentRemoveFedNetScriptPath = "fake-script-path";
 
 		federatedNetworkController = spy(new FederatedNetworkController(
-				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, TEST_DATABASE_FILE_PATH));
+				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, agentPSK, agentAddFedNetScriptPath,
+				agentRemoveFedNetScriptPath, TEST_DATABASE_FILE_PATH));
 
 		ApplicationFacade.getInstance().setFederatedNetworkController(federatedNetworkController);
 	}

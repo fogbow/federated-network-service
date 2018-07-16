@@ -8,3 +8,7 @@ federated_network_agent_user=
 federated_network_agent_private_address=
 federated_network_agent_address=
 federated_network_agent_pre_shared_key=
+
+# Agent Scripts
+add_federated_network_script_path=
+remove_federated_network_script_path=

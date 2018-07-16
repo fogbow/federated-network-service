@@ -31,20 +31,27 @@ public class FederatedNetworkController {
 	private String agentPublicIp;
 	private String agentPrivateIp;
 	private String preSharedKey;
+	private String addFederatedNetworkScriptPath;
+	private String removeFederatedNetworkScriptPath;
 
 	private FederatedNetworksDB database;
 
-	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp, String agentPublicIp, String preSharedKey) {
-		this(permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, DATABASE_FILE_PATH);
+	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp, String agentPublicIp,
+	                                  String preSharedKey, String addFederatedNetworkScriptPath, String removeFederatedNetworkScriptPath) {
+		this(permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, addFederatedNetworkScriptPath,
+				removeFederatedNetworkScriptPath, DATABASE_FILE_PATH);
 	}
 
 	public FederatedNetworkController(String permissionFilePath, String agentUser, String agentPrivateIp,
-	                                  String agentPublicIp, String preSharedKey, String databaseFilePath) {
+	                                  String agentPublicIp, String preSharedKey, String addFederatedNetworkScriptPath,
+	                                  String removeFederatedNetworkScriptPath, String databaseFilePath) {
 		this.permissionFilePath = permissionFilePath;
 		this.agentUser = agentUser;
 		this.agentPrivateIp = agentPrivateIp;
 		this.agentPublicIp = agentPublicIp;
 		this.preSharedKey = preSharedKey;
+		this.addFederatedNetworkScriptPath = addFederatedNetworkScriptPath;
+		this.removeFederatedNetworkScriptPath = removeFederatedNetworkScriptPath;
 
 		this.database = new FederatedNetworksDB(databaseFilePath);
 	}
@@ -79,7 +86,7 @@ public class FederatedNetworkController {
 	public boolean addFederatedNetworkOnAgent(String cidrNotation, String virtualIpAddress) {
 		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
 				"StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
-				"sudo", "/home/ubuntu/config-ipsec", agentPrivateIp, agentPublicIp, cidrNotation, virtualIpAddress);
+				"sudo", addFederatedNetworkScriptPath, agentPrivateIp, agentPublicIp, cidrNotation, virtualIpAddress);
 		LOGGER.info("Trying to call agent with atts (" + cidrNotation + "): " + builder.command());
 
 		int resultCode = 0;
@@ -189,7 +196,7 @@ public class FederatedNetworkController {
 	public boolean deleteFederatedNetworkFromAgent(String cidrNotation) {
 		ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
 				"StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
-				"sudo", "/home/ubuntu/remove-network", cidrNotation);
+				"sudo", removeFederatedNetworkScriptPath, cidrNotation);
 		LOGGER.info("Trying to remove network on agent with atts (" + cidrNotation + "): " + builder.command());
 
 		int resultCode = 0;

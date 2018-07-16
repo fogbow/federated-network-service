@@ -37,9 +37,12 @@ public class Main implements ApplicationRunner {
 		String agentPrivateIp = properties.getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS);
 		String agentPublicIp = properties.getProperty(FEDERATED_NETWORK_AGENT_ADDRESS);
 		String preSharedKey = properties.getProperty(FEDERATED_NETWORK_PRE_SHARED_KEY);
+		String addFederatedNetworkScriptPath = properties.getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH);
+		String removeFederatedNetworkScriptPath = properties.getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH);
 
 		FederatedNetworkController federatedNetworkController = new FederatedNetworkController(
-				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey);
+				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, addFederatedNetworkScriptPath,
+				removeFederatedNetworkScriptPath);
 
 		applicationFacade.setFederatedNetworkController(federatedNetworkController);
 	}
