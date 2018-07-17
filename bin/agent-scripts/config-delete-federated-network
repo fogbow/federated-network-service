@@ -8,9 +8,4 @@ sed -i 's@[,]\{2,\}@,@g' $absoluteIpsecConfPath
 sed -i 's@=,@=@g' $absoluteIpsecConfPath
 sed -i 's@,$@@g' $absoluteIpsecConfPath
 
-# Agent container configuration mapper
-SYNCRONIZED_DIR="/etc/ipsec.d"
-mkdir -p $SYNCRONIZED_DIR
-yes | cp -f $absoluteIpsecConfPath $SYNCRONIZED_DIR/"ipsec.conf"
-
 ipsec restart
