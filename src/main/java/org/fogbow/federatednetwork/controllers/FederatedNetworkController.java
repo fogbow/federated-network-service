@@ -117,7 +117,8 @@ public class FederatedNetworkController {
 	private Collection<InstanceStatus> getFederatedNetworksStatus(Set<FederatedNetwork> allFederatedNetworks) {
 		Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
 		for (FederatedNetwork federatedNetwork: allFederatedNetworks) {
-			InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), federatedNetwork.getState());
+		    // TODO: Give a provider for fednets, for now we don't have this information in FederatedNetwork class.
+            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), "", federatedNetwork.getState());
 			instanceStatusList.add(instanceStatus);
 		}
 		return instanceStatusList;
