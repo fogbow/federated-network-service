@@ -30,4 +30,4 @@ RUN \
 # Define working directory.
 WORKDIR /root/federated-network-service
 
-CMD java -Dlog4j.configuration=file:log4j.properties -jar target/federated-network-service-0.0.1-SNAPSHOT.jar & > log.out 2> log.err && tail -f /dev/null
+CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null &
