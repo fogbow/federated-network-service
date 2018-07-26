@@ -30,4 +30,4 @@ RUN \
 # Define working directory.
 WORKDIR /root/federated-network-service
 
-CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null &
+CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null
