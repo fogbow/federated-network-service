@@ -1,4 +1,4 @@
 #!/bin/bash
 DIRNAME=`dirname $0`
 cd $DIRNAME/..
-java -jar target/federated-network-service-0.0.1-SNAPSHOT.jar --debug &
+java -jar target/federated-network-service-0.0.1-SNAPSHOT.jar &
