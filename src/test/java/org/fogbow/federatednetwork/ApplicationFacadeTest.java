@@ -8,6 +8,7 @@ import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedExce
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
@@ -67,7 +68,7 @@ public class ApplicationFacadeTest {
 
 	@Test
 	public void testFederatedNetwork() throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException,
-			UnauthenticatedUserException, UnexpectedException {
+			UnauthenticatedUserException, InvalidParameterException {
 		String cidrNotation = "10.0.0.0/24";
 		String label = "testNetwork";
 		String fakeToken = "fake-token";
@@ -100,7 +101,7 @@ public class ApplicationFacadeTest {
 
 	@Test
 	public void testCompute() throws FederatedComputeNotFoundException, IOException,
-			SubnetAddressesCapacityReachedException, UnauthenticatedUserException, UnexpectedException {
+			SubnetAddressesCapacityReachedException, UnauthenticatedUserException, InvalidParameterException {
 		String cidrNotation = "10.0.0.0/24";
 		String label = "testNetwork";
 		String fakeToken = "fake-token";

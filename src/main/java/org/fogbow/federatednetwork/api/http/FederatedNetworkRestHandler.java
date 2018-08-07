@@ -5,6 +5,7 @@ import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
+import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
@@ -23,7 +24,7 @@ public class FederatedNetworkRestHandler {
 	@PostMapping
 	public static final ResponseEntity<String> createFederatedNetwork(@RequestBody FederatedNetwork federatedNetwork,
                           @RequestHeader(required = false, value= ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-			throws UnauthenticatedUserException, UnexpectedException {
+			throws UnauthenticatedUserException, InvalidParameterException {
 
 		final String federatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork, federationTokenValue);
 		return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
@@ -32,7 +33,7 @@ public class FederatedNetworkRestHandler {
 	@GetMapping
 	public static final ResponseEntity<Collection<FederatedNetwork>> getFederatedNetworks(@RequestHeader(required = false,
 			value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-			throws UnauthenticatedUserException, UnexpectedException {
+			throws UnauthenticatedUserException, InvalidParameterException {
 
 		final Collection<FederatedNetwork> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworks(federationTokenValue);
 		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
@@ -41,7 +42,7 @@ public class FederatedNetworkRestHandler {
 	@GetMapping(value = "/" + ComputeOrdersController.STATUS_ENDPOINT)
 	public static final ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(@RequestHeader(required = false,
 			value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-			throws UnauthenticatedUserException, UnexpectedException {
+			throws UnauthenticatedUserException,  InvalidParameterException {
 		final Collection<InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().getFederatedNetworksStatus(federationTokenValue);
 		return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
 	}
@@ -49,7 +50,7 @@ public class FederatedNetworkRestHandler {
 	@GetMapping(value = "/{federatedNetworkId}")
 	public static ResponseEntity<FederatedNetwork> getFederatedNetwork(@PathVariable String federatedNetworkId,
                            @RequestHeader(required = false, value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-			throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+			throws UnauthenticatedUserException, InvalidParameterException {
 
 		try {
 			final FederatedNetwork federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
@@ -62,7 +63,7 @@ public class FederatedNetworkRestHandler {
 	@DeleteMapping(value = "/{federatedNetworkId}")
 	public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
                             @RequestHeader(required = false, value=ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-			throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+			throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
 
 		ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

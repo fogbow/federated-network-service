@@ -7,16 +7,16 @@ import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedExce
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.constants.Operation;
+import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
+import org.fogbowcloud.manager.core.models.ResourceType;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
-import org.fogbowcloud.manager.core.models.instances.InstanceType;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.Order;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.plugins.behavior.authentication.AuthenticationPlugin;
 import org.fogbowcloud.manager.core.plugins.behavior.authorization.AuthorizationPlugin;
-import org.fogbowcloud.manager.core.plugins.behavior.federationidentity.FederationIdentityPlugin;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -30,7 +30,7 @@ public class ApplicationFacade {
     private FederatedNetworkController federatedNetworkController;
 
     // TODO: Implement a singleton that loads a property for those plugins
-    private FederationIdentityPlugin federationIdentityPlugin = new AllowAllIdentityPlugin();
+    private AuthenticationPlugin federationIdentityPlugin = new AllowAllIdentityPlugin();
 
     private AuthorizationPlugin authorizationPlugin = new AllowAllAuthorizationPlugin();
 
@@ -44,7 +44,7 @@ public class ApplicationFacade {
     // federated network methods
 
     public String createFederatedNetwork(FederatedNetwork federatedNetwork, String federationTokenValue) throws
-            UnauthenticatedUserException, UnexpectedException {
+            UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
@@ -54,7 +54,7 @@ public class ApplicationFacade {
     }
 
     public FederatedNetwork getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
-            throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+            throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
@@ -64,7 +64,7 @@ public class ApplicationFacade {
     }
 
     public Collection<FederatedNetwork> getFederatedNetworks(String federationTokenValue) throws
-            UnauthenticatedUserException, UnexpectedException {
+            UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
@@ -74,7 +74,7 @@ public class ApplicationFacade {
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue) throws
-            UnauthenticatedUserException, UnexpectedException {
+            UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
@@ -85,7 +85,7 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException,
-            FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+            FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
@@ -99,7 +99,7 @@ public class ApplicationFacade {
 
     public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrder federatedComputeOrder, String federationTokenValue)
             throws SubnetAddressesCapacityReachedException,
-            IOException, FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+            IOException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
@@ -111,14 +111,14 @@ public class ApplicationFacade {
     }
 
     public void updateOrderId(FederatedComputeOrder federatedCompute, String newId, String federationTokenValue)
-            throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+            throws FederatedComputeNotFoundException, UnauthenticatedUserException,  InvalidParameterException {
         FederationUser federationUser = getFederationUser(federationTokenValue);
         federatedCompute.setFederationUser(federationUser);
         federatedNetworkController.updateOrderId(federatedCompute, newId);
     }
 
     public ComputeInstance addFederatedAttributesIfApplied(ComputeInstance computeInstance, String federationTokenValue)
-            throws FederatedComputeNotFoundException, UnauthenticatedUserException, UnexpectedException {
+            throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
@@ -128,7 +128,7 @@ public class ApplicationFacade {
     }
 
     public void deleteCompute(String computeId, String federationTokenValue) throws FederatedComputeNotFoundException,
-            UnauthenticatedUserException, UnexpectedException {
+            UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         authorize(federationUser, Operation.DELETE);
@@ -143,12 +143,13 @@ public class ApplicationFacade {
     }
 
     private void authorize(FederationUser federationUser, Operation operation) throws UnauthenticatedUserException {
-        if (!this.authorizationPlugin.isAuthorized(federationUser, operation)) {
+        // FIXME: this resource type will be changed, we cannot implement federated network type in resource-allocation-service
+        if (!this.authorizationPlugin.isAuthorized(federationUser, operation, ResourceType.NETWORK)) {
             throw new UnauthenticatedUserException();
         }
     }
 
-    private FederationUser getFederationUser(String federationTokenValue) throws UnauthenticatedUserException, UnexpectedException {
+    private FederationUser getFederationUser(String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException {
         return this.federationIdentityPlugin.getFederationUser(federationTokenValue);
     }
 
@@ -167,15 +168,10 @@ public class ApplicationFacade {
         this.federatedNetworkController = federatedNetworkController;
     }
 
-    class AllowAllIdentityPlugin implements FederationIdentityPlugin {
+    class AllowAllIdentityPlugin implements AuthenticationPlugin {
 
         @Override
-        public String createFederationTokenValue(Map<String, String> map) {
-            return null;
-        }
-
-        @Override
-        public FederationUser getFederationUser(String s) throws UnexpectedException {
+        public FederationUser getFederationUser(String s) throws InvalidParameterException {
             Map<String, String> attributes = new HashMap();
 
             attributes.put("user_name", "default_user");
@@ -191,19 +187,8 @@ public class ApplicationFacade {
     }
 
     class AllowAllAuthorizationPlugin implements AuthorizationPlugin {
-
         @Override
-        public boolean isAuthorized(FederationUser federationUser, Operation operation, Order order) {
-            return true;
-        }
-
-        @Override
-        public boolean isAuthorized(FederationUser federationUser, Operation operation, InstanceType instanceType) {
-            return true;
-        }
-
-        @Override
-        public boolean isAuthorized(FederationUser federationUser, Operation operation) {
+        public boolean isAuthorized(FederationUser federationUser, Operation operation, ResourceType resourceType) {
             return true;
         }
     }
