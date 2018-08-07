@@ -58,13 +58,10 @@ public class FogbowCoreProxyHandler {
 					return processPostCompute(body, method, request);
 				case GET:
 					final String requestURI = request.getRequestURI();
-					String getAllRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/?$";
 					String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
 							ComputeOrdersController.STATUS_ENDPOINT + "|" + ComputeOrdersController.QUOTA_ENDPOINT +
 							"|" + ComputeOrdersController.ALLOCATION_ENDPOINT + ").*$";
-					if (requestURI.matches(getAllRegex)) {
-						return processGetAllCompute(body, method, request);
-					} else if (requestURI.matches(getByIdRegex)){
+					if (requestURI.matches(getByIdRegex)){
 						return processGetByIdCompute(body, method, request);
 					}
 					// If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
@@ -152,29 +149,6 @@ public class FogbowCoreProxyHandler {
 		ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
 		ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
 		return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
-	}
-
-	private ResponseEntity<List<ComputeInstance>> processGetAllCompute(String body, HttpMethod method, HttpServletRequest request)
-			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
-
-		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
-		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
-		// if response status was not successful, return the status
-		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-			return new ResponseEntity<List<ComputeInstance>>(response.getStatusCode());
-		}
-		Type ComputeInstanceListType = new TypeToken<List<ComputeInstance>>() {}.getType();
-
-		List<ComputeInstance> computeInstances = new Gson().fromJson(response.getBody(), ComputeInstanceListType);
-		for (int i = 0; i < computeInstances.size(); i++) {
-			ComputeInstance computeInstance = computeInstances.get(i);
-			if (computeInstance != null) {
-				ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().
-						addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
-				computeInstances.set(i, incrementedComputeInstance);
-			}
-		}
-		return new ResponseEntity(computeInstances, HttpStatus.OK);
 	}
 
 	private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)

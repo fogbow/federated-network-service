@@ -26,7 +26,7 @@ public class FederateComputeUtil {
 
 	public static ComputeOrder addUserData(ComputeOrder computeOrder, String federatedComputeIp,
 	                                       String agentPublicIp, String cidr, String preSharedKey)
-			throws SubnetAddressesCapacityReachedException, IOException {
+			throws IOException {
 		InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
 		String cloudInitScript = IOUtils.toString(inputStream);
 		String newScript = replaceScriptValues(cloudInitScript, federatedComputeIp, agentPublicIp, cidr, preSharedKey);

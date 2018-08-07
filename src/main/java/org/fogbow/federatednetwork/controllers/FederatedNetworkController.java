@@ -248,8 +248,7 @@ public class FederatedNetworkController {
 	}
 
 	public ComputeInstance addFederatedInstanceAttributesIfApplied(ComputeInstance computeInstance,
-	                                                               FederationUser federationUser, String federationTokenValue)
-			throws FederatedComputeNotFoundException {
+	                                                               FederationUser federationUser, String federationTokenValue) {
 
 		Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		if (!userNetworks.isEmpty()) {
@@ -263,7 +262,7 @@ public class FederatedNetworkController {
 		return computeInstance;
 	}
 
-	public void deleteCompute(String computeId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+	public void deleteCompute(String computeId, FederationUser federationUser) {
 		String federatedIp = getAssociatedFederatedIp(computeId, federationUser);
 		final Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		for (FederatedNetwork federatedNetwork : userNetworks) {
@@ -276,7 +275,7 @@ public class FederatedNetworkController {
 		}
 	}
 
-	private String getAssociatedFederatedIp(String computeOrderId, FederationUser federationUser) throws FederatedComputeNotFoundException {
+	private String getAssociatedFederatedIp(String computeOrderId, FederationUser federationUser) {
 		Collection<FederatedNetwork> userNetworks = database.getUserNetworks(federationUser);
 		for (FederatedNetwork federatedNetwork: userNetworks){
 			Map<String, String> orderIpMap = federatedNetwork.getComputeIpMap();
