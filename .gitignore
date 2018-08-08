@@ -38,3 +38,6 @@ federated-network-service/
 
 ### DB files ###
 *.db
+
+### Log files ###
+*.log

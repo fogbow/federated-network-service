@@ -44,6 +44,10 @@ public class Main implements ApplicationRunner {
 				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, addFederatedNetworkScriptPath,
 				removeFederatedNetworkScriptPath);
 
+		OrderController orderController = new OrderController(properties);
+
 		applicationFacade.setFederatedNetworkController(federatedNetworkController);
+
+		applicationFacade.setOrderController(orderController);
 	}
 }

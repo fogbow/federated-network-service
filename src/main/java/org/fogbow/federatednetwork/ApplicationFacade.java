@@ -27,6 +27,7 @@ public class ApplicationFacade {
     private static ApplicationFacade instance;
 
     private FederatedNetworkController federatedNetworkController;
+    private OrderController orderController;
 
     // TODO: Implement a singleton that loads a property for those plugins
     private AuthenticationPlugin federationIdentityPlugin = new AllowAllIdentityPlugin();
@@ -167,13 +168,17 @@ public class ApplicationFacade {
         this.federatedNetworkController = federatedNetworkController;
     }
 
+    public void setOrderController(OrderController orderController) {
+        this.orderController = orderController;
+    }
+
     class AllowAllIdentityPlugin implements AuthenticationPlugin {
 
         @Override
         public FederationUser getFederationUser(String s) throws InvalidParameterException {
             Map<String, String> attributes = new HashMap();
 
-            attributes.put("user_name", "default_user");
+            attributes.put(FederationUser.MANDATORY_NAME_ATTRIBUTE, "default_user");
 
             return new FederationUser("fed-user", attributes);
         }
