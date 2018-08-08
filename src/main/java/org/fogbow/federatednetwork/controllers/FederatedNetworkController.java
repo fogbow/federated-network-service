@@ -9,7 +9,7 @@ import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
-import org.fogbow.federatednetwork.model.FederatedComputeOrder;
+import org.fogbow.federatednetwork.model.FederatedComputeOrderOld;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
@@ -161,7 +161,7 @@ public class FederatedNetworkController {
 	}
 
 	public String getPrivateIpFromFederatedNetwork(String federatedNetworkId, String orderId, FederationUser user) throws SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException {
-		LOGGER.info("Getting FN Ip to Order: " + orderId);
+		LOGGER.info("Getting FN Ip to FederatedOrder: " + orderId);
 		FederatedNetwork federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
 		String privateIp = federatedNetwork.nextFreeIp(orderId);
 		LOGGER.info("FederatedNetwork: " + federatedNetwork.toString());
@@ -216,11 +216,11 @@ public class FederatedNetworkController {
 		return false;
 	}
 
-	public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser federationUser)
+	public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrderOld federatedComputeOrderOld, FederationUser federationUser)
 			throws SubnetAddressesCapacityReachedException, IOException, FederatedComputeNotFoundException {
 
-		ComputeOrder incrementedComputeOrder = (ComputeOrder) federatedComputeOrder;
-		String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
+		ComputeOrder incrementedComputeOrder = (ComputeOrder) federatedComputeOrderOld;
+		String federatedNetworkId = federatedComputeOrderOld.getFederatedNetworkId();
 
 		if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
 			FederatedNetwork federatedNetwork;
@@ -232,7 +232,7 @@ public class FederatedNetworkController {
 		return incrementedComputeOrder;
 	}
 
-	public void updateOrderId(FederatedComputeOrder federatedCompute, String newId) throws FederatedComputeNotFoundException {
+	public void updateOrderId(FederatedComputeOrderOld federatedCompute, String newId) throws FederatedComputeNotFoundException {
 		String oldId = federatedCompute.getId();
 		FederationUser federationUser = federatedCompute.getFederationUser();
 		String federatedIp = getAssociatedFederatedIp(oldId, federationUser);

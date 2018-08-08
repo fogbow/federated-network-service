@@ -6,15 +6,13 @@ import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
-import org.fogbow.federatednetwork.model.FederatedComputeOrder;
+import org.fogbow.federatednetwork.model.FederatedComputeOrderOld;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
-import org.fogbowcloud.manager.core.exceptions.UnexpectedException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.orders.UserData;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 import org.junit.After;
@@ -114,11 +112,11 @@ public class ApplicationFacadeTest {
 
 		ComputeOrder computeOrder = createOrder();
 
-		FederatedComputeOrder federatedComputeOrder = new FederatedComputeOrder(computeOrder, createdFederatedNetworkId);
+		FederatedComputeOrderOld federatedComputeOrderOld = new FederatedComputeOrderOld(computeOrder, createdFederatedNetworkId);
 
 
 		ComputeOrder actualComputeOrder = ApplicationFacade.getInstance().
-				addFederatedAttributesIfApplied(federatedComputeOrder, fakeToken);
+				addFederatedAttributesIfApplied(federatedComputeOrderOld, fakeToken);
 
 		assertEquals(computeOrder.getId(), actualComputeOrder.getId());
 
