@@ -1,13 +1,17 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.datastore.StableStorage;
+import org.fogbowcloud.manager.core.models.instances.InstanceState;
+import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
-public class FederatedNetworkOrder extends FederatedOrder {
+public class FederatedNetworkOrder {
+
+    private String id;
+    private OrderState orderState;
+    private FederationUser federationUser;
 
     private String cidrNotation;
     private String label;
@@ -17,9 +21,12 @@ public class FederatedNetworkOrder extends FederatedOrder {
     private Queue<String> freedIps;
     private List<String> computesIp;
 
+    private InstanceState cachedInstanceState;
+
     public FederatedNetworkOrder(String id, FederationUser federationUser, String cidrNotation, String label,
                                  Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
-        super(id, federationUser);
+        this.id = id;
+        this.federationUser = federationUser;
         this.cidrNotation = cidrNotation;
         this.label = label;
         this.allowedMembers = allowedMembers;
@@ -30,7 +37,8 @@ public class FederatedNetworkOrder extends FederatedOrder {
 
     public FederatedNetworkOrder(FederationUser federationUser, String cidrNotation, String label,
                                  Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
-        super(String.valueOf(UUID.randomUUID()), federationUser);
+        this.id = String.valueOf(UUID.randomUUID());
+        this.federationUser = federationUser;
         this.cidrNotation = cidrNotation;
         this.label = label;
         this.allowedMembers = allowedMembers;
@@ -39,9 +47,52 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.computesIp = computesIp;
     }
 
-    @Override
-    public FederatedResourceType getType() {
-        return FederatedResourceType.FEDERATED_NETWORK;
+    public synchronized OrderState getOrderState() {
+        return this.orderState;
+    }
+
+    public synchronized void setOrderStateInRecoveryMode(OrderState state) {
+        this.orderState = state;
+    }
+
+    public synchronized void setOrderStateInTestMode(OrderState state) {
+        this.orderState = state;
+    }
+
+    public synchronized void setOrderState(OrderState state) {
+        this.orderState = state;
+        StableStorage databaseManager = null;
+        if (state.equals(OrderState.OPEN)) {
+            // Adding in stable storage newly created order
+            databaseManager.add(this);
+        } else {
+            // Updating in stable storage already existing order
+            databaseManager.update(this);
+        }
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public FederationUser getFederationUser() {
+        return federationUser;
+    }
+
+    public void setFederationUser(FederationUser federationUser) {
+        this.federationUser = federationUser;
+    }
+
+    public InstanceState getCachedInstanceState() {
+        return cachedInstanceState;
+    }
+
+    public void setCachedInstanceState(InstanceState cachedInstanceState) {
+        this.cachedInstanceState = cachedInstanceState;
     }
 
     public String getCidrNotation() {
@@ -90,5 +141,18 @@ public class FederatedNetworkOrder extends FederatedOrder {
 
     public void setComputesIp(List<String> computesIp) {
         this.computesIp = computesIp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FederatedNetworkOrder that = (FederatedNetworkOrder) o;
+        return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

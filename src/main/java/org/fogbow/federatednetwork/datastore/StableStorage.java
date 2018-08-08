@@ -1,6 +1,6 @@
 package org.fogbow.federatednetwork.datastore;
 
-import org.fogbow.federatednetwork.model.FederatedOrder;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 
@@ -11,14 +11,14 @@ public interface StableStorage {
      *
      * @param federatedOrder {@link FederatedOrder}
      */
-    public void add(FederatedOrder federatedOrder);
+    public void add(FederatedNetworkOrder federatedOrder);
 
     /**
      * Update the federatedOrder when transition occurs.
      *
      * @param federatedOrder {@link FederatedOrder}
      */
-    public void update(FederatedOrder federatedOrder);
+    public void update(FederatedNetworkOrder federatedOrder);
 
     /**
      * Retrieve orders from the database based on its state.
