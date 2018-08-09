@@ -127,7 +127,7 @@ public class FogbowCoreProxyHandler {
 			return responseEntity;
 		}
 		// Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
-		// with the one created in fogbow-core, thats why we run an "updateOrderId" method.
+		// with the one created in fogbow-core, thats why we run an "updateIdOnComputeCreation" method.
 		String responseOrderId = responseEntity.getBody();
 		ApplicationFacade.getInstance().updateOrderId(federatedComputeOrderOld,responseOrderId, federationTokenValue);
 		return responseEntity;

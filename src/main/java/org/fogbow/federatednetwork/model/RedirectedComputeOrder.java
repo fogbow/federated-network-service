@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
@@ -49,6 +50,17 @@ public class RedirectedComputeOrder {
                 computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(), userData,
                 computeOrder.getPublicKey(), computeOrder.getNetworksId());
         setComputeOrder(computeOrderWithUserData);
+    }
+
+    public void updateIdOnComputeCreation(String newId){
+        StableStorage databaseManager = null;
+        this.computeOrder.setId(newId);
+        databaseManager.addRedirectedCompute(this);
+    }
+
+    public void deactivateCompute() {
+        StableStorage databaseManager = null;
+        databaseManager.deleteRedirectedCompute(this);
     }
 
     @Override

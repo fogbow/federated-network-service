@@ -64,11 +64,18 @@ public class FederatedNetworkOrder {
         StableStorage databaseManager = null;
         if (state.equals(OrderState.OPEN)) {
             // Adding in stable storage newly created order
-            databaseManager.add(this);
+            databaseManager.addRedirectedCompute(this);
         } else {
             // Updating in stable storage already existing order
-            databaseManager.update(this);
+            databaseManager.updateFederatedNetwork(this);
         }
+    }
+
+    public synchronized void removeAssociatedIp(String ipToBeReleased) {
+        this.computesIp.remove(ipToBeReleased);
+        this.freedIps.add(ipToBeReleased);
+        StableStorage databaseManager = null;
+        databaseManager.updateFederatedNetwork(this);
     }
 
     public String getId() {

@@ -1,12 +1,14 @@
 package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.controllers.FederateComputeUtil;
+import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.ResourceType;
+import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.Instance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
@@ -76,8 +78,7 @@ public class OrderController {
 
     // Compute methods
 
-    public RedirectedComputeOrder addFederationUserDataIfApplied(RedirectedComputeOrder redirectedComputeOrderOld,
-                                                                 FederationUser federationUser) throws IOException {
+    public RedirectedComputeOrder addFederationUserDataIfApplied(RedirectedComputeOrder redirectedComputeOrderOld) throws IOException {
         String federatedNetworkId = redirectedComputeOrderOld.getFederatedNetworkId();
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             String federatedIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkId);
@@ -89,7 +90,34 @@ public class OrderController {
         return redirectedComputeOrderOld;
     }
 
-    public void updateOrderId(RedirectedComputeOrder compute, String newId) {
-        throw new NotImplementedException();
+    public void updateIdOnComputeCreation(RedirectedComputeOrder redirectedCompute, String newId) {
+        ComputeOrder computeOrder = redirectedCompute.getComputeOrder();
+        String federatedNetworkId = redirectedCompute.getFederatedNetworkId();
+        // if compute is federated
+        if (redirectedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
+            // store compute into database
+            redirectedCompute.updateIdOnComputeCreation(newId);
+            activeRedirectedComputes.put(computeOrder.getId(), redirectedCompute);
+        }
+    }
+
+
+    public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance,
+                                                                   FederationUser federationUser) {
+        RedirectedComputeOrder redirectedComputeOrder = activeRedirectedComputes.get(computeInstance.getId());
+        if (redirectedComputeOrder != null) {
+            String federatedIp = redirectedComputeOrder.getFederatedIp();
+            FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
+            return federatedComputeInstance;
+        }
+        return computeInstance;
+    }
+
+    public void deleteCompute(String computeId) {
+        RedirectedComputeOrder redirectedComputeOrder = activeRedirectedComputes.get(computeId);
+        String federatedIp = redirectedComputeOrder.getFederatedIp();
+        String federatedNetworkId = redirectedComputeOrder.getFederatedNetworkId();
+        FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+        federatedNetworkOrder.removeAssociatedIp(federatedIp);
     }
 }
