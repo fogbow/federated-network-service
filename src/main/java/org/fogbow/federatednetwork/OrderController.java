@@ -6,7 +6,6 @@ import org.fogbow.federatednetwork.controllers.FederateComputeUtil;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
@@ -29,9 +28,9 @@ public class OrderController {
 
     private static final Logger LOGGER = Logger.getLogger(OrderController.class);
 
-    Properties properties;
-    Map<String, FederatedNetworkOrder> activeFederatedNetworks;
-    Map<String, RedirectedComputeOrder> activeRedirectedComputes;
+    private Properties properties;
+    private Map<String, FederatedNetworkOrder> activeFederatedNetworks;
+    private Map<String, RedirectedComputeOrder> activeRedirectedComputes;
 
     public OrderController(Properties properties) {
         this.properties = properties;
@@ -52,10 +51,11 @@ public class OrderController {
             return "";
         }
 
-        boolean createdSuccessfully = AgentCommunicator.createFederatedNetwork(properties, federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress());
+        boolean createdSuccessfully = AgentCommunicator.createFederatedNetwork(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress(), properties);
         if (createdSuccessfully) {
             federatedNetwork.setCachedInstanceState(InstanceState.READY);
             federatedNetwork.setOrderState(OrderState.FULFILLED);
+            activeFederatedNetworks.put(federatedNetwork.getId(), federatedNetwork);
             return federatedNetwork.getId();
         }
         // TODO: we should throw an exception here
@@ -79,9 +79,10 @@ public class OrderController {
         if (!federatedNetwork.getComputesIp().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
-        boolean wasDeleted = AgentCommunicator.deleteFederatedNetwork(federatedNetwork.getCidrNotation());
+        boolean wasDeleted = AgentCommunicator.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
         if (wasDeleted == true) {
             LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
+            activeFederatedNetworks.remove(federatedNetworkId);
             federatedNetwork.setOrderState(OrderState.DEACTIVATED);
         }
         // TODO: We should throw an exception here.
