@@ -8,6 +8,7 @@ import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrderOld;
+import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
@@ -33,144 +34,144 @@ import java.util.Properties;
 @Controller
 public class FogbowCoreProxyHandler {
 
-	private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
-	public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
+    private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
+    public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
 
-	public String coreBaseUrl = null;
-	public int corePort = -1;
+    public String coreBaseUrl = null;
+    public int corePort = -1;
 
-	@RequestMapping("/**")
-	public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
-	                               HttpMethod method, HttpServletRequest request) throws
-			URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
-			UnauthenticatedUserException, InvalidParameterException {
+    @RequestMapping("/**")
+    public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
+                                             HttpMethod method, HttpServletRequest request) throws
+            URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
+            UnauthenticatedUserException, InvalidParameterException {
 
-		final String requestUrl = request.getRequestURI();
+        final String requestUrl = request.getRequestURI();
 
-		// FIXME check if this works
-		if (requestUrl.startsWith("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) {
-			switch (method) {
-				case POST:
-					return processPostCompute(body, method, request);
-				case GET:
-					final String requestURI = request.getRequestURI();
-					String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
-							ComputeOrdersController.STATUS_ENDPOINT + "|" + ComputeOrdersController.QUOTA_ENDPOINT +
-							"|" + ComputeOrdersController.ALLOCATION_ENDPOINT + ").*$";
-					if (requestURI.matches(getByIdRegex)){
-						return processGetByIdCompute(body, method, request);
-					}
-					// If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
-					break;
-				case DELETE:
-					return processDeleteCompute(body, method, request);
-			}
-		}
+        // FIXME check if this works
+        if (requestUrl.startsWith("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) {
+            switch (method) {
+                case POST:
+                    return processPostCompute(body, method, request);
+                case GET:
+                    final String requestURI = request.getRequestURI();
+                    String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
+                            ComputeOrdersController.STATUS_ENDPOINT + "|" + ComputeOrdersController.QUOTA_ENDPOINT +
+                            "|" + ComputeOrdersController.ALLOCATION_ENDPOINT + ").*$";
+                    if (requestURI.matches(getByIdRegex)) {
+                        return processGetByIdCompute(body, method, request);
+                    }
+                    // If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
+                    break;
+                case DELETE:
+                    return processDeleteCompute(body, method, request);
+            }
+        }
 
-		return redirectRequest(body, method, request, String.class);
-	}
+        return redirectRequest(body, method, request, String.class);
+    }
 
-	private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
-			throws URISyntaxException {
-		String requestUrl = request.getRequestURI();
-		if (coreBaseUrl == null || coreBaseUrl.isEmpty() || corePort <= 0) {
-			readProperties();
-		}
+    private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
+            throws URISyntaxException {
+        String requestUrl = request.getRequestURI();
+        if (coreBaseUrl == null || coreBaseUrl.isEmpty() || corePort <= 0) {
+            readProperties();
+        }
 
-		URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null, null, null);
-		uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
-				.query(request.getQueryString()).build(true).toUri();
+        URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null, null, null);
+        uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
+                .query(request.getQueryString()).build(true).toUri();
 
-		HttpHeaders headers = new HttpHeaders();
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			headers.set(headerName, request.getHeader(headerName));
-		}
+        HttpHeaders headers = new HttpHeaders();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            headers.set(headerName, request.getHeader(headerName));
+        }
 
-		HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
+        HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.setErrorHandler(new NoOpErrorHandler());
-		ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
-		return response;
-	}
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new NoOpErrorHandler());
+        ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
+        return response;
+    }
 
-	private void readProperties() {
-		Properties properties = null;
-		try {
-			properties = new Properties();
-			FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
-			properties.load(input);
-		} catch (IOException e) {
-			LOGGER.error("", e);
-			System.exit(1);
-		}
-		this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
-		this.corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
-	}
+    private void readProperties() {
+        Properties properties = null;
+        try {
+            properties = new Properties();
+            FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
+            properties.load(input);
+        } catch (IOException e) {
+            LOGGER.error("", e);
+            System.exit(1);
+        }
+        this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
+        this.corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
+    }
 
-	private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
-			FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
-			IOException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
+    private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
+            FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
+            IOException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
 
-		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
-		final Gson gson = new Gson();
-		FederatedComputeOrderOld federatedComputeOrderOld = gson.fromJson(body, FederatedComputeOrderOld.class);
-		ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(
-				federatedComputeOrderOld, federationTokenValue);
+        final Gson gson = new Gson();
+        RedirectedComputeOrder federatedComputeOrderOld = gson.fromJson(body, RedirectedComputeOrder.class);
+        ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(
+                federatedComputeOrderOld, federationTokenValue);
 
-		ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
-		// if response status was not successful, return the status
-		if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-			return responseEntity;
-		}
-		// Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
-		// with the one created in fogbow-core, thats why we run an "updateIdOnComputeCreation" method.
-		String responseOrderId = responseEntity.getBody();
-		ApplicationFacade.getInstance().updateOrderId(federatedComputeOrderOld,responseOrderId, federationTokenValue);
-		return responseEntity;
-	}
+        ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
+        // if response status was not successful, return the status
+        if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+            return responseEntity;
+        }
+        // Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
+        // with the one created in fogbow-core, thats why we run an "updateIdOnComputeCreation" method.
+        String responseOrderId = responseEntity.getBody();
+        ApplicationFacade.getInstance().updateOrderId(federatedComputeOrderOld, responseOrderId, federationTokenValue);
+        return responseEntity;
+    }
 
-	private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
-			throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+    private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
+            throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
 
-		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
-		ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
-		// if response status was not successful, return the status
-		if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-			return new ResponseEntity<ComputeInstance>(response.getStatusCode());
-		}
-		ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
-		ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedAttributesIfApplied(computeInstance, federationTokenValue);
-		return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
-	}
+        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
+        // if response status was not successful, return the status
+        if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+            return new ResponseEntity<>(response.getStatusCode());
+        }
+        ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
+        ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(computeInstance, federationTokenValue);
+        return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
+    }
 
-	private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-			throws FederatedComputeNotFoundException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
+    private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
+            throws FederatedComputeNotFoundException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
 
-		String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
-		String queryString = request.getRequestURI().replace(ComputeOrdersController.COMPUTE_ENDPOINT, "");
-		queryString = queryString.replace("/", "");
+        String queryString = request.getRequestURI().replace(ComputeOrdersController.COMPUTE_ENDPOINT, "");
+        queryString = queryString.replace("/", "");
 
 
-		ApplicationFacade.getInstance().deleteCompute(queryString, federationTokenValue);
+        ApplicationFacade.getInstance().deleteCompute(queryString, federationTokenValue);
 
-		return redirectRequest(body, method, request, String.class);
-	}
+        return redirectRequest(body, method, request, String.class);
+    }
 
-	private class NoOpErrorHandler implements ResponseErrorHandler {
+    private class NoOpErrorHandler implements ResponseErrorHandler {
 
-		@Override
-		public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
-			return clientHttpResponse.getRawStatusCode() >= 300;
-		}
+        @Override
+        public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
+            return clientHttpResponse.getRawStatusCode() >= 300;
+        }
 
-		@Override
-		public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
-		}
+        @Override
+        public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
+        }
 
-	}
+    }
 }

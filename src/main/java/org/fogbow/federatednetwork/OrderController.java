@@ -4,7 +4,9 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.controllers.FederateComputeUtil;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
+import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
@@ -85,9 +87,9 @@ public class OrderController {
         // TODO: We should throw an exception here.
     }
 
-    public List<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {
+    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {
         Collection<FederatedNetworkOrder> allFederatedNetworks = activeFederatedNetworks.values();
-        List<InstanceStatus> allFederatedNetworksStatus = getFederatedNetworksStatus(allFederatedNetworks);
+        Collection<InstanceStatus> allFederatedNetworksStatus = getFederatedNetworksStatus(allFederatedNetworks);
         // TODO: filter by user
         return allFederatedNetworksStatus;
     }
@@ -98,7 +100,7 @@ public class OrderController {
         federatedNetwork.setFreedIps(new LinkedList<>());
     }
 
-    private List<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
+    private Collection<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
         Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
         Iterator<FederatedNetworkOrder> iterator = allFederatedNetworks.iterator();
         while (iterator.hasNext()) {
@@ -126,16 +128,18 @@ public class OrderController {
 
     // Compute methods
 
-    public RedirectedComputeOrder addFederationUserDataIfApplied(RedirectedComputeOrder redirectedComputeOrderOld) throws IOException {
+    public ComputeOrder addFederationUserDataIfApplied(RedirectedComputeOrder redirectedComputeOrderOld, FederationUser federationUser) throws
+            IOException, SubnetAddressesCapacityReachedException {
         String federatedNetworkId = redirectedComputeOrderOld.getFederatedNetworkId();
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-            String federatedIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkId);
-            String cidr = FederatedNetworkUtil.getCidrFromNetworkId(federatedNetworkId);
+            FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            String federatedIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkOrder);
+            String cidr = federatedNetworkOrder.getCidrNotation();
             ComputeOrder incrementedComputeOrder = FederateComputeUtil.addUserData(redirectedComputeOrderOld.getComputeOrder(), federatedIp,
                     properties.getProperty(FEDERATED_NETWORK_AGENT_ADDRESS), cidr, properties.getProperty(FEDERATED_NETWORK_PRE_SHARED_KEY));
             redirectedComputeOrderOld.setComputeOrder(incrementedComputeOrder);
         }
-        return redirectedComputeOrderOld;
+        return redirectedComputeOrderOld.getComputeOrder();
     }
 
     public void updateIdOnComputeCreation(RedirectedComputeOrder redirectedCompute, String newId) {

@@ -47,6 +47,10 @@ public class FederatedNetworkOrder {
         this.computesIp = computesIp;
     }
 
+    public FederatedNetworkOrder() {
+        this.id = String.valueOf(UUID.randomUUID());
+    }
+
     public synchronized OrderState getOrderState() {
         return this.orderState;
     }
@@ -74,6 +78,16 @@ public class FederatedNetworkOrder {
     public synchronized void removeAssociatedIp(String ipToBeReleased) {
         this.computesIp.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
+        StableStorage databaseManager = null;
+        databaseManager.updateFederatedNetwork(this);
+    }
+
+    public synchronized void addAssociatedIp(String ipToBeAttached){
+        if (this.freedIps.contains(ipToBeAttached)) {
+            this.freedIps.remove(ipToBeAttached);
+        }
+        this.computesIp.add(ipToBeAttached);
+        this.ipsServed++;
         StableStorage databaseManager = null;
         databaseManager.updateFederatedNetwork(this);
     }

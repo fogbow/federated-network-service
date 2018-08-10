@@ -1,15 +1,34 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.net.util.SubnetUtils;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class FederatedNetworkUtil {
 
-    public static String getFreeIpForCompute(String federatedNetworkId) {
-        throw new UnsupportedOperationException();
-    }
-
-    public static String getCidrFromNetworkId(String federatedNetworkId) {
-        throw new UnsupportedOperationException();
+    public static String getFreeIpForCompute(FederatedNetworkOrder federatedNetwork) throws SubnetAddressesCapacityReachedException {
+        String freeIp = null;
+        if (federatedNetwork.getFreedIps().isEmpty()) {
+            SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());
+            int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+            int candidateIpAddress = lowAddress + federatedNetwork.getIpsServed();
+            if (!subnetInfo.isInRange(candidateIpAddress)) {
+                throw new SubnetAddressesCapacityReachedException(
+                        FederatedNetwork.NO_FREE_IPS_MESSAGE);
+            } else {
+                federatedNetwork.setIpsServed(federatedNetwork.getIpsServed() + 1);
+                freeIp = toIpAddress(candidateIpAddress);
+            }
+        } else {
+            freeIp = federatedNetwork.getFreedIps().poll();
+        }
+        federatedNetwork.addAssociatedIp(freeIp);
+        return freeIp;
     }
 
     public static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) {
@@ -20,5 +39,15 @@ public class FederatedNetworkUtil {
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
         int highAddress = subnetInfo.asInteger(subnetInfo.getHighAddress());
         return highAddress - lowAddress > 1;
+    }
+
+    private static String toIpAddress(int value) {
+        byte[] bytes = BigInteger.valueOf(value).toByteArray();
+        try {
+            InetAddress address = InetAddress.getByAddress(bytes);
+            return address.toString().replaceAll("/", "");
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 }

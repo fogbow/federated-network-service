@@ -4,8 +4,8 @@ import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedComputeOrderOld;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
@@ -43,34 +43,24 @@ public class ApplicationFacade {
 
     // federated network methods
 
-    public String createFederatedNetwork(FederatedNetwork federatedNetwork, String federationTokenValue) throws
+    public String createFederatedNetwork(FederatedNetworkOrder federatedNetwork, String federationTokenValue) throws
             UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.CREATE);
 
-        return federatedNetworkController.create(federatedNetwork, federationUser);
+        return orderController.activateFederatedNetwork(federatedNetwork, federationUser);
     }
 
-    public FederatedNetwork getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.GET);
 
-        return federatedNetworkController.getFederatedNetwork(federatedNetworkId, federationUser);
-    }
-
-    public Collection<FederatedNetwork> getFederatedNetworks(String federationTokenValue) throws
-            UnauthenticatedUserException, InvalidParameterException {
-        authenticate(federationTokenValue);
-        FederationUser federationUser = getFederationUser(federationTokenValue);
-        // TODO:  Check if we really want to use core authorization plugin.
-        authorize(federationUser, Operation.GET);
-
-        return federatedNetworkController.getUserFederatedNetworks(federationUser);
+        return orderController.getFederatedNetwork(federatedNetworkId, federationUser);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue) throws
@@ -80,7 +70,7 @@ public class ApplicationFacade {
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.GET);
 
-        return federatedNetworkController.getUserFederatedNetworksStatus(federationUser);
+        return orderController.getUserFederatedNetworksStatus(federationUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
@@ -92,39 +82,39 @@ public class ApplicationFacade {
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.DELETE);
 
-        federatedNetworkController.deleteFederatedNetwork(federatedNetworkId, federationUser);
+        orderController.deleteFederatedNetwork(federatedNetworkId, federationUser);
     }
 
     // compute methods
 
-    public ComputeOrder addFederatedAttributesIfApplied(FederatedComputeOrderOld federatedComputeOrderOld, String federationTokenValue)
-            throws SubnetAddressesCapacityReachedException,
-            IOException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+    public ComputeOrder addFederatedIpInGetInstanceIfApplied(RedirectedComputeOrder federatedComputeOrderOld, String federationTokenValue)
+            throws SubnetAddressesCapacityReachedException,IOException, UnauthenticatedUserException,
+                InvalidParameterException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.CREATE);
 
-        ComputeOrder incrementedComputeOrder = federatedNetworkController.addFederatedAttributesIfApplied(federatedComputeOrderOld, federationUser);
+        ComputeOrder incrementedComputeOrder = orderController.addFederationUserDataIfApplied(federatedComputeOrderOld, federationUser);
         return incrementedComputeOrder;
     }
 
-    public void updateOrderId(FederatedComputeOrderOld federatedCompute, String newId, String federationTokenValue)
+    public void updateOrderId(RedirectedComputeOrder federatedCompute, String newId, String federationTokenValue)
             throws FederatedComputeNotFoundException, UnauthenticatedUserException,  InvalidParameterException {
         FederationUser federationUser = getFederationUser(federationTokenValue);
-        federatedCompute.setFederationUser(federationUser);
-        federatedNetworkController.updateOrderId(federatedCompute, newId);
+        federatedCompute.getComputeOrder().setFederationUser(federationUser);
+        orderController.updateIdOnComputeCreation(federatedCompute, newId);
     }
 
-    public ComputeInstance addFederatedAttributesIfApplied(ComputeInstance computeInstance, String federationTokenValue)
+    public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String federationTokenValue)
             throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
         authorize(federationUser, Operation.GET);
 
-        return federatedNetworkController.addFederatedInstanceAttributesIfApplied(computeInstance, federationUser, federationTokenValue);
+        return orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, federationUser);
     }
 
     public void deleteCompute(String computeId, String federationTokenValue) throws FederatedComputeNotFoundException,
@@ -133,7 +123,7 @@ public class ApplicationFacade {
         FederationUser federationUser = getFederationUser(federationTokenValue);
         authorize(federationUser, Operation.DELETE);
 
-        federatedNetworkController.deleteCompute(computeId, federationUser);
+        orderController.deleteCompute(computeId);
     }
 
     private void authenticate(String federationTokenValue) throws UnauthenticatedUserException {
