@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
@@ -49,6 +50,9 @@ public class FederatedNetworkOrder {
 
     public FederatedNetworkOrder() {
         this.id = String.valueOf(UUID.randomUUID());
+        this.allowedMembers = new HashSet<>();
+        this.freedIps = new LinkedList<>();
+        this.computesIp = new ArrayList<>();
     }
 
     public synchronized OrderState getOrderState() {
@@ -65,31 +69,27 @@ public class FederatedNetworkOrder {
 
     public synchronized void setOrderState(OrderState state) {
         this.orderState = state;
-        StableStorage databaseManager = null;
-        if (state.equals(OrderState.OPEN)) {
-            // Adding in stable storage newly created order
-            databaseManager.addRedirectedCompute(this);
-        } else {
-            // Updating in stable storage already existing order
-            databaseManager.updateFederatedNetwork(this);
-        }
+        StableStorage databaseManager = new DatabaseManager();
+        // Adding or updating in stable storage newly created order
+        databaseManager.putFederatedNetwork(this, federationUser);
     }
 
     public synchronized void removeAssociatedIp(String ipToBeReleased) {
         this.computesIp.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
-        StableStorage databaseManager = null;
-        databaseManager.updateFederatedNetwork(this);
+        StableStorage databaseManager = new DatabaseManager();
+        databaseManager.putFederatedNetwork(this, federationUser);
     }
 
     public synchronized void addAssociatedIp(String ipToBeAttached){
         if (this.freedIps.contains(ipToBeAttached)) {
             this.freedIps.remove(ipToBeAttached);
+        } else {
+            this.ipsServed++;
         }
         this.computesIp.add(ipToBeAttached);
-        this.ipsServed++;
-        StableStorage databaseManager = null;
-        databaseManager.updateFederatedNetwork(this);
+        StableStorage databaseManager = new DatabaseManager();
+        databaseManager.putFederatedNetwork(this, federationUser);
     }
 
     public String getId() {
@@ -144,6 +144,7 @@ public class FederatedNetworkOrder {
         return ipsServed;
     }
 
+    // Note that 'addAssociatedIp' already updates the ipsServed, be careful using this method.
     public void setIpsServed(int ipsServed) {
         this.ipsServed = ipsServed;
     }

@@ -1,7 +1,7 @@
 package org.fogbow.federatednetwork;
 
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 
 import java.util.Map;
 
@@ -10,7 +10,7 @@ public class SharedOrderHolders {
     private static SharedOrderHolders instance;
 
     private Map<String, FederatedNetworkOrder> activeFederatedNetworks;
-    private Map<String, RedirectedComputeOrder> activeRedirectedComputes;
+    private Map<String, FederatedComputeOrder> activeRedirectedComputes;
 
     private SharedOrderHolders() {
         // retrieve from database
@@ -27,7 +27,7 @@ public class SharedOrderHolders {
         return activeFederatedNetworks;
     }
 
-    public Map<String, RedirectedComputeOrder> getActiveRedirectedComputes() {
+    public Map<String, FederatedComputeOrder> getActiveRedirectedComputes() {
         return activeRedirectedComputes;
     }
 }

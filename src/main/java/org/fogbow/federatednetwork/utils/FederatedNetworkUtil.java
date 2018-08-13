@@ -20,12 +20,10 @@ public class FederatedNetworkUtil {
             if (!subnetInfo.isInRange(candidateIpAddress)) {
                 throw new SubnetAddressesCapacityReachedException(
                         FederatedNetwork.NO_FREE_IPS_MESSAGE);
-            } else {
-                federatedNetwork.setIpsServed(federatedNetwork.getIpsServed() + 1);
-                freeIp = toIpAddress(candidateIpAddress);
             }
+            freeIp = toIpAddress(candidateIpAddress);
         } else {
-            freeIp = federatedNetwork.getFreedIps().poll();
+            freeIp = federatedNetwork.getFreedIps().element();
         }
         federatedNetwork.addAssociatedIp(freeIp);
         return freeIp;

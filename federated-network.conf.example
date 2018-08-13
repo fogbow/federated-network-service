@@ -2,6 +2,9 @@
 manager_core_port=
 manager_core_ip=
 
+# Database file path
+database_file_path=
+
 # Agent Configurations
 federated_network_agent_permission_file_path=
 federated_network_agent_user=

@@ -2,16 +2,19 @@ package org.fogbow.federatednetwork;
 
 public class ConfigurationConstants {
 
-	// Manager Core Properties
-	public static final String MANAGER_CORE_PORT = "manager_core_port";
-	public static final String MANAGER_CORE_IP = "manager_core_ip";
+    // Manager Core Properties
+    public static final String MANAGER_CORE_PORT = "manager_core_port";
+    public static final String MANAGER_CORE_IP = "manager_core_ip";
 
-	// Federated Network Properties
-	public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH = "federated_network_agent_permission_file_path";
-	public static final String FEDERATED_NETWORK_AGENT_USER = "federated_network_agent_user";
-	public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS = "federated_network_agent_private_address";
-	public static final String FEDERATED_NETWORK_AGENT_ADDRESS = "federated_network_agent_address";
-	public static final String FEDERATED_NETWORK_PRE_SHARED_KEY = "federated_network_agent_pre_shared_key";
-	public static final String ADD_FEDERATED_NETWORK_SCRIPT_PATH = "add_federated_network_script_path";
-	public static final String REMOVE_FEDERATED_NETWORK_SCRIPT_PATH = "remove_federated_network_script_path";
+    // Database File Path
+    public static final String DATABASE_FILE_PATH = "database_file_path";
+
+    // Federated Network Properties
+    public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH = "federated_network_agent_permission_file_path";
+    public static final String FEDERATED_NETWORK_AGENT_USER = "federated_network_agent_user";
+    public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS = "federated_network_agent_private_address";
+    public static final String FEDERATED_NETWORK_AGENT_ADDRESS = "federated_network_agent_address";
+    public static final String FEDERATED_NETWORK_PRE_SHARED_KEY = "federated_network_agent_pre_shared_key";
+    public static final String ADD_FEDERATED_NETWORK_SCRIPT_PATH = "add_federated_network_script_path";
+    public static final String REMOVE_FEDERATED_NETWORK_SCRIPT_PATH = "remove_federated_network_script_path";
 }

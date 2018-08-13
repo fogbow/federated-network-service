@@ -7,8 +7,8 @@ import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedComputeOrderOld;
-import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
+import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,10 +34,7 @@ import java.util.Properties;
 public class FogbowCoreProxyHandler {
 
     private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
-    public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
-
-    public String coreBaseUrl = null;
-    public int corePort = -1;
+    private Gson gson = new Gson();
 
     @RequestMapping("/**")
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
@@ -74,9 +70,9 @@ public class FogbowCoreProxyHandler {
     private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
             throws URISyntaxException {
         String requestUrl = request.getRequestURI();
-        if (coreBaseUrl == null || coreBaseUrl.isEmpty() || corePort <= 0) {
-            readProperties();
-        }
+        Properties properties = PropertiesUtil.readProperties();
+        String coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
+        int corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
 
         URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null, null, null);
         uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
@@ -97,30 +93,15 @@ public class FogbowCoreProxyHandler {
         return response;
     }
 
-    private void readProperties() {
-        Properties properties = null;
-        try {
-            properties = new Properties();
-            FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
-            properties.load(input);
-        } catch (IOException e) {
-            LOGGER.error("", e);
-            System.exit(1);
-        }
-        this.coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
-        this.corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
-    }
-
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
             FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
             IOException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
-        final Gson gson = new Gson();
-        RedirectedComputeOrder federatedComputeOrderOld = gson.fromJson(body, RedirectedComputeOrder.class);
-        ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(
-                federatedComputeOrderOld, federationTokenValue);
+        FederatedComputeOrder federatedCompute = gson.fromJson(body, FederatedComputeOrder.class);
+        ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedIpInPostIfApplied(
+                federatedCompute, federationTokenValue);
 
         ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
         // if response status was not successful, return the status
@@ -130,7 +111,7 @@ public class FogbowCoreProxyHandler {
         // Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
         // with the one created in fogbow-core, thats why we run an "updateIdOnComputeCreation" method.
         String responseOrderId = responseEntity.getBody();
-        ApplicationFacade.getInstance().updateOrderId(federatedComputeOrderOld, responseOrderId, federationTokenValue);
+        ApplicationFacade.getInstance().updateOrderId(federatedCompute, responseOrderId, federationTokenValue);
         return responseEntity;
     }
 
@@ -143,7 +124,7 @@ public class FogbowCoreProxyHandler {
         if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             return new ResponseEntity<>(response.getStatusCode());
         }
-        ComputeInstance computeInstance = new Gson().fromJson(response.getBody(), ComputeInstance.class);
+        ComputeInstance computeInstance = gson.fromJson(response.getBody(), ComputeInstance.class);
         ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(computeInstance, federationTokenValue);
         return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
     }

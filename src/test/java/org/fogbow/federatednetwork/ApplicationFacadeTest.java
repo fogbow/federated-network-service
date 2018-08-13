@@ -116,7 +116,7 @@ public class ApplicationFacadeTest {
 
 
 		ComputeOrder actualComputeOrder = ApplicationFacade.getInstance().
-				addFederatedIpInGetInstanceIfApplied(federatedComputeOrderOld, fakeToken);
+				addFederatedIpInPostIfApplied(federatedComputeOrderOld, fakeToken);
 
 		assertEquals(computeOrder.getId(), actualComputeOrder.getId());
 
@@ -133,7 +133,7 @@ public class ApplicationFacadeTest {
 				1024, 30,"fake-ip");
 
 		ComputeInstance newComputeInstance = ApplicationFacade.getInstance().
-				addFederatedIpInGetInstanceIfApplied(computeInstance, fakeToken);
+				addFederatedIpInPostIfApplied(computeInstance, fakeToken);
 
 		assertTrue(newComputeInstance instanceof FederatedComputeInstance);
 		FederatedComputeInstance federatedComputeInstance = (FederatedComputeInstance) newComputeInstance;

@@ -1,20 +1,19 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 
-import java.util.List;
 import java.util.Objects;
 
-public class RedirectedComputeOrder {
+public class FederatedComputeOrder {
 
     private String federatedNetworkId;
     private String federatedIp;
     private ComputeOrder computeOrder;
 
-    public RedirectedComputeOrder(String federatedNetworkId, String federatedIp, ComputeOrder computeOrder) {
+    public FederatedComputeOrder(String federatedNetworkId, String federatedIp, ComputeOrder computeOrder) {
         this.federatedNetworkId = federatedNetworkId;
         this.federatedIp = federatedIp;
         this.computeOrder = computeOrder;
@@ -53,21 +52,21 @@ public class RedirectedComputeOrder {
     }
 
     public void updateIdOnComputeCreation(String newId){
-        StableStorage databaseManager = null;
+        StableStorage databaseManager = new DatabaseManager();
         this.computeOrder.setId(newId);
-        databaseManager.addRedirectedCompute(this);
+        databaseManager.putFederatedCompute(this, computeOrder.getFederationUser());
     }
 
     public void deactivateCompute() {
-        StableStorage databaseManager = null;
-        databaseManager.deleteRedirectedCompute(this);
+        StableStorage databaseManager = new DatabaseManager();
+        databaseManager.deleteFederatedCompute(this, computeOrder.getFederationUser());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RedirectedComputeOrder that = (RedirectedComputeOrder) o;
+        FederatedComputeOrder that = (FederatedComputeOrder) o;
         return Objects.equals(getFederatedIp(), that.getFederatedIp()) &&
                 Objects.equals(getComputeOrder(), that.getComputeOrder());
     }

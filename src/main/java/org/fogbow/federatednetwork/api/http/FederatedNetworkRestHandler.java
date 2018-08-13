@@ -53,10 +53,14 @@ public class FederatedNetworkRestHandler {
     @DeleteMapping(value = "/{federatedNetworkId}")
     public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
                                                                 @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-            throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+            throws NotEmptyFederatedNetworkException, UnauthenticatedUserException, InvalidParameterException {
 
-        ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        try {
+            ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (FederatedComputeNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

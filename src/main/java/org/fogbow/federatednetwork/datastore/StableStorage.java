@@ -1,54 +1,53 @@
 package org.fogbow.federatednetwork.datastore;
 
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
-import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+
+import java.util.Set;
 
 public interface StableStorage {
 
     /**
-     * Add the federatedNetworkOrder into database, so we can recovery it when necessary.
+     * Add or update the federatedNetworkOrder into database, so we can recovery it when necessary.
      *
      * @param federatedNetworkOrder {@link FederatedNetworkOrder}
      */
-    public void addRedirectedCompute(FederatedNetworkOrder federatedNetworkOrder);
+    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user);
 
     /**
-     * Update the federatedNetworkOrder when transition occurs.
+     * Delete the federatedNetworkOrder.
      *
      * @param federatedNetworkOrder {@link FederatedNetworkOrder}
      */
-    public void updateFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder);
+    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user);
 
     /**
-     * Retrieve orders from the database based on its state.
-     *
-     * @param orderState {@link OrderState}
-     * @return {@link SynchronizedDoublyLinkedList}
+     * Retrieve federated networks from the database based on user given.
+     * @param user {@link FederationUser}
+     * @return A set of federated networks {@link FederatedNetworkOrder}
      */
-    public SynchronizedDoublyLinkedList readActiveFederatedNetworkOrder(OrderState orderState);
+    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUser user);
 
     /**
-     * Add the redirectedComputeOrder into database, so we can recovery it when necessary.
+     * Add or update the federatedComputeOrder into database, so we can recovery it when necessary.
      *
-     * @param redirectedComputeOrder {@link FederatedNetworkOrder}
+     * @param federatedComputeOrder {@link FederatedNetworkOrder}
      */
-    public void addRedirectedCompute(RedirectedComputeOrder redirectedComputeOrder);
+    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user);
 
     /**
-     * Update the redirectedComputeOrder when transition occurs.
+     * Delete the federatedComputeOrder.
      *
-     * @param redirectedComputeOrder {@link FederatedNetworkOrder}
+     * @param federatedComputeOrder {@link FederatedNetworkOrder}
      */
-    public void deleteRedirectedCompute(RedirectedComputeOrder redirectedComputeOrder);
+    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user);
 
     /**
-     * Retrieve orders from the database based on its state.
-     *
-     * @param orderState {@link OrderState}
-     * @return {@link SynchronizedDoublyLinkedList}
+     * Retrieve federated computes from the database based on user given.
+     * @param user {@link FederationUser}
+     * @return A set of redirected compute {@link FederatedComputeOrder}
      */
-    public SynchronizedDoublyLinkedList readActiveRedirectedComputeOrder(OrderState orderState);
+    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUser user);
 
 }

@@ -4,8 +4,8 @@ import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.RedirectedComputeOrder;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
@@ -87,7 +87,7 @@ public class ApplicationFacade {
 
     // compute methods
 
-    public ComputeOrder addFederatedIpInGetInstanceIfApplied(RedirectedComputeOrder federatedComputeOrderOld, String federationTokenValue)
+    public ComputeOrder addFederatedIpInPostIfApplied(FederatedComputeOrder federatedComputeOrderOld, String federationTokenValue)
             throws SubnetAddressesCapacityReachedException,IOException, UnauthenticatedUserException,
                 InvalidParameterException {
 
@@ -100,7 +100,7 @@ public class ApplicationFacade {
         return incrementedComputeOrder;
     }
 
-    public void updateOrderId(RedirectedComputeOrder federatedCompute, String newId, String federationTokenValue)
+    public void updateOrderId(FederatedComputeOrder federatedCompute, String newId, String federationTokenValue)
             throws FederatedComputeNotFoundException, UnauthenticatedUserException,  InvalidParameterException {
         FederationUser federationUser = getFederationUser(federationTokenValue);
         federatedCompute.getComputeOrder().setFederationUser(federationUser);
