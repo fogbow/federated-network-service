@@ -145,14 +145,14 @@ public class OrderController {
         return federatedComputeOrder.getComputeOrder();
     }
 
-    public void updateIdOnComputeCreation(FederatedComputeOrder redirectedCompute, String newId) {
-        ComputeOrder computeOrder = redirectedCompute.getComputeOrder();
-        String federatedNetworkId = redirectedCompute.getFederatedNetworkId();
+    public void updateIdOnComputeCreation(FederatedComputeOrder federatedCompute, String newId) {
+        ComputeOrder computeOrder = federatedCompute.getComputeOrder();
+        String federatedNetworkId = federatedCompute.getFederatedNetworkId();
         // if compute is federated
-        if (redirectedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
+        if (federatedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             // store compute into database
-            redirectedCompute.updateIdOnComputeCreation(newId);
-            activeFederatedComputes.put(computeOrder.getId(), redirectedCompute);
+            federatedCompute.updateIdOnComputeCreation(newId);
+            activeFederatedComputes.put(computeOrder.getId(), federatedCompute);
         }
     }
 

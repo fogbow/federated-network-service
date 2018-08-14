@@ -18,6 +18,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager implements StableStorage {
 
@@ -90,6 +91,10 @@ public class DatabaseManager implements StableStorage {
         } finally {
             database.close();
         }
+    }
+
+    public ConcurrentHashMap<String, Set<FederatedNetworkOrder>> retrieveActiveFederatedNetworks() {
+        throw new UnsupportedOperationException();
     }
 
     private HTreeMap<String, String> extractFederatedNetworksMap(DB database) {
@@ -166,6 +171,10 @@ public class DatabaseManager implements StableStorage {
         } finally {
             database.close();
         }
+    }
+
+    public ConcurrentHashMap<String, Set<FederatedComputeOrder>> retrieveActiveFederatedComputes() {
+        throw new UnsupportedOperationException();
     }
 
     private Set<FederatedComputeOrder> getFederatedComputes(HTreeMap<String, String> userIdToFedNetworks, FederationUser user) {

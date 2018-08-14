@@ -1,9 +1,12 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
+import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.mapdb.HTreeMap;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface StableStorage {
@@ -30,6 +33,12 @@ public interface StableStorage {
     public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUser user);
 
     /**
+     * Retrieve all federated networks, may be interest to create a database recovery
+     * @return A map of user id to federated networks {@link FederatedNetworkOrder}
+     */
+    public Map<String, Set<FederatedNetworkOrder>> retrieveActiveFederatedNetworks();
+
+    /**
      * Add or update the federatedComputeOrder into database, so we can recovery it when necessary.
      *
      * @param federatedComputeOrder {@link FederatedNetworkOrder}
@@ -46,8 +55,13 @@ public interface StableStorage {
     /**
      * Retrieve federated computes from the database based on user given.
      * @param user {@link FederationUser}
-     * @return A set of redirected compute {@link FederatedComputeOrder}
+     * @return A set of federated computes {@link FederatedComputeOrder}
      */
     public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUser user);
 
+    /**
+     * Retrieve all federated computes, may be interest to create a database recovery
+     * @return A map of user id to to federated computes {@link FederatedComputeOrder}
+     */
+    public Map<String, Set<FederatedComputeOrder>> retrieveActiveFederatedComputes();
 }
