@@ -29,10 +29,18 @@ public class DatabaseManager implements StableStorage {
     private static final Gson gson = new Gson();
 
     private final String databaseFilePath;
+    private static DatabaseManager instance;
 
-    public DatabaseManager() {
+    private DatabaseManager() {
         Properties properties = PropertiesUtil.readProperties();
         this.databaseFilePath = properties.getProperty(ConfigurationConstants.DATABASE_FILE_PATH);
+    }
+
+    public static synchronized DatabaseManager getInstance() {
+        if (instance == null) {
+            instance = new DatabaseManager();
+        }
+        return instance;
     }
 
     private DB openDatabase() {

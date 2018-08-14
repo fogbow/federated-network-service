@@ -175,11 +175,13 @@ public class OrderController {
 
     public void deleteCompute(String computeId) {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeId);
-        String federatedIp = federatedComputeOrder.getFederatedIp();
-        String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
-        FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
-        federatedNetworkOrder.removeAssociatedIp(federatedIp);
-        federatedComputeOrder.deactivateCompute();
+        if (federatedComputeOrder != null) {
+            String federatedIp = federatedComputeOrder.getFederatedIp();
+            String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
+            FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            federatedNetworkOrder.removeAssociatedIp(federatedIp);
+            federatedComputeOrder.deactivateCompute();
+        }
     }
 
     public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {

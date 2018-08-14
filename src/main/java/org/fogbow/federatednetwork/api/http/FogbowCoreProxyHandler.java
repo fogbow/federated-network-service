@@ -125,14 +125,14 @@ public class FogbowCoreProxyHandler {
         return responseEntity;
     }
 
-    private ResponseEntity<ComputeInstance> processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
+    private ResponseEntity processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
             throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
         ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
         // if response status was not successful, return the status
         if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-            return new ResponseEntity<>(response.getStatusCode());
+            return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
         ComputeInstance computeInstance = gson.fromJson(response.getBody(), ComputeInstance.class);
         ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(computeInstance, federationTokenValue);

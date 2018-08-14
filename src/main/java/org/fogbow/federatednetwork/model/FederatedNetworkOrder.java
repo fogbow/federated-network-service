@@ -69,7 +69,7 @@ public class FederatedNetworkOrder {
 
     public synchronized void setOrderState(OrderState state) {
         this.orderState = state;
-        StableStorage databaseManager = new DatabaseManager();
+        StableStorage databaseManager = DatabaseManager.getInstance();
         // Adding or updating in stable storage newly created order
         databaseManager.putFederatedNetwork(this, federationUser);
     }
@@ -77,7 +77,7 @@ public class FederatedNetworkOrder {
     public synchronized void removeAssociatedIp(String ipToBeReleased) {
         this.computesIp.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
-        StableStorage databaseManager = new DatabaseManager();
+        StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.putFederatedNetwork(this, federationUser);
     }
 
@@ -88,7 +88,7 @@ public class FederatedNetworkOrder {
             this.ipsServed++;
         }
         this.computesIp.add(ipToBeAttached);
-        StableStorage databaseManager = new DatabaseManager();
+        StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.putFederatedNetwork(this, federationUser);
     }
 
