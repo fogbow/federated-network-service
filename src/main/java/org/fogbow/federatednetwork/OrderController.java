@@ -2,6 +2,7 @@ package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
@@ -63,17 +64,18 @@ public class OrderController {
         return "";
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException {
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException,
+            FederatedNetworkNotFoundException {
         // TODO: filter the user
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
         if (federatedNetworkOrder == null) {
-            throw new FederatedComputeNotFoundException();
+            throw new FederatedNetworkNotFoundException(federatedNetworkId);
         }
         return federatedNetworkOrder;
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user)
-            throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException {
+            throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
@@ -130,11 +132,14 @@ public class OrderController {
     // Compute methods
 
     public ComputeOrder addFederationUserDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser federationUser) throws
-            IOException, SubnetAddressesCapacityReachedException {
+            IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            if (federatedNetworkOrder == null) {
+                throw new FederatedNetworkNotFoundException(federatedNetworkId);
+            }
             String federatedIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkOrder);
             federatedComputeOrder.setFederatedIp(federatedIp);
             String cidr = federatedNetworkOrder.getCidrNotation();
@@ -175,5 +180,10 @@ public class OrderController {
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
         federatedNetworkOrder.removeAssociatedIp(federatedIp);
         federatedComputeOrder.deactivateCompute();
+    }
+
+    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
+        FederatedNetworkOrder federatedNetwork = activeFederatedNetworks.get(federatedCompute.getFederatedNetworkId());
+        federatedNetwork.removeAssociatedIp(federatedCompute.getFederatedIp());
     }
 }

@@ -2,6 +2,7 @@ package org.fogbow.federatednetwork.api.http;
 
 import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
+import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
@@ -40,7 +41,7 @@ public class FederatedNetworkRestHandler {
     @GetMapping(value = "/{federatedNetworkId}")
     public static ResponseEntity<FederatedNetworkOrder> getFederatedNetwork(@PathVariable String federatedNetworkId,
                                                                             @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-            throws UnauthenticatedUserException, InvalidParameterException {
+            throws UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
 
         try {
             final FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().getFederatedNetwork(federatedNetworkId, federationTokenValue);
@@ -53,7 +54,7 @@ public class FederatedNetworkRestHandler {
     @DeleteMapping(value = "/{federatedNetworkId}")
     public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
                                                                 @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-            throws NotEmptyFederatedNetworkException, UnauthenticatedUserException, InvalidParameterException {
+            throws NotEmptyFederatedNetworkException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
 
         try {
             ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);

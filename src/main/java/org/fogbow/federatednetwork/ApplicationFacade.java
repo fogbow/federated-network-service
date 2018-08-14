@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
+import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
@@ -52,7 +53,7 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
-            throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+            throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
@@ -73,7 +74,7 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException,
-            FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+            FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
@@ -86,8 +87,8 @@ public class ApplicationFacade {
     // compute methods
 
     public ComputeOrder addFederatedIpInPostIfApplied(FederatedComputeOrder federatedComputeOrderOld, String federationTokenValue)
-            throws SubnetAddressesCapacityReachedException,IOException, UnauthenticatedUserException,
-                InvalidParameterException {
+            throws SubnetAddressesCapacityReachedException, IOException, UnauthenticatedUserException,
+            InvalidParameterException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
@@ -122,6 +123,10 @@ public class ApplicationFacade {
         authorize(federationUser, Operation.DELETE);
 
         orderController.deleteCompute(computeId);
+    }
+
+    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
+        orderController.rollbackInFailedPost(federatedCompute);
     }
 
     private void authenticate(String federationTokenValue) throws UnauthenticatedUserException {

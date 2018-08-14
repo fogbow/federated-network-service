@@ -6,6 +6,7 @@ import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
+import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -40,7 +42,7 @@ public class FogbowCoreProxyHandler {
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
-            UnauthenticatedUserException, InvalidParameterException {
+            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
 
         final String requestUrl = request.getRequestURI();
 
@@ -94,8 +96,8 @@ public class FogbowCoreProxyHandler {
     }
 
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
-            FederatedComputeNotFoundException, SubnetAddressesCapacityReachedException,
-            IOException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException {
+            InvalidParameterException, SubnetAddressesCapacityReachedException, UnauthenticatedUserException,
+            IOException, FederatedComputeNotFoundException, URISyntaxException, FederatedNetworkNotFoundException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -103,9 +105,17 @@ public class FogbowCoreProxyHandler {
         ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedIpInPostIfApplied(
                 federatedCompute, federationTokenValue);
 
-        ResponseEntity<String> responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
-        // if response status was not successful, return the status
+        ResponseEntity<String> responseEntity = null;
+        // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
+        try {
+            responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
+        } catch (RestClientException e) {
+            responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
+                    body(HttpExceptionToErrorConditionTranslator.RESOURCE_ALLOCATION_SERVICE_COULD_NOT_RESPOND);
+        }
+        // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+            ApplicationFacade.getInstance().rollbackInFailedPost(federatedCompute);
             return responseEntity;
         }
         // Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
@@ -153,6 +163,5 @@ public class FogbowCoreProxyHandler {
         @Override
         public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
         }
-
     }
 }
