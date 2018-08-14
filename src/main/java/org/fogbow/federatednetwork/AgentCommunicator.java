@@ -1,8 +1,6 @@
 package org.fogbow.federatednetwork;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
 
 import java.util.Properties;
 

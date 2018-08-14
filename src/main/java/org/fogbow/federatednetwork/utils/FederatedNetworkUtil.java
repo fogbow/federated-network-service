@@ -2,7 +2,6 @@ package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 
 import java.math.BigInteger;
@@ -11,6 +10,8 @@ import java.net.UnknownHostException;
 
 public class FederatedNetworkUtil {
 
+    public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
+
     public static String getFreeIpForCompute(FederatedNetworkOrder federatedNetwork) throws SubnetAddressesCapacityReachedException {
         String freeIp = null;
         if (federatedNetwork.getFreedIps().isEmpty()) {
@@ -18,8 +19,7 @@ public class FederatedNetworkUtil {
             int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
             int candidateIpAddress = lowAddress + federatedNetwork.getIpsServed();
             if (!subnetInfo.isInRange(candidateIpAddress)) {
-                throw new SubnetAddressesCapacityReachedException(
-                        FederatedNetwork.NO_FREE_IPS_MESSAGE);
+                throw new SubnetAddressesCapacityReachedException(NO_FREE_IPS_MESSAGE);
             }
             freeIp = toIpAddress(candidateIpAddress);
         } else {

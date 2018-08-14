@@ -1,6 +1,5 @@
 package org.fogbow.federatednetwork;
 
-import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
@@ -26,7 +25,6 @@ public class ApplicationFacade {
 
     private static ApplicationFacade instance;
 
-    private FederatedNetworkController federatedNetworkController;
     private OrderController orderController;
 
     // TODO: Implement a singleton that loads a property for those plugins
@@ -141,21 +139,6 @@ public class ApplicationFacade {
 
     private FederationUser getFederationUser(String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException {
         return this.federationIdentityPlugin.getFederationUser(federationTokenValue);
-    }
-
-	/*
-    public void deleteCompute(String computeOrderId, String federationTokenValue)
-			throws  {
-		this.aaController.authenticate(federationTokenValue);
-		FederationUser federationUser = this.aaController.getFederationUser(federationTokenValue);
-		// TODO:  Check if we really want to use core authorization plugin.
-		this.aaController.authorize(federationUser, Operation.DELETE);
-
-		federateComputeUtil.deleteCompute(computeOrderId, federationUser);
-	}*/
-
-    public void setFederatedNetworkController(FederatedNetworkController federatedNetworkController) {
-        this.federatedNetworkController = federatedNetworkController;
     }
 
     public void setOrderController(OrderController orderController) {

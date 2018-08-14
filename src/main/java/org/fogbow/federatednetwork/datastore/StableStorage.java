@@ -1,10 +1,8 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
-import org.fogbow.federatednetwork.model.FederatedNetwork;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
-import org.mapdb.HTreeMap;
 
 import java.util.Map;
 import java.util.Set;

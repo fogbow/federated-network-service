@@ -3,7 +3,6 @@ package org.fogbow.federatednetwork.model;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.UserData;
 
 import java.util.Objects;
 
@@ -41,14 +40,6 @@ public class FederatedComputeOrder {
 
     public void setComputeOrder(ComputeOrder computeOrder) {
         this.computeOrder = computeOrder;
-    }
-
-    public void setUserDataInComputeOrder(UserData userData) {
-        ComputeOrder computeOrderWithUserData = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUser(),
-                computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getvCPU(),
-                computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(), userData,
-                computeOrder.getPublicKey(), computeOrder.getNetworksId());
-        setComputeOrder(computeOrderWithUserData);
     }
 
     public void updateIdOnComputeCreation(String newId){
