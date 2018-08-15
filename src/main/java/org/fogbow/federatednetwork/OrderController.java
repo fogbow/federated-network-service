@@ -64,18 +64,18 @@ public class OrderController {
         return "";
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user) throws FederatedComputeNotFoundException,
-            FederatedNetworkNotFoundException {
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user)
+            throws FederatedNetworkNotFoundException {
         // TODO: filter the user
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
-        if (federatedNetworkOrder == null) {
-            throw new FederatedNetworkNotFoundException(federatedNetworkId);
+        if (federatedNetworkOrder != null && federatedNetworkOrder.getFederationUser().equals(user)) {
+            return federatedNetworkOrder;
         }
-        return federatedNetworkOrder;
+        throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user)
-            throws NotEmptyFederatedNetworkException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
@@ -97,10 +97,16 @@ public class OrderController {
     }
 
     public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {
-        Collection<FederatedNetworkOrder> allFederatedNetworks = activeFederatedNetworks.values();
-        Collection<InstanceStatus> allFederatedNetworksStatus = getFederatedNetworksStatus(allFederatedNetworks);
-        // TODO: filter by user
-        return allFederatedNetworksStatus;
+        Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
+
+        // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
+        // the user and should not be seen; they will disappear from the system).
+        List<FederatedNetworkOrder> requestedOrders =
+                orders.stream()
+                        .filter(order -> order.getFederationUser().equals(user))
+                        .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
+                        .collect(Collectors.toList());
+        return getFederatedNetworksStatus(requestedOrders);
     }
 
     private Collection<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
@@ -112,27 +118,14 @@ public class OrderController {
             InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), "-", federatedNetwork.getCachedInstanceState());
             instanceStatusList.add(instanceStatus);
         }
-        return new ArrayList<InstanceStatus>(instanceStatusList);
-    }
-
-    private List<FederatedNetworkOrder> getAllFederatedNetworks(FederationUser federationUser) {
-        Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
-
-        // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
-        // the user and should not be seen; they will disappear from the system as soon as the closedProcessor thread
-        // process them).
-        List<FederatedNetworkOrder> requestedOrders =
-                orders.stream()
-                        .filter(order -> order.getFederationUser().equals(federationUser))
-                        .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
-                        .collect(Collectors.toList());
-        return requestedOrders;
+        return new ArrayList<>(instanceStatusList);
     }
 
     // Compute methods
 
-    public ComputeOrder addFederationUserDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser federationUser) throws
-            IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
+    public ComputeOrder addFederationUserDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser user) throws
+            IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException {
+        federatedComputeOrder.getComputeOrder().setFederationUser(user);
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
