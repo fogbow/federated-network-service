@@ -7,6 +7,7 @@ import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
 import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
@@ -42,7 +43,7 @@ public class FogbowCoreProxyHandler {
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
-            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
+            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException, InvalidCidrException {
 
         final String requestUrl = request.getRequestURI();
 
@@ -97,7 +98,7 @@ public class FogbowCoreProxyHandler {
 
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
             InvalidParameterException, SubnetAddressesCapacityReachedException, UnauthenticatedUserException,
-            IOException, FederatedComputeNotFoundException, URISyntaxException, FederatedNetworkNotFoundException {
+            IOException, FederatedComputeNotFoundException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

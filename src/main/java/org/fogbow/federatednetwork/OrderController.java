@@ -3,8 +3,9 @@ package org.fogbow.federatednetwork;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
-import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
@@ -42,7 +43,7 @@ public class OrderController {
 
     // Federated Network methods
 
-    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser) {
+    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser) throws InvalidCidrException {
         federatedNetwork.setFederationUser(federationUser);
 
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
@@ -53,7 +54,7 @@ public class OrderController {
             return "";
         }
 
-        boolean createdSuccessfully = AgentCommunicator.createFederatedNetwork(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress(), properties);
+        boolean createdSuccessfully = AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidrNotation(), subnetInfo.getLowAddress(), properties);
         if (createdSuccessfully) {
             federatedNetwork.setCachedInstanceState(InstanceState.READY);
             federatedNetwork.setOrderState(OrderState.FULFILLED);
@@ -87,7 +88,7 @@ public class OrderController {
         if (!federatedNetwork.getComputesIp().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
-        boolean wasDeleted = AgentCommunicator.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
+        boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
         if (wasDeleted == true) {
             LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
             activeFederatedNetworks.remove(federatedNetworkId);
@@ -124,7 +125,7 @@ public class OrderController {
     // Compute methods
 
     public ComputeOrder addFederationUserDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser user) throws
-            IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException {
+            IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException, InvalidCidrException {
         federatedComputeOrder.getComputeOrder().setFederationUser(user);
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 

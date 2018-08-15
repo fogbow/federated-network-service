@@ -1,9 +1,6 @@
 package org.fogbow.federatednetwork;
 
-import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
-import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
-import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.core.constants.Operation;
@@ -43,7 +40,7 @@ public class ApplicationFacade {
     // federated network methods
 
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetwork, String federationTokenValue) throws
-            UnauthenticatedUserException, InvalidParameterException {
+            UnauthenticatedUserException, InvalidParameterException, InvalidCidrException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.
@@ -88,7 +85,7 @@ public class ApplicationFacade {
 
     public ComputeOrder addFederatedIpInPostIfApplied(FederatedComputeOrder federatedComputeOrderOld, String federationTokenValue)
             throws SubnetAddressesCapacityReachedException, IOException, UnauthenticatedUserException,
-            InvalidParameterException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
+            InvalidParameterException, FederatedComputeNotFoundException, FederatedNetworkNotFoundException, InvalidCidrException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);

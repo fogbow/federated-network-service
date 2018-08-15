@@ -1,15 +1,14 @@
-package org.fogbow.federatednetwork;
+package org.fogbow.federatednetwork.utils;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.utils.ProcessUtil;
 
 import java.util.Properties;
 
 import static org.fogbow.federatednetwork.ConfigurationConstants.*;
 
-public class AgentCommunicator {
+public class AgentCommunicatorUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(AgentCommunicator.class);
+    private static final Logger LOGGER = Logger.getLogger(AgentCommunicatorUtil.class);
 
     public static boolean createFederatedNetwork(String cidrNotation, String virtualIpAddress, Properties properties) {
         String permissionFilePath = properties.getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
