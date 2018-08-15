@@ -18,4 +18,6 @@ public class FederatedNetworkConstants {
     public static final String FEDERATED_NETWORK_NOT_FOUND = "Federated network not found";
 
     public static final String INVALID_CIDR = "The CIDR (%s) is not valid";
+
+    public static final String ERROR_WHILE_TRYING_TO_COMMUNICATE_WITH_AGENT = "Could not communicate with the agent.";
 }

@@ -40,7 +40,7 @@ public class ApplicationFacade {
     // federated network methods
 
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetwork, String federationTokenValue) throws
-            UnauthenticatedUserException, InvalidParameterException, InvalidCidrException {
+            UnauthenticatedUserException, InvalidParameterException, InvalidCidrException, AgentCommucationException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO: Check if we really want to use core authorization plugin.

@@ -2,12 +2,9 @@ package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
-import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
@@ -43,7 +40,8 @@ public class OrderController {
 
     // Federated Network methods
 
-    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser) throws InvalidCidrException {
+    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser) throws
+            InvalidCidrException, AgentCommucationException {
         federatedNetwork.setFederationUser(federationUser);
 
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
@@ -62,7 +60,7 @@ public class OrderController {
             return federatedNetwork.getId();
         }
         // TODO: we should throw an exception here
-        return "";
+        throw new AgentCommucationException();
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user)
@@ -181,5 +179,21 @@ public class OrderController {
     public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
         FederatedNetworkOrder federatedNetwork = activeFederatedNetworks.get(federatedCompute.getFederatedNetworkId());
         federatedNetwork.removeAssociatedIp(federatedCompute.getFederatedIp());
+    }
+
+    protected Map<String, FederatedNetworkOrder> getActiveFederatedNetworks() {
+        return activeFederatedNetworks;
+    }
+
+    protected void setActiveFederatedNetworks(Map<String, FederatedNetworkOrder> activeFederatedNetworks) {
+        this.activeFederatedNetworks = activeFederatedNetworks;
+    }
+
+    protected Map<String, FederatedComputeOrder> getActiveFederatedComputes() {
+        return activeFederatedComputes;
+    }
+
+    protected void setActiveFederatedComputes(Map<String, FederatedComputeOrder> activeFederatedComputes) {
+        this.activeFederatedComputes = activeFederatedComputes;
     }
 }

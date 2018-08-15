@@ -4,12 +4,10 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.apache.commons.validator.routines.InetAddressValidator;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.InvalidParameterException;
 
 public class FederatedNetworkUtil {
 

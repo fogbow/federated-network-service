@@ -1,10 +1,7 @@
 package org.fogbow.federatednetwork.api.http;
 
 import org.fogbow.federatednetwork.ApplicationFacade;
-import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
-import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
-import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
+import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
@@ -25,7 +22,7 @@ public class FederatedNetworkRestHandler {
     @PostMapping
     public static final ResponseEntity<String> createFederatedNetwork(@RequestBody FederatedNetworkOrder federatedNetwork,
                                                                       @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-            throws UnauthenticatedUserException, InvalidParameterException, InvalidCidrException {
+            throws UnauthenticatedUserException, InvalidParameterException, InvalidCidrException, AgentCommucationException {
 
         final String federatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork, federationTokenValue);
         return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
