@@ -104,7 +104,7 @@ public class ApplicationFacade {
     }
 
     public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String federationTokenValue)
-            throws FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+            throws UnauthenticatedUserException, InvalidParameterException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         // TODO:  Check if we really want to use core authorization plugin.
@@ -114,7 +114,7 @@ public class ApplicationFacade {
     }
 
     public void deleteCompute(String computeId, String federationTokenValue) throws FederatedComputeNotFoundException,
-            UnauthenticatedUserException, InvalidParameterException {
+            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         authorize(federationUser, Operation.DELETE);

@@ -9,6 +9,7 @@ import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
+import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
@@ -154,26 +155,35 @@ public class OrderController {
         }
     }
 
-
     public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance,
-                                                                FederationUser federationUser) {
+                                                                FederationUser federationUser) throws UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeInstance.getId());
         if (federatedComputeOrder != null) {
-            String federatedIp = federatedComputeOrder.getFederatedIp();
-            FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
-            return federatedComputeInstance;
+            FederationUser computeUser = federatedComputeOrder.getComputeOrder().getFederationUser();
+            if (computeUser.equals(federationUser)) {
+                String federatedIp = federatedComputeOrder.getFederatedIp();
+                FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
+                return federatedComputeInstance;
+            } else {
+                throw new UnauthenticatedUserException();
+            }
         }
         return computeInstance;
     }
 
-    public void deleteCompute(String computeId) {
+    public void deleteCompute(String computeId) throws FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeId);
         if (federatedComputeOrder != null) {
             String federatedIp = federatedComputeOrder.getFederatedIp();
             String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
             FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            if (federatedNetworkOrder == null) {
+                throw new FederatedNetworkNotFoundException(federatedNetworkId);
+            }
             federatedNetworkOrder.removeAssociatedIp(federatedIp);
             federatedComputeOrder.deactivateCompute();
+        } else {
+            throw new FederatedComputeNotFoundException(computeId);
         }
     }
 
