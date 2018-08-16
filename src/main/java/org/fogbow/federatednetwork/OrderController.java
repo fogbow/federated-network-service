@@ -74,7 +74,7 @@ public class OrderController {
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException {
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
@@ -91,8 +91,9 @@ public class OrderController {
             LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
             activeFederatedNetworks.remove(federatedNetworkId);
             federatedNetwork.setOrderState(OrderState.DEACTIVATED);
+        } else {
+            throw new AgentCommucationException();
         }
-        // TODO: We should throw an exception here.
     }
 
     public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {

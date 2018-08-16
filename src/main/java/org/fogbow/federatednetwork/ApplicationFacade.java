@@ -71,7 +71,7 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException,
-            FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
+            FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException, AgentCommucationException {
 
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);

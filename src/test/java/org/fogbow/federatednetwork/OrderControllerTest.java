@@ -4,10 +4,12 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.fogbow.federatednetwork.exceptions.AgentCommucationException;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
+import org.fogbowcloud.manager.core.models.InstanceStatus;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.tokens.FederationUser;
@@ -19,13 +21,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -108,7 +107,6 @@ public class OrderControllerTest extends BaseUnitTest {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
-        federatedNetwork.setId(federatedNetworkId);
         when(federatedNetwork.getFederationUser()).thenReturn(user);
         fakeActiveFederatedNetworks.put(federatedNetworkId, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
@@ -120,7 +118,117 @@ public class OrderControllerTest extends BaseUnitTest {
         } catch (FederatedNetworkNotFoundException e) {
             fail();
         }
+    }
 
+    //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
+    @Test
+    public void testGetNotExistentFederatedNetwork() {
+        //exercise
+        try {
+            FederatedNetworkOrder returnedOrder = orderController.getFederatedNetwork(federatedNetworkId, user);
+            fail();
+        } catch (FederatedNetworkNotFoundException e) {
+            //verify
+        }
+    }
+
+    //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
+    @Test
+    public void testDeleteFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException {
+        //set up
+        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+        Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
+        when(federatedNetwork.getFederationUser()).thenReturn(user);
+        fakeActiveFederatedNetworks.put(federatedNetworkId, federatedNetwork);
+        orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
+
+        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+        BDDMockito.given(AgentCommunicatorUtil.deleteFederatedNetwork(anyString(), any(Properties.class))).willReturn(true);
+        try {
+            //exercise
+            orderController.deleteFederatedNetwork(federatedNetworkId, user);
+            //verify
+        } catch (NotEmptyFederatedNetworkException e) {
+            fail();
+        }
+        try {
+            //exercise
+            FederatedNetworkOrder returnedOrder = orderController.getFederatedNetwork(federatedNetworkId, user);
+            fail();
+        } catch (FederatedNetworkNotFoundException e) {
+            //verify
+        }
+        verify(federatedNetwork, times(1)).setOrderState(OrderState.DEACTIVATED);
+        assertNull(orderController.getActiveFederatedNetworks().get(federatedNetworkId));
+    }
+
+    //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
+    @Test
+    public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException, AgentCommucationException {
+        //set up
+        try {
+            //exercise
+            orderController.deleteFederatedNetwork(federatedNetworkId, user);
+            fail();
+        } catch (FederatedNetworkNotFoundException e) {
+            //verify
+        }
+    }
+
+    //test case: This test check if an error communicating with agent will throw an AgentCommucationException
+    @Test
+    public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException {
+        //set up
+        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+        Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
+        federatedNetwork.setId(federatedNetworkId);
+        when(federatedNetwork.getFederationUser()).thenReturn(user);
+        fakeActiveFederatedNetworks.put(federatedNetworkId, federatedNetwork);
+        orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
+
+        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+        BDDMockito.given(AgentCommunicatorUtil.deleteFederatedNetwork(anyString(), any(Properties.class))).willReturn(false);
+        try {
+            //exercise
+            orderController.deleteFederatedNetwork(federatedNetworkId, user);
+            fail();
+        } catch (AgentCommucationException e) {
+            //verify
+        }
+    }
+
+    //test case: Tests if get all federated networks will return correctly
+    @Test
+    public void testGetFederatedNetworks() {
+        //set up
+        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+        FederatedNetworkOrder federatedNetwork2 = mock(FederatedNetworkOrder.class);
+        String federatedNetworkId2 = federatedNetworkId + 2;
+        Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
+        when(federatedNetwork.getId()).thenReturn(federatedNetworkId);
+        when(federatedNetwork2.getId()).thenReturn(federatedNetworkId2);
+        when(federatedNetwork.getFederationUser()).thenReturn(user);
+        when(federatedNetwork2.getFederationUser()).thenReturn(user);
+        when(federatedNetwork.getOrderState()).thenReturn(OrderState.FULFILLED);
+        when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
+        fakeActiveFederatedNetworks.put(federatedNetworkId, federatedNetwork);
+        fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
+        orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
+        //exercise
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(orderController.getUserFederatedNetworksStatus(user));
+        //verify
+        assertEquals(2, federatedNetworks.size());
+        assertEquals(federatedNetworkId, federatedNetworks.get(0).getInstanceId());
+        assertEquals(federatedNetworkId2, federatedNetworks.get(1).getInstanceId());
+    }
+
+    //test case: Tests if get all in an Empty federated networks list will return correctly
+    @Test
+    public void testGetEmptyListOfFederatedNetworks() {
+        //exercise
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(orderController.getUserFederatedNetworksStatus(user));
+        //verify
+        assertEquals(0, federatedNetworks.size());
     }
 
 
