@@ -45,12 +45,12 @@ public class FederatedComputeOrder {
     public void updateIdOnComputeCreation(String newId){
         StableStorage databaseManager = DatabaseManager.getInstance();
         this.computeOrder.setId(newId);
-        databaseManager.putFederatedCompute(this, computeOrder.getFederationUser());
+        databaseManager.putFederatedCompute(this, computeOrder.getFederationUserToken());
     }
 
     public void deactivateCompute() {
         StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.deleteFederatedCompute(this, computeOrder.getFederationUser());
+        databaseManager.deleteFederatedCompute(this, computeOrder.getFederationUserToken());
     }
 
     @Override

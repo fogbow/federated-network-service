@@ -2,7 +2,7 @@ package org.fogbow.federatednetwork.datastore;
 
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.util.Map;
 import java.util.Set;
@@ -14,21 +14,21 @@ public interface StableStorage {
      *
      * @param federatedNetworkOrder {@link FederatedNetworkOrder}
      */
-    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user);
+    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user);
 
     /**
      * Delete the federatedNetworkOrder.
      *
      * @param federatedNetworkOrder {@link FederatedNetworkOrder}
      */
-    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user);
+    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user);
 
     /**
      * Retrieve federated networks from the database based on user given.
-     * @param user {@link FederationUser}
+     * @param user {@link FederationUserToken}
      * @return A set of federated networks {@link FederatedNetworkOrder}
      */
-    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUser user);
+    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUserToken user);
 
     /**
      * Retrieve all federated networks, may be interest to create a database recovery
@@ -41,21 +41,21 @@ public interface StableStorage {
      *
      * @param federatedComputeOrder {@link FederatedNetworkOrder}
      */
-    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user);
+    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user);
 
     /**
      * Delete the federatedComputeOrder.
      *
      * @param federatedComputeOrder {@link FederatedNetworkOrder}
      */
-    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user);
+    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user);
 
     /**
      * Retrieve federated computes from the database based on user given.
-     * @param user {@link FederationUser}
+     * @param user {@link FederationUserToken}
      * @return A set of federated computes {@link FederatedComputeOrder}
      */
-    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUser user);
+    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUserToken user);
 
     /**
      * Retrieve all federated computes, may be interest to create a database recovery

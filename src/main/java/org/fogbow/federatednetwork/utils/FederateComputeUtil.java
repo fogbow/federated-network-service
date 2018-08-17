@@ -40,7 +40,7 @@ public class FederateComputeUtil {
     }
 
     private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {
-        ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUser(),
+        ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
                 computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getvCPU(),
                 computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
                 userData, computeOrder.getPublicKey(), computeOrder.getNetworksId());

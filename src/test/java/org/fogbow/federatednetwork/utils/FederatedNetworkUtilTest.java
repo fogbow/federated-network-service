@@ -5,7 +5,7 @@ import org.fogbow.federatednetwork.BaseUnitTest;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     @Test
     public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         //set up
-        FederationUser user = mock(FederationUser.class);
+        FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
@@ -57,7 +57,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     //test case: freedIp will be given, if the queue is not empty, instead of searching a new ip
     @Test
     public void testFreedIpsComesFirst() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
-        FederationUser user = mock(FederationUser.class);
+        FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         freedIps.add("10.0.0.5");
@@ -77,7 +77,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     @Test
     public void testNetworkOverflow() throws InvalidCidrException {
         //set up
-        FederationUser user = mock(FederationUser.class);
+        FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
@@ -98,7 +98,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     @Test
     public void testNetworkUnderflow() throws InvalidCidrException {
         //set up
-        FederationUser user = mock(FederationUser.class);
+        FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
@@ -119,7 +119,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     @Test
     public void testInvalidNetworkCidr() {
         //set up
-        FederationUser user = mock(FederationUser.class);
+        FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();

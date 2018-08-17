@@ -15,7 +15,7 @@ import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,9 +41,9 @@ public class OrderController {
 
     // Federated Network methods
 
-    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser) throws
+    public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUserToken federationUser) throws
             InvalidCidrException, AgentCommucationException {
-        federatedNetwork.setFederationUser(federationUser);
+        federatedNetwork.setFederationUserToken(federationUser);
 
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
 
@@ -64,12 +64,12 @@ public class OrderController {
         throw new AgentCommucationException();
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user)
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUserToken user)
             throws FederatedNetworkNotFoundException, UnauthenticatedUserException {
         // TODO: filter the user
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
         if (federatedNetworkOrder != null) {
-            if (federatedNetworkOrder.getFederationUser().equals(user)) {
+            if (federatedNetworkOrder.getFederationUserToken().equals(user)) {
                 return federatedNetworkOrder;
             }
             throw new UnauthenticatedUserException();
@@ -77,7 +77,7 @@ public class OrderController {
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user)
+    public void deleteFederatedNetwork(String federatedNetworkId, FederationUserToken user)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException, UnauthenticatedUserException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
@@ -100,14 +100,14 @@ public class OrderController {
         }
     }
 
-    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUser user) {
+    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUserToken user) {
         Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
         List<FederatedNetworkOrder> requestedOrders =
                 orders.stream()
-                        .filter(order -> order.getFederationUser().equals(user))
+                        .filter(order -> order.getFederationUserToken().equals(user))
                         .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
                         .collect(Collectors.toList());
         return getFederatedNetworksStatus(requestedOrders);
@@ -127,9 +127,9 @@ public class OrderController {
 
     // Compute methods
 
-    public ComputeOrder addFederationUserDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUser user) throws
+    public ComputeOrder addFederationUserTokenDataIfApplied(FederatedComputeOrder federatedComputeOrder, FederationUserToken user) throws
             IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException, InvalidCidrException {
-        federatedComputeOrder.getComputeOrder().setFederationUser(user);
+        federatedComputeOrder.getComputeOrder().setFederationUserToken(user);
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
@@ -159,10 +159,10 @@ public class OrderController {
     }
 
     public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance,
-                                                                FederationUser federationUser) throws UnauthenticatedUserException {
+                                                                FederationUserToken federationUser) throws UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeInstance.getId());
         if (federatedComputeOrder != null) {
-            FederationUser computeUser = federatedComputeOrder.getComputeOrder().getFederationUser();
+            FederationUserToken computeUser = federatedComputeOrder.getComputeOrder().getFederationUserToken();
             if (computeUser.equals(federationUser)) {
                 String federatedIp = federatedComputeOrder.getFederatedIp();
                 FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance, federatedIp);
@@ -174,11 +174,11 @@ public class OrderController {
         return computeInstance;
     }
 
-    public void deleteCompute(String computeId, FederationUser user) throws FederatedNetworkNotFoundException,
+    public void deleteCompute(String computeId, FederationUserToken user) throws FederatedNetworkNotFoundException,
             UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeId);
         if (federatedComputeOrder != null) {
-            if (!federatedComputeOrder.getComputeOrder().getFederationUser().equals(user)) {
+            if (!federatedComputeOrder.getComputeOrder().getFederationUserToken().equals(user)) {
                 throw new UnauthenticatedUserException();
             }
             String federatedIp = federatedComputeOrder.getFederatedIp();

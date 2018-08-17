@@ -7,7 +7,7 @@ import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
@@ -50,7 +50,7 @@ public class DatabaseManager implements StableStorage {
     // Federated network methods
 
     @Override
-    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user) {
+    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user) {
         DB database = openDatabase();
 
         try {
@@ -62,7 +62,7 @@ public class DatabaseManager implements StableStorage {
                 federatedNetworks.remove(federatedNetworkOrder);
             }
             federatedNetworks.add(federatedNetworkOrder);
-            userIdToFederatedNetworks.put(user.getId(), gson.toJson(federatedNetworks));
+            userIdToFederatedNetworks.put(user.getUserId(), gson.toJson(federatedNetworks));
         } finally {
             database.commit();
             database.close();
@@ -70,7 +70,7 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUser user) {
+    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user) {
         DB database = openDatabase();
         HTreeMap<String, String> userIdToFederatedNetworks = extractFederatedNetworksMap(database);
 
@@ -82,7 +82,7 @@ public class DatabaseManager implements StableStorage {
             } else {
                 // throw an exception
             }
-            userIdToFederatedNetworks.put(user.getId(), gson.toJson(federatedNetworks));
+            userIdToFederatedNetworks.put(user.getUserId(), gson.toJson(federatedNetworks));
         } finally {
             database.commit();
             database.close();
@@ -90,7 +90,7 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUser user) {
+    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUserToken user) {
         DB database = openDatabase();
         HTreeMap<String, String> userIdToFederatedNetworks = extractFederatedNetworksMap(database);
 
@@ -113,10 +113,10 @@ public class DatabaseManager implements StableStorage {
         return userToFedNetworks.createOrOpen();
     }
 
-    private Set<FederatedNetworkOrder> getFederatedNetworks(HTreeMap<String, String> userIdToFedNetworks, FederationUser user) {
+    private Set<FederatedNetworkOrder> getFederatedNetworks(HTreeMap<String, String> userIdToFedNetworks, FederationUserToken user) {
         Set<FederatedNetworkOrder> federatedNetworks;
-        if (userIdToFedNetworks.containsKey(user.getId())) {
-            String jsonNetworks = userIdToFedNetworks.get(user.getId());
+        if (userIdToFedNetworks.containsKey(user.getUserId())) {
+            String jsonNetworks = userIdToFedNetworks.get(user.getUserId());
             federatedNetworks = parseFederatedNetworks(jsonNetworks);
         } else {
             federatedNetworks = new HashSet<>();
@@ -135,7 +135,7 @@ public class DatabaseManager implements StableStorage {
     // compute methods
 
     @Override
-    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user) {
+    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user) {
         DB database = openDatabase();
         HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
 
@@ -144,14 +144,14 @@ public class DatabaseManager implements StableStorage {
             federatedComputes.remove(federatedComputeOrder);
         }
         federatedComputes.add(federatedComputeOrder);
-        userIdToFederatedComputes.put(user.getId(), gson.toJson(federatedComputes));
+        userIdToFederatedComputes.put(user.getUserId(), gson.toJson(federatedComputes));
 
         database.commit();
         database.close();
     }
 
     @Override
-    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUser user) {
+    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user) {
         DB database = openDatabase();
         HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
 
@@ -162,7 +162,7 @@ public class DatabaseManager implements StableStorage {
             } else {
                 // throw an exception
             }
-            userIdToFederatedComputes.put(user.getId(), gson.toJson(federatedComputes));
+            userIdToFederatedComputes.put(user.getUserId(), gson.toJson(federatedComputes));
         } finally {
             database.commit();
             database.close();
@@ -170,7 +170,7 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUser user) {
+    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUserToken user) {
         DB database = openDatabase();
         HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
 
@@ -185,10 +185,10 @@ public class DatabaseManager implements StableStorage {
         throw new UnsupportedOperationException();
     }
 
-    private Set<FederatedComputeOrder> getFederatedComputes(HTreeMap<String, String> userIdToFedNetworks, FederationUser user) {
+    private Set<FederatedComputeOrder> getFederatedComputes(HTreeMap<String, String> userIdToFedNetworks, FederationUserToken user) {
         Set<FederatedComputeOrder> federatedComputes;
-        if (userIdToFedNetworks.containsKey(user.getId())) {
-            String jsonNetworks = userIdToFedNetworks.get(user.getId());
+        if (userIdToFedNetworks.containsKey(user.getUserId())) {
+            String jsonNetworks = userIdToFedNetworks.get(user.getUserId());
             federatedComputes = parseFederatedComputes(jsonNetworks);
         } else {
             federatedComputes = new HashSet<>();

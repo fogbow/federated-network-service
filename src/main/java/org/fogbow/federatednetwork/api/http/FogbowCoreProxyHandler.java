@@ -14,6 +14,7 @@ import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.manager.core.exceptions.UnavailableProviderException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.springframework.http.*;
@@ -43,7 +44,8 @@ public class FogbowCoreProxyHandler {
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
-            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException, InvalidCidrException {
+            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
+            InvalidCidrException, UnavailableProviderException {
 
         final String requestUrl = request.getRequestURI();
 
@@ -98,7 +100,7 @@ public class FogbowCoreProxyHandler {
 
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
             InvalidParameterException, SubnetAddressesCapacityReachedException, UnauthenticatedUserException,
-            IOException, FederatedComputeNotFoundException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException {
+            IOException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException, UnavailableProviderException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -127,7 +129,8 @@ public class FogbowCoreProxyHandler {
     }
 
     private ResponseEntity processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
-            throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException, InvalidParameterException {
+            throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException,
+            InvalidParameterException, UnavailableProviderException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
         ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
@@ -141,7 +144,7 @@ public class FogbowCoreProxyHandler {
     }
 
     private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-            throws URISyntaxException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
+            throws URISyntaxException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException, UnavailableProviderException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

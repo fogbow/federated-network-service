@@ -4,7 +4,7 @@ import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
+import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.util.*;
 
@@ -12,7 +12,7 @@ public class FederatedNetworkOrder {
 
     private String id;
     private OrderState orderState;
-    private FederationUser federationUser;
+    private FederationUserToken federationUser;
 
     private String cidrNotation;
     private String label;
@@ -24,7 +24,7 @@ public class FederatedNetworkOrder {
 
     private InstanceState cachedInstanceState;
 
-    public FederatedNetworkOrder(String id, FederationUser federationUser, String cidrNotation, String label,
+    public FederatedNetworkOrder(String id, FederationUserToken federationUser, String cidrNotation, String label,
                                  Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
         this.id = id;
         this.federationUser = federationUser;
@@ -36,7 +36,7 @@ public class FederatedNetworkOrder {
         this.computesIp = computesIp;
     }
 
-    public FederatedNetworkOrder(FederationUser federationUser, String cidrNotation, String label,
+    public FederatedNetworkOrder(FederationUserToken federationUser, String cidrNotation, String label,
                                  Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
         this.id = String.valueOf(UUID.randomUUID());
         this.federationUser = federationUser;
@@ -100,11 +100,11 @@ public class FederatedNetworkOrder {
         this.id = id;
     }
 
-    public FederationUser getFederationUser() {
+    public FederationUserToken getFederationUserToken() {
         return federationUser;
     }
 
-    public void setFederationUser(FederationUser federationUser) {
+    public void setFederationUserToken(FederationUserToken federationUser) {
         this.federationUser = federationUser;
     }
 
