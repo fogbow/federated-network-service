@@ -40,7 +40,7 @@ import static org.mockito.Mockito.*;
 @PrepareForTest({AgentCommunicatorUtil.class, FederatedNetworkUtil.class, FederateComputeUtil.class, DatabaseManager.class})
 public class OrderControllerTest extends BaseUnitTest {
 
-    private String FEDERATED_NETWORK_ID = "fake-id";
+    private String FEDERATED_NETWORK_ID = "fake-network-id";
     private String FEDERATED_COMPUTE_ID = "fake-compute-id";
 
     Properties properties;
@@ -112,7 +112,7 @@ public class OrderControllerTest extends BaseUnitTest {
 
     //test case: Tests that can retrieve a federated network stored into activeFederatedNetwork.
     @Test
-    public void testGetFederatedNetwork() {
+    public void testGetFederatedNetwork() throws UnauthenticatedUserException {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
@@ -129,12 +129,33 @@ public class OrderControllerTest extends BaseUnitTest {
         }
     }
 
-    //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
+    //test case: Trying to retrieve a federated network  from another user must throw UnauthenticatedUserException.
     @Test
-    public void testGetNotExistentFederatedNetwork() {
+    public void testGetFederatedNetworkWithDifferentUser() throws FederatedNetworkNotFoundException, InvalidParameterException {
+        //set up
+        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+        Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
+        when(federatedNetwork.getFederationUser()).thenReturn(user);
+        fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
+        orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
+        Map<String, String> fedUserAttrs = new HashMap<>();
+        fedUserAttrs.put(FederationUser.MANDATORY_NAME_ATTRIBUTE, "fake-name");
+        FederationUser nonAuthenticatedUser = new FederationUser("different-id", fedUserAttrs);
         //exercise
         try {
-            FederatedNetworkOrder returnedOrder = orderController.getFederatedNetwork(FEDERATED_NETWORK_ID, user);
+            orderController.getFederatedNetwork(FEDERATED_NETWORK_ID, nonAuthenticatedUser);
+            fail();
+        } catch (UnauthenticatedUserException e) {
+            //verify
+        }
+    }
+
+    //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
+    @Test
+    public void testGetNotExistentFederatedNetwork() throws UnauthenticatedUserException {
+        //exercise
+        try {
+            orderController.getFederatedNetwork(FEDERATED_NETWORK_ID, user);
             fail();
         } catch (FederatedNetworkNotFoundException e) {
             //verify
@@ -143,7 +164,7 @@ public class OrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
-    public void testDeleteFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException {
+    public void testDeleteFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException, UnauthenticatedUserException {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
@@ -173,7 +194,7 @@ public class OrderControllerTest extends BaseUnitTest {
 
     //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
     @Test
-    public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException, AgentCommucationException {
+    public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException, AgentCommucationException, UnauthenticatedUserException {
         //set up
         try {
             //exercise
@@ -186,7 +207,7 @@ public class OrderControllerTest extends BaseUnitTest {
 
     //test case: This test check if an error communicating with agent will throw an AgentCommucationException
     @Test
-    public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException {
+    public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException, UnauthenticatedUserException {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
@@ -206,7 +227,7 @@ public class OrderControllerTest extends BaseUnitTest {
         }
     }
 
-    //test case: Tests if get all federated networks will return correctly
+    //test case: Tests if get all federated networks will return all federated networks added
     @Test
     public void testGetFederatedNetworks() {
         //set up
@@ -231,6 +252,34 @@ public class OrderControllerTest extends BaseUnitTest {
         assertEquals(federatedNetworkId2, federatedNetworks.get(1).getInstanceId());
     }
 
+    //test case: Tests if get all federated networks will return only one federated network, since the other one was
+    // activated by another user
+    @Test
+    public void testGetFederatedNetworksWithDifferentUser() throws InvalidParameterException {
+        //set up
+        Map<String, String> fedUserAttrs = new HashMap<>();
+        fedUserAttrs.put(FederationUser.MANDATORY_NAME_ATTRIBUTE, "fake-name");
+        FederationUser nonAuthenticatedUser = new FederationUser("different-id", fedUserAttrs);
+        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+        FederatedNetworkOrder federatedNetwork2 = mock(FederatedNetworkOrder.class);
+        String federatedNetworkId2 = FEDERATED_NETWORK_ID + 2;
+        Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
+        when(federatedNetwork.getId()).thenReturn(FEDERATED_NETWORK_ID);
+        when(federatedNetwork2.getId()).thenReturn(federatedNetworkId2);
+        when(federatedNetwork.getFederationUser()).thenReturn(user);
+        when(federatedNetwork2.getFederationUser()).thenReturn(nonAuthenticatedUser);
+        when(federatedNetwork.getOrderState()).thenReturn(OrderState.FULFILLED);
+        when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
+        fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
+        fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
+        orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
+        //exercise
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(orderController.getUserFederatedNetworksStatus(user));
+        //verify
+        assertEquals(1, federatedNetworks.size());
+        assertEquals(FEDERATED_NETWORK_ID, federatedNetworks.get(0).getInstanceId());
+    }
+
     //test case: Tests if get all in an Empty federated networks list will return correctly
     @Test
     public void testGetEmptyListOfFederatedNetworks() {
@@ -240,8 +289,8 @@ public class OrderControllerTest extends BaseUnitTest {
         assertEquals(0, federatedNetworks.size());
     }
 
-    // compute tests
 
+    // compute tests
 
     //test case: Tests if to add a new federated compute, orderController makes the correct calls to the collaborators.
     @Test
@@ -370,7 +419,7 @@ public class OrderControllerTest extends BaseUnitTest {
         }
     }
 
-    //test case: This test should exactly the same computeInstance, since it's not a federated compute.
+    //test case: A get method to a not federated compute should return exactly the same computeInstance, since it's not a federated compute.
     @Test
     public void testGetNotFederatedCompute() throws UnauthenticatedUserException {
         //set up
@@ -380,6 +429,101 @@ public class OrderControllerTest extends BaseUnitTest {
         //verify
         assertEquals(computeInstance, federatedComputeInstance);
         assertFalse(federatedComputeInstance instanceof FederatedComputeInstance);
+    }
+
+    //test case: This test should remove a compute order.
+    @Test
+    public void testDeleteFederatedCompute() throws FederatedNetworkNotFoundException,
+            UnauthenticatedUserException, FederatedComputeNotFoundException, InvalidCidrException, SubnetAddressesCapacityReachedException, IOException {
+        //set up
+        addNetworkIntoActiveMaps();
+        ComputeOrder computeOrder = new ComputeOrder();
+        computeOrder.setId(FEDERATED_COMPUTE_ID);
+        computeOrder.setFederationUser(user);
+        FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_NETWORK_ID, "", computeOrder));
+        orderController.addFederationUserDataIfApplied(federatedCompute, user);
+        orderController.updateIdOnComputeCreation(federatedCompute, FEDERATED_COMPUTE_ID);
+        //pre conditions
+        Map<String, FederatedComputeOrder> federatedComputes = orderController.getActiveFederatedComputes();
+        Map<String, FederatedNetworkOrder> federatedNetworks = orderController.getActiveFederatedNetworks();
+        FederatedNetworkOrder federatedNetwork = federatedNetworks.get(FEDERATED_NETWORK_ID);
+        String computeIp = "10.10.10.1";
+        assertEquals(1, federatedNetworks.size());
+        assertNotNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
+        assertTrue(federatedNetwork.getFreedIps().isEmpty());
+        assertEquals(2, federatedNetwork.getIpsServed());
+        assertFalse(federatedNetwork.getComputesIp().isEmpty());
+        //exercise
+        orderController.deleteCompute(FEDERATED_COMPUTE_ID, user);
+        //verify
+        federatedComputes = orderController.getActiveFederatedComputes();
+        federatedNetworks = orderController.getActiveFederatedNetworks();
+        federatedNetwork = federatedNetworks.get(FEDERATED_NETWORK_ID);
+        assertEquals(1, federatedNetworks.size());
+        assertNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
+        assertFalse(federatedNetwork.getFreedIps().isEmpty());
+        assertEquals(2, federatedNetwork.getIpsServed());
+        assertTrue(federatedNetwork.getComputesIp().isEmpty());
+    }
+
+    //test case: A delete in a nonexistent federated compute
+    @Test
+    public void testRemoveNonFederatedCompute() throws UnauthenticatedUserException, FederatedNetworkNotFoundException {
+        //set up
+        addNetworkIntoActiveMaps();
+        Map<String, FederatedNetworkOrder> federatedNetworks = orderController.getActiveFederatedNetworks();
+        FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
+        //exercise
+        orderController.deleteCompute(FEDERATED_COMPUTE_ID, user);
+        //verify
+        verify(federatedNetworkOrder, never()).removeAssociatedIp(anyString());
+    }
+
+    //test case: A delete with a different user must raise an UnauthenticatedUserException.
+    @Test
+    public void testRemoveFederatedComputeWithDifferentUser() throws FederatedNetworkNotFoundException, InvalidParameterException {
+        //set up
+        addNetworkIntoActiveMaps();
+        addComputeIntoActiveMaps();
+        //exercise
+        try {
+            Map<String, String> fedUserAttrs = new HashMap<>();
+            fedUserAttrs.put(FederationUser.MANDATORY_NAME_ATTRIBUTE, "fake-name");
+            FederationUser nonAuthenticatedUser = new FederationUser("different-id", fedUserAttrs);
+            orderController.deleteCompute(FEDERATED_COMPUTE_ID, nonAuthenticatedUser);
+            fail();
+        } catch (UnauthenticatedUserException e) {
+            //verify
+        }
+    }
+
+    //test case: Tests rollback in a computeOrder, in case of failing to communicate with resource allocation service.
+    @Test
+    public void testRoolbackInAFailedCompute() throws FederatedNetworkNotFoundException, InvalidCidrException,
+            SubnetAddressesCapacityReachedException, IOException {
+        //set up
+        addNetworkIntoActiveMaps();
+        ComputeOrder computeOrder = new ComputeOrder();
+        computeOrder.setId(FEDERATED_COMPUTE_ID);
+        computeOrder.setFederationUser(user);
+        FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_NETWORK_ID, "", computeOrder));
+        orderController.addFederationUserDataIfApplied(federatedCompute, user);
+
+        Map<String, FederatedNetworkOrder> federatedNetworks = orderController.getActiveFederatedNetworks();
+        FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
+
+        //pre conditions
+        assertFalse(federatedNetworkOrder.getComputesIp().isEmpty());
+        assertEquals(2, federatedNetworkOrder.getIpsServed());
+        assertTrue(federatedNetworkOrder.getFreedIps().isEmpty());
+        //exercise
+        orderController.rollbackInFailedPost(federatedCompute);
+        //verify
+        verify(federatedNetworkOrder, times(1)).removeAssociatedIp(anyString());
+        assertTrue(federatedNetworkOrder.getComputesIp().isEmpty());
+        assertEquals(2, federatedNetworkOrder.getIpsServed());
+        assertFalse(federatedNetworkOrder.getFreedIps().isEmpty());
+        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getFreedIps().element());
     }
 
     private void addComputeIntoActiveMaps() {
@@ -402,6 +546,11 @@ public class OrderControllerTest extends BaseUnitTest {
         Map<String, FederatedNetworkOrder> activeFederatedNetworks = new ConcurrentHashMap<>();
         activeFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(activeFederatedNetworks);
+
+        DatabaseManager database = Mockito.mock(DatabaseManager.class);
+        PowerMockito.mockStatic(DatabaseManager.class);
+        Mockito.doNothing().when(database).putFederatedNetwork(any(FederatedNetworkOrder.class), any(FederationUser.class));
+        BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
     }
 
     private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {

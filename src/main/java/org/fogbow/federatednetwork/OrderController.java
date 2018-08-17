@@ -65,17 +65,20 @@ public class OrderController {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser user)
-            throws FederatedNetworkNotFoundException {
+            throws FederatedNetworkNotFoundException, UnauthenticatedUserException {
         // TODO: filter the user
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
-        if (federatedNetworkOrder != null && federatedNetworkOrder.getFederationUser().equals(user)) {
-            return federatedNetworkOrder;
+        if (federatedNetworkOrder != null) {
+            if (federatedNetworkOrder.getFederationUser().equals(user)) {
+                return federatedNetworkOrder;
+            }
+            throw new UnauthenticatedUserException();
         }
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUser user)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException {
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException, UnauthenticatedUserException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
@@ -171,9 +174,13 @@ public class OrderController {
         return computeInstance;
     }
 
-    public void deleteCompute(String computeId) throws FederatedComputeNotFoundException, FederatedNetworkNotFoundException {
+    public void deleteCompute(String computeId, FederationUser user) throws FederatedNetworkNotFoundException,
+            UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeId);
         if (federatedComputeOrder != null) {
+            if (!federatedComputeOrder.getComputeOrder().getFederationUser().equals(user)) {
+                throw new UnauthenticatedUserException();
+            }
             String federatedIp = federatedComputeOrder.getFederatedIp();
             String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
             FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
@@ -182,8 +189,7 @@ public class OrderController {
             }
             federatedNetworkOrder.removeAssociatedIp(federatedIp);
             federatedComputeOrder.deactivateCompute();
-        } else {
-            throw new FederatedComputeNotFoundException(computeId);
+            activeFederatedComputes.remove(computeId);
         }
     }
 

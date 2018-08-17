@@ -141,7 +141,7 @@ public class FogbowCoreProxyHandler {
     }
 
     private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-            throws FederatedComputeNotFoundException, URISyntaxException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
+            throws URISyntaxException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

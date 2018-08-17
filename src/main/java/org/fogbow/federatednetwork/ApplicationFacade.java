@@ -113,13 +113,13 @@ public class ApplicationFacade {
         return orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, federationUser);
     }
 
-    public void deleteCompute(String computeId, String federationTokenValue) throws FederatedComputeNotFoundException,
-            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException {
+    public void deleteCompute(String computeId, String federationTokenValue) throws UnauthenticatedUserException,
+            InvalidParameterException, FederatedNetworkNotFoundException {
         authenticate(federationTokenValue);
         FederationUser federationUser = getFederationUser(federationTokenValue);
         authorize(federationUser, Operation.DELETE);
 
-        orderController.deleteCompute(computeId);
+        orderController.deleteCompute(computeId, federationUser);
     }
 
     public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
