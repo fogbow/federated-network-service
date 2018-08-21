@@ -2,7 +2,6 @@ package org.fogbow.federatednetwork;
 
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -133,7 +132,7 @@ public class ApplicationFacadeTest {
 		assertTrue(federatedNetwork.isIpAddressFree(federatedIp));
 	}*/
 
-	private ComputeOrder createOrder() {
+	/*private ComputeOrder createOrder() {
 		FederationUser federationUser = Mockito.mock(FederationUser.class);
 		UserData userData = Mockito.mock(UserData.class);
 		String imageId = "fake-image-id";
@@ -155,6 +154,6 @@ public class ApplicationFacadeTest {
 						publicKey,
 						networksId);
 		return localOrder;
-	}
+	}*/
 
 }
