@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
 import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.FederatedNetworkConstants;
-import org.fogbow.federatednetwork.exceptions.FederatedComputeNotFoundException;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
@@ -14,6 +13,7 @@ import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.api.http.ComputeOrdersController;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.manager.core.exceptions.UnauthorizedRequestException;
 import org.fogbowcloud.manager.core.exceptions.UnavailableProviderException;
 import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
@@ -43,13 +43,12 @@ public class FogbowCoreProxyHandler {
     @RequestMapping("/**")
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
-            URISyntaxException, IOException, SubnetAddressesCapacityReachedException, FederatedComputeNotFoundException,
+            URISyntaxException, IOException, SubnetAddressesCapacityReachedException,
             UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
-            InvalidCidrException, UnavailableProviderException {
+            InvalidCidrException, UnavailableProviderException, UnauthorizedRequestException {
 
         final String requestUrl = request.getRequestURI();
 
-        // FIXME check if this works
         if (requestUrl.startsWith("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) {
             switch (method) {
                 case POST:
@@ -72,14 +71,16 @@ public class FogbowCoreProxyHandler {
         return redirectRequest(body, method, request, String.class);
     }
 
-    private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request, Class<T> responseType)
+    private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
+                                                  Class<T> responseType)
             throws URISyntaxException {
         String requestUrl = request.getRequestURI();
         Properties properties = PropertiesUtil.readProperties();
         String coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
         int corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
 
-        URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null, null, null);
+        URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null,
+                null, null);
         uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
                 .query(request.getQueryString()).build(true).toUri();
 
@@ -100,7 +101,8 @@ public class FogbowCoreProxyHandler {
 
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
             InvalidParameterException, SubnetAddressesCapacityReachedException, UnauthenticatedUserException,
-            IOException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException, UnavailableProviderException {
+            IOException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException,
+            UnavailableProviderException, UnauthorizedRequestException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -121,7 +123,7 @@ public class FogbowCoreProxyHandler {
             ApplicationFacade.getInstance().rollbackInFailedPost(federatedCompute);
             return responseEntity;
         }
-        // Once fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
+        // Since fogbow-core generates a new UUID for each request, we need to sync the ID created in federated-network,
         // with the one created in fogbow-core, thats why we run an "updateIdOnComputeCreation" method.
         String responseOrderId = responseEntity.getBody();
         ApplicationFacade.getInstance().updateOrderId(federatedCompute, responseOrderId, federationTokenValue);
@@ -129,8 +131,8 @@ public class FogbowCoreProxyHandler {
     }
 
     private ResponseEntity processGetByIdCompute(String body, HttpMethod method, HttpServletRequest request)
-            throws URISyntaxException, FederatedComputeNotFoundException, UnauthenticatedUserException,
-            InvalidParameterException, UnavailableProviderException {
+            throws URISyntaxException, UnauthenticatedUserException,
+            InvalidParameterException, UnavailableProviderException, UnauthorizedRequestException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
         ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
@@ -139,12 +141,15 @@ public class FogbowCoreProxyHandler {
             return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
         }
         ComputeInstance computeInstance = gson.fromJson(response.getBody(), ComputeInstance.class);
-        ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().addFederatedIpInGetInstanceIfApplied(computeInstance, federationTokenValue);
+        ComputeInstance incrementedComputeInstance = ApplicationFacade.getInstance().
+                addFederatedIpInGetInstanceIfApplied(computeInstance, federationTokenValue);
         return new ResponseEntity(incrementedComputeInstance, HttpStatus.OK);
     }
 
-    private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method, HttpServletRequest request)
-            throws URISyntaxException, UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException, UnavailableProviderException {
+    private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method,
+                                                        HttpServletRequest request) throws URISyntaxException,
+            UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
+            UnavailableProviderException, UnauthorizedRequestException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

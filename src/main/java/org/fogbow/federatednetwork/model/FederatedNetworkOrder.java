@@ -25,7 +25,8 @@ public class FederatedNetworkOrder {
     private InstanceState cachedInstanceState;
 
     public FederatedNetworkOrder(String id, FederationUserToken federationUser, String cidrNotation, String label,
-                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
+                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps,
+                                 List<String> computesIp) {
         this.id = id;
         this.federationUser = federationUser;
         this.cidrNotation = cidrNotation;
@@ -37,7 +38,8 @@ public class FederatedNetworkOrder {
     }
 
     public FederatedNetworkOrder(FederationUserToken federationUser, String cidrNotation, String label,
-                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps, List<String> computesIp) {
+                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps,
+                                 List<String> computesIp) {
         this.id = String.valueOf(UUID.randomUUID());
         this.federationUser = federationUser;
         this.cidrNotation = cidrNotation;
