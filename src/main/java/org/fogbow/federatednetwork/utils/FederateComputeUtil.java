@@ -15,9 +15,7 @@ import java.util.Arrays;
 
 public class FederateComputeUtil {
 
-    // TODO: Place this in a property conf.
     private static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
-
     public static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
     public static final String RIGHT_IP = "#RIGHT_IP#";
     public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";

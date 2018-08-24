@@ -49,8 +49,7 @@ public class OrderController {
 
         if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
             LOGGER.error("Subnet (" + federatedNetwork.getCidrNotation() + ") invalid");
-            // TODO: we should throw an exception here
-            return "";
+            throw new InvalidCidrException("Invalid CIDR.");
         }
 
         boolean createdSuccessfully = AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidrNotation(),
@@ -61,13 +60,12 @@ public class OrderController {
             activeFederatedNetworks.put(federatedNetwork.getId(), federatedNetwork);
             return federatedNetwork.getId();
         }
-        // TODO: we should throw an exception here
         throw new AgentCommucationException();
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUserToken user)
             throws FederatedNetworkNotFoundException, UnauthenticatedUserException {
-        // TODO: filter the user
+
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
         if (federatedNetworkOrder != null) {
             if (federatedNetworkOrder.getFederationUserToken().equals(user)) {
