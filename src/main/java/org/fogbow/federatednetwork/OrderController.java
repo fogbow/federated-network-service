@@ -28,6 +28,7 @@ import static org.fogbow.federatednetwork.ConfigurationConstants.FEDERATED_NETWO
 public class OrderController {
 
     private static final Logger LOGGER = Logger.getLogger(OrderController.class);
+    private static final String MEMBER_NAME = "member_name";
 
     private Properties properties;
     private Map<String, FederatedNetworkOrder> activeFederatedNetworks;
@@ -115,11 +116,11 @@ public class OrderController {
 
     private Collection<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
         Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
+        String memberName = properties.getProperty(MEMBER_NAME);
         Iterator<FederatedNetworkOrder> iterator = allFederatedNetworks.iterator();
         while (iterator.hasNext()) {
-            // TODO: Give a provider for fednets, for now we don't have this information in FederatedNetwork class.
             FederatedNetworkOrder federatedNetwork = iterator.next();
-            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), "-",
+            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), memberName,
                     federatedNetwork.getCachedInstanceState());
             instanceStatusList.add(instanceStatus);
         }

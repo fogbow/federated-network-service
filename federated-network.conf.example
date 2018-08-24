@@ -1,6 +1,7 @@
 # Manager-core Configurations
 manager_core_port=
 manager_core_ip=
+member_name=
 
 # Database file path
 database_file_path=
