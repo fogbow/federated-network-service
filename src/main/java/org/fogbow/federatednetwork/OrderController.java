@@ -3,12 +3,9 @@ package org.fogbow.federatednetwork;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.exceptions.*;
-import org.fogbow.federatednetwork.model.FederatedUser;
+import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
-import org.fogbow.federatednetwork.model.FederatedComputeInstance;
-import org.fogbow.federatednetwork.model.FederatedComputeOrder;
-import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.manager.core.models.InstanceStatus;
@@ -66,7 +63,7 @@ public class OrderController {
         throw new AgentCommucationException();
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUserToken user)
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederatedUser user)
             throws FederatedNetworkNotFoundException, UnauthenticatedUserException {
 
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
@@ -79,7 +76,7 @@ public class OrderController {
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, FederationUserToken user)
+    public void deleteFederatedNetwork(String federatedNetworkId, FederatedUser user)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
             UnauthenticatedUserException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
@@ -103,8 +100,9 @@ public class OrderController {
         }
     }
 
-    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUserToken user) {
+    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederatedUser user) {
         Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
+        FederatedOrder a = new ArrayList<>(orders).get(0);
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).

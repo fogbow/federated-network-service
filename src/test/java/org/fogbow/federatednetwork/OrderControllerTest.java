@@ -144,7 +144,7 @@ public class OrderControllerTest extends BaseUnitTest {
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
 
         String nonAuthenticatedUserId = "non-autheticated";
-        FederationUserToken nonAuthenticatedUser = new FederationUserToken(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
+        FederatedUser nonAuthenticatedUser = new FederatedUser(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
         //exercise
         try {
             orderController.getFederatedNetwork(FEDERATED_NETWORK_ID, nonAuthenticatedUser);

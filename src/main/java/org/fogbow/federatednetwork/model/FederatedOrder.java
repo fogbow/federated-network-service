@@ -1,5 +1,6 @@
 package org.fogbow.federatednetwork.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
@@ -36,10 +37,11 @@ public abstract class FederatedOrder implements Serializable {
     private String instanceId;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private InstanceState cachedInstanceState;
 
     public FederatedOrder() {
-
+        this.id = String.valueOf(UUID.randomUUID());
     }
 
     public FederatedOrder(String id) {

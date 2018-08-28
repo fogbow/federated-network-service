@@ -3,6 +3,7 @@ package org.fogbow.federatednetwork;
 import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbow.federatednetwork.model.FederatedUser;
 import org.fogbowcloud.manager.core.AaController;
 import org.fogbowcloud.manager.core.constants.Operation;
 import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
@@ -47,16 +48,18 @@ public class ApplicationFacade {
             throws UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
             UnavailableProviderException, UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.GET, ResourceType.NETWORK);
-        return this.orderController.getFederatedNetwork(federatedNetworkId, federationUser);
+        return this.orderController.getFederatedNetwork(federatedNetworkId, user);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue) throws
             UnauthenticatedUserException, InvalidParameterException, UnavailableProviderException,
             UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.GET, ResourceType.NETWORK);
-        return this.orderController.getUserFederatedNetworksStatus(federationUser);
+        return this.orderController.getUserFederatedNetworksStatus(user);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
@@ -64,8 +67,9 @@ public class ApplicationFacade {
             FederatedNetworkNotFoundException, AgentCommucationException, UnavailableProviderException,
             UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.DELETE, ResourceType.NETWORK);
-        this.orderController.deleteFederatedNetwork(federatedNetworkId, federationUser);
+        this.orderController.deleteFederatedNetwork(federatedNetworkId, user);
     }
 
     // compute methods

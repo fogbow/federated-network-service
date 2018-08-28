@@ -63,10 +63,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
     }
 
     public synchronized void setOrderState(OrderState state) {
-        this.setOrderState(state);
-        StableStorage databaseManager = DatabaseManager.getInstance();
-        // Adding or updating in stable storage newly created order
-        databaseManager.put(this);
+        super.setOrderState(state);
     }
 
     public synchronized void removeAssociatedIp(String ipToBeReleased) {

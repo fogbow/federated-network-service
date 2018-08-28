@@ -61,7 +61,7 @@ public class FederatedComputeOrder extends FederatedOrder {
 
     public void deactivateCompute() {
         StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.delete(this);
+        databaseManager.put(this);
     }
 
     @Override

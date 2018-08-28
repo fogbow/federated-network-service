@@ -17,13 +17,6 @@ public interface StableStorage {
     public void put(FederatedOrder federatedOrder);
 
     /**
-     * Delete the federatedNetworkOrder.
-     *
-     * @param federatedOrder {@link FederatedOrder}
-     */
-    public void delete(FederatedOrder federatedOrder);
-
-    /**
      * Retrieve federated networks from the database based on user given.
      * @param user {@link FederationUserToken}
      * @return A set of federated networks {@link FederatedNetworkOrder}
