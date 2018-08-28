@@ -4,16 +4,31 @@ import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 
+import javax.persistence.*;
 import java.util.*;
 
+@Entity
+@Table(name = "federated_network_table")
 public class FederatedNetworkOrder extends FederatedOrder {
 
+    @Column
     private String cidrNotation;
+
+    @Column
     private String label;
+
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(name="federated_network_allowed_members")
     private Set<String> allowedMembers;
 
+    @Transient
     private int ipsServed = 1;
+
+    @Transient
     private Queue<String> freedIps;
+
+    @ElementCollection(targetClass = String.class)
+    @CollectionTable(name="federated_network_computes_ip")
     private List<String> computesIp;
 
     public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
