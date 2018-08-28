@@ -3,6 +3,7 @@ package org.fogbow.federatednetwork;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.exceptions.*;
+import org.fogbow.federatednetwork.model.FederatedUser;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
@@ -44,7 +45,8 @@ public class OrderController {
 
     public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUserToken federationUser)
             throws InvalidCidrException, AgentCommucationException {
-        federatedNetwork.setFederationUserToken(federationUser);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
+        federatedNetwork.setUser(user);
 
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
 
@@ -69,7 +71,7 @@ public class OrderController {
 
         FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
         if (federatedNetworkOrder != null) {
-            if (federatedNetworkOrder.getFederationUserToken().equals(user)) {
+            if (federatedNetworkOrder.getUser().equals(user)) {
                 return federatedNetworkOrder;
             }
             throw new UnauthenticatedUserException();
@@ -108,7 +110,7 @@ public class OrderController {
         // the user and should not be seen; they will disappear from the system).
         List<FederatedNetworkOrder> requestedOrders =
                 orders.stream()
-                        .filter(order -> order.getFederationUserToken().equals(user))
+                        .filter(order -> order.getUser().equals(user))
                         .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
                         .collect(Collectors.toList());
         return getFederatedNetworksStatus(requestedOrders);

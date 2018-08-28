@@ -1,32 +1,21 @@
 package org.fogbow.federatednetwork.datastore;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ConfigurationConstants;
-import org.fogbow.federatednetwork.model.FederatedComputeOrder;
-import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
-import org.mapdb.HTreeMap;
-import org.mapdb.Serializer;
 
 import java.io.File;
-import java.lang.reflect.Type;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager implements StableStorage {
 
-    private static final String USER_TO_FEDERATED_COMPUTES = "userToFederatedComputes";
-    private static final String USER_TO_FEDERATED_NETWORKS = "userToFederatedNetworks";
-    private static final String ERROR_MASSAGE = "Error instantiating database manager";
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
-    private static final Gson gson = new Gson();
 
     private final String databaseFilePath;
     private static DatabaseManager instance;
@@ -47,168 +36,22 @@ public class DatabaseManager implements StableStorage {
         return DBMaker.fileDB(new File(databaseFilePath)).make();
     }
 
-    // Federated network methods
-
     @Override
-    public void putFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user) {
-        DB database = openDatabase();
+    public void put(FederatedOrder federatedOrder) {
 
-        try {
-            HTreeMap<String, String> userIdToFederatedNetworks = extractFederatedNetworksMap(database);
-
-            Set<FederatedNetworkOrder> federatedNetworks = getFederatedNetworks(userIdToFederatedNetworks,
-                    user);
-            if (federatedNetworks.contains(federatedNetworkOrder)) {
-                federatedNetworks.remove(federatedNetworkOrder);
-            }
-            federatedNetworks.add(federatedNetworkOrder);
-            userIdToFederatedNetworks.put(user.getUserId(), gson.toJson(federatedNetworks));
-        } finally {
-            database.commit();
-            database.close();
-        }
     }
 
     @Override
-    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, FederationUserToken user) {
-        DB database = openDatabase();
-        HTreeMap<String, String> userIdToFederatedNetworks = extractFederatedNetworksMap(database);
+    public void delete(FederatedOrder federatedOrder) {
 
-        try {
-            Set<FederatedNetworkOrder> federatedNetworks = getFederatedNetworks(userIdToFederatedNetworks,
-                    user);
-            if (federatedNetworks.contains(federatedNetworkOrder)) {
-                federatedNetworks.remove(federatedNetworkOrder);
-            } else {
-                // throw an exception
-            }
-            userIdToFederatedNetworks.put(user.getUserId(), gson.toJson(federatedNetworks));
-        } finally {
-            database.commit();
-            database.close();
-        }
     }
 
     @Override
-    public Set<FederatedNetworkOrder> readActiveFederatedNetworks(FederationUserToken user) {
-        DB database = openDatabase();
-        HTreeMap<String, String> userIdToFederatedNetworks = extractFederatedNetworksMap(database);
-
-        try {
-            return getFederatedNetworks(userIdToFederatedNetworks, user);
-        } finally {
-            database.close();
-        }
+    public Set<FederatedOrder> readActiveFederatedNetworks(FederationUserToken user) {
+        return null;
     }
 
-    public ConcurrentHashMap<String, Set<FederatedNetworkOrder>> retrieveActiveFederatedNetworks() {
+    public ConcurrentHashMap<String, Set<FederatedOrder>> retrieveActiveFederatedNetworks() {
         throw new UnsupportedOperationException();
-    }
-
-    private HTreeMap<String, String> extractFederatedNetworksMap(DB database) {
-        /* The keys for this map are the userId's and the values are
-         * JSONArrays representing the networks for this user */
-        DB.HashMapMaker<String, String> userToFedNetworks = database.hashMap(
-                USER_TO_FEDERATED_NETWORKS, Serializer.STRING, Serializer.STRING);
-        return userToFedNetworks.createOrOpen();
-    }
-
-    private Set<FederatedNetworkOrder> getFederatedNetworks(HTreeMap<String, String> userIdToFedNetworks, FederationUserToken user) {
-        Set<FederatedNetworkOrder> federatedNetworks;
-        if (userIdToFedNetworks.containsKey(user.getUserId())) {
-            String jsonNetworks = userIdToFedNetworks.get(user.getUserId());
-            federatedNetworks = parseFederatedNetworks(jsonNetworks);
-        } else {
-            federatedNetworks = new HashSet<>();
-        }
-
-        return federatedNetworks;
-    }
-
-    protected Set<FederatedNetworkOrder> parseFederatedNetworks(String jsonArray) {
-        Type listType = new TypeToken<Set<FederatedNetworkOrder>>() {
-        }.getType();
-        Set<FederatedNetworkOrder> federatedNetworks = gson.fromJson(jsonArray, listType);
-        return federatedNetworks;
-    }
-
-    // compute methods
-
-    @Override
-    public void putFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user) {
-        DB database = openDatabase();
-        HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
-
-        Set<FederatedComputeOrder> federatedComputes = getFederatedComputes(userIdToFederatedComputes, user);
-        if (federatedComputes.contains(federatedComputeOrder)) {
-            federatedComputes.remove(federatedComputeOrder);
-        }
-        federatedComputes.add(federatedComputeOrder);
-        userIdToFederatedComputes.put(user.getUserId(), gson.toJson(federatedComputes));
-
-        database.commit();
-        database.close();
-    }
-
-    @Override
-    public void deleteFederatedCompute(FederatedComputeOrder federatedComputeOrder, FederationUserToken user) {
-        DB database = openDatabase();
-        HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
-
-        try {
-            Set<FederatedComputeOrder> federatedComputes = getFederatedComputes(userIdToFederatedComputes, user);
-            if (federatedComputes.contains(federatedComputeOrder)) {
-                federatedComputes.remove(federatedComputeOrder);
-            } else {
-                // throw an exception
-            }
-            userIdToFederatedComputes.put(user.getUserId(), gson.toJson(federatedComputes));
-        } finally {
-            database.commit();
-            database.close();
-        }
-    }
-
-    @Override
-    public Set<FederatedComputeOrder> readActiveFederatedComputes(FederationUserToken user) {
-        DB database = openDatabase();
-        HTreeMap<String, String> userIdToFederatedComputes = extractFederatedComputesMap(database);
-
-        try {
-            return getFederatedComputes(userIdToFederatedComputes, user);
-        } finally {
-            database.close();
-        }
-    }
-
-    public ConcurrentHashMap<String, Set<FederatedComputeOrder>> retrieveActiveFederatedComputes() {
-        throw new UnsupportedOperationException();
-    }
-
-    private Set<FederatedComputeOrder> getFederatedComputes(HTreeMap<String, String> userIdToFedNetworks, FederationUserToken user) {
-        Set<FederatedComputeOrder> federatedComputes;
-        if (userIdToFedNetworks.containsKey(user.getUserId())) {
-            String jsonNetworks = userIdToFedNetworks.get(user.getUserId());
-            federatedComputes = parseFederatedComputes(jsonNetworks);
-        } else {
-            federatedComputes = new HashSet<>();
-        }
-
-        return federatedComputes;
-    }
-
-    private HTreeMap<String, String> extractFederatedComputesMap(DB database) {
-        /* The keys for this map are the userId's and the values are
-         * JSONArrays representing the computes for this user */
-        DB.HashMapMaker<String, String> userToFedNetworks = database.hashMap(
-                USER_TO_FEDERATED_COMPUTES, Serializer.STRING, Serializer.STRING);
-        return userToFedNetworks.createOrOpen();
-    }
-
-    protected Set<FederatedComputeOrder> parseFederatedComputes(String jsonArray) {
-        Type listType = new TypeToken<Set<FederatedComputeOrder>>() {
-        }.getType();
-        Set<FederatedComputeOrder> federatedComputes = gson.fromJson(jsonArray, listType);
-        return federatedComputes;
     }
 }

@@ -6,6 +6,7 @@ import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedComputeInstance;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbow.federatednetwork.model.FederatedUser;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
@@ -46,16 +47,17 @@ public class OrderControllerTest extends BaseUnitTest {
     private final String USER_NAME = "fake-user-name";
     private final String TOKEN_PROVIDER = "token-provider";
     private final String TOKEN_USER_VALUE = "token-value";
+    private final String MEMBER = "member";
 
     Properties properties;
-    FederationUserToken user;
+    FederatedUser user;
     OrderController orderController;
 
     @Before
     public void setUp() throws InvalidParameterException {
         properties = super.setProperties();
         orderController = spy(new OrderController(properties));
-        user = new FederationUserToken(TOKEN_PROVIDER, TOKEN_USER_VALUE, USER_ID, USER_NAME);
+        user = new FederatedUser(TOKEN_PROVIDER, TOKEN_USER_VALUE, USER_ID, USER_NAME);
     }
 
     //test case: Tests if the activation order made in orderController will call the expected methods
@@ -118,7 +120,7 @@ public class OrderControllerTest extends BaseUnitTest {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
+        when(federatedNetwork.getUser()).thenReturn(user);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
         //exercise
@@ -137,7 +139,7 @@ public class OrderControllerTest extends BaseUnitTest {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
+        when(federatedNetwork.getUser()).thenReturn(user);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
 
@@ -170,7 +172,7 @@ public class OrderControllerTest extends BaseUnitTest {
         //set up
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
+        when(federatedNetwork.getUser()).thenReturn(user);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
 
@@ -214,7 +216,7 @@ public class OrderControllerTest extends BaseUnitTest {
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
         federatedNetwork.setId(FEDERATED_NETWORK_ID);
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
+        when(federatedNetwork.getUser()).thenReturn(user);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
 
@@ -239,8 +241,8 @@ public class OrderControllerTest extends BaseUnitTest {
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
         when(federatedNetwork.getId()).thenReturn(FEDERATED_NETWORK_ID);
         when(federatedNetwork2.getId()).thenReturn(federatedNetworkId2);
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
-        when(federatedNetwork2.getFederationUserToken()).thenReturn(user);
+        when(federatedNetwork.getUser()).thenReturn(user);
+        when(federatedNetwork2.getUser()).thenReturn(user);
         when(federatedNetwork.getOrderState()).thenReturn(OrderState.FULFILLED);
         when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
@@ -260,15 +262,15 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testGetFederatedNetworksWithDifferentUser() throws InvalidParameterException {
         //set up
         String nonAuthenticatedUserId = "non-authenticated";
-        FederationUserToken nonAuthenticatedUser = new FederationUserToken(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
+        FederatedUser nonAuthenticatedUser = new FederatedUser(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         FederatedNetworkOrder federatedNetwork2 = mock(FederatedNetworkOrder.class);
         String federatedNetworkId2 = FEDERATED_NETWORK_ID + 2;
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
         when(federatedNetwork.getId()).thenReturn(FEDERATED_NETWORK_ID);
         when(federatedNetwork2.getId()).thenReturn(federatedNetworkId2);
-        when(federatedNetwork.getFederationUserToken()).thenReturn(user);
-        when(federatedNetwork2.getFederationUserToken()).thenReturn(nonAuthenticatedUser);
+        when(federatedNetwork.getUser()).thenReturn(user);
+        when(federatedNetwork2.getUser()).thenReturn(nonAuthenticatedUser);
         when(federatedNetwork.getOrderState()).thenReturn(OrderState.FULFILLED);
         when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
@@ -302,8 +304,8 @@ public class OrderControllerTest extends BaseUnitTest {
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
-        FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, cidr, "test",
-                allowedMembers, 1, freedIps, computesIp));
+        FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER,
+                MEMBER, cidr, "test", allowedMembers, 1, freedIps, computesIp));
         Map<String, FederatedNetworkOrder> fakeActiveFederatedNetworks = new ConcurrentHashMap<>();
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(fakeActiveFederatedNetworks);
@@ -374,7 +376,7 @@ public class OrderControllerTest extends BaseUnitTest {
 
         DatabaseManager database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
-        Mockito.doNothing().when(database).putFederatedCompute(any(FederatedComputeOrder.class), any(FederationUserToken.class));
+        Mockito.doNothing().when(database).put(any(FederatedComputeOrder.class));
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
 
         assertEquals(FEDERATED_COMPUTE_ID, federatedCompute.getComputeOrder().getId());
@@ -540,15 +542,15 @@ public class OrderControllerTest extends BaseUnitTest {
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
-        FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, cidr, "test",
-                allowedMembers, 1, freedIps, computesIp));
+        FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER,
+                MEMBER, cidr, "test", allowedMembers, 1, freedIps, computesIp));
         Map<String, FederatedNetworkOrder> activeFederatedNetworks = new ConcurrentHashMap<>();
         activeFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         orderController.setActiveFederatedNetworks(activeFederatedNetworks);
 
         DatabaseManager database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
-        Mockito.doNothing().when(database).putFederatedNetwork(any(FederatedNetworkOrder.class), any(FederationUserToken.class));
+        Mockito.doNothing().when(database).put(any(FederatedNetworkOrder.class));
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
     }
 

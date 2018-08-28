@@ -6,7 +6,7 @@ import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 
 import java.util.Objects;
 
-public class FederatedComputeOrder {
+public class FederatedComputeOrder extends FederatedOrder {
 
     private String federatedNetworkId;
     private String federatedIp;
@@ -45,12 +45,12 @@ public class FederatedComputeOrder {
     public void updateIdOnComputeCreation(String newId){
         StableStorage databaseManager = DatabaseManager.getInstance();
         this.computeOrder.setId(newId);
-        databaseManager.putFederatedCompute(this, computeOrder.getFederationUserToken());
+        databaseManager.put(this);
     }
 
     public void deactivateCompute() {
         StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.deleteFederatedCompute(this, computeOrder.getFederationUserToken());
+        databaseManager.delete(this);
     }
 
     @Override
@@ -60,6 +60,11 @@ public class FederatedComputeOrder {
         FederatedComputeOrder that = (FederatedComputeOrder) o;
         return Objects.equals(getFederatedIp(), that.getFederatedIp()) &&
                 Objects.equals(getComputeOrder(), that.getComputeOrder());
+    }
+
+    @Override
+    public FederatedResourceType getType() {
+        return FederatedResourceType.FEDERATED_COMPUTE;
     }
 
     @Override

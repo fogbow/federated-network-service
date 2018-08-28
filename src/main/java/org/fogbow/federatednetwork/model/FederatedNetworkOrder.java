@@ -2,17 +2,11 @@ package org.fogbow.federatednetwork.model;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
-import org.fogbowcloud.manager.core.models.instances.InstanceState;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.util.*;
 
-public class FederatedNetworkOrder {
-
-    private String id;
-    private OrderState orderState;
-    private FederationUserToken federationUser;
+public class FederatedNetworkOrder extends FederatedOrder {
 
     private String cidrNotation;
     private String label;
@@ -22,13 +16,10 @@ public class FederatedNetworkOrder {
     private Queue<String> freedIps;
     private List<String> computesIp;
 
-    private InstanceState cachedInstanceState;
-
-    public FederatedNetworkOrder(String id, FederationUserToken federationUser, String cidrNotation, String label,
-                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps,
-                                 List<String> computesIp) {
-        this.id = id;
-        this.federationUser = federationUser;
+    public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
+                                 String providingMember, String cidrNotation, String label, Set<String> allowedMembers,
+                                 int ipsServed, Queue<String> freedIps, List<String> computesIp) {
+        super(id, federatedUser, requestingMember, providingMember);
         this.cidrNotation = cidrNotation;
         this.label = label;
         this.allowedMembers = allowedMembers;
@@ -37,11 +28,10 @@ public class FederatedNetworkOrder {
         this.computesIp = computesIp;
     }
 
-    public FederatedNetworkOrder(FederationUserToken federationUser, String cidrNotation, String label,
-                                 Set<String> allowedMembers, int ipsServed, Queue<String> freedIps,
-                                 List<String> computesIp) {
-        this.id = String.valueOf(UUID.randomUUID());
-        this.federationUser = federationUser;
+    public FederatedNetworkOrder(FederatedUser federatedUser, String requestingMember, String providingMember,
+                                 String cidrNotation, String label, Set<String> allowedMembers, int ipsServed,
+                                 Queue<String> freedIps, List<String> computesIp) {
+        super(federatedUser, requestingMember, providingMember);
         this.cidrNotation = cidrNotation;
         this.label = label;
         this.allowedMembers = allowedMembers;
@@ -51,36 +41,24 @@ public class FederatedNetworkOrder {
     }
 
     public FederatedNetworkOrder() {
-        this.id = String.valueOf(UUID.randomUUID());
+        super();
         this.allowedMembers = new HashSet<>();
         this.freedIps = new LinkedList<>();
         this.computesIp = new ArrayList<>();
     }
 
-    public synchronized OrderState getOrderState() {
-        return this.orderState;
-    }
-
-    public synchronized void setOrderStateInRecoveryMode(OrderState state) {
-        this.orderState = state;
-    }
-
-    public synchronized void setOrderStateInTestMode(OrderState state) {
-        this.orderState = state;
-    }
-
     public synchronized void setOrderState(OrderState state) {
-        this.orderState = state;
+        this.setOrderState(state);
         StableStorage databaseManager = DatabaseManager.getInstance();
         // Adding or updating in stable storage newly created order
-        databaseManager.putFederatedNetwork(this, federationUser);
+        databaseManager.put(this);
     }
 
     public synchronized void removeAssociatedIp(String ipToBeReleased) {
         this.computesIp.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
         StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.putFederatedNetwork(this, federationUser);
+        databaseManager.put(this);
     }
 
     public synchronized void addAssociatedIp(String ipToBeAttached){
@@ -91,31 +69,7 @@ public class FederatedNetworkOrder {
         }
         this.computesIp.add(ipToBeAttached);
         StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.putFederatedNetwork(this, federationUser);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public FederationUserToken getFederationUserToken() {
-        return federationUser;
-    }
-
-    public void setFederationUserToken(FederationUserToken federationUser) {
-        this.federationUser = federationUser;
-    }
-
-    public InstanceState getCachedInstanceState() {
-        return cachedInstanceState;
-    }
-
-    public void setCachedInstanceState(InstanceState cachedInstanceState) {
-        this.cachedInstanceState = cachedInstanceState;
+        databaseManager.put(this);
     }
 
     public String getCidrNotation() {
@@ -165,6 +119,11 @@ public class FederatedNetworkOrder {
 
     public void setComputesIp(List<String> computesIp) {
         this.computesIp = computesIp;
+    }
+
+    @Override
+    public FederatedResourceType getType() {
+        return FederatedResourceType.FEDERATED_NETWORK;
     }
 
     @Override
