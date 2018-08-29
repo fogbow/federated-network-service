@@ -17,7 +17,6 @@ import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static org.fogbow.federatednetwork.ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS;
@@ -29,13 +28,11 @@ public class OrderController {
     private static final String MEMBER_NAME = "member_name";
 
     private Properties properties;
-    private Map<String, FederatedNetworkOrder> activeFederatedNetworks;
-    private Map<String, FederatedComputeOrder> activeFederatedComputes;
+    private SharedOrderHolders orderHolders;
 
     public OrderController(Properties properties) {
         this.properties = properties;
-        this.activeFederatedNetworks = new ConcurrentHashMap<>();
-        this.activeFederatedComputes = new ConcurrentHashMap<>();
+        this.orderHolders = SharedOrderHolders.getInstance();
     }
 
     // Federated Network methods
@@ -57,7 +54,7 @@ public class OrderController {
         if (createdSuccessfully) {
             federatedNetwork.setCachedInstanceState(InstanceState.READY);
             federatedNetwork.setOrderState(OrderState.FULFILLED);
-            activeFederatedNetworks.put(federatedNetwork.getId(), federatedNetwork);
+            orderHolders.putOrder(federatedNetwork);
             return federatedNetwork.getId();
         }
         throw new AgentCommucationException();
@@ -66,7 +63,8 @@ public class OrderController {
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederatedUser user)
             throws FederatedNetworkNotFoundException, UnauthenticatedUserException {
 
-        FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+        FederatedOrder federatedOrder = orderHolders.getOrder(federatedNetworkId);
+        FederatedNetworkOrder federatedNetworkOrder = (FederatedNetworkOrder) federatedOrder;
         if (federatedNetworkOrder != null) {
             if (federatedNetworkOrder.getUser().equals(user)) {
                 return federatedNetworkOrder;
@@ -93,7 +91,7 @@ public class OrderController {
         boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
         if (wasDeleted == true) {
             LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
-            activeFederatedNetworks.remove(federatedNetworkId);
+            orderHolders.removeOrder(federatedNetworkId);
             federatedNetwork.setOrderState(OrderState.DEACTIVATED);
         } else {
             throw new AgentCommucationException();
@@ -101,12 +99,14 @@ public class OrderController {
     }
 
     public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederatedUser user) {
-        Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
+        Collection<FederatedOrder> orders = this.orderHolders.getActiveOrdersMap().values();
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
         List<FederatedNetworkOrder> requestedOrders =
                 orders.stream()
+                        .filter(order -> order instanceof FederatedNetworkOrder)
+                        .map(order -> (FederatedNetworkOrder) order)
                         .filter(order -> order.getUser().equals(user))
                         .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
                         .collect(Collectors.toList());
@@ -136,7 +136,7 @@ public class OrderController {
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-            FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            FederatedNetworkOrder federatedNetworkOrder = orderHolders.getFederatedNetwork(federatedNetworkId);
             if (federatedNetworkOrder == null) {
                 throw new FederatedNetworkNotFoundException(federatedNetworkId);
             }
@@ -158,14 +158,14 @@ public class OrderController {
         if (federatedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             // store compute into database
             federatedCompute.updateIdOnComputeCreation(newId);
-            activeFederatedComputes.put(federatedCompute.getId(), federatedCompute);
+            orderHolders.putOrder(federatedCompute);
         }
     }
 
     public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance,
                                                                 FederationUserToken federationUser)
             throws UnauthenticatedUserException {
-        FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeInstance.getId());
+        FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeInstance.getId());
         if (federatedComputeOrder != null) {
             FederationUserToken computeUser = federatedComputeOrder.getComputeOrder().getFederationUserToken();
             if (computeUser.equals(federationUser)) {
@@ -182,41 +182,25 @@ public class OrderController {
 
     public void deleteCompute(String computeId, FederationUserToken user) throws FederatedNetworkNotFoundException,
             UnauthenticatedUserException {
-        FederatedComputeOrder federatedComputeOrder = activeFederatedComputes.get(computeId);
+        FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeId);
         if (federatedComputeOrder != null) {
             if (!federatedComputeOrder.getComputeOrder().getFederationUserToken().equals(user)) {
                 throw new UnauthenticatedUserException();
             }
             String federatedIp = federatedComputeOrder.getFederatedIp();
             String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
-            FederatedNetworkOrder federatedNetworkOrder = activeFederatedNetworks.get(federatedNetworkId);
+            FederatedNetworkOrder federatedNetworkOrder = orderHolders.getFederatedNetwork(federatedNetworkId);
             if (federatedNetworkOrder == null) {
                 throw new FederatedNetworkNotFoundException(federatedNetworkId);
             }
             federatedNetworkOrder.removeAssociatedIp(federatedIp);
             federatedComputeOrder.deactivateCompute();
-            activeFederatedComputes.remove(computeId);
+            orderHolders.removeOrder(computeId);
         }
     }
 
     public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
-        FederatedNetworkOrder federatedNetwork = activeFederatedNetworks.get(federatedCompute.getFederatedNetworkId());
+        FederatedNetworkOrder federatedNetwork = orderHolders.getFederatedNetwork(federatedCompute.getFederatedNetworkId());
         federatedNetwork.removeAssociatedIp(federatedCompute.getFederatedIp());
-    }
-
-    protected Map<String, FederatedNetworkOrder> getActiveFederatedNetworks() {
-        return activeFederatedNetworks;
-    }
-
-    protected void setActiveFederatedNetworks(Map<String, FederatedNetworkOrder> activeFederatedNetworks) {
-        this.activeFederatedNetworks = activeFederatedNetworks;
-    }
-
-    protected Map<String, FederatedComputeOrder> getActiveFederatedComputes() {
-        return activeFederatedComputes;
-    }
-
-    protected void setActiveFederatedComputes(Map<String, FederatedComputeOrder> activeFederatedComputes) {
-        this.activeFederatedComputes = activeFederatedComputes;
     }
 }

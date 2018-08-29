@@ -1,8 +1,9 @@
 package org.fogbow.federatednetwork.datastore;
 
-import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
+import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
+import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.util.Map;
@@ -17,15 +18,15 @@ public interface StableStorage {
     public void put(FederatedOrder federatedOrder);
 
     /**
-     * Retrieve federated networks from the database based on user given.
-     * @param user {@link FederationUserToken}
-     * @return A set of federated networks {@link FederatedNetworkOrder}
+     * Retrieve federated networks from the database for a given state.
+     * @param orderState {@link OrderState}
+     * @return A list of orders in a specific state
      */
-    public Set<FederatedOrder> readActiveFederatedNetworks(FederationUserToken user);
+    public SynchronizedDoublyLinkedList readActiveFederatedNetworks(OrderState orderState);
 
     /**
      * Retrieve all federated networks, may be interest to create a database recovery
      * @return A map of user id to federated order {@link FederatedOrder}
      */
-    public Map<String, Set<FederatedOrder>> retrieveActiveFederatedNetworks();
+    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks();
 }

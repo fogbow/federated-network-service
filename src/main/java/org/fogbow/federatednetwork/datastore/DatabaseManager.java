@@ -1,19 +1,14 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.ConfigurationConstants;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
+import org.fogbowcloud.manager.core.models.orders.OrderState;
 
-import java.io.File;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DatabaseManager implements StableStorage {
 
@@ -43,12 +38,12 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Set<FederatedOrder> readActiveFederatedNetworks(FederationUserToken user) {
-        return null;
+    public SynchronizedDoublyLinkedList readActiveFederatedNetworks(OrderState orderState) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public ConcurrentHashMap<String, Set<FederatedOrder>> retrieveActiveFederatedNetworks() {
-        throw new UnsupportedOperationException();
+    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() {
+        return recoveryService.readActiveOrders();
     }
 }

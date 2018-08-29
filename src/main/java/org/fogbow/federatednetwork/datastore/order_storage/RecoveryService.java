@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class RecoveryService {
@@ -19,7 +21,7 @@ public class RecoveryService {
         return orderRepository.save(order);
     }
 
-    public List<FederatedOrder> readActiveOrders(OrderState orderState) {
+    public List<FederatedOrder> readActiveOrdersByState(OrderState orderState) {
 
         // If the state is closed, do a filter to not include orders with null instance id
         if (orderState == OrderState.CLOSED) {
@@ -37,5 +39,13 @@ public class RecoveryService {
 
         return orderRepository.findByOrderState(orderState);
 
+    }
+
+    public Map<String, FederatedOrder> readActiveOrders() {
+        Map<String, FederatedOrder> activeOrdersMap = new HashMap<>();
+        for (FederatedOrder order: orderRepository.findAll()) {
+            activeOrdersMap.put(order.getId(), order);
+        }
+        return activeOrdersMap;
     }
 }
