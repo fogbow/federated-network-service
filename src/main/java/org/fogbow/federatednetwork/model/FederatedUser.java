@@ -1,7 +1,7 @@
 package org.fogbow.federatednetwork.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import javax.persistence.Column;
@@ -12,29 +12,28 @@ import java.util.Objects;
 public class FederatedUser extends FederationUserToken {
 
     @Column
-    @JsonIgnore
-    private String userId;
+    private String federatedUserId;
 
     @Column
-    private String userName;
+    private String federatedUserName;
 
     public FederatedUser() { }
 
-    public FederatedUser(String userId, String userName) {
-        this.userId = userId;
-        this.userName = userName;
+    public FederatedUser(String federatedUserId, String federatedUserName) {
+        this.federatedUserId = federatedUserId;
+        this.federatedUserName = federatedUserName;
     }
 
-    public FederatedUser(String tokenProvider, String federationUserTokenValue, String userId, String userName) {
-        super(tokenProvider, federationUserTokenValue, userId, userName);
+    public FederatedUser(String tokenProvider, String federationUserTokenValue, String federatedUserId, String federatedUserName) {
+        super(tokenProvider, federationUserTokenValue, federatedUserId, federatedUserName);
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setFederatedUserId(String federatedUserId) {
+        this.federatedUserId = federatedUserId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setFederatedUserName(String federatedUserName) {
+        this.federatedUserName = federatedUserName;
     }
 
     @Override

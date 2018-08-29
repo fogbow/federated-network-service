@@ -371,21 +371,21 @@ public class OrderControllerTest extends BaseUnitTest {
         //set up
         String newId = "fake-compute-new-id";
         ComputeOrder computeOrder = new ComputeOrder();
-        computeOrder.setId(FEDERATED_COMPUTE_ID);
         FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_COMPUTE_ID, FEDERATED_NETWORK_ID, computeOrder));
+        federatedCompute.setId(FEDERATED_COMPUTE_ID);
 
         DatabaseManager database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         Mockito.doNothing().when(database).put(any(FederatedComputeOrder.class));
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
 
-        assertEquals(FEDERATED_COMPUTE_ID, federatedCompute.getComputeOrder().getId());
-        assertNotEquals(newId, federatedCompute.getComputeOrder().getId());
+        assertEquals(FEDERATED_COMPUTE_ID, federatedCompute.getId());
+        assertNotEquals(newId, federatedCompute.getId());
         //exercise
         orderController.updateIdOnComputeCreation(federatedCompute, newId);
         //verify
-        assertNotEquals(FEDERATED_COMPUTE_ID, federatedCompute.getComputeOrder().getId());
-        assertEquals(newId, federatedCompute.getComputeOrder().getId());
+        assertNotEquals(FEDERATED_COMPUTE_ID, federatedCompute.getId());
+        assertEquals(newId, federatedCompute.getId());
     }
 
     //test case: This test should add federated data to federated compute when receives a get method.

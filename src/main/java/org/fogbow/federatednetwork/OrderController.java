@@ -102,7 +102,6 @@ public class OrderController {
 
     public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederatedUser user) {
         Collection<FederatedNetworkOrder> orders = this.activeFederatedNetworks.values();
-        FederatedOrder a = new ArrayList<>(orders).get(0);
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
@@ -154,13 +153,12 @@ public class OrderController {
     }
 
     public void updateIdOnComputeCreation(FederatedComputeOrder federatedCompute, String newId) {
-        ComputeOrder computeOrder = federatedCompute.getComputeOrder();
         String federatedNetworkId = federatedCompute.getFederatedNetworkId();
         // if compute is federated
         if (federatedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             // store compute into database
             federatedCompute.updateIdOnComputeCreation(newId);
-            activeFederatedComputes.put(computeOrder.getId(), federatedCompute);
+            activeFederatedComputes.put(federatedCompute.getId(), federatedCompute);
         }
     }
 

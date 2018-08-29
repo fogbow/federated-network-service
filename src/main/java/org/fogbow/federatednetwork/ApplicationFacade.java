@@ -87,7 +87,7 @@ public class ApplicationFacade {
     }
 
     public void updateOrderId(FederatedComputeOrder federatedCompute, String newId, String federationTokenValue)
-            throws UnauthenticatedUserException,  InvalidParameterException {
+            throws InvalidParameterException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         federatedCompute.getComputeOrder().setFederationUserToken(federationUser);
         this.orderController.updateIdOnComputeCreation(federatedCompute, newId);

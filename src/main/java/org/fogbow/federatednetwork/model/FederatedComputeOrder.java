@@ -23,6 +23,10 @@ public class FederatedComputeOrder extends FederatedOrder {
     @Transient
     private ComputeOrder computeOrder;
 
+    public FederatedComputeOrder() {
+        super();
+    }
+
     public FederatedComputeOrder(String federatedNetworkId, String federatedIp, ComputeOrder computeOrder) {
         this.federatedNetworkId = federatedNetworkId;
         this.federatedIp = federatedIp;
@@ -55,7 +59,7 @@ public class FederatedComputeOrder extends FederatedOrder {
 
     public void updateIdOnComputeCreation(String newId){
         StableStorage databaseManager = DatabaseManager.getInstance();
-        this.computeOrder.setId(newId);
+        this.setId(newId);
         databaseManager.put(this);
     }
 
