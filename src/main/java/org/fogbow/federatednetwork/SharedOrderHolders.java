@@ -30,6 +30,10 @@ public class SharedOrderHolders {
         return this.activeOrdersMap;
     }
 
+    public void setActiveOrdersMap(Map<String, FederatedOrder> activeOrdersMap) {
+        this.activeOrdersMap = activeOrdersMap;
+    }
+
     public FederatedOrder putOrder(FederatedOrder order) {
         return activeOrdersMap.put(order.getId(), order);
     }

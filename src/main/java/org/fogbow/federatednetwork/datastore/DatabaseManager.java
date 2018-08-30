@@ -17,9 +17,7 @@ public class DatabaseManager implements StableStorage {
     private static DatabaseManager instance;
     private RecoveryService recoveryService;
 
-    private DatabaseManager() {
-        Properties properties = PropertiesUtil.readProperties();
-    }
+    private DatabaseManager() { }
 
     public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
