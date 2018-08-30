@@ -57,7 +57,7 @@ public class OrderControllerTest extends BaseUnitTest {
     @Before
     public void setUp() {
         properties = super.setProperties();
-        user = new FederatedUser(TOKEN_PROVIDER, TOKEN_USER_VALUE, USER_ID, USER_NAME);
+        user = new FederatedUser(USER_ID, USER_NAME);
     }
 
     //test case: Tests if the activation order made in orderController will call the expected methods
@@ -401,8 +401,8 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testGetFederatedCompute() throws UnauthenticatedUserException {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
-        addComputeIntoActiveMaps();
+        addNetworkIntoActiveOrdersMap();
+        addComputeIntoActiveOrdersMap();
         ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host", 2, 8, 20, "192.168.0.2");
         //exercise
         ComputeInstance federatedComputeInstance = orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
@@ -417,11 +417,11 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testGetFederatedComputeWithNonAuthenticatedUser() {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
-        addComputeIntoActiveMaps();
+        addNetworkIntoActiveOrdersMap();
+        addComputeIntoActiveOrdersMap();
         ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID);
         String nonAuthenticatedUserId = "non-authenticated";
-        FederationUserToken nonAuthenticatedUser = new FederationUserToken(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
+        FederatedUser nonAuthenticatedUser = new FederatedUser(nonAuthenticatedUserId, USER_NAME);
         //exercise
         try {
             orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, nonAuthenticatedUser);
@@ -447,14 +447,13 @@ public class OrderControllerTest extends BaseUnitTest {
     //test case: This test should remove a compute order.
     @Test
     public void testDeleteFederatedCompute() throws FederatedNetworkNotFoundException,
-            UnauthenticatedUserException, FederatedComputeNotFoundException, InvalidCidrException, SubnetAddressesCapacityReachedException, IOException {
+            UnauthenticatedUserException, InvalidCidrException, SubnetAddressesCapacityReachedException, IOException {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
-        ComputeOrder computeOrder = new ComputeOrder();
-        computeOrder.setId(FEDERATED_COMPUTE_ID);
-        computeOrder.setFederationUserToken(user);
-        FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_NETWORK_ID, "", computeOrder));
+        addNetworkIntoActiveOrdersMap();
+        addComputeIntoActiveOrdersMap();
+        FederatedComputeOrder federatedCompute = sharedOrderHolders.getFederatedCompute(FEDERATED_COMPUTE_ID);
+
         orderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
         orderController.updateIdOnComputeCreation(federatedCompute, FEDERATED_COMPUTE_ID);
         //pre conditions
@@ -462,6 +461,7 @@ public class OrderControllerTest extends BaseUnitTest {
         Map<String, FederatedNetworkOrder> federatedNetworks = getFederatedNetworksMap(orders);
         Map<String, FederatedComputeOrder> federatedComputes = getFederatedComputesMap(orders);
         FederatedNetworkOrder federatedNetwork = sharedOrderHolders.getFederatedNetwork(FEDERATED_NETWORK_ID);
+        federatedNetwork.setUser(user);
         String computeIp = "10.10.10.1";
         assertEquals(1, federatedNetworks.size());
         assertNotNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
@@ -486,7 +486,7 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testRemoveNonFederatedCompute() throws UnauthenticatedUserException, FederatedNetworkNotFoundException {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
+        addNetworkIntoActiveOrdersMap();
         Collection<FederatedOrder> orders = sharedOrderHolders.getActiveOrdersMap().values();
         Map<String, FederatedNetworkOrder> federatedNetworks = getFederatedNetworksMap(orders);
         FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
@@ -501,12 +501,12 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testRemoveFederatedComputeWithDifferentUser() throws FederatedNetworkNotFoundException, InvalidParameterException {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
-        addComputeIntoActiveMaps();
+        addNetworkIntoActiveOrdersMap();
+        addComputeIntoActiveOrdersMap();
         //exercise
         try {
             String nonAuthenticatedUserId = "non-authenticated";
-            FederationUserToken nonAuthenticatedUser = new FederationUserToken(TOKEN_PROVIDER, TOKEN_USER_VALUE, nonAuthenticatedUserId, USER_NAME);
+            FederatedUser nonAuthenticatedUser = new FederatedUser(nonAuthenticatedUserId, USER_NAME);
             orderController.deleteCompute(FEDERATED_COMPUTE_ID, nonAuthenticatedUser);
             fail();
         } catch (UnauthenticatedUserException e) {
@@ -520,7 +520,7 @@ public class OrderControllerTest extends BaseUnitTest {
             SubnetAddressesCapacityReachedException, IOException {
         //set up
         mockOnlyDatabase();
-        addNetworkIntoActiveMaps();
+        addNetworkIntoActiveOrdersMap();
         ComputeOrder computeOrder = new ComputeOrder();
         computeOrder.setId(FEDERATED_COMPUTE_ID);
         computeOrder.setFederationUserToken(user);
@@ -545,31 +545,24 @@ public class OrderControllerTest extends BaseUnitTest {
         assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getFreedIps().element());
     }
 
-    private void addComputeIntoActiveMaps() {
+    private void addComputeIntoActiveOrdersMap() {
         ComputeOrder computeOrder = new ComputeOrder();
         computeOrder.setId(FEDERATED_COMPUTE_ID);
-        computeOrder.setFederationUserToken(user);
         FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_NETWORK_ID, "", computeOrder));
-        Map<String, FederatedOrder> activeFederatedCompute = new ConcurrentHashMap<>();
-        activeFederatedCompute.put(FEDERATED_COMPUTE_ID, federatedCompute);
-        sharedOrderHolders.getInstance().setActiveOrdersMap(activeFederatedCompute);
+        federatedCompute.setUser(user);
+        when(federatedCompute.getId()).thenReturn(FEDERATED_COMPUTE_ID);
+        when(federatedCompute.getUser()).thenReturn(user);
+        sharedOrderHolders.getInstance().putOrder(federatedCompute);
     }
 
-    private void addNetworkIntoActiveMaps() {
+    private void addNetworkIntoActiveOrdersMap() {
         String cidr = "10.10.10.0/24";
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, 1, freedIps, computesIp));
-        Map<String, FederatedOrder> activeFederatedNetworks = new ConcurrentHashMap<>();
-        activeFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
-        sharedOrderHolders.getInstance().setActiveOrdersMap(activeFederatedNetworks);
-
-        DatabaseManager database = Mockito.mock(DatabaseManager.class);
-        PowerMockito.mockStatic(DatabaseManager.class);
-        Mockito.doNothing().when(database).put(any(FederatedNetworkOrder.class));
-        BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
+        sharedOrderHolders.getInstance().putOrder(federatedNetwork);
     }
 
     private void mockSingletons() {

@@ -129,9 +129,11 @@ public class OrderController {
     // Compute methods
 
     public ComputeOrder addFederationUserTokenDataIfApplied(FederatedComputeOrder federatedComputeOrder,
-                                                            FederationUserToken user) throws
+                                                            FederationUserToken federationUser) throws
             IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException,
             InvalidCidrException {
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
+        federatedComputeOrder.setUser(user);
         federatedComputeOrder.getComputeOrder().setFederationUserToken(user);
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
@@ -163,12 +165,12 @@ public class OrderController {
     }
 
     public ComputeInstance addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance,
-                                                                FederationUserToken federationUser)
+                                                                FederatedUser user)
             throws UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeInstance.getId());
         if (federatedComputeOrder != null) {
-            FederationUserToken computeUser = federatedComputeOrder.getComputeOrder().getFederationUserToken();
-            if (computeUser.equals(federationUser)) {
+            FederationUserToken computeUser = federatedComputeOrder.getUser();
+            if (computeUser.equals(user)) {
                 String federatedIp = federatedComputeOrder.getFederatedIp();
                 FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance,
                         federatedIp);
@@ -180,11 +182,11 @@ public class OrderController {
         return computeInstance;
     }
 
-    public void deleteCompute(String computeId, FederationUserToken user) throws FederatedNetworkNotFoundException,
+    public void deleteCompute(String computeId, FederatedUser user) throws FederatedNetworkNotFoundException,
             UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeId);
         if (federatedComputeOrder != null) {
-            if (!federatedComputeOrder.getComputeOrder().getFederationUserToken().equals(user)) {
+            if (!federatedComputeOrder.getUser().equals(user)) {
                 throw new UnauthenticatedUserException();
             }
             String federatedIp = federatedComputeOrder.getFederatedIp();

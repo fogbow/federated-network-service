@@ -36,6 +36,14 @@ public class FederatedUser extends FederationUserToken {
         this.federatedUserName = federatedUserName;
     }
 
+    public String getFederatedUserId() {
+        return federatedUserId;
+    }
+
+    public String getFederatedUserName() {
+        return federatedUserName;
+    }
+
     @Override
     @JsonIgnore
     public String getTokenProvider() {
@@ -54,7 +62,7 @@ public class FederatedUser extends FederationUserToken {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         FederatedUser that = (FederatedUser) o;
-        return Objects.equals(getUserId(), that.getUserId());
+        return Objects.equals(getFederatedUserId(), that.getFederatedUserId());
     }
 
     @Override

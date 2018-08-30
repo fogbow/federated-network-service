@@ -3,12 +3,10 @@ package org.fogbow.federatednetwork.datastore;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
 import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 
 import java.util.Map;
-import java.util.Properties;
 
 public class DatabaseManager implements StableStorage {
 

@@ -5,9 +5,9 @@ import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.Objects;
 
 @Entity
@@ -20,7 +20,7 @@ public class FederatedComputeOrder extends FederatedOrder {
     @Column
     private String federatedIp;
 
-    @Transient
+    @Embedded
     private ComputeOrder computeOrder;
 
     public FederatedComputeOrder() {

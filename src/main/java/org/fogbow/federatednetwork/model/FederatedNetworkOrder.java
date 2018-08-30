@@ -3,6 +3,8 @@ package org.fogbow.federatednetwork.model;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.*;
@@ -19,6 +21,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
 
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_allowed_members")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> allowedMembers;
 
     @Transient
@@ -29,6 +32,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
 
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_computes_ip")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> computesIp;
 
     public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,

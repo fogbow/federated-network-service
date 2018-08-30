@@ -98,16 +98,18 @@ public class ApplicationFacade {
             throws UnauthenticatedUserException, InvalidParameterException, UnavailableProviderException,
             UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.GET, ResourceType.NETWORK);
-        return this.orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, federationUser);
+        return this.orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
     }
 
     public void deleteCompute(String computeId, String federationTokenValue) throws UnauthenticatedUserException,
             InvalidParameterException, FederatedNetworkNotFoundException, UnavailableProviderException,
             UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
+        FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.CREATE, ResourceType.NETWORK);
-        this.orderController.deleteCompute(computeId, federationUser);
+        this.orderController.deleteCompute(computeId, user);
     }
 
     public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
