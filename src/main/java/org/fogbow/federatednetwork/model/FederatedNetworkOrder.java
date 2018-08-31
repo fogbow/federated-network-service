@@ -7,6 +7,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import java.sql.SQLException;
 import java.util.*;
 
 @Entity
@@ -66,18 +67,18 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.computesIp = new ArrayList<>();
     }
 
-    public synchronized void setOrderState(OrderState state) {
+    public synchronized void setOrderState(OrderState state) throws SQLException {
         super.setOrderState(state);
     }
 
-    public synchronized void removeAssociatedIp(String ipToBeReleased) {
+    public synchronized void removeAssociatedIp(String ipToBeReleased) throws SQLException {
         this.computesIp.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
     }
 
-    public synchronized void addAssociatedIp(String ipToBeAttached){
+    public synchronized void addAssociatedIp(String ipToBeAttached) throws SQLException {
         if (this.freedIps.contains(ipToBeAttached)) {
             this.freedIps.remove(ipToBeAttached);
         } else {

@@ -17,6 +17,7 @@ import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 
 public class ApplicationFacade {
@@ -38,7 +39,7 @@ public class ApplicationFacade {
 
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetwork, String federationTokenValue) throws
             UnauthenticatedUserException, InvalidParameterException, InvalidCidrException, AgentCommucationException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            UnavailableProviderException, UnauthorizedRequestException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(federationUser, Operation.CREATE, ResourceType.NETWORK);
         return this.orderController.activateFederatedNetwork(federatedNetwork, federationUser);
@@ -65,7 +66,7 @@ public class ApplicationFacade {
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException, UnauthenticatedUserException, InvalidParameterException,
             FederatedNetworkNotFoundException, AgentCommucationException, UnavailableProviderException,
-            UnauthorizedRequestException {
+            UnauthorizedRequestException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.DELETE, ResourceType.NETWORK);
@@ -78,7 +79,7 @@ public class ApplicationFacade {
                                                       String federationTokenValue)
             throws SubnetAddressesCapacityReachedException, IOException, UnauthenticatedUserException,
             InvalidParameterException, FederatedNetworkNotFoundException, InvalidCidrException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            UnavailableProviderException, UnauthorizedRequestException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(federationUser, Operation.CREATE, ResourceType.NETWORK);
         ComputeOrder incrementedComputeOrder = this.orderController.
@@ -87,7 +88,7 @@ public class ApplicationFacade {
     }
 
     public void updateOrderId(FederatedComputeOrder federatedCompute, String newId, String federationTokenValue)
-            throws InvalidParameterException {
+            throws InvalidParameterException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         federatedCompute.getComputeOrder().setFederationUserToken(federationUser);
         this.orderController.updateIdOnComputeCreation(federatedCompute, newId);
@@ -105,14 +106,14 @@ public class ApplicationFacade {
 
     public void deleteCompute(String computeId, String federationTokenValue) throws UnauthenticatedUserException,
             InvalidParameterException, FederatedNetworkNotFoundException, UnavailableProviderException,
-            UnauthorizedRequestException {
+            UnauthorizedRequestException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         this.aaController.authenticateAndAuthorize(federationUser, Operation.CREATE, ResourceType.NETWORK);
         this.orderController.deleteCompute(computeId, user);
     }
 
-    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
+    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) throws SQLException {
         this.orderController.rollbackInFailedPost(federatedCompute);
     }
 

@@ -8,6 +8,7 @@ import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -15,7 +16,8 @@ public class FederatedNetworkUtil {
 
     public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
 
-    public static String getFreeIpForCompute(FederatedNetworkOrder federatedNetwork) throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public static String getFreeIpForCompute(FederatedNetworkOrder federatedNetwork) throws
+            SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         String freeIp = null;
         if (federatedNetwork.getFreedIps().isEmpty()) {
             SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());

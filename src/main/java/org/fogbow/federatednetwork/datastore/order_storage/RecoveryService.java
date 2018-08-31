@@ -4,7 +4,6 @@ import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbow.federatednetwork.model.FederatedResourceType;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.springframework.beans.factory.annotation.Autowired;

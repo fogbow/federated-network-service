@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -45,7 +46,7 @@ public class FogbowCoreProxyHandler {
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException,
             UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
-            InvalidCidrException, UnavailableProviderException, UnauthorizedRequestException {
+            InvalidCidrException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         final String requestUrl = request.getRequestURI();
 
@@ -102,7 +103,7 @@ public class FogbowCoreProxyHandler {
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
             InvalidParameterException, SubnetAddressesCapacityReachedException, UnauthenticatedUserException,
             IOException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
@@ -149,7 +150,7 @@ public class FogbowCoreProxyHandler {
     private ResponseEntity<String> processDeleteCompute(@RequestBody(required = false) String body, HttpMethod method,
                                                         HttpServletRequest request) throws URISyntaxException,
             UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 

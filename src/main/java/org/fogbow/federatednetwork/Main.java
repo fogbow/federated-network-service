@@ -14,6 +14,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 @Component
@@ -28,7 +29,8 @@ public class Main implements ApplicationRunner {
     private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
     @Override
-    public void run(ApplicationArguments args) throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public void run(ApplicationArguments args) throws SubnetAddressesCapacityReachedException, InvalidCidrException,
+            SQLException {
         DatabaseManager.getInstance().setRecoveryService(recoveryService);
         Properties properties = PropertiesUtil.readProperties();
 

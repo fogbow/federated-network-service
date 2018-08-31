@@ -6,9 +6,6 @@ public class ConfigurationConstants {
     public static final String MANAGER_CORE_PORT = "manager_core_port";
     public static final String MANAGER_CORE_IP = "manager_core_ip";
 
-    // Database File Path
-    public static final String DATABASE_FILE_PATH = "database_file_path";
-
     // Federated Network Properties
     public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH = "federated_network_agent_permission_file_path";
     public static final String FEDERATED_NETWORK_AGENT_USER = "federated_network_agent_user";

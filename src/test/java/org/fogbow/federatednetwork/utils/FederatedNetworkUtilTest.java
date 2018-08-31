@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -30,7 +31,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: Tests if networks are correctly returned, to a given ips served amount.
     @Test
-    public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         //set up
         FederatedUser user = mock(FederatedUser.class);
         Set<String> allowedMembers = new HashSet<>();
@@ -59,7 +60,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: freedIp will be given, if the queue is not empty, instead of searching a new ip
     @Test
-    public void testFreedIpsComesFirst() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public void testFreedIpsComesFirst() throws SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         FederatedUser user = mock(FederatedUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
@@ -78,7 +79,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkOverflow() throws InvalidCidrException {
+    public void testNetworkOverflow() throws InvalidCidrException, SQLException {
         //set up
         FederatedUser user = mock(FederatedUser.class);
         Set<String> allowedMembers = new HashSet<>();
@@ -99,7 +100,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: tests that if ips served is negative, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkUnderflow() throws InvalidCidrException {
+    public void testNetworkUnderflow() throws InvalidCidrException, SQLException {
         //set up
         FederatedUser user = mock(FederatedUser.class);
         Set<String> allowedMembers = new HashSet<>();

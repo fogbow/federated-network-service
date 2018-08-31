@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.sql.SQLException;
 import java.util.Objects;
 
 @Entity
@@ -57,13 +58,13 @@ public class FederatedComputeOrder extends FederatedOrder {
         this.computeOrder = computeOrder;
     }
 
-    public void updateIdOnComputeCreation(String newId){
+    public void updateIdOnComputeCreation(String newId) throws SQLException {
         StableStorage databaseManager = DatabaseManager.getInstance();
         this.setId(newId);
         databaseManager.put(this);
     }
 
-    public void deactivateCompute() {
+    public void deactivateCompute() throws SQLException {
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
     }

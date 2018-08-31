@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.Collection;
 
 @RestController
@@ -26,7 +27,7 @@ public class FederatedNetworkRestHandler {
                               federatedNetwork, @RequestHeader(required = false, value =
             ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws UnauthenticatedUserException, InvalidParameterException, InvalidCidrException,
-            AgentCommucationException, UnavailableProviderException, UnauthorizedRequestException {
+            AgentCommucationException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         final String federatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork,
                 federationTokenValue);
@@ -64,7 +65,7 @@ public class FederatedNetworkRestHandler {
             @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
                     String federationTokenValue) throws NotEmptyFederatedNetworkException, UnauthenticatedUserException,
             InvalidParameterException, FederatedNetworkNotFoundException, AgentCommucationException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

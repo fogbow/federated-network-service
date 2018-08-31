@@ -7,6 +7,7 @@ import org.fogbowcloud.manager.core.models.orders.OrderState;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.UUID;
 
 @Entity
@@ -83,7 +84,7 @@ public abstract class FederatedOrder implements Serializable {
         this.orderState = state;
     }
 
-    public synchronized void setOrderState(OrderState state) {
+    public synchronized void setOrderState(OrderState state) throws SQLException {
         this.orderState = state;
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);

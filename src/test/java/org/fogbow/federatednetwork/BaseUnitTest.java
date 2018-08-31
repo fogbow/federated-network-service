@@ -15,7 +15,6 @@ public class BaseUnitTest {
 
     public Properties setProperties() {
         Properties p = new Properties();
-        p.setProperty(DATABASE_FILE_PATH, TEST_DATABASE_FILE_PATH);
         p.setProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH, "fake-file.pem");
         p.setProperty(FEDERATED_NETWORK_AGENT_USER, "fake-user");
         p.setProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS, "fake-private-ip");

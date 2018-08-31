@@ -1,13 +1,16 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.datastore.order_storage.OrderTimestampStorage;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 public class DatabaseManager implements StableStorage {
@@ -16,10 +19,13 @@ public class DatabaseManager implements StableStorage {
 
     private static DatabaseManager instance;
     private RecoveryService recoveryService;
+    private OrderTimestampStorage orderTimestampStorage;
 
-    private DatabaseManager() { }
+    private DatabaseManager() throws SQLException {
+        this.orderTimestampStorage = new OrderTimestampStorage();
+    }
 
-    public static synchronized DatabaseManager getInstance() {
+    public static synchronized DatabaseManager getInstance() throws SQLException {
         if (instance == null) {
             instance = new DatabaseManager();
         }
@@ -32,7 +38,14 @@ public class DatabaseManager implements StableStorage {
 
     @Override
     public void put(FederatedOrder federatedOrder) {
-        recoveryService.put(federatedOrder);
+        try {
+            recoveryService.put(federatedOrder);
+            if (federatedOrder instanceof FederatedNetworkOrder) {
+                orderTimestampStorage.addOrder(federatedOrder);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

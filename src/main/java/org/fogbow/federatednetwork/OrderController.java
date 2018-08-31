@@ -16,6 +16,7 @@ import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,8 @@ public class OrderController {
     private Properties properties;
     private SharedOrderHolders orderHolders;
 
-    public OrderController(Properties properties) throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public OrderController(Properties properties) throws SubnetAddressesCapacityReachedException, InvalidCidrException,
+            SQLException {
         this.properties = properties;
         this.orderHolders = SharedOrderHolders.getInstance();
     }
@@ -38,7 +40,7 @@ public class OrderController {
     // Federated Network methods
 
     public String activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUserToken federationUser)
-            throws InvalidCidrException, AgentCommucationException {
+            throws InvalidCidrException, AgentCommucationException, SQLException {
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         federatedNetwork.setUser(user);
 
@@ -76,7 +78,7 @@ public class OrderController {
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederatedUser user)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
-            UnauthenticatedUserException {
+            UnauthenticatedUserException, SQLException {
         LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
@@ -131,7 +133,7 @@ public class OrderController {
     public ComputeOrder addFederationUserTokenDataIfApplied(FederatedComputeOrder federatedComputeOrder,
                                                             FederationUserToken federationUser) throws
             IOException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException,
-            InvalidCidrException {
+            InvalidCidrException, SQLException {
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         federatedComputeOrder.setUser(user);
         federatedComputeOrder.getComputeOrder().setFederationUserToken(user);
@@ -154,7 +156,7 @@ public class OrderController {
         return federatedComputeOrder.getComputeOrder();
     }
 
-    public void updateIdOnComputeCreation(FederatedComputeOrder federatedCompute, String newId) {
+    public void updateIdOnComputeCreation(FederatedComputeOrder federatedCompute, String newId) throws SQLException {
         String federatedNetworkId = federatedCompute.getFederatedNetworkId();
         // if compute is federated
         if (federatedCompute != null && federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
@@ -183,7 +185,7 @@ public class OrderController {
     }
 
     public void deleteCompute(String computeId, FederatedUser user) throws FederatedNetworkNotFoundException,
-            UnauthenticatedUserException {
+            UnauthenticatedUserException, SQLException {
         FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeId);
         if (federatedComputeOrder != null) {
             if (!federatedComputeOrder.getUser().equals(user)) {
@@ -201,7 +203,7 @@ public class OrderController {
         }
     }
 
-    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) {
+    public void rollbackInFailedPost(FederatedComputeOrder federatedCompute) throws SQLException {
         FederatedNetworkOrder federatedNetwork = orderHolders.getFederatedNetwork(federatedCompute.getFederatedNetworkId());
         federatedNetwork.removeAssociatedIp(federatedCompute.getFederatedIp());
     }
