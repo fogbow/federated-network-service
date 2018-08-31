@@ -552,7 +552,11 @@ public class OrderControllerTest extends BaseUnitTest {
         federatedCompute.setUser(user);
         when(federatedCompute.getId()).thenReturn(FEDERATED_COMPUTE_ID);
         when(federatedCompute.getUser()).thenReturn(user);
-        sharedOrderHolders.getInstance().putOrder(federatedCompute);
+        try {
+            sharedOrderHolders.getInstance().putOrder(federatedCompute);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void addNetworkIntoActiveOrdersMap() {
@@ -562,27 +566,43 @@ public class OrderControllerTest extends BaseUnitTest {
         List<String> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, 1, freedIps, computesIp));
-        sharedOrderHolders.getInstance().putOrder(federatedNetwork);
+        try {
+            sharedOrderHolders.getInstance().putOrder(federatedNetwork);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void mockSingletons() {
         Map<String, FederatedOrder> activeOrdersMap = new HashMap<>();
         mockDatabase(activeOrdersMap);
         mockSharedOrderHolders();
-        orderController = spy(new OrderController(properties));
+        try {
+            orderController = spy(new OrderController(properties));
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void mockSharedOrderHolders() {
         sharedOrderHolders = Mockito.mock(SharedOrderHolders.class);
         PowerMockito.mockStatic(SharedOrderHolders.class);
-        BDDMockito.given(SharedOrderHolders.getInstance()).willReturn(sharedOrderHolders);
+        try {
+            BDDMockito.given(SharedOrderHolders.getInstance()).willReturn(sharedOrderHolders);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void mockDatabase(Map<String, FederatedOrder> activeOrdersMap) {
         database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
-        when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
+        try {
+            when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void mockOnlyDatabase() {
@@ -590,9 +610,13 @@ public class OrderControllerTest extends BaseUnitTest {
         database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
-        when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
-        sharedOrderHolders = SharedOrderHolders.getInstance();
-        orderController = new OrderController(properties);
+        try {
+            when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
+            sharedOrderHolders = SharedOrderHolders.getInstance();
+            orderController = new OrderController(properties);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private Map<String, FederatedComputeOrder> getFederatedComputesMap(Collection<FederatedOrder> activeOrdersMap) {

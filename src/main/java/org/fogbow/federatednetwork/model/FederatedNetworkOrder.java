@@ -24,7 +24,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> allowedMembers;
 
-    @Transient
+    @Column(length = Integer.MAX_VALUE)
     private int ipsServed = 1;
 
     @Transient

@@ -2,6 +2,8 @@ package org.fogbow.federatednetwork.datastore;
 
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
@@ -39,7 +41,8 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() {
+    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() throws SubnetAddressesCapacityReachedException,
+            InvalidCidrException {
         return recoveryService.readActiveOrders();
     }
 }

@@ -8,6 +8,8 @@ import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class FederatedNetworkUtil {
 
@@ -42,6 +44,28 @@ public class FederatedNetworkUtil {
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
         int highAddress = subnetInfo.asInteger(subnetInfo.getHighAddress());
         return highAddress - lowAddress > 1;
+    }
+
+    /**
+     * This method must be used only for recovery from database
+     * @param federatedNetwork {@link FederatedNetworkOrder}
+     */
+    public static void fillFreedIpsList(FederatedNetworkOrder federatedNetwork) throws InvalidCidrException, SubnetAddressesCapacityReachedException {
+        SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());
+        int tempIpsServed = 1;
+        Queue<String> freedIps = new LinkedList();
+        for (; tempIpsServed < federatedNetwork.getIpsServed(); tempIpsServed ++) {
+            int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+            int candidateIp = lowAddress + tempIpsServed;
+            if (!subnetInfo.isInRange(candidateIp)) {
+                throw new SubnetAddressesCapacityReachedException(NO_FREE_IPS_MESSAGE);
+            }
+            String candidateIpAddress = toIpAddress(candidateIp);
+            if (!federatedNetwork.getComputesIp().contains(candidateIpAddress)) {
+                freedIps.add(candidateIpAddress);
+            }
+        }
+        federatedNetwork.setFreedIps(freedIps);
     }
 
     private static String toIpAddress(int value) {

@@ -30,7 +30,7 @@ public class OrderController {
     private Properties properties;
     private SharedOrderHolders orderHolders;
 
-    public OrderController(Properties properties) {
+    public OrderController(Properties properties) throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         this.properties = properties;
         this.orderHolders = SharedOrderHolders.getInstance();
     }

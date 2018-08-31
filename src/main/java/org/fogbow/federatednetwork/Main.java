@@ -3,6 +3,8 @@ package org.fogbow.federatednetwork;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.manager.core.AaController;
 import org.fogbowcloud.manager.core.BehaviorPluginsHolder;
@@ -26,7 +28,7 @@ public class Main implements ApplicationRunner {
     private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(ApplicationArguments args) throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         DatabaseManager.getInstance().setRecoveryService(recoveryService);
         Properties properties = PropertiesUtil.readProperties();
 

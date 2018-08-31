@@ -1,6 +1,8 @@
 package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
@@ -13,13 +15,14 @@ public class SharedOrderHolders {
 
     private Map<String, FederatedOrder> activeOrdersMap;
 
-    private SharedOrderHolders() {
+    private SharedOrderHolders() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         this.activeOrdersMap = databaseManager.retrieveActiveFederatedNetworks();
         // retrieve from database
     }
 
-    public static synchronized SharedOrderHolders getInstance() {
+    public static synchronized SharedOrderHolders getInstance() throws SubnetAddressesCapacityReachedException,
+            InvalidCidrException {
         if (instance == null) {
             instance = new SharedOrderHolders();
         }

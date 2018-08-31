@@ -1,5 +1,7 @@
 package org.fogbow.federatednetwork.datastore;
 
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
@@ -28,5 +30,5 @@ public interface StableStorage {
      * Retrieve all federated networks, may be interest to create a database recovery
      * @return A map of user id to federated order {@link FederatedOrder}
      */
-    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks();
+    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() throws SubnetAddressesCapacityReachedException, InvalidCidrException;
 }

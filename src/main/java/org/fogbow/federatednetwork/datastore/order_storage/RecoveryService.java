@@ -1,6 +1,11 @@
 package org.fogbow.federatednetwork.datastore.order_storage;
 
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
+import org.fogbow.federatednetwork.model.FederatedResourceType;
+import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.fogbowcloud.manager.core.models.orders.OrderState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,9 +46,12 @@ public class RecoveryService {
 
     }
 
-    public Map<String, FederatedOrder> readActiveOrders() {
+    public Map<String, FederatedOrder> readActiveOrders() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         Map<String, FederatedOrder> activeOrdersMap = new HashMap<>();
         for (FederatedOrder order: orderRepository.findAll()) {
+            if (order instanceof FederatedNetworkOrder) {
+                FederatedNetworkUtil.fillFreedIpsList((FederatedNetworkOrder) order);
+            }
             activeOrdersMap.put(order.getId(), order);
         }
         return activeOrdersMap;
