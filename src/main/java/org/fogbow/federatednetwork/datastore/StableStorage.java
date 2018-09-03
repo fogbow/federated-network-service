@@ -30,5 +30,5 @@ public interface StableStorage {
      * Retrieve all federated networks, may be interest to create a database recovery
      * @return A map of user id to federated order {@link FederatedOrder}
      */
-    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() throws SubnetAddressesCapacityReachedException, InvalidCidrException;
+    public Map<String, FederatedOrder> retrieveActiveFederatedOrders() throws SubnetAddressesCapacityReachedException, InvalidCidrException;
 }

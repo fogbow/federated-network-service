@@ -17,7 +17,8 @@ import java.util.Map;
 @Service
 public class RecoveryService {
 
-    @Autowired OrderRepository orderRepository;
+    @Autowired
+    OrderRepository orderRepository;
 
     public RecoveryService() { }
 

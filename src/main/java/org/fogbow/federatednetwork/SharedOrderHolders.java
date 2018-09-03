@@ -18,7 +18,7 @@ public class SharedOrderHolders {
 
     private SharedOrderHolders() throws SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
-        this.activeOrdersMap = databaseManager.retrieveActiveFederatedNetworks();
+        this.activeOrdersMap = databaseManager.retrieveActiveFederatedOrders();
         // retrieve from database
     }
 

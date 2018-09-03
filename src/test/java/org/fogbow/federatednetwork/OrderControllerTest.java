@@ -49,11 +49,11 @@ public class OrderControllerTest extends BaseUnitTest {
     private final String TOKEN_USER_VALUE = "token-value";
     private final String MEMBER = "member";
 
-    Properties properties;
-    FederatedUser user;
-    OrderController orderController;
-    SharedOrderHolders sharedOrderHolders;
-    DatabaseManager database;
+    private Properties properties;
+    private FederatedUser user;
+    private OrderController orderController;
+    private SharedOrderHolders sharedOrderHolders;
+    private DatabaseManager database;
 
     @Before
     public void setUp() {
@@ -606,7 +606,7 @@ public class OrderControllerTest extends BaseUnitTest {
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
         try {
-            when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
+            when(database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
         } catch (Exception e) {
             fail();
         }
@@ -618,7 +618,7 @@ public class OrderControllerTest extends BaseUnitTest {
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
         try {
-            when(database.retrieveActiveFederatedNetworks()).thenReturn(activeOrdersMap);
+            when(database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
             sharedOrderHolders = SharedOrderHolders.getInstance();
             orderController = new OrderController(properties);
         } catch (Exception e) {

@@ -32,10 +32,6 @@ public class DatabaseManager implements StableStorage {
         return instance;
     }
 
-    public void setRecoveryService(RecoveryService recoveryService) {
-        this.recoveryService = recoveryService;
-    }
-
     @Override
     public void put(FederatedOrder federatedOrder) {
         try {
@@ -54,8 +50,12 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Map<String, FederatedOrder> retrieveActiveFederatedNetworks() throws SubnetAddressesCapacityReachedException,
+    public Map<String, FederatedOrder> retrieveActiveFederatedOrders() throws SubnetAddressesCapacityReachedException,
             InvalidCidrException {
         return recoveryService.readActiveOrders();
+    }
+
+    public void setRecoveryService(RecoveryService recoveryService) {
+        this.recoveryService = recoveryService;
     }
 }
