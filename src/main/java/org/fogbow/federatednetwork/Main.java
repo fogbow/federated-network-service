@@ -1,49 +1,45 @@
 package org.fogbow.federatednetwork;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.api.http.FogbowCoreProxyHandler;
-import org.fogbow.federatednetwork.controllers.FederatedNetworkController;
+import org.fogbow.federatednetwork.datastore.DatabaseManager;
+import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.utils.PropertiesUtil;
+import org.fogbowcloud.manager.core.AaController;
+import org.fogbowcloud.manager.core.BehaviorPluginsHolder;
+import org.fogbowcloud.manager.core.PluginInstantiator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
-
-import static org.fogbow.federatednetwork.ConfigurationConstants.*;
 
 @Component
 public class Main implements ApplicationRunner {
 
-	private static final Logger LOGGER = Logger.getLogger(Main.class);
+    @Autowired
+    RecoveryService recoveryService;
 
-	private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
-	@Override
-	public void run(ApplicationArguments args) {
-		Properties properties = null;
-		try {
-			properties = new Properties();
-			FileInputStream input = new FileInputStream(FogbowCoreProxyHandler.FEDERATED_NETWORK_CONF);
-			properties.load(input);
-		} catch (IOException e) {
-			LOGGER.error("", e);
-			System.exit(1);
-		}
+    private static final Logger LOGGER = Logger.getLogger(Main.class);
 
-		String permissionFilePath = properties.getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
-		String agentUser = properties.getProperty(FEDERATED_NETWORK_AGENT_USER);
-		String agentPrivateIp = properties.getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS);
-		String agentPublicIp = properties.getProperty(FEDERATED_NETWORK_AGENT_ADDRESS);
-		String preSharedKey = properties.getProperty(FEDERATED_NETWORK_PRE_SHARED_KEY);
-		String addFederatedNetworkScriptPath = properties.getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH);
-		String removeFederatedNetworkScriptPath = properties.getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH);
+    private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
 
-		FederatedNetworkController federatedNetworkController = new FederatedNetworkController(
-				permissionFilePath, agentUser, agentPrivateIp, agentPublicIp, preSharedKey, addFederatedNetworkScriptPath,
-				removeFederatedNetworkScriptPath);
+    @Override
+    public void run(ApplicationArguments args) throws SubnetAddressesCapacityReachedException, InvalidCidrException,
+            SQLException {
+        DatabaseManager.getInstance().setRecoveryService(recoveryService);
+        Properties properties = PropertiesUtil.readProperties();
 
-		applicationFacade.setFederatedNetworkController(federatedNetworkController);
-	}
+        PluginInstantiator pluginInstantiator = PluginInstantiator.getInstance();
+        BehaviorPluginsHolder behaviorPluginsHolder = new BehaviorPluginsHolder(pluginInstantiator);
+        AaController aaController = new AaController(behaviorPluginsHolder);
+        OrderController orderController = new OrderController(properties);
+
+        applicationFacade.setOrderController(orderController);
+        applicationFacade.setAaController(aaController);
+    }
 }

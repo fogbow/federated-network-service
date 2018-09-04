@@ -1,40 +1,90 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.datastore.DatabaseManager;
+import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.models.tokens.FederationUser;
 
-import java.util.List;
-import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.sql.SQLException;
+import java.util.Objects;
 
-public class FederatedComputeOrder extends ComputeOrder {
+@Entity
+@Table(name = "federated_compute_table")
+public class FederatedComputeOrder extends FederatedOrder {
 
-	private String federatedNetworkId;
+    @Column
+    private String federatedNetworkId;
 
-	public FederatedComputeOrder() {
-		super();
-	}
+    @Column
+    private String federatedIp;
 
-	public FederatedComputeOrder(FederationUser federationUser, String requestingMember, String providingMember,
-	                             int vCPU, int memory, int disk, String imageId, UserData userData, String publicKey,
-	                             List<String> networksId, String federatedNetworkId) {
-		super(federationUser, requestingMember, providingMember, vCPU, memory, disk, imageId, userData, publicKey, networksId);
-		this.federatedNetworkId = federatedNetworkId;
-	}
+    @Embedded
+    private ComputeOrder computeOrder;
 
-	public FederatedComputeOrder(ComputeOrder computeOrder, String federatedNetworkId) {
-		super(computeOrder.getId(), computeOrder.getFederationUser(), computeOrder.getRequestingMember(),
-				computeOrder.getProvidingMember(), computeOrder.getvCPU(), computeOrder.getMemory(),
-				computeOrder.getDisk(), computeOrder.getImageId(), computeOrder.getUserData(),
-				computeOrder.getPublicKey(), computeOrder.getNetworksId());
-		this.federatedNetworkId = federatedNetworkId;
-	}
+    public FederatedComputeOrder() {
+        super();
+    }
 
-	public String getFederatedNetworkId() {
-		return federatedNetworkId;
-	}
+    public FederatedComputeOrder(String federatedNetworkId, String federatedIp, ComputeOrder computeOrder) {
+        this.federatedNetworkId = federatedNetworkId;
+        this.federatedIp = federatedIp;
+        this.computeOrder = computeOrder;
+    }
 
-	public void setFederatedNetworkId(String federatedNetworkId) {
-		this.federatedNetworkId = federatedNetworkId;
-	}
+    public String getFederatedNetworkId() {
+        return federatedNetworkId;
+    }
+
+    public void setFederatedNetworkId(String federatedNetworkId) {
+        this.federatedNetworkId = federatedNetworkId;
+    }
+
+    public String getFederatedIp() {
+        return federatedIp;
+    }
+
+    public void setFederatedIp(String federatedIp) {
+        this.federatedIp = federatedIp;
+    }
+
+    public ComputeOrder getComputeOrder() {
+        return computeOrder;
+    }
+
+    public void setComputeOrder(ComputeOrder computeOrder) {
+        this.computeOrder = computeOrder;
+    }
+
+    public void updateIdOnComputeCreation(String newId) throws SQLException {
+        StableStorage databaseManager = DatabaseManager.getInstance();
+        this.setId(newId);
+        databaseManager.put(this);
+    }
+
+    public void deactivateCompute() throws SQLException {
+        StableStorage databaseManager = DatabaseManager.getInstance();
+        databaseManager.put(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FederatedComputeOrder that = (FederatedComputeOrder) o;
+        return Objects.equals(getFederatedIp(), that.getFederatedIp()) &&
+                Objects.equals(getComputeOrder(), that.getComputeOrder());
+    }
+
+    @Override
+    public FederatedResourceType getType() {
+        return FederatedResourceType.FEDERATED_COMPUTE;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFederatedIp(), getComputeOrder());
+    }
 }

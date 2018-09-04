@@ -1,4 +1,4 @@
-package org.fogbow.federatednetwork;
+package org.fogbow.federatednetwork.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
