@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.SQLException;
 import java.util.Collection;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = FederatedNetworkRestHandler.FEDERATED_NETWORK_ENDPOINT)
 public class FederatedNetworkRestHandler {

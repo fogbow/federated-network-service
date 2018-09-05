@@ -20,8 +20,10 @@ import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -35,6 +37,8 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+@CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS,
+        RequestMethod.PUT})
 @Controller
 public class FogbowCoreProxyHandler {
 
