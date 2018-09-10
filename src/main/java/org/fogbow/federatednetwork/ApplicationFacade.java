@@ -4,17 +4,17 @@ import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedUser;
-import org.fogbowcloud.manager.core.AaController;
-import org.fogbowcloud.manager.core.constants.Operation;
-import org.fogbowcloud.manager.core.exceptions.InvalidParameterException;
-import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
-import org.fogbowcloud.manager.core.exceptions.UnauthorizedRequestException;
-import org.fogbowcloud.manager.core.exceptions.UnavailableProviderException;
-import org.fogbowcloud.manager.core.models.InstanceStatus;
-import org.fogbowcloud.manager.core.models.ResourceType;
-import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
-import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
+import org.fogbowcloud.ras.core.AaaController;
+import org.fogbowcloud.ras.core.constants.Operation;
+import org.fogbowcloud.ras.core.exceptions.InvalidParameterException;
+import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException;
+import org.fogbowcloud.ras.core.exceptions.UnavailableProviderException;
+import org.fogbowcloud.ras.core.models.InstanceStatus;
+import org.fogbowcloud.ras.core.models.ResourceType;
+import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
+import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -26,7 +26,7 @@ public class ApplicationFacade {
 
     private OrderController orderController;
 
-    private AaController aaController;
+    private AaaController aaController;
 
     public synchronized static ApplicationFacade getInstance() {
         if (instance == null) {
@@ -121,7 +121,7 @@ public class ApplicationFacade {
         this.orderController = orderController;
     }
 
-    public void setAaController(AaController aaController) {
+    public void setAaController(AaaController aaController) {
         this.aaController = aaController;
     }
 }

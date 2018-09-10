@@ -5,7 +5,7 @@ import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedExce
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

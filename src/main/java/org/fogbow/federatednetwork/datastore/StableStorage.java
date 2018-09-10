@@ -2,14 +2,11 @@ package org.fogbow.federatednetwork.datastore;
 
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
+import org.fogbowcloud.ras.core.models.linkedlists.SynchronizedDoublyLinkedList;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 
 import java.util.Map;
-import java.util.Set;
 
 public interface StableStorage {
 

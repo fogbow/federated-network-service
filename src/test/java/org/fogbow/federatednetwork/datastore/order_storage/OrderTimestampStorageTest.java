@@ -1,11 +1,10 @@
 package org.fogbow.federatednetwork.datastore.order_storage;
 
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbow.federatednetwork.model.FederatedUser;
-import org.fogbowcloud.manager.core.PropertiesHolder;
-import org.fogbowcloud.manager.core.models.instances.InstanceState;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.PropertiesHolder;
+import org.fogbowcloud.ras.core.models.instances.InstanceState;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;

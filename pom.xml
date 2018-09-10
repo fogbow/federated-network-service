@@ -102,7 +102,7 @@
 
         <dependency>
             <groupId>fogbow</groupId>
-            <artifactId>fogbow-manager-core</artifactId>
+            <artifactId>fogbow-ras-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

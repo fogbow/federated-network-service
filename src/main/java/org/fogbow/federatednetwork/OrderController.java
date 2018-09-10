@@ -7,13 +7,13 @@ import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederateComputeUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
-import org.fogbowcloud.manager.core.exceptions.UnauthenticatedUserException;
-import org.fogbowcloud.manager.core.models.InstanceStatus;
-import org.fogbowcloud.manager.core.models.instances.ComputeInstance;
-import org.fogbowcloud.manager.core.models.instances.InstanceState;
-import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
+import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
+import org.fogbowcloud.ras.core.models.InstanceStatus;
+import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
+import org.fogbowcloud.ras.core.models.instances.InstanceState;
+import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -171,7 +171,7 @@ public class OrderController {
             throws UnauthenticatedUserException {
         FederatedComputeOrder federatedComputeOrder = orderHolders.getFederatedCompute(computeInstance.getId());
         if (federatedComputeOrder != null) {
-            FederationUserToken computeUser = federatedComputeOrder.getUser();
+            FederatedUser computeUser = federatedComputeOrder.getUser();
             if (computeUser.equals(user)) {
                 String federatedIp = federatedComputeOrder.getFederatedIp();
                 FederatedComputeInstance federatedComputeInstance = new FederatedComputeInstance(computeInstance,

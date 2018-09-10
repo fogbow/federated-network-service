@@ -2,8 +2,8 @@ package org.fogbow.federatednetwork.datastore.order_storage;
 
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbowcloud.manager.core.datastore.commands.TimestampSQLCommands;
-import org.fogbowcloud.manager.core.datastore.orderstorage.OrderStorage;
+import org.fogbowcloud.ras.core.datastore.commands.TimestampSQLCommands;
+import org.fogbowcloud.ras.core.datastore.orderstorage.OrderStorage;
 
 import java.sql.*;
 import java.util.*;

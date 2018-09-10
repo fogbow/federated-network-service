@@ -1,8 +1,7 @@
 package org.fogbow.federatednetwork.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.fogbowcloud.manager.core.models.tokens.FederationUserToken;
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

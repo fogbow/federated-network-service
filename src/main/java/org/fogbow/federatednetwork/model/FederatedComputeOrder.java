@@ -2,7 +2,7 @@ package org.fogbow.federatednetwork.model;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
-import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
+import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;

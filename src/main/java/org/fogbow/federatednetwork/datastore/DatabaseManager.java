@@ -7,8 +7,8 @@ import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbowcloud.manager.core.models.linkedlists.SynchronizedDoublyLinkedList;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.linkedlists.SynchronizedDoublyLinkedList;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 
 import java.sql.SQLException;
 import java.util.Map;

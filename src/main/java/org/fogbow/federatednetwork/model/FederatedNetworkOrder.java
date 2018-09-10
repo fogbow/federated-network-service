@@ -2,7 +2,7 @@ package org.fogbow.federatednetwork.model;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 

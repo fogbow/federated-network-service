@@ -2,16 +2,14 @@ package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbowcloud.manager.core.models.orders.ComputeOrder;
-import org.fogbowcloud.manager.core.models.orders.UserData;
-import org.fogbowcloud.manager.core.plugins.cloud.util.CloudInitUserDataBuilder;
+import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
+import org.fogbowcloud.ras.core.models.orders.UserData;
+import org.fogbowcloud.ras.core.plugins.interoperability.util.CloudInitUserDataBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class FederateComputeUtil {
 
@@ -39,8 +37,8 @@ public class FederateComputeUtil {
 
     private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {
         ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
-                computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getvCPU(),
-                computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
+                computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getName(),
+                computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
                 userData, computeOrder.getPublicKey(), computeOrder.getNetworksId());
         return newCompute;
     }

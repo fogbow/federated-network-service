@@ -1,13 +1,11 @@
 package org.fogbow.federatednetwork;
 
 import org.junit.After;
-import org.junit.Before;
 
 import java.io.File;
 import java.util.Properties;
 
 import static org.fogbow.federatednetwork.ConfigurationConstants.*;
-import static org.fogbow.federatednetwork.ConfigurationConstants.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH;
 
 public class BaseUnitTest {
 

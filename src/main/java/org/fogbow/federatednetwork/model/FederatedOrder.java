@@ -1,8 +1,8 @@
 package org.fogbow.federatednetwork.model;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
-import org.fogbowcloud.manager.core.models.instances.InstanceState;
-import org.fogbowcloud.manager.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.instances.InstanceState;
+import org.fogbowcloud.ras.core.models.orders.OrderState;
 
 import javax.persistence.*;
 import java.io.Serializable;
