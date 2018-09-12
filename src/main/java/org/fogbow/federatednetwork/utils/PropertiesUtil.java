@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.log4j.Logger;
+import org.fogbowcloud.ras.core.HomeDir;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class PropertiesUtil {
     public static Properties readProperties() {
         Properties properties = new Properties();
         try {
-            FileInputStream input = new FileInputStream(FEDERATED_NETWORK_CONF);
+            FileInputStream input = new FileInputStream(HomeDir.getPath() + FEDERATED_NETWORK_CONF);
             properties.load(input);
             return properties;
         } catch (IOException e) {
