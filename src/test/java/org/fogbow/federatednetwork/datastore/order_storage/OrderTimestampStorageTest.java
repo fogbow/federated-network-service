@@ -106,7 +106,7 @@ public class OrderTimestampStorageTest {
         Queue<String> freedIps = new LinkedList<>();
         List<String> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
-                "label", allowedMembers, ipsServed, freedIps, computesIp);
+                "name", allowedMembers, ipsServed, freedIps, computesIp);
         federatedNetworkOrder.setOrderStateInTestMode(OrderState.OPEN);
         federatedNetworkOrder.setCachedInstanceState(InstanceState.READY);
         return federatedNetworkOrder;

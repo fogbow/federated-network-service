@@ -18,7 +18,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
     private String cidrNotation;
 
     @Column
-    private String label;
+    private String name;
 
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_allowed_members")
@@ -37,11 +37,11 @@ public class FederatedNetworkOrder extends FederatedOrder {
     private List<String> computesIp;
 
     public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
-                                 String providingMember, String cidrNotation, String label, Set<String> allowedMembers,
+                                 String providingMember, String cidrNotation, String name, Set<String> allowedMembers,
                                  int ipsServed, Queue<String> freedIps, List<String> computesIp) {
         super(id, federatedUser, requestingMember, providingMember);
         this.cidrNotation = cidrNotation;
-        this.label = label;
+        this.name = name;
         this.allowedMembers = allowedMembers;
         this.ipsServed = ipsServed;
         this.freedIps = freedIps;
@@ -49,11 +49,11 @@ public class FederatedNetworkOrder extends FederatedOrder {
     }
 
     public FederatedNetworkOrder(FederatedUser federatedUser, String requestingMember, String providingMember,
-                                 String cidrNotation, String label, Set<String> allowedMembers, int ipsServed,
+                                 String cidrNotation, String name, Set<String> allowedMembers, int ipsServed,
                                  Queue<String> freedIps, List<String> computesIp) {
         super(federatedUser, requestingMember, providingMember);
         this.cidrNotation = cidrNotation;
-        this.label = label;
+        this.name = name;
         this.allowedMembers = allowedMembers;
         this.ipsServed = ipsServed;
         this.freedIps = freedIps;
@@ -97,12 +97,12 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.cidrNotation = cidrNotation;
     }
 
-    public String getLabel() {
-        return label;
+    public String getName() {
+        return name;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<String> getAllowedMembers() {

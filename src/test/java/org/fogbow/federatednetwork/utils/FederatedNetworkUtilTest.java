@@ -39,7 +39,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
         String cidr = "10.0.0.0/24";
         int ipsServed = 1;
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "label", allowedMembers, ipsServed, freedIps, computesIp));
+                "name", allowedMembers, ipsServed, freedIps, computesIp));
         doNothing().when(federatedNetwork).addAssociatedIp(anyString());
         //exercise
         String freeIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetwork);
@@ -68,7 +68,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
         String cidr = "10.0.0.0/24";
         int ipsServed = 5;
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "label", allowedMembers, ipsServed, freedIps, computesIp));
+                "name", allowedMembers, ipsServed, freedIps, computesIp));
         doNothing().when(federatedNetwork).addAssociatedIp(anyString());doNothing().when(federatedNetwork).addAssociatedIp(anyString());
         //exercise
         String freeIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetwork);
@@ -87,7 +87,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
         String cidr = "10.0.0.0/24";
         int ipsServed = 254;
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "label", allowedMembers, ipsServed, freedIps, computesIp);
+                "name", allowedMembers, ipsServed, freedIps, computesIp);
         //exercise
         try {
             FederatedNetworkUtil.getFreeIpForCompute(federatedNetwork);
@@ -108,7 +108,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
         String cidr = "10.0.0.0/24";
         int ipsServed = -1;
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "label", allowedMembers, ipsServed, freedIps, computesIp);
+                "name", allowedMembers, ipsServed, freedIps, computesIp);
         //exercise
         try {
             FederatedNetworkUtil.getFreeIpForCompute(federatedNetwork);
@@ -129,7 +129,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
         String malformedCidr = "10..0.0/24";
         int ipsServed = -1;
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, malformedCidr,
-                "label", allowedMembers, ipsServed, freedIps, computesIp);
+                "name", allowedMembers, ipsServed, freedIps, computesIp);
         SubnetUtils.SubnetInfo subnetInfo = null;
         //exercise
         try {
