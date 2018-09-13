@@ -25,9 +25,8 @@ RUN \
 # Installing Federated Network Service
 RUN \
   git clone https://github.com/fogbow/federated-network-service.git && \
-  (cd federated-network-service && mvn install -Dmaven.test.skip=true)
 
 # Define working directory.
 WORKDIR /root/federated-network-service
 
-CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null
+CMD ./mvnw spring-boot:run > log.out 2> log.err && tail -f /dev/null
