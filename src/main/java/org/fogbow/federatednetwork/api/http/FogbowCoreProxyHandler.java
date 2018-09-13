@@ -81,8 +81,8 @@ public class FogbowCoreProxyHandler {
             throws URISyntaxException {
         String requestUrl = request.getRequestURI();
         Properties properties = PropertiesUtil.readProperties();
-        String coreBaseUrl = properties.getProperty(ConfigurationConstants.MANAGER_CORE_IP);
-        int corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.MANAGER_CORE_PORT));
+        String coreBaseUrl = properties.getProperty(ConfigurationConstants.RAS_IP);
+        int corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.RAS_PORT));
 
         URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null,
                 null, null);

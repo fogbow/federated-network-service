@@ -3,8 +3,9 @@ package org.fogbow.federatednetwork;
 public class ConfigurationConstants {
 
     // Manager Core Properties
-    public static final String MANAGER_CORE_PORT = "manager_core_port";
-    public static final String MANAGER_CORE_IP = "manager_core_ip";
+    public static final String RAS_PORT = "ras_port";
+    public static final String RAS_IP = "ras_ip";
+    public static final String RAS_NAME = "ras_name";
 
     // Federated Network Properties
     public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH = "federated_network_agent_permission_file_path";

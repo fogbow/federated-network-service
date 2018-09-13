@@ -11,7 +11,7 @@ public class PropertiesUtil {
 
     private static Logger LOGGER = Logger.getLogger(PropertiesUtil.class);
 
-    public static final String FEDERATED_NETWORK_CONF = "federated-network.conf";
+    public static final String FEDERATED_NETWORK_CONF = "fns.conf";
 
     public static Properties readProperties() {
         Properties properties = new Properties();

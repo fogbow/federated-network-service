@@ -1,7 +1,7 @@
-# Manager-core Configurations
-manager_core_port=
-manager_core_ip=
-member_name=
+# RAS Configurations
+ras_port=
+ras_ip=
+ras_name=
 
 # Agent Configurations
 federated_network_agent_permission_file_path=
