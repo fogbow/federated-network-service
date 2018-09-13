@@ -24,7 +24,7 @@ RUN \
 
 # Installing Federated Network Service
 RUN \
-  git clone https://github.com/fogbow/federated-network-service.git && \
+  git clone https://github.com/fogbow/federated-network-service.git
 
 # Define working directory.
 WORKDIR /root/federated-network-service
