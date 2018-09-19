@@ -29,4 +29,7 @@ RUN \
 # Define working directory.
 WORKDIR /root/federated-network-service
 
-CMD ./mvnw spring-boot:run > log.out 2> log.err && tail -f /dev/null
+RUN \
+  mvn dependency:sources
+
+CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null
