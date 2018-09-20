@@ -32,4 +32,4 @@ WORKDIR /root/federated-network-service
 RUN \
   mvn dependency:sources
 
-CMD bash bin/start-service > log.out 2> log.err && tail -f /dev/null
+CMD git pull && ./mvnw spring-boot:run -X > log.out 2> log.err && tail -f /dev/null
