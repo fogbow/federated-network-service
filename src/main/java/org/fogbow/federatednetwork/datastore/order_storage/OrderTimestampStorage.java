@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.datastore.order_storage;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.model.FederatedOrder;
 import org.fogbowcloud.ras.core.datastore.commands.TimestampSQLCommands;
 import org.fogbowcloud.ras.core.datastore.orderstorage.OrderStorage;
@@ -26,7 +27,7 @@ public class OrderTimestampStorage extends OrderStorage {
 
             statement.close();
         } catch (SQLException e) {
-            LOGGER.error("Error creating timestamp table", e);
+            LOGGER.error(Messages.Error.UNABLE_TO_CREATE_TIMESTAMP_TABLE, e);
             throw new SQLException(e);
         } finally {
             closeConnection(statement, connection);
@@ -55,13 +56,13 @@ public class OrderTimestampStorage extends OrderStorage {
 
             connection.commit();
         } catch (SQLException e) {
-            LOGGER.error("Couldn't add timestamp.", e);
+            LOGGER.error(Messages.Error.UNABLE_TO_ADD_TIMESTAMP, e);
             try {
                 if (connection != null) {
                     connection.rollback();
                 }
             } catch (SQLException e1) {
-                LOGGER.error("Couldn't rollback transaction.", e1);
+                LOGGER.error(Messages.Error.UNABLE_TO_ROLLBACK_TRANSACTION, e1);
                 throw e1;
             }
 
@@ -102,8 +103,8 @@ public class OrderTimestampStorage extends OrderStorage {
                     connection.rollback();
                 }
             } catch (SQLException e1) {
+                LOGGER.error(Messages.Error.UNABLE_TO_ROLLBACK_TRANSACTION);
                 e1.printStackTrace();
-                System.out.println("Couldn't rollback transaction.");
             }
 
         } finally {

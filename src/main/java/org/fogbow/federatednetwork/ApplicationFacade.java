@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 public class ApplicationFacade {
+    public static final String VERSION_NUMBER = "1.1.1";
 
     private static ApplicationFacade instance;
 
@@ -33,6 +34,11 @@ public class ApplicationFacade {
             instance = new ApplicationFacade();
         }
         return instance;
+    }
+
+    // version request
+    public String getVersionNumber() {
+        return this.VERSION_NUMBER;
     }
 
     // federated network methods

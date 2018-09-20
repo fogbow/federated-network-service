@@ -3,8 +3,9 @@ package org.fogbow.federatednetwork.api.http;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
-import org.fogbow.federatednetwork.ConfigurationConstants;
-import org.fogbow.federatednetwork.FederatedNetworkConstants;
+import org.fogbow.federatednetwork.constants.ConfigurationConstants;
+import org.fogbow.federatednetwork.constants.FederatedNetworkConstants;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
@@ -121,7 +122,7 @@ public class FogbowCoreProxyHandler {
             responseEntity = redirectRequest(gson.toJson(incrementedComputeOrder), method, request, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(HttpExceptionToErrorConditionTranslator.RESOURCE_ALLOCATION_SERVICE_COULD_NOT_RESPOND);
+                    body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
