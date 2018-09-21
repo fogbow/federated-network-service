@@ -1,13 +1,13 @@
 package org.fogbow.federatednetwork.exceptions;
 
-import org.fogbow.federatednetwork.FederatedNetworkConstants;
+import org.fogbow.federatednetwork.constants.Messages;
 
 public class FederatedNetworkNotFoundException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
     public FederatedNetworkNotFoundException(String id) {
-        super(FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE + id);
+        super(String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, id));
     }
 
 }

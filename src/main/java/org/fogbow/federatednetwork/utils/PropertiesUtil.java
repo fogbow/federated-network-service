@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbowcloud.ras.core.HomeDir;
 
 import java.io.FileInputStream;
@@ -20,7 +21,7 @@ public class PropertiesUtil {
             properties.load(input);
             return properties;
         } catch (IOException e) {
-            LOGGER.error("Error to load properties", e);
+            LOGGER.fatal(Messages.Fatal.ERROR_LOADING_PROPERTIES, e);
             System.exit(1);
         }
         return properties;

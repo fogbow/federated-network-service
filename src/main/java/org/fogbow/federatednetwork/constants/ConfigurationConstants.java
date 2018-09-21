@@ -1,4 +1,4 @@
-package org.fogbow.federatednetwork;
+package org.fogbow.federatednetwork.constants;
 
 public class ConfigurationConstants {
 

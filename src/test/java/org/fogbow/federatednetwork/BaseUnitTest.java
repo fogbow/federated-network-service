@@ -5,7 +5,7 @@ import org.junit.After;
 import java.io.File;
 import java.util.Properties;
 
-import static org.fogbow.federatednetwork.ConfigurationConstants.*;
+import static org.fogbow.federatednetwork.constants.ConfigurationConstants.*;
 
 public class BaseUnitTest {
 

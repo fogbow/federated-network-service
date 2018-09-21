@@ -2,6 +2,8 @@ package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.constants.ConfigurationConstants;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
@@ -20,8 +22,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.fogbow.federatednetwork.ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS;
-import static org.fogbow.federatednetwork.ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY;
+import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS;
+import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY;
 
 public class OrderController {
 
@@ -46,8 +48,9 @@ public class OrderController {
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
 
         if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
-            LOGGER.error("Subnet (" + federatedNetwork.getCidrNotation() + ") invalid");
-            throw new InvalidCidrException("Invalid CIDR.");
+            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidrNotation()));
+            throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR,
+                    federatedNetwork.getCidrNotation()));
         }
 
         boolean createdSuccessfully = AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidrNotation(),
@@ -78,20 +81,19 @@ public class OrderController {
     public void deleteFederatedNetwork(String federatedNetworkId, FederatedUser user)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
             UnauthenticatedUserException, SQLException {
-        LOGGER.info("Initializing delete method, user: " + user + ", federated network id: " + federatedNetworkId);
+        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, user, federatedNetworkId));
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, user);
         if (federatedNetwork == null) {
             throw new IllegalArgumentException(
-                    FederatedNetworkConstants.NOT_FOUND_FEDERATED_NETWORK_MESSAGE
-                            + federatedNetworkId);
+                    String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
         }
-        LOGGER.info("Trying to delete federated network: " + federatedNetwork.toString());
+        LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
         if (!federatedNetwork.getComputesIp().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
         boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
         if (wasDeleted == true) {
-            LOGGER.info("Successfully deleted federated network: " + federatedNetwork.toString() + " on agent.");
+            LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
             orderHolders.removeOrder(federatedNetworkId);
             federatedNetwork.setOrderState(OrderState.DEACTIVATED);
         } else {

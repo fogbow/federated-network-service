@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.net.util.SubnetUtils;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
@@ -14,8 +15,6 @@ import java.util.Queue;
 
 public class FederatedNetworkUtil {
 
-    public static final String NO_FREE_IPS_MESSAGE = "Subnet Addresses Capacity Reached, there isn't free IPs to attach";
-
     public static String getFreeIpForCompute(FederatedNetworkOrder federatedNetwork) throws
             SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         String freeIp = null;
@@ -24,7 +23,7 @@ public class FederatedNetworkUtil {
             int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
             int candidateIpAddress = lowAddress + federatedNetwork.getIpsServed();
             if (!subnetInfo.isInRange(candidateIpAddress)) {
-                throw new SubnetAddressesCapacityReachedException(NO_FREE_IPS_MESSAGE);
+                throw new SubnetAddressesCapacityReachedException(Messages.Exception.NO_FREE_IPS_LEFT);
             }
             freeIp = toIpAddress(candidateIpAddress);
         } else {
@@ -60,7 +59,7 @@ public class FederatedNetworkUtil {
             int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
             int candidateIp = lowAddress + tempIpsServed;
             if (!subnetInfo.isInRange(candidateIp)) {
-                throw new SubnetAddressesCapacityReachedException(NO_FREE_IPS_MESSAGE);
+                throw new SubnetAddressesCapacityReachedException(Messages.Exception.NO_FREE_IPS_LEFT);
             }
             String candidateIpAddress = toIpAddress(candidateIp);
             if (!federatedNetwork.getComputesIp().contains(candidateIpAddress)) {

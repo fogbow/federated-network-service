@@ -1,10 +1,11 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.constants.Messages;
 
 import java.util.Properties;
 
-import static org.fogbow.federatednetwork.ConfigurationConstants.*;
+import static org.fogbow.federatednetwork.constants.ConfigurationConstants.*;
 
 public class AgentCommunicatorUtil {
 
@@ -25,8 +26,9 @@ public class AgentCommunicatorUtil {
         int resultCode = 0;
         try {
             Process process = builder.start();
-            LOGGER.info("Trying agent with atts (" + cidrNotation + "). Output : " + ProcessUtil.getOutput(process));
-            LOGGER.info("Trying agent with atts (" + cidrNotation + "). Error : " + ProcessUtil.getError(process));
+            LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_OUTPUT, cidrNotation,
+                    ProcessUtil.getOutput(process)));
+            LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_ERROR, cidrNotation, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
             if (resultCode == 0) {
                 return true;
@@ -34,7 +36,7 @@ public class AgentCommunicatorUtil {
         } catch (Exception e) {
             LOGGER.error("", e);
         }
-        LOGGER.error("Is not possible call agent. Process command: " + resultCode);
+        LOGGER.error(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
         return false;
     }
 
@@ -52,8 +54,9 @@ public class AgentCommunicatorUtil {
         int resultCode = 0;
         try {
             Process process = builder.start();
-            LOGGER.info("Trying remove network on agent with CIDR (" + cidr + "). Output : " + ProcessUtil.getOutput(process));
-            LOGGER.info("Trying remove network on agent with CIDR (" + cidr + "). Error : " + ProcessUtil.getError(process));
+            LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_OUTPUT, cidr,
+                    ProcessUtil.getOutput(process)));
+            LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_ERROR, cidr, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
             if (resultCode == 0) {
                 return true;
@@ -61,7 +64,7 @@ public class AgentCommunicatorUtil {
         } catch (Exception e) {
             LOGGER.error("", e);
         }
-        LOGGER.error("Is not possible remove network on agent. Process command: " + resultCode);
+        LOGGER.error(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
         return false;
     }
 }
