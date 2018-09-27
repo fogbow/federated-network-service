@@ -137,7 +137,6 @@ public class OrderController {
             InvalidCidrException, SQLException {
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         federatedComputeOrder.setUser(user);
-        federatedComputeOrder.getComputeOrder().setFederationUserToken(user);
         String federatedNetworkId = federatedComputeOrder.getFederatedNetworkId();
 
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
