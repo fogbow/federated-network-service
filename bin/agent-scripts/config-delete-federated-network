@@ -2,10 +2,16 @@
 set -e
 
 absoluteIpsecConfPath="/etc/ipsec.conf"
+absoluteIpsecTmpPath="/etc/ipsec.tmp"
+cat $absoluteIpsecConfPath > $absoluteIpsecTmpPath
 leftsubnet=$1
-sed -i 's@'$leftsubnet'@@g' $absoluteIpsecConfPath
-sed -i 's@[,]\{2,\}@,@g' $absoluteIpsecConfPath
-sed -i 's@=,@=@g' $absoluteIpsecConfPath
-sed -i 's@,$@@g' $absoluteIpsecConfPath
+
+sed -i 's@'$leftsubnet'@@g' $absoluteIpsecTmpPath
+sed -i 's@[,]\{2,\}@,@g' $absoluteIpsecTmpPath
+sed -i 's@=,@=@g' $absoluteIpsecTmpPath
+sed -i 's@,$@@g' $absoluteIpsecTmpPath
+
+cat $absoluteIpsecTmpPath > $absoluteIpsecConfPath
+rm $absoluteIpsecTmpPath
 
 ipsec restart
