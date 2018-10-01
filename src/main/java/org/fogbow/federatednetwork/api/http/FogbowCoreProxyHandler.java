@@ -46,7 +46,7 @@ public class FogbowCoreProxyHandler {
     private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
     private Gson gson = new Gson();
 
-    @RequestMapping("/**")
+    @RequestMapping("/attachments**|/images**|/networks**|/publicIps**|/tokens**|/volumes**")
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException,
