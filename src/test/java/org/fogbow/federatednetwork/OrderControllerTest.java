@@ -408,7 +408,10 @@ public class OrderControllerTest extends BaseUnitTest {
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
         addComputeIntoActiveOrdersMap();
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host", 2, 8, 20, "192.168.0.2");
+        List<String> ipAddresses = new ArrayList<>();
+        ipAddresses.add("192.168.0.2");
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host",
+                2, 8, 20, ipAddresses);
         //exercise
         ComputeInstance federatedComputeInstance = orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
         //verify
@@ -441,7 +444,10 @@ public class OrderControllerTest extends BaseUnitTest {
     public void testGetNotFederatedCompute() throws UnauthenticatedUserException, SQLException {
         //set up
         mockSingletons();
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host", 2, 8, 20, "192.168.0.2");
+        List<String> ipAddresses = new ArrayList<>();
+        ipAddresses.add("192.168.0.2");
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host",
+                2, 8, 20, ipAddresses);
         //exercise
         ComputeInstance federatedComputeInstance = orderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
         //verify
