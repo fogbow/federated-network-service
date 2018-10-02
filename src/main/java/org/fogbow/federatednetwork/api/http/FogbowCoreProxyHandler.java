@@ -29,6 +29,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -41,12 +42,13 @@ import java.util.Properties;
 @CrossOrigin(methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.OPTIONS,
         RequestMethod.PUT})
 @Controller
+@ApiIgnore
 public class FogbowCoreProxyHandler {
 
     private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
     private Gson gson = new Gson();
 
-    @RequestMapping("/attachments**|/images**|/networks**|/publicIps**|/tokens**|/volumes**")
+    @RequestMapping("/attachments**|/compute**|/images**|/networks**|/publicIps**|/tokens**|/volumes**")
     public ResponseEntity captureRestRequest(@RequestBody(required = false) String body,
                                              HttpMethod method, HttpServletRequest request) throws
             URISyntaxException, IOException, SubnetAddressesCapacityReachedException,

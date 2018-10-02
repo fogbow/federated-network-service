@@ -45,15 +45,15 @@ public class OrderController {
         FederatedUser user = new FederatedUser(federationUser.getUserId(), federationUser.getUserName());
         federatedNetwork.setUser(user);
 
-        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidrNotation());
+        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
 
         if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
-            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidrNotation()));
+            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
             throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR,
-                    federatedNetwork.getCidrNotation()));
+                    federatedNetwork.getCidr()));
         }
 
-        boolean createdSuccessfully = AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidrNotation(),
+        boolean createdSuccessfully = AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidr(),
                 subnetInfo.getLowAddress(), properties);
         if (createdSuccessfully) {
             federatedNetwork.setCachedInstanceState(InstanceState.READY);
@@ -88,10 +88,10 @@ public class OrderController {
                     String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
         }
         LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
-        if (!federatedNetwork.getComputesIp().isEmpty()) {
+        if (!federatedNetwork.getComputeIps().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
-        boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidrNotation(), properties);
+        boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidr(), properties);
         if (wasDeleted == true) {
             LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
             orderHolders.removeOrder(federatedNetworkId);
@@ -146,7 +146,7 @@ public class OrderController {
             }
             String federatedIp = FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkOrder);
             federatedComputeOrder.setFederatedIp(federatedIp);
-            String cidr = federatedNetworkOrder.getCidrNotation();
+            String cidr = federatedNetworkOrder.getCidr();
             ComputeOrder incrementedComputeOrder = FederateComputeUtil.
                     addUserData(federatedComputeOrder.getComputeOrder(), federatedIp,
                     properties.getProperty(FEDERATED_NETWORK_AGENT_ADDRESS), cidr,

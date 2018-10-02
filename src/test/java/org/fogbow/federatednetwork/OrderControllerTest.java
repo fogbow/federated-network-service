@@ -71,7 +71,7 @@ public class OrderControllerTest extends BaseUnitTest {
         FederationUserToken user = mock(FederationUserToken.class);
         FederatedNetworkOrder federatedNetworkOrder = spy(new FederatedNetworkOrder());
         federatedNetworkOrder.setId(FEDERATED_NETWORK_ID);
-        federatedNetworkOrder.setCidrNotation(fakeCidr);
+        federatedNetworkOrder.setCidr(fakeCidr);
         doNothing().when(federatedNetworkOrder).setCachedInstanceState(InstanceState.READY);
         doNothing().when(federatedNetworkOrder).setOrderState(OrderState.FULFILLED);
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
@@ -98,7 +98,7 @@ public class OrderControllerTest extends BaseUnitTest {
         FederationUserToken user = mock(FederationUserToken.class);
         FederatedNetworkOrder federatedNetworkOrder = spy(new FederatedNetworkOrder());
         federatedNetworkOrder.setId(FEDERATED_NETWORK_ID);
-        federatedNetworkOrder.setCidrNotation(fakeCidr);
+        federatedNetworkOrder.setCidr(fakeCidr);
         doNothing().when(federatedNetworkOrder).setCachedInstanceState(InstanceState.READY);
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
         BDDMockito.given(FederatedNetworkUtil.getSubnetInfo(anyString())).willReturn(fakeSubnetInfo);
@@ -473,7 +473,7 @@ public class OrderControllerTest extends BaseUnitTest {
         assertNotNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
         assertTrue(federatedNetwork.getFreedIps().isEmpty());
         assertEquals(2, federatedNetwork.getIpsServed());
-        assertFalse(federatedNetwork.getComputesIp().isEmpty());
+        assertFalse(federatedNetwork.getComputeIps().isEmpty());
         //exercise
         orderController.deleteCompute(FEDERATED_COMPUTE_ID, user);
         //verify
@@ -484,7 +484,7 @@ public class OrderControllerTest extends BaseUnitTest {
         assertNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
         assertFalse(federatedNetwork.getFreedIps().isEmpty());
         assertEquals(2, federatedNetwork.getIpsServed());
-        assertTrue(federatedNetwork.getComputesIp().isEmpty());
+        assertTrue(federatedNetwork.getComputeIps().isEmpty());
     }
 
     //test case: A delete in a nonexistent federated compute
@@ -539,14 +539,14 @@ public class OrderControllerTest extends BaseUnitTest {
         FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
 
         //pre conditions
-        assertFalse(federatedNetworkOrder.getComputesIp().isEmpty());
+        assertFalse(federatedNetworkOrder.getComputeIps().isEmpty());
         assertEquals(2, federatedNetworkOrder.getIpsServed());
         assertTrue(federatedNetworkOrder.getFreedIps().isEmpty());
         //exercise
         orderController.rollbackInFailedPost(federatedCompute);
         //verify
         verify(federatedNetworkOrder, times(1)).removeAssociatedIp(anyString());
-        assertTrue(federatedNetworkOrder.getComputesIp().isEmpty());
+        assertTrue(federatedNetworkOrder.getComputeIps().isEmpty());
         assertEquals(2, federatedNetworkOrder.getIpsServed());
         assertFalse(federatedNetworkOrder.getFreedIps().isEmpty());
         assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getFreedIps().element());

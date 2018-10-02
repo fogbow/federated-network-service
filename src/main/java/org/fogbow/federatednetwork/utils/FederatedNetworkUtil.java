@@ -19,7 +19,7 @@ public class FederatedNetworkUtil {
             SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException {
         String freeIp = null;
         if (federatedNetwork.getFreedIps().isEmpty()) {
-            SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());
+            SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
             int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
             int candidateIpAddress = lowAddress + federatedNetwork.getIpsServed();
             if (!subnetInfo.isInRange(candidateIpAddress)) {
@@ -52,7 +52,7 @@ public class FederatedNetworkUtil {
      * @param federatedNetwork {@link FederatedNetworkOrder}
      */
     public static void fillFreedIpsList(FederatedNetworkOrder federatedNetwork) throws InvalidCidrException, SubnetAddressesCapacityReachedException {
-        SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidrNotation());
+        SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
         int tempIpsServed = 1;
         Queue<String> freedIps = new LinkedList();
         for (; tempIpsServed < federatedNetwork.getIpsServed(); tempIpsServed ++) {
@@ -62,7 +62,7 @@ public class FederatedNetworkUtil {
                 throw new SubnetAddressesCapacityReachedException(Messages.Exception.NO_FREE_IPS_LEFT);
             }
             String candidateIpAddress = toIpAddress(candidateIp);
-            if (!federatedNetwork.getComputesIp().contains(candidateIpAddress)) {
+            if (!federatedNetwork.getComputeIps().contains(candidateIpAddress)) {
                 freedIps.add(candidateIpAddress);
             }
         }

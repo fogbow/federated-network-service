@@ -15,7 +15,7 @@ import java.util.*;
 public class FederatedNetworkOrder extends FederatedOrder {
 
     @Column
-    private String cidrNotation;
+    private String cidr;
 
     @Column
     private String name;
@@ -23,7 +23,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_allowed_members")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Set<String> allowedMembers;
+    private Set<String> providers;
 
     @Column(length = Integer.MAX_VALUE)
     private int ipsServed = 1;
@@ -34,37 +34,37 @@ public class FederatedNetworkOrder extends FederatedOrder {
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_computes_ip")
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<String> computesIp;
+    private List<String> computeIps;
 
     public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
-                                 String providingMember, String cidrNotation, String name, Set<String> allowedMembers,
-                                 int ipsServed, Queue<String> freedIps, List<String> computesIp) {
+                                 String providingMember, String cidr, String name, Set<String> providers,
+                                 int ipsServed, Queue<String> freedIps, List<String> computeIps) {
         super(id, federatedUser, requestingMember, providingMember);
-        this.cidrNotation = cidrNotation;
+        this.cidr = cidr;
         this.name = name;
-        this.allowedMembers = allowedMembers;
+        this.providers = providers;
         this.ipsServed = ipsServed;
         this.freedIps = freedIps;
-        this.computesIp = computesIp;
+        this.computeIps = computeIps;
     }
 
     public FederatedNetworkOrder(FederatedUser federatedUser, String requestingMember, String providingMember,
-                                 String cidrNotation, String name, Set<String> allowedMembers, int ipsServed,
-                                 Queue<String> freedIps, List<String> computesIp) {
+                                 String cidr, String name, Set<String> providers, int ipsServed,
+                                 Queue<String> freedIps, List<String> computeIps) {
         super(federatedUser, requestingMember, providingMember);
-        this.cidrNotation = cidrNotation;
+        this.cidr = cidr;
         this.name = name;
-        this.allowedMembers = allowedMembers;
+        this.providers = providers;
         this.ipsServed = ipsServed;
         this.freedIps = freedIps;
-        this.computesIp = computesIp;
+        this.computeIps = computeIps;
     }
 
     public FederatedNetworkOrder() {
         super();
-        this.allowedMembers = new HashSet<>();
+        this.providers = new HashSet<>();
         this.freedIps = new LinkedList<>();
-        this.computesIp = new ArrayList<>();
+        this.computeIps = new ArrayList<>();
     }
 
     public synchronized void setOrderState(OrderState state) throws SQLException {
@@ -72,7 +72,7 @@ public class FederatedNetworkOrder extends FederatedOrder {
     }
 
     public synchronized void removeAssociatedIp(String ipToBeReleased) throws SQLException {
-        this.computesIp.remove(ipToBeReleased);
+        this.computeIps.remove(ipToBeReleased);
         this.freedIps.add(ipToBeReleased);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
@@ -84,17 +84,17 @@ public class FederatedNetworkOrder extends FederatedOrder {
         } else {
             this.ipsServed++;
         }
-        this.computesIp.add(ipToBeAttached);
+        this.computeIps.add(ipToBeAttached);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
     }
 
-    public String getCidrNotation() {
-        return cidrNotation;
+    public String getCidr() {
+        return cidr;
     }
 
-    public void setCidrNotation(String cidrNotation) {
-        this.cidrNotation = cidrNotation;
+    public void setCidr(String cidr) {
+        this.cidr = cidr;
     }
 
     public String getName() {
@@ -105,12 +105,12 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.name = name;
     }
 
-    public Set<String> getAllowedMembers() {
-        return allowedMembers;
+    public Set<String> getProviders() {
+        return providers;
     }
 
-    public void setAllowedMembers(Set<String> allowedMembers) {
-        this.allowedMembers = allowedMembers;
+    public void setProviders(Set<String> providers) {
+        this.providers = providers;
     }
 
     public int getIpsServed() {
@@ -130,12 +130,12 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.freedIps = freedIps;
     }
 
-    public List<String> getComputesIp() {
-        return computesIp;
+    public List<String> getComputeIps() {
+        return computeIps;
     }
 
-    public void setComputesIp(List<String> computesIp) {
-        this.computesIp = computesIp;
+    public void setComputeIps(List<String> computeIps) {
+        this.computeIps = computeIps;
     }
 
     @Override
