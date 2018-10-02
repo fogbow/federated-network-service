@@ -10,16 +10,18 @@ public class FederatedComputeInstance extends ComputeInstance {
     private String federatedIp;
 
     public FederatedComputeInstance(String id, String hostName, int vCPU, int memory, InstanceState state,
-                                    List<String> ipAddresses, int disk, String federatedIp) {
+                                    int disk, List<String> ipAddresses, String image, String publicKey,
+                                    String userData, String federatedIp) {
 
-        super(id, state, hostName, vCPU, memory, disk, ipAddresses);
+        super(id, state, hostName, vCPU, memory, disk, ipAddresses, image, publicKey, userData);
         this.federatedIp = federatedIp;
     }
 
     public FederatedComputeInstance(ComputeInstance computeInstance, String federatedIp) {
         this(computeInstance.getId(), computeInstance.getHostName(), computeInstance.getvCPU(),
-                computeInstance.getRam(), computeInstance.getState(), computeInstance.getIpAddresses(),
-                computeInstance.getDisk(), federatedIp);
+             computeInstance.getRam(), computeInstance.getState(), computeInstance.getDisk(),
+             computeInstance.getIpAddresses(), computeInstance.getImage(), computeInstance.getPublicKey(),
+             computeInstance.getUserData(), federatedIp);
     }
 
     public FederatedComputeInstance(String id) {
