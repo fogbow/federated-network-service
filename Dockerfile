@@ -31,5 +31,10 @@ WORKDIR /root/federated-network-service
 
 RUN \
   mvn dependency:sources
+  
+# Generates the build number based on the commit checksum
+RUN \
+    (build_number=$(git rev-parse --short 'HEAD') && echo "build_number=$build_number" > build)
+
 
 CMD ./mvnw spring-boot:run -X > log.out 2> log.err || tail -f /dev/null
