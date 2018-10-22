@@ -5,7 +5,7 @@ import org.fogbow.federatednetwork.constants.Messages;
 
 import java.util.Properties;
 
-import static org.fogbow.federatednetwork.constants.ConfigurationConstants.*;
+import static org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys.*;
 
 public class AgentCommunicatorUtil {
 

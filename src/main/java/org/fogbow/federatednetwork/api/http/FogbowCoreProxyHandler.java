@@ -3,8 +3,8 @@ package org.fogbow.federatednetwork.api.http;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
-import org.fogbow.federatednetwork.constants.ConfigurationConstants;
-import org.fogbow.federatednetwork.constants.FederatedNetworkConstants;
+import org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys;
+import org.fogbow.federatednetwork.constants.SystemConstants;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
@@ -82,10 +82,10 @@ public class FogbowCoreProxyHandler {
             throws URISyntaxException {
         String requestUrl = request.getRequestURI();
         Properties properties = PropertiesUtil.readProperties();
-        String coreBaseUrl = properties.getProperty(ConfigurationConstants.RAS_IP);
-        int corePort = Integer.parseInt(properties.getProperty(ConfigurationConstants.RAS_PORT));
+        String coreBaseUrl = properties.getProperty(ConfigurationPropertiesKeys.RAS_IP);
+        int corePort = Integer.parseInt(properties.getProperty(ConfigurationPropertiesKeys.RAS_PORT));
 
-        URI uri = new URI(FederatedNetworkConstants.HTTP, null, coreBaseUrl, corePort, null,
+        URI uri = new URI(SystemConstants.HTTP, null, coreBaseUrl, corePort, null,
                 null, null);
         uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
                 .query(request.getQueryString()).build(true).toUri();

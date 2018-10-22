@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileNotFoundException;
+
 @CrossOrigin
 @RestController
 @RequestMapping(value = VersionRequestHandler.VERSION_ENDPOINT)
@@ -20,7 +22,7 @@ public class VersionRequestHandler {
     private final Logger LOGGER = Logger.getLogger(VersionRequestHandler.class);
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<String> getVersion() {
+    public ResponseEntity<String> getVersion() throws FileNotFoundException {
         LOGGER.info(Messages.Info.GET_VERSION_REQUEST_RECEIVED);
         String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
         return new ResponseEntity<>(versionNumber, HttpStatus.OK);

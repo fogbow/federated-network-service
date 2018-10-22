@@ -2,7 +2,7 @@ package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.constants.ConfigurationConstants;
+import org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.*;
@@ -22,8 +22,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS;
-import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY;
+import static org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys.FEDERATED_NETWORK_AGENT_ADDRESS;
+import static org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys.FEDERATED_NETWORK_PRE_SHARED_KEY;
 
 public class OrderController {
 
@@ -118,7 +118,7 @@ public class OrderController {
 
     private Collection<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
         Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
-        String memberName = properties.getProperty(ConfigurationConstants.RAS_NAME);
+        String memberName = properties.getProperty(ConfigurationPropertiesKeys.RAS_NAME);
         Iterator<FederatedNetworkOrder> iterator = allFederatedNetworks.iterator();
         while (iterator.hasNext()) {
             FederatedNetworkOrder federatedNetwork = iterator.next();
