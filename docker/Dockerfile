@@ -20,11 +20,12 @@ WORKDIR /root
 # Installing Manager Core
 RUN \
   git clone https://github.com/fogbow/resource-allocation-service.git && \
-  (cd resource-allocation-service && git checkout refactor-first-release && mvn install -Dmaven.test.skip=true)
+  (cd resource-allocation-service && git checkout develop && mvn install -Dmaven.test.skip=true)
 
 # Installing Federated Network Service
 RUN \
-  git clone https://github.com/fogbow/federated-network-service.git
+  git clone https://github.com/fogbow/federated-network-service.git && \
+  git checkout develop
 
 # Define working directory.
 WORKDIR /root/federated-network-service
@@ -36,5 +37,3 @@ RUN \
 RUN \
     (build_number=$(git rev-parse --short 'HEAD') && echo "build_number=$build_number" > build)
 
-
-CMD ./mvnw spring-boot:run -X > log.out 2> log.err || tail -f /dev/null
