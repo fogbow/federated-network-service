@@ -650,7 +650,7 @@ public class OrderControllerTest extends BaseUnitTest {
         ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
                 computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getName(),
                 computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
-                userData, computeOrder.getPublicKey(), computeOrder.getNetworksId());
+                userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
         return newCompute;
     }
 }

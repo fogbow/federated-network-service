@@ -6,7 +6,7 @@ import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.ras.api.http.ComputeOrdersController;
+import org.fogbowcloud.ras.api.http.Compute;
 import org.fogbowcloud.ras.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException;
@@ -29,7 +29,7 @@ public class FederatedNetworkRestHandler {
     @PostMapping
     public static final ResponseEntity<String> createFederatedNetwork(@RequestBody FederatedNetworkOrder
                               federatedNetwork, @RequestHeader(required = false, value =
-            ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws UnauthenticatedUserException, InvalidParameterException, InvalidCidrException,
             AgentCommucationException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
@@ -38,9 +38,9 @@ public class FederatedNetworkRestHandler {
         return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/" + ComputeOrdersController.STATUS_ENDPOINT)
+    @GetMapping(value = "/" + Compute.STATUS_ENDPOINT)
     public static final ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
+            @RequestHeader(required = false, value = Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)
                     String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException,
             UnavailableProviderException, UnauthorizedRequestException {
 
@@ -51,7 +51,7 @@ public class FederatedNetworkRestHandler {
 
     @GetMapping(value = "/{federatedNetworkId}")
     public static ResponseEntity<FederatedNetworkOrder> getFederatedNetwork(@PathVariable String federatedNetworkId,
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
+            @RequestHeader(required = false, value = Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)
                     String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException,
             UnavailableProviderException, UnauthorizedRequestException {
 
@@ -66,7 +66,7 @@ public class FederatedNetworkRestHandler {
 
     @DeleteMapping(value = "/{federatedNetworkId}")
     public static ResponseEntity<String> deleteFederatedNetwork(@PathVariable String federatedNetworkId,
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
+            @RequestHeader(required = false, value = Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)
                     String federationTokenValue) throws NotEmptyFederatedNetworkException, UnauthenticatedUserException,
             InvalidParameterException, FederatedNetworkNotFoundException, AgentCommucationException,
             UnavailableProviderException, UnauthorizedRequestException, SQLException {

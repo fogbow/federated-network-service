@@ -11,7 +11,7 @@ import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
-import org.fogbowcloud.ras.api.http.ComputeOrdersController;
+import org.fogbowcloud.ras.api.http.Compute;
 import org.fogbowcloud.ras.core.exceptions.InvalidParameterException;
 import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
 import org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException;
@@ -55,15 +55,15 @@ public class FogbowCoreProxyHandler {
 
         final String requestUrl = request.getRequestURI();
 
-        if (requestUrl.startsWith("/" + ComputeOrdersController.COMPUTE_ENDPOINT)) {
+        if (requestUrl.startsWith("/" + Compute.COMPUTE_ENDPOINT)) {
             switch (method) {
                 case POST:
                     return processPostCompute(body, method, request);
                 case GET:
                     final String requestURI = request.getRequestURI();
-                    String getByIdRegex = "/" + ComputeOrdersController.COMPUTE_ENDPOINT + "/(?!" +
-                            ComputeOrdersController.STATUS_ENDPOINT + "|" + ComputeOrdersController.QUOTA_ENDPOINT +
-                            "|" + ComputeOrdersController.ALLOCATION_ENDPOINT + ").*$";
+                    String getByIdRegex = "/" + Compute.COMPUTE_ENDPOINT + "/(?!" +
+                            Compute.STATUS_ENDPOINT + "|" + Compute.QUOTA_ENDPOINT +
+                            "|" + Compute.ALLOCATION_ENDPOINT + ").*$";
                     if (requestURI.matches(getByIdRegex)) {
                         return processGetByIdCompute(body, method, request);
                     }
@@ -110,7 +110,7 @@ public class FogbowCoreProxyHandler {
             IOException, URISyntaxException, FederatedNetworkNotFoundException, InvalidCidrException,
             UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
-        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        String federationTokenValue = request.getHeader(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
         FederatedComputeOrder federatedCompute = gson.fromJson(body, FederatedComputeOrder.class);
         ComputeOrder incrementedComputeOrder = ApplicationFacade.getInstance().addFederatedIpInPostIfApplied(
@@ -140,7 +140,7 @@ public class FogbowCoreProxyHandler {
             throws URISyntaxException, UnauthenticatedUserException,
             InvalidParameterException, UnavailableProviderException, UnauthorizedRequestException {
 
-        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        String federationTokenValue = request.getHeader(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY);
         ResponseEntity<String> response = redirectRequest(body, method, request, String.class);
         // if response status was not successful, return the status
         if (response.getStatusCode().value() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -157,9 +157,9 @@ public class FogbowCoreProxyHandler {
             UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
             UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
-        String federationTokenValue = request.getHeader(ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY);
+        String federationTokenValue = request.getHeader(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY);
 
-        String queryString = request.getRequestURI().replace(ComputeOrdersController.COMPUTE_ENDPOINT, "");
+        String queryString = request.getRequestURI().replace(Compute.COMPUTE_ENDPOINT, "");
         queryString = queryString.replace("/", "");
 
 
