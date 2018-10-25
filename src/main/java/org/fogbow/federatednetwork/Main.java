@@ -1,6 +1,7 @@
 package org.fogbow.federatednetwork;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.constants.SystemConstants;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
@@ -32,7 +33,7 @@ public class Main implements ApplicationRunner {
     public void run(ApplicationArguments args) throws SubnetAddressesCapacityReachedException, InvalidCidrException,
             SQLException {
         DatabaseManager.getInstance().setRecoveryService(recoveryService);
-        Properties properties = PropertiesUtil.readProperties();
+        Properties properties = PropertiesUtil.readProperties(SystemConstants.CONF_FILE_NAME);
 
         PluginInstantiator pluginInstantiator = PluginInstantiator.getInstance();
         AaaPluginsHolder behaviorPluginsHolder = new AaaPluginsHolder(pluginInstantiator);

@@ -3,7 +3,6 @@ package org.fogbow.federatednetwork;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.constants.ConfigurationPropertiesDefault;
 import org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys;
-import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.constants.SystemConstants;
 import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedComputeOrder;
@@ -22,10 +21,8 @@ import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
 import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Properties;
@@ -37,10 +34,13 @@ public class ApplicationFacade {
     private OrderController orderController;
     private AaaController aaController;
     private String memberId;
+    private String buildNumber;
 
     private ApplicationFacade() {
-        Properties properties = PropertiesUtil.readProperties();
+        Properties properties = PropertiesUtil.readProperties(SystemConstants.CONF_FILE_NAME);
         this.memberId = properties.getProperty(ConfigurationPropertiesKeys.RAS_NAME);
+        this.buildNumber = properties.getProperty(ConfigurationPropertiesKeys.BUILD_NUMBER,
+                ConfigurationPropertiesDefault.BUILD_NUMBER);
     }
 
     public synchronized static ApplicationFacade getInstance() {
@@ -52,39 +52,17 @@ public class ApplicationFacade {
 
     // version request
     public String getVersionNumber() throws FileNotFoundException {
-        return getVersionNumber(SystemConstants.CONF_FILE_NAME);
+        return SystemConstants.API_VERSION_NUMBER + "-" + this.buildNumber;
     }
 
-    // Used in tests only
-    protected String getVersionNumber(String filePath) throws FileNotFoundException {
-        return SystemConstants.API_VERSION_NUMBER + "-" + readBuildFromFile(filePath);
-    }
-
-    private String readBuildFromFile(String membershipConfPath) throws FileNotFoundException {
-        Properties properties = new Properties();
-        InputStream input = new FileInputStream(membershipConfPath);
-        String build = "empty";
-
-        try {
-            properties.load(input);
-
-            build = properties.getProperty(ConfigurationPropertiesKeys.BUILD_NUMBER,
-                    ConfigurationPropertiesDefault.BUILD_NUMBER);
-        } catch (IOException e) {
-            LOGGER.warn(String.format(Messages.Warn.ERROR_READING_CONF_FILE, membershipConfPath), e);
-        } finally {
-            try {
-                input.close();
-            } catch (IOException e) {
-                LOGGER.warn(String.format(Messages.Warn.ERROR_CLOSING_CONF_FILE, membershipConfPath), e);
-            }
-        }
-
-        return build;
+    // Used for testing
+    protected void setBuildNumber(String fileName) {
+        Properties properties = PropertiesUtil.readProperties(fileName);
+        this.buildNumber = properties.getProperty(ConfigurationPropertiesKeys.BUILD_NUMBER,
+                ConfigurationPropertiesDefault.BUILD_NUMBER);
     }
 
     // federated network methods
-
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetwork, String federationTokenValue) throws
             UnauthenticatedUserException, InvalidParameterException, InvalidCidrException, AgentCommucationException,
             UnavailableProviderException, UnauthorizedRequestException, SQLException {

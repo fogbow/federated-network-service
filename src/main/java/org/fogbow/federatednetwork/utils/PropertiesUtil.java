@@ -12,12 +12,10 @@ public class PropertiesUtil {
 
     private static Logger LOGGER = Logger.getLogger(PropertiesUtil.class);
 
-    public static final String FEDERATED_NETWORK_CONF = "fns.conf";
-
-    public static Properties readProperties() {
+    public static Properties readProperties(String fileName) {
         Properties properties = new Properties();
         try {
-            FileInputStream input = new FileInputStream(HomeDir.getPath() + FEDERATED_NETWORK_CONF);
+            FileInputStream input = new FileInputStream(HomeDir.getPath() + fileName);
             properties.load(input);
             return properties;
         } catch (IOException e) {

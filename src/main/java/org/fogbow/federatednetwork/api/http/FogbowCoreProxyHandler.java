@@ -81,7 +81,7 @@ public class FogbowCoreProxyHandler {
                                                   Class<T> responseType)
             throws URISyntaxException {
         String requestUrl = request.getRequestURI();
-        Properties properties = PropertiesUtil.readProperties();
+        Properties properties = PropertiesUtil.readProperties(SystemConstants.CONF_FILE_NAME);
         String coreBaseUrl = properties.getProperty(ConfigurationPropertiesKeys.RAS_IP);
         int corePort = Integer.parseInt(properties.getProperty(ConfigurationPropertiesKeys.RAS_PORT));
 
