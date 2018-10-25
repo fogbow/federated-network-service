@@ -1,20 +1,13 @@
 package org.fogbow.federatednetwork;
 
-import org.fogbow.federatednetwork.constants.ConfigurationPropertiesDefault;
-import org.fogbow.federatednetwork.constants.ConfigurationPropertiesKeys;
 import org.fogbow.federatednetwork.constants.SystemConstants;
-import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-import java.util.Properties;
-
 public class ApplicationFacadeTests {
-    private String VALID_PATH_CONF = "fns-with-build.conf";
-    private String VALID_PATH_CONF_WITHOUT_BUILD_PROPERTY = "fns.conf";
-    private String INVALID_PATH_CONF = "invalid.conf";
+    private String VALID_PATH_CONF = "fns.conf";
+    private String VALID_PATH_CONF_WITHOUT_BUILD_PROPERTY = "fns-without-build-number.conf";
     private ApplicationFacade applicationFacade;
 
     @Before
