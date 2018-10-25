@@ -35,5 +35,6 @@ RUN \
   
 # Generates the build number based on the commit checksum
 RUN \
-    (build_number=$(git rev-parse --short 'HEAD') && echo "build_number=$build_number" > build)
+    (build_number=$(git rev-parse --short 'HEAD') && echo "build_number=fns-$build_number" > build) && \
+    (cd ../resource-allocation-service && build_number=$(git rev-parse --short 'HEAD') && sed ' 1 s/.*/&-ras-$build_number/'build)
 
