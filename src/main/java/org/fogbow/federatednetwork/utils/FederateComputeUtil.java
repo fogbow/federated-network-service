@@ -37,7 +37,7 @@ public class FederateComputeUtil {
 
     private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {
         ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
-                computeOrder.getRequestingMember(), computeOrder.getProvidingMember(), computeOrder.getName(),
+                computeOrder.getRequester(), computeOrder.getProvider(), computeOrder.getName(),
                 computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
                 userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
         return newCompute;
