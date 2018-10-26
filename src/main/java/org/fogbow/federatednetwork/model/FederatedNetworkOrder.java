@@ -36,10 +36,10 @@ public class FederatedNetworkOrder extends FederatedOrder {
     @LazyCollection(LazyCollectionOption.FALSE)
     private List<String> computesIp;
 
-    public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
-                                 String providingMember, String cidrNotation, String name, Set<String> allowedMembers,
+    public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requester,
+                                 String provider, String cidrNotation, String name, Set<String> allowedMembers,
                                  int ipsServed, Queue<String> freedIps, List<String> computesIp) {
-        super(id, federatedUser, requestingMember, providingMember);
+        super(id, federatedUser, requester, provider);
         this.cidrNotation = cidrNotation;
         this.name = name;
         this.allowedMembers = allowedMembers;
