@@ -20,11 +20,12 @@ WORKDIR /root
 # Installing Manager Core
 RUN \
   git clone https://github.com/fogbow/resource-allocation-service.git && \
-  (cd resource-allocation-service && mvn install -Dmaven.test.skip=true)
+  (cd resource-allocation-service && git checkout refactor-first-release && mvn install -Dmaven.test.skip=true)
 
 # Installing Federated Network Service
 RUN \
-  git clone https://github.com/fogbow/federated-network-service.git && cd federated-network-service
+  git clone https://github.com/fogbow/federated-network-service.git && \
+  (cd federated-network-service && git checkout master)
 
 # Define working directory.
 WORKDIR /root/federated-network-service
