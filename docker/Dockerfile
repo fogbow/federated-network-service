@@ -1,5 +1,7 @@
 FROM openjdk:8
 
+ARG BRANCH=master
+
 # Install.
 RUN \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
@@ -20,12 +22,12 @@ WORKDIR /root
 # Installing Manager Core
 RUN \
   git clone https://github.com/fogbow/resource-allocation-service.git && \
-  (cd resource-allocation-service && git checkout develop && mvn install -Dmaven.test.skip=true)
+  (cd resource-allocation-service && git checkout $BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Installing Federated Network Service
 RUN \
   git clone https://github.com/fogbow/federated-network-service.git && \
-  (cd federated-network-service && git checkout develop)
+  (cd federated-network-service && git checkout $BRANCH)
 
 # Define working directory.
 WORKDIR /root/federated-network-service
