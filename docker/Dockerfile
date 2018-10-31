@@ -1,5 +1,7 @@
 FROM openjdk:8
 
+ARG BRANCH=master
+
 # Install.
 RUN \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
@@ -20,21 +22,22 @@ WORKDIR /root
 # Installing Manager Core
 RUN \
   git clone https://github.com/fogbow/resource-allocation-service.git && \
-  (cd resource-allocation-service && git checkout refactor-first-release && mvn install -Dmaven.test.skip=true)
+  (cd resource-allocation-service && git checkout $BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Installing Federated Network Service
 RUN \
   git clone https://github.com/fogbow/federated-network-service.git && \
-  (cd federated-network-service && git checkout master)
+  (cd federated-network-service && git checkout $BRANCH)
 
 # Define working directory.
 WORKDIR /root/federated-network-service
 
-RUN \
-  mvn dependency:sources
-  
 # Generates the build number based on the commit checksum
 RUN \
     (fns_build_number=$(git rev-parse --short 'HEAD') && \
-    cd ../resource-allocation-service && ras_build_number=$(git rev-parse --short 'HEAD') && cd /root/federated-network-service && echo "build_number=fns-$fns_build_number-ras-$ras_build_number" > build)
+    cd ../resource-allocation-service && ras_build_number=$(git rev-parse --short 'HEAD') && \
+    cd /root/federated-network-service && echo "build_number=fns-$fns_build_number-ras-$ras_build_number" > build)
+
+RUN \
+  mvn dependency:sources
 
