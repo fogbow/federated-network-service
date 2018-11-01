@@ -21,6 +21,8 @@ public class FederateComputeUtil {
     public static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
     public static final String PRE_SHARED_KEY = "#PRE_SHARED_KEY#";
 
+    public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
+
     public static ComputeOrder addUserData(ComputeOrder computeOrder, String federatedComputeIp,
                                            String agentPublicIp, String cidr, String preSharedKey)
             throws IOException {
@@ -31,7 +33,7 @@ public class FederateComputeUtil {
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
 
-        UserData userData = new UserData(encryptedScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+        UserData userData = new UserData(encryptedScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
         ComputeOrder actualComputeOrder = addUserDataToComputeOrder(computeOrder, userData);
         return actualComputeOrder;
     }
