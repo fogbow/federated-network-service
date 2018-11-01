@@ -2,6 +2,7 @@ package org.fogbow.federatednetwork.model;
 
 import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 import org.fogbowcloud.ras.core.models.instances.InstanceState;
+import org.fogbowcloud.ras.core.models.orders.UserData;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class FederatedComputeInstance extends ComputeInstance {
 
     public FederatedComputeInstance(String id, String hostName, int vCPU, int memory, InstanceState state,
                                     int disk, List<String> ipAddresses, String image, String publicKey,
-                                    String userData, String federatedIp) {
+                                    List<UserData> userData, String federatedIp) {
 
         super(id, state, hostName, vCPU, memory, disk, ipAddresses, image, publicKey, userData);
         this.federatedIp = federatedIp;
@@ -21,7 +22,7 @@ public class FederatedComputeInstance extends ComputeInstance {
         this(computeInstance.getId(), computeInstance.getName(), computeInstance.getvCPU(),
              computeInstance.getMemory(), computeInstance.getState(), computeInstance.getDisk(),
              computeInstance.getIpAddresses(), computeInstance.getImageId(), computeInstance.getPublicKey(),
-             computeInstance.getUserDataContent(), federatedIp);
+             computeInstance.getUserData(), federatedIp);
     }
 
     public FederatedComputeInstance(String id) {

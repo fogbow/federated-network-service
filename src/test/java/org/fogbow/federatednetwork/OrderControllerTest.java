@@ -328,9 +328,12 @@ public class OrderControllerTest extends BaseUnitTest {
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
         BDDMockito.given(FederatedNetworkUtil.getFreeIpForCompute(federatedNetwork)).willReturn(federatedIp);
         PowerMockito.mockStatic(FederateComputeUtil.class);
+
         UserData fakeUserData = new UserData("", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+        ComputeOrder incrementedComputeOrder = FederateComputeUtil.addUserDataToComputeOrder(computeOrder, fakeUserData);
         BDDMockito.given(FederateComputeUtil.addUserData(any(ComputeOrder.class), anyString(), anyString(), anyString(),
-                anyString())).willReturn(createComputeWithUserData(computeOrder, fakeUserData));
+                anyString())).willReturn(incrementedComputeOrder);
+
         //exercise
         orderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
         //verify
@@ -646,11 +649,4 @@ public class OrderControllerTest extends BaseUnitTest {
                 .collect(Collectors.toMap(order -> order.getId(), order -> order));
     }
 
-    private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {
-        ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
-                computeOrder.getRequester(), computeOrder.getProvider(), computeOrder.getName(),
-                computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
-                userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
-        return newCompute;
-    }
 }
