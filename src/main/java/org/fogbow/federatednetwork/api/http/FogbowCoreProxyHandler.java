@@ -79,8 +79,7 @@ public class FogbowCoreProxyHandler {
                         return processDeleteCompute(body, method, request);
                 }
             }
-            LOGGER.info(String.format(Messages.Info.GENERIC_REQUEST, requestUrl, method, body.toString(),
-                    request.toString()));
+            LOGGER.info(Messages.Info.GENERIC_REQUEST);
             return redirectRequest(body, method, request, String.class);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
@@ -113,7 +112,6 @@ public class FogbowCoreProxyHandler {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpErrorHandler());
         try {
-            LOGGER.info(String.format(Messages.Info.RAS_REQUEST, uri, method.toString(), httpEntity.toString()));
             ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
             return response;
         } catch (Exception e) {

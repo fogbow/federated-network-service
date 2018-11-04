@@ -25,13 +25,12 @@ public class Messages {
         public static final String DELETE_FEDERATED_NETWORK = "Delete federated network with id: %s";
         public static final String DELETED_FEDERATED_NETWORK = "Successfully deleted federated network %s on agent.";
         public static final String DELETING_FEDERATED_NETWORK = "Deleting federated network: %s.";
-        public static final String GENERIC_REQUEST = "Request redirected to RAS: URL [%s], method [%s], body [%s], request [%s]";
+        public static final String GENERIC_REQUEST = "Request redirected to RAS";
         public static final String GET_COMPUTE_BY_ID = "Get compute request: URL [%s], method [%s], body [%s], request [%s]";
         public static final String GET_FEDERATED_NETWORK_BY_ID = "Get federated network with id: %s";
         public static final String GET_FEDERATED_NETWORK_STATUS = "Get federated network status request";
         public static final String GET_VERSION_REQUEST_RECEIVED = "Get version request received.";
         public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, user: %s, federated network id: %s.";
-        public static final String RAS_REQUEST = "Request to be sent to RAS: URI [%s], method [%s], http entity [%s]";
     }
 
     public static class Error {
