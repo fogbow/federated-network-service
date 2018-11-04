@@ -23,8 +23,13 @@ public class VersionRequestHandler {
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<String> getVersion() throws FileNotFoundException {
-        LOGGER.info(Messages.Info.GET_VERSION_REQUEST_RECEIVED);
-        String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
-        return new ResponseEntity<>(versionNumber, HttpStatus.OK);
+        try {
+            LOGGER.info(Messages.Info.GET_VERSION_REQUEST_RECEIVED);
+            String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
+            return new ResponseEntity<>(versionNumber, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
     }
 }
