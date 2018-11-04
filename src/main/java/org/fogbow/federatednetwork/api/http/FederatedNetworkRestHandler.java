@@ -37,7 +37,8 @@ public class FederatedNetworkRestHandler {
             AgentCommucationException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         try {
-            LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK, federationTokenValue.toString()));
+            LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK,
+                    (federationTokenValue == null ? "null" : federationTokenValue.toString())));
             final String federatedNetworkId = ApplicationFacade.getInstance().createFederatedNetwork(federatedNetwork,
                     federationTokenValue);
             return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
@@ -71,7 +72,8 @@ public class FederatedNetworkRestHandler {
             UnavailableProviderException, UnauthorizedRequestException {
 
         try {
-            LOGGER.info(String.format(Messages.Info.GET_FEDERATED_NETWORK_BY_ID, federatedNetworkId));
+            LOGGER.info(String.format(Messages.Info.GET_FEDERATED_NETWORK_BY_ID,
+                    (federatedNetworkId == null ? "null" : federatedNetworkId)));
             final FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().
                     getFederatedNetwork(federatedNetworkId, federationTokenValue);
             return ResponseEntity.ok(federatedNetwork);
@@ -89,7 +91,8 @@ public class FederatedNetworkRestHandler {
             UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
         try {
-            LOGGER.info(String.format(Messages.Info.DELETE_FEDERATED_NETWORK, federatedNetworkId));
+            LOGGER.info(String.format(Messages.Info.DELETE_FEDERATED_NETWORK,
+                    (federatedNetworkId == null ? "null" : federatedNetworkId)));
             ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (FederatedNetworkNotFoundException e) {

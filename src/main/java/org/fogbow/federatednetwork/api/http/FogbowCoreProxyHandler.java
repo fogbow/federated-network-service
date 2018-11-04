@@ -58,8 +58,11 @@ public class FogbowCoreProxyHandler {
             if (requestUrl.startsWith("/" + Compute.COMPUTE_ENDPOINT)) {
                 switch (method) {
                     case POST:
-                        LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE, requestUrl, method, body.toString(),
-                                request.toString()));
+                        LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE,
+                                (requestUrl == null ? "null" : requestUrl),
+                                (method == null ? "null" : method),
+                                (body == null ? "null" : body.toString()),
+                                (request == null ? "null" : request.toString())));
                         return processPostCompute(body, method, request);
                     case GET:
                         final String requestURI = request.getRequestURI();
@@ -67,15 +70,21 @@ public class FogbowCoreProxyHandler {
                                 Compute.STATUS_ENDPOINT + "|" + Compute.QUOTA_ENDPOINT +
                                 "|" + Compute.ALLOCATION_ENDPOINT + ").*$";
                         if (requestURI.matches(getByIdRegex)) {
-                            LOGGER.info(String.format(Messages.Info.GET_COMPUTE_BY_ID, requestUrl, method, body.toString(),
-                                    request.toString()));
+                            LOGGER.info(String.format(Messages.Info.GET_COMPUTE_BY_ID,
+                                    (requestUrl == null ? "null" : requestUrl),
+                                    (method == null ? "null" : method),
+                                    (body == null ? "null" : body.toString()),
+                                    (request == null ? "null" : request.toString())));
                             return processGetByIdCompute(body, method, request);
                         }
                         // If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
                         break;
                     case DELETE:
-                        LOGGER.info(String.format(Messages.Info.DELETE_COMPUTE, requestUrl, method, body.toString(),
-                                request.toString()));
+                        LOGGER.info(String.format(Messages.Info.DELETE_COMPUTE,
+                                (requestUrl == null ? "null" : requestUrl),
+                                (method == null ? "null" : method),
+                                (body == null ? "null" : body.toString()),
+                                (request == null ? "null" : request.toString())));
                         return processDeleteCompute(body, method, request);
                 }
             }
