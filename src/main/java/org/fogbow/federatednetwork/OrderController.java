@@ -122,8 +122,8 @@ public class OrderController {
         Iterator<FederatedNetworkOrder> iterator = allFederatedNetworks.iterator();
         while (iterator.hasNext()) {
             FederatedNetworkOrder federatedNetwork = iterator.next();
-            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), memberName,
-                    federatedNetwork.getCachedInstanceState());
+            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), federatedNetwork.getName(),
+                    memberName, federatedNetwork.getCachedInstanceState());
             instanceStatusList.add(instanceStatus);
         }
         return new ArrayList<>(instanceStatusList);
