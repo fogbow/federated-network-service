@@ -2,3 +2,6 @@
 
 ./push fogbow/federated-network-service:latest
 
+sudo docker tag fogbow/federated-network-service:latest fogbow/federated-network-service:angra
+./push fogbow/federated-network-service:angra
+
