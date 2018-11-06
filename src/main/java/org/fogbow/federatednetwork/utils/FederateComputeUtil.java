@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class FederateComputeUtil {
 
@@ -19,6 +20,8 @@ public class FederateComputeUtil {
     public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
     public static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
     public static final String PRE_SHARED_KEY = "#PRE_SHARED_KEY#";
+
+    public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
     public static ComputeOrder addUserData(ComputeOrder computeOrder, String federatedComputeIp,
                                            String agentPublicIp, String cidr, String preSharedKey)
@@ -30,17 +33,20 @@ public class FederateComputeUtil {
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
 
-        UserData userData = new UserData(encryptedScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
-        ComputeOrder actualComputeOrder = createComputeWithUserData(computeOrder, userData);
+        UserData userData = new UserData(encryptedScript, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
+        ComputeOrder actualComputeOrder = addUserDataToComputeOrder(computeOrder, userData);
         return actualComputeOrder;
     }
 
-    private static ComputeOrder createComputeWithUserData(ComputeOrder computeOrder, UserData userData) {
-        ComputeOrder newCompute = new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
+    public static ComputeOrder addUserDataToComputeOrder(ComputeOrder computeOrder, UserData agentUserData) {
+        ArrayList<UserData> userData = computeOrder.getUserData();
+        userData = (userData == null) ? new ArrayList<>() : userData;
+        userData.add(agentUserData);
+
+        return new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
                 computeOrder.getRequester(), computeOrder.getProvider(), computeOrder.getName(),
                 computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
                 userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
-        return newCompute;
     }
 
     private static String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp,

@@ -42,7 +42,6 @@ import java.util.Properties;
         RequestMethod.PUT})
 @Controller
 public class FogbowCoreProxyHandler {
-
     private static final Logger LOGGER = Logger.getLogger(FogbowCoreProxyHandler.class);
     private Gson gson = new Gson();
 
@@ -53,28 +52,48 @@ public class FogbowCoreProxyHandler {
             UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
             InvalidCidrException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
 
-        final String requestUrl = request.getRequestURI();
+        try {
+            final String requestUrl = request.getRequestURI();
 
-        if (requestUrl.startsWith("/" + Compute.COMPUTE_ENDPOINT)) {
-            switch (method) {
-                case POST:
-                    return processPostCompute(body, method, request);
-                case GET:
-                    final String requestURI = request.getRequestURI();
-                    String getByIdRegex = "/" + Compute.COMPUTE_ENDPOINT + "/(?!" +
-                            Compute.STATUS_ENDPOINT + "|" + Compute.QUOTA_ENDPOINT +
-                            "|" + Compute.ALLOCATION_ENDPOINT + ").*$";
-                    if (requestURI.matches(getByIdRegex)) {
-                        return processGetByIdCompute(body, method, request);
-                    }
-                    // If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
-                    break;
-                case DELETE:
-                    return processDeleteCompute(body, method, request);
+            if (requestUrl.startsWith("/" + Compute.COMPUTE_ENDPOINT)) {
+                switch (method) {
+                    case POST:
+                        LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE,
+                                (requestUrl == null ? "null" : requestUrl),
+                                (method == null ? "null" : method),
+                                (body == null ? "null" : body.toString()),
+                                (request == null ? "null" : request.toString())));
+                        return processPostCompute(body, method, request);
+                    case GET:
+                        final String requestURI = request.getRequestURI();
+                        String getByIdRegex = "/" + Compute.COMPUTE_ENDPOINT + "/(?!" +
+                                Compute.STATUS_ENDPOINT + "|" + Compute.QUOTA_ENDPOINT +
+                                "|" + Compute.ALLOCATION_ENDPOINT + ").*$";
+                        if (requestURI.matches(getByIdRegex)) {
+                            LOGGER.info(String.format(Messages.Info.GET_COMPUTE_BY_ID,
+                                    (requestUrl == null ? "null" : requestUrl),
+                                    (method == null ? "null" : method),
+                                    (body == null ? "null" : body.toString()),
+                                    (request == null ? "null" : request.toString())));
+                            return processGetByIdCompute(body, method, request);
+                        }
+                        // If it is a get in /quota or /status or /allocation, the request will be redirected to manager-core
+                        break;
+                    case DELETE:
+                        LOGGER.info(String.format(Messages.Info.DELETE_COMPUTE,
+                                (requestUrl == null ? "null" : requestUrl),
+                                (method == null ? "null" : method),
+                                (body == null ? "null" : body.toString()),
+                                (request == null ? "null" : request.toString())));
+                        return processDeleteCompute(body, method, request);
+                }
             }
+            LOGGER.info(Messages.Info.GENERIC_REQUEST);
+            return redirectRequest(body, method, request, String.class);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
         }
-
-        return redirectRequest(body, method, request, String.class);
     }
 
     private <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
@@ -101,8 +120,13 @@ public class FogbowCoreProxyHandler {
 
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setErrorHandler(new NoOpErrorHandler());
-        ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
-        return response;
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
+            return response;
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
     }
 
     private ResponseEntity processPostCompute(String body, HttpMethod method, HttpServletRequest request) throws
