@@ -44,9 +44,9 @@ public class FederateComputeUtil {
         userData.add(agentUserData);
 
         return new ComputeOrder(computeOrder.getId(), computeOrder.getFederationUserToken(),
-                computeOrder.getRequester(), computeOrder.getProvider(), computeOrder.getName(),
-                computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(), computeOrder.getImageId(),
-                userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
+                computeOrder.getRequester(), computeOrder.getProvider(), computeOrder.getCloudName(),
+                computeOrder.getName(), computeOrder.getvCPU(), computeOrder.getMemory(), computeOrder.getDisk(),
+                computeOrder.getImageId(), userData, computeOrder.getPublicKey(), computeOrder.getNetworkIds());
     }
 
     private static String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp,
