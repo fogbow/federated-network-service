@@ -8,8 +8,8 @@ import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.utils.PropertiesUtil;
 import org.fogbowcloud.ras.core.AaaController;
+import org.fogbowcloud.ras.core.AaaPluginInstantiator;
 import org.fogbowcloud.ras.core.AaaPluginsHolder;
-import org.fogbowcloud.ras.core.PluginInstantiator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -35,9 +35,10 @@ public class Main implements ApplicationRunner {
         DatabaseManager.getInstance().setRecoveryService(recoveryService);
         Properties properties = PropertiesUtil.readProperties(SystemConstants.CONF_FILE_NAME);
 
-        PluginInstantiator pluginInstantiator = PluginInstantiator.getInstance();
-        AaaPluginsHolder behaviorPluginsHolder = new AaaPluginsHolder(pluginInstantiator);
-        AaaController aaController = new AaaController(behaviorPluginsHolder);
+        AaaPluginInstantiator instantiationInitService = AaaPluginInstantiator.getInstance();
+        AaaPluginsHolder aaaPluginsHolder = new AaaPluginsHolder(instantiationInitService);
+
+        AaaController aaController = new AaaController(aaaPluginsHolder);
         OrderController orderController = new OrderController(properties);
 
         applicationFacade.setOrderController(orderController);
