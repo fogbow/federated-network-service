@@ -11,20 +11,22 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.sql.SQLException;
+
 @EnableSwagger2
 @Configuration
 public class SwaggerConfiguration {
 
     public static final String BASE_PACKAGE = "org.fogbow.federatednetwork";
     public static final String API_TITLE = "Fogbow Federated Network Service (FNS) API";
-    public static final String API_DESCRIPTION = "This document introduces Fogbow's FNS REST API, "
-        + "provides guidelines on how to use it, and describes the available features accessible from it. " +
+    public static final String API_DESCRIPTION = "This document introduces Fogbow's FNS REST API, " +
+            "provides guidelines on how to use it, and describes the available features accessible from it. " +
             "Fogbow's FNS extends Fogbow's Resource Allocation Service (RAS) API. It allows the creation of " +
             "federated networks spanning multiple providers. It also allows the creation of compute instances " +
-            "that can be attached to the federated networks created. All other operations are redirected to the " +
-            "underlying RAS service.";
+            "that can be attached to the federated networks created. The FNS also works as a proxy for the" +
+            "underlying RAS service, forwarding requests that it cannot handle to the underlying RAS.";
 
-   public static final String CONTACT_NAME = "Fogbow";
+    public static final String CONTACT_NAME = "Fogbow";
     public static final String CONTACT_URL = "https://www.fogbowcloud.org";
     public static final String CONTACT_EMAIL = "contact@fogbowcloud.org";
     public static final Contact CONTACT = new Contact(
@@ -49,7 +51,6 @@ public class SwaggerConfiguration {
 
         ApiInfoBuilder apiInfoBuilder = new ApiInfoBuilder();
 
-        // TODO Add License to the documentation?
         apiInfoBuilder.title(API_TITLE);
         apiInfoBuilder.description(API_DESCRIPTION);
         apiInfoBuilder.version(versionNumber);

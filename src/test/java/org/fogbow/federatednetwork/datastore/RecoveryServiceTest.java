@@ -1,15 +1,12 @@
 package org.fogbow.federatednetwork.datastore;
 
-import org.fogbow.federatednetwork.datastore.order_storage.OrderRepository;
-import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
+import org.fogbow.federatednetwork.datastore.orderstorage.OrderRepository;
+import org.fogbow.federatednetwork.datastore.orderstorage.RecoveryService;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbow.federatednetwork.model.FederatedUser;
-import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
-import org.fogbowcloud.ras.core.models.instances.InstanceState;
-import org.fogbowcloud.ras.core.models.orders.OrderState;
+import org.fogbow.federatednetwork.model.OrderState;
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
@@ -51,12 +48,12 @@ public class RecoveryServiceTest {
     private OrderRepository orderRepository;
 
     private DatabaseManager databaseManager;
-    private FederatedUser user;
+    private FederationUserToken user;
     private FederatedNetworkOrder federatedNetworkOrder;
 
     @Before
     public void setUp() throws SQLException {
-        user = new FederatedUser(USER_ID, USER_NAME);
+        user = new FederationUserToken(MEMBER, "", USER_ID, USER_NAME);
         databaseManager = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(databaseManager);
@@ -65,7 +62,7 @@ public class RecoveryServiceTest {
 
     @After
     public void tearDown() {
-        for (FederatedOrder order : orderRepository.findAll()) {
+        for (FederatedNetworkOrder order : orderRepository.findAll()) {
             orderRepository.delete(order);
         }
     }
@@ -74,16 +71,13 @@ public class RecoveryServiceTest {
     public void testRecoveryFederatedNetwork() throws SubnetAddressesCapacityReachedException, InvalidCidrException,
             SQLException {
         //set up
-        FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkOrder);
-        FederatedNetworkUtil.getFreeIpForCompute(federatedNetworkOrder);
-
-        Map<String, FederatedOrder> activeOrdersMap = new HashMap<>();
+        Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         activeOrdersMap.put(federatedNetworkOrder.getId(), federatedNetworkOrder);
         Mockito.when(databaseManager.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
 
         //exercise
         recoveryService.put(federatedNetworkOrder);
-        List<FederatedOrder> orders = new ArrayList<>(recoveryService.readActiveOrders().values());
+        List<FederatedNetworkOrder> orders = new ArrayList<>(recoveryService.readActiveOrders().values());
 
         //verify
         Assert.assertEquals(1, orders.size());
@@ -95,11 +89,10 @@ public class RecoveryServiceTest {
         Set<String> allowedMembers = new HashSet<>();
         int ipsServed = 1;
         Queue<String> freedIps = new LinkedList<>();
-        List<String> computesIp = new ArrayList<>();
+        Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, ipsServed, freedIps, computesIp);
+                "name", allowedMembers, freedIps, computesIp);
         federatedNetworkOrder.setOrderStateInTestMode(OrderState.FULFILLED);
-        federatedNetworkOrder.setCachedInstanceState(InstanceState.READY);
         return federatedNetworkOrder;
     }
 }

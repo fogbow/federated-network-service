@@ -2,11 +2,14 @@ package org.fogbow.federatednetwork.exceptions;
 
 import org.fogbow.federatednetwork.constants.Messages;
 
-public class InvalidCidrException extends Exception {
-
+public class InvalidCidrException extends FogbowFnsException {
     private static final long serialVersionUID = 1L;
 
     public InvalidCidrException(String cidr) {
         super(String.format(Messages.Exception.INVALID_CIDR, cidr));
+    }
+
+    public InvalidCidrException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

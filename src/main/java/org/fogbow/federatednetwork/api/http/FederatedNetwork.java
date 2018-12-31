@@ -3,99 +3,106 @@ package org.fogbow.federatednetwork.api.http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
-import org.fogbow.federatednetwork.exceptions.AgentCommucationException;
-import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
-import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
+import org.fogbow.federatednetwork.constants.ApiDocumentation;
+import org.fogbow.federatednetwork.constants.Messages;
+import org.fogbow.federatednetwork.model.FederatedNetworkInstance;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.ras.api.http.ComputeOrdersController;
-import org.fogbowcloud.ras.core.exceptions.InvalidParameterException;
-import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
-import org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException;
-import org.fogbowcloud.ras.core.exceptions.UnavailableProviderException;
-import org.fogbowcloud.ras.core.models.InstanceStatus;
+import org.fogbow.federatednetwork.model.InstanceStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
 @CrossOrigin
 @RestController
 @RequestMapping(value = FederatedNetwork.FEDERATED_NETWORK_ENDPOINT)
-@Api(description = "Manages federated networks.")
+@Api(description = ApiDocumentation.FederatedNetwork.API)
 public class FederatedNetwork {
+    private final Logger LOGGER = Logger.getLogger(FederatedNetwork.class);
 
     public static final String FEDERATED_NETWORK_ENDPOINT = "federatedNetworks";
+    public static final String FEDERATION_TOKEN_VALUE_HEADER_KEY = "federationTokenValue";
 
-    @ApiOperation(value = "Creates a federated network spanning multiple cloud providers.")
+    @ApiOperation(value = ApiDocumentation.FederatedNetwork.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<String> createFederatedNetwork(
-            @ApiParam(value = "The parameters for the creation of a federated network are the list of IDs of the\n" +
-                              "providers that will be connected, the CIDR of the network, and the name that will\n" +
-                              "be given to the federated network.")
+            @ApiParam(value = ApiDocumentation.FederatedNetwork.CREATE_REQUEST_BODY)
             @RequestBody org.fogbow.federatednetwork.api.parameters.FederatedNetwork federatedNetwork,
-            @ApiParam(value = "This is the token that identifies a federation user.\n" +
-                              "It is typically created via a call to the /tokens endpoint.")
-            @RequestHeader(required = false, value =
-            ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
-            throws UnauthenticatedUserException, InvalidParameterException, InvalidCidrException,
-            AgentCommucationException, UnavailableProviderException, UnauthorizedRequestException, SQLException {
-
-        final String federatedNetworkId = ApplicationFacade.getInstance().
-                createFederatedNetwork(federatedNetwork.getOrder(), federationTokenValue);
-        return new ResponseEntity<>(federatedNetworkId, HttpStatus.CREATED);
-    }
-
-    @ApiOperation(value = "Lists all federated networks created by the user.")
-    @GetMapping(value = "/" + ComputeOrdersController.STATUS_ENDPOINT)
-    public ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
-            @ApiParam(value = "This is the token that identifies a federation user.\n" +
-                    "It is typically created via a call to the /tokens endpoint.")
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
-                    String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException,
-            UnavailableProviderException, UnauthorizedRequestException {
-
-        final Collection<InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().
-                getFederatedNetworksStatus(federationTokenValue);
-        return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
-    }
-
-    @ApiOperation(value = "Lists a specific federated network.")
-    @GetMapping(value = "/{federatedNetworkId}")
-    public ResponseEntity<FederatedNetworkOrder> getFederatedNetwork(
-            @ApiParam(value = "The ID of the specific federated network.")
-            @PathVariable String federatedNetworkId,
-            @ApiParam(value = "This is the token that identifies a federation user.\n" +
-                    "It is typically created via a call to the /tokens endpoint.")
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
-                    String federationTokenValue) throws UnauthenticatedUserException, InvalidParameterException,
-            UnavailableProviderException, UnauthorizedRequestException {
+            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
+            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            throws Exception {
 
         try {
-            final FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().
+            LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK, federatedNetwork.getOrder()));
+            String federatedNetworkId = ApplicationFacade.getInstance().
+                    createFederatedNetwork(federatedNetwork.getOrder(), federationTokenValue);
+            return new ResponseEntity<String>(federatedNetworkId, HttpStatus.CREATED);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
+    }
+
+    @RequestMapping(value = "/status", method = RequestMethod.GET)
+    @ApiOperation(value = ApiDocumentation.FederatedNetwork.GET_OPERATION)
+    public ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
+            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
+            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            throws Exception {
+
+        try {
+            LOGGER.info(Messages.Info.GET_FEDERATED_NETWORK_STATUS);
+            Collection<org.fogbow.federatednetwork.model.InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().
+                    getFederatedNetworksStatus(federationTokenValue);
+            return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
+    }
+
+    @ApiOperation(value = ApiDocumentation.FederatedNetwork.GET_BY_ID_OPERATION)
+    @GetMapping(value = "/{federatedNetworkId}")
+    public ResponseEntity<FederatedNetworkInstance> getFederatedNetwork(
+            @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
+            @PathVariable String federatedNetworkId,
+            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
+            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            throws Exception {
+
+        try {
+            LOGGER.info(String.format(Messages.Info.GET_FEDERATED_NETWORK_BY_ID,
+                    (federatedNetworkId == null ? "null" : federatedNetworkId)));
+            FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().
                     getFederatedNetwork(federatedNetworkId, federationTokenValue);
-            return ResponseEntity.ok(federatedNetwork);
-        } catch (FederatedNetworkNotFoundException e) {
+            FederatedNetworkInstance instance = federatedNetwork.getInstance();
+            return new ResponseEntity<FederatedNetworkInstance>(instance, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             return ResponseEntity.notFound().build();
         }
     }
 
-    @ApiOperation(value = "Deletes a specific federated network.")
+    @ApiOperation(value = ApiDocumentation.FederatedNetwork.DELETE_OPERATION)
     @DeleteMapping(value = "/{federatedNetworkId}")
     public ResponseEntity<String> deleteFederatedNetwork(
-            @ApiParam(value = "The ID of the specific federated network.")
+            @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
-            @ApiParam(value = "This is the token that identifies a federation user.\n" +
-                    "It is typically created via a call to the /tokens endpoint.")
-            @RequestHeader(required = false, value = ComputeOrdersController.FEDERATION_TOKEN_VALUE_HEADER_KEY)
-                    String federationTokenValue) throws NotEmptyFederatedNetworkException, UnauthenticatedUserException,
-            InvalidParameterException, FederatedNetworkNotFoundException, AgentCommucationException,
-            UnavailableProviderException, UnauthorizedRequestException, SQLException {
+            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
+            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            throws Exception {
 
-        ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        try {
+            LOGGER.info(String.format(Messages.Info.DELETE_FEDERATED_NETWORK,
+                    (federatedNetworkId == null ? "null" : federatedNetworkId)));
+            ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
     }
 }

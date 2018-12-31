@@ -1,14 +1,9 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.datastore.order_storage.OrderTimestampStorage;
-import org.fogbow.federatednetwork.datastore.order_storage.RecoveryService;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.datastore.orderstorage.OrderTimestampStorage;
+import org.fogbow.federatednetwork.datastore.orderstorage.RecoveryService;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbowcloud.ras.core.models.linkedlists.SynchronizedDoublyLinkedList;
-import org.fogbowcloud.ras.core.models.orders.OrderState;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -33,25 +28,17 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public void put(FederatedOrder federatedOrder) {
+    public void put(FederatedNetworkOrder order) {
         try {
-            recoveryService.put(federatedOrder);
-            if (federatedOrder instanceof FederatedNetworkOrder) {
-                orderTimestampStorage.addOrder(federatedOrder);
-            }
+            recoveryService.put(order);
+            orderTimestampStorage.addOrder(order);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public SynchronizedDoublyLinkedList readActiveFederatedNetworks(OrderState orderState) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, FederatedOrder> retrieveActiveFederatedOrders() throws SubnetAddressesCapacityReachedException,
-            InvalidCidrException {
+    public Map<String, FederatedNetworkOrder> retrieveActiveFederatedOrders() {
         return recoveryService.readActiveOrders();
     }
 

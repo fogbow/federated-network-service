@@ -1,10 +1,9 @@
-package org.fogbow.federatednetwork.datastore.order_storage;
+package org.fogbow.federatednetwork.datastore.orderstorage;
 
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.constants.Messages;
-import org.fogbow.federatednetwork.model.FederatedOrder;
-import org.fogbowcloud.ras.core.datastore.commands.TimestampSQLCommands;
-import org.fogbowcloud.ras.core.datastore.orderstorage.OrderStorage;
+import org.fogbow.federatednetwork.datastore.commands.TimestampSQLCommands;
+import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 
 import java.sql.*;
 import java.util.*;
@@ -34,7 +33,7 @@ public class OrderTimestampStorage extends OrderStorage {
         }
     }
 
-    public void addOrder(FederatedOrder order) throws SQLException {
+    public void addOrder(FederatedNetworkOrder order) throws SQLException {
         Connection connection = null;
         PreparedStatement orderStatement = null;
 
@@ -46,8 +45,8 @@ public class OrderTimestampStorage extends OrderStorage {
 
             orderStatement.setString(1, order.getId());
             orderStatement.setString(2, order.getOrderState().name());
-            orderStatement.setString(3, order.getUser().getFederatedUserId());
-            orderStatement.setString(4, order.getUser().getFederatedUserName());
+            orderStatement.setString(3, order.getUser().getUserId());
+            orderStatement.setString(4, order.getUser().getUserName());
             orderStatement.setString(5, order.getRequestingMember());
             orderStatement.setString(6, order.getProvidingMember());
             orderStatement.setTimestamp(7, new Timestamp(new Date().getTime()));

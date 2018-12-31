@@ -1,10 +1,9 @@
-package org.fogbow.federatednetwork.datastore.order_storage;
+package org.fogbow.federatednetwork.datastore.orderstorage;
 
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbow.federatednetwork.model.FederatedUser;
+import org.fogbow.federatednetwork.model.OrderState;
 import org.fogbowcloud.ras.core.PropertiesHolder;
-import org.fogbowcloud.ras.core.models.instances.InstanceState;
-import org.fogbowcloud.ras.core.models.orders.OrderState;
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
@@ -36,12 +35,12 @@ public class OrderTimestampStorageTest {
 
     private OrderTimestampStorage orderStorage;
     private FederatedNetworkOrder federatedNetworkOrder;
-    private FederatedUser user;
+    private FederationUserToken user;
 
 
     @Before
     public void setUp() throws SQLException {
-        user = new FederatedUser(USER_ID, USER_NAME);
+        user = new FederationUserToken(MEMBER, "", USER_ID, USER_NAME);
         federatedNetworkOrder = createFederatedNetwork();
 
         PropertiesHolder propertiesHolder = Mockito.mock(PropertiesHolder.class);
@@ -69,7 +68,7 @@ public class OrderTimestampStorageTest {
         // verify
         Assert.assertEquals(1, result.size());
         Assert.assertEquals(1, result.get(FEDERATED_NETWORK_ID).size());
-        Assert.assertEquals("OPEN", result.get(FEDERATED_NETWORK_ID).get(0));
+        Assert.assertEquals("FULFILLED", result.get(FEDERATED_NETWORK_ID).get(0));
     }
 
 
@@ -79,7 +78,6 @@ public class OrderTimestampStorageTest {
 
         // exercise
         orderStorage.addOrder(federatedNetworkOrder);
-        federatedNetworkOrder.setOrderStateInTestMode(OrderState.PENDING);
         orderStorage.addOrder(federatedNetworkOrder);
 
         Map<String, List<String>> result = orderStorage.selectOrderById(FEDERATED_NETWORK_ID);
@@ -102,13 +100,11 @@ public class OrderTimestampStorageTest {
     @NotNull
     private FederatedNetworkOrder createFederatedNetwork() {
         Set<String> allowedMembers = new HashSet<>();
-        int ipsServed = 1;
         Queue<String> freedIps = new LinkedList<>();
-        List<String> computesIp = new ArrayList<>();
+        Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, ipsServed, freedIps, computesIp);
-        federatedNetworkOrder.setOrderStateInTestMode(OrderState.OPEN);
-        federatedNetworkOrder.setCachedInstanceState(InstanceState.READY);
+                "name", allowedMembers, freedIps, computesIp);
+        federatedNetworkOrder.setOrderStateInTestMode(OrderState.FULFILLED);
         return federatedNetworkOrder;
     }
 }

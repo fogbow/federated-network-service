@@ -1,92 +1,221 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.ComputeIdToFederatedNetworkIdMapping;
+import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
-import org.fogbowcloud.ras.core.models.orders.OrderState;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
+import org.fogbow.federatednetwork.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.*;
 
 @Entity
 @Table(name = "federated_network_table")
-public class FederatedNetworkOrder extends FederatedOrder {
-
+public class FederatedNetworkOrder implements Serializable {
+    private static final long serialVersionUID = 1L;
+    @Column
+    @Id
+    private String id;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private OrderState orderState;
+    // TODO check how to make this persistent
+    //@JoinColumn
+    //@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Transient
+    private FederationUserToken user;
+    @Column
+    private String requestingMember;
+    @Column
+    private String providingMember;
     @Column
     private String cidr;
-
     @Column
     private String name;
-
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name="federated_network_allowed_members")
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> providers;
-
-    @Column(length = Integer.MAX_VALUE)
-    private int ipsServed = 1;
-
+    @ElementCollection
+    @MapKeyColumn
+    @Column
+    private Map<String, String> computeIdsAndIps;
     @Transient
-    private Queue<String> freedIps;
-
-    @ElementCollection(targetClass = String.class)
-    @CollectionTable(name="federated_network_computes_ip")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private List<String> computeIps;
-
-    public FederatedNetworkOrder(String id, FederatedUser federatedUser, String requestingMember,
-                                 String providingMember, String cidr, String name, Set<String> providers,
-                                 int ipsServed, Queue<String> freedIps, List<String> computeIps) {
-        super(id, federatedUser, requestingMember, providingMember);
-        this.cidr = cidr;
-        this.name = name;
-        this.providers = providers;
-        this.ipsServed = ipsServed;
-        this.freedIps = freedIps;
-        this.computeIps = computeIps;
-    }
-
-    public FederatedNetworkOrder(FederatedUser federatedUser, String requestingMember, String providingMember,
-                                 String cidr, String name, Set<String> providers, int ipsServed,
-                                 Queue<String> freedIps, List<String> computeIps) {
-        super(federatedUser, requestingMember, providingMember);
-        this.cidr = cidr;
-        this.name = name;
-        this.providers = providers;
-        this.ipsServed = ipsServed;
-        this.freedIps = freedIps;
-        this.computeIps = computeIps;
-    }
+    private Queue<String> cacheOfFreeIps;
 
     public FederatedNetworkOrder() {
-        super();
+        this.id = String.valueOf(UUID.randomUUID());
         this.providers = new HashSet<>();
-        this.freedIps = new LinkedList<>();
-        this.computeIps = new ArrayList<>();
+        this.cacheOfFreeIps = new LinkedList<>();
+        this.computeIdsAndIps = new HashMap<>();
+    }
+
+    public FederatedNetworkOrder(String id) {
+        this.id = id;
+        this.providers = new HashSet<>();
+        this.cacheOfFreeIps = new LinkedList<>();
+        this.computeIdsAndIps = new HashMap<>();
+    }
+
+    public FederatedNetworkOrder(FederationUserToken user, String requestingMember, String providingMember) {
+        this.id = String.valueOf(UUID.randomUUID());
+        this.providers = new HashSet<>();
+        this.cacheOfFreeIps = new LinkedList<>();
+        this.computeIdsAndIps = new HashMap<>();
+        this.user = user;
+        this.requestingMember = requestingMember;
+        this.providingMember = providingMember;
+    }
+
+    /** Creating Order with predefined Id. */
+    public FederatedNetworkOrder(String id, FederationUserToken user, String requestingMember, String providingMember) {
+        this(id);
+        this.user = user;
+        this.requestingMember = requestingMember;
+        this.providingMember = providingMember;
+    }
+
+    public FederatedNetworkOrder(String id, FederationUserToken federatedUserToken, String requestingMember,
+                                 String providingMember, String cidr, String name, Set<String> providers,
+                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
+        this(id, federatedUserToken, requestingMember, providingMember);
+        this.cidr = cidr;
+        this.name = name;
+        this.providers = providers;
+        this.cacheOfFreeIps = cacheOfFreeIps;
+        this.computeIdsAndIps = computeIdsAndIps;
+    }
+
+    public FederatedNetworkOrder(FederationUserToken federatedUserToken, String requestingMember, String providingMember,
+                                 String cidr, String name, Set<String> providers,
+                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
+        this(federatedUserToken, requestingMember, providingMember);
+        this.cidr = cidr;
+        this.name = name;
+        this.providers = providers;
+        this.cacheOfFreeIps = cacheOfFreeIps;
+        this.computeIdsAndIps = computeIdsAndIps;
+    }
+
+    public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws SQLException {
+        this.computeIdsAndIps.put(computeId, ipToBeAttached);
+        StableStorage databaseManager = DatabaseManager.getInstance();
+        databaseManager.put(this);
+        ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
+    }
+
+    public synchronized void removeAssociatedIp(String computeId) throws SQLException {
+        this.computeIdsAndIps.remove(computeId);
+        StableStorage databaseManager = DatabaseManager.getInstance();
+        databaseManager.put(this);
+        ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
+    }
+
+    public synchronized String getAssociatedIp(String computeId) {
+        return this.computeIdsAndIps.get(computeId);
+    }
+
+    public synchronized String getFreeIp() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
+        String ip = null;
+        try {
+            ip = this.cacheOfFreeIps.remove();
+        } catch(NoSuchElementException e1) {
+            fillCacheOfFreeIps();
+            try {
+                ip = this.cacheOfFreeIps.remove();
+            } catch (NoSuchElementException e2) {
+                // fillCacheOfFreeIps() throws a SubnetAddressesCapacityReachedException when there are no free
+                // IPs left. Thus, it is not expected that the second call to this.cacheOfFreeIps.remove() throws
+                // a NoSuchElementException if it ever gets called.
+                throw new UnexpectedException(Messages.Exception.UNEXPECTED_EXCEPTION, e2);
+            }
+        }
+        return ip;
+    }
+
+    public synchronized InstanceState getInstanceStateFromOrderState() {
+        if (this.getOrderState().equals(OrderState.FULFILLED)) {
+            return InstanceState.READY;
+        } else {
+            return InstanceState.FAILED;
+        }
+    }
+
+    private void fillCacheOfFreeIps() throws InvalidCidrException, SubnetAddressesCapacityReachedException {
+        FederatedNetworkUtil.fillCacheOfFreeIps(this);
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public synchronized OrderState getOrderState() {
+        return this.orderState;
+    }
+
+    public synchronized void setOrderStateInRecoveryMode(OrderState state) {
+        this.orderState = state;
+    }
+
+    public synchronized void setOrderStateInTestMode(OrderState state) {
+        this.orderState = state;
     }
 
     public synchronized void setOrderState(OrderState state) throws SQLException {
-        super.setOrderState(state);
-    }
-
-    public synchronized void removeAssociatedIp(String ipToBeReleased) throws SQLException {
-        this.computeIps.remove(ipToBeReleased);
-        this.freedIps.add(ipToBeReleased);
-        StableStorage databaseManager = DatabaseManager.getInstance();
+        this.orderState = state;
+        DatabaseManager databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
     }
 
-    public synchronized void addAssociatedIp(String ipToBeAttached) throws SQLException {
-        if (this.freedIps.contains(ipToBeAttached)) {
-            this.freedIps.remove(ipToBeAttached);
-        } else {
-            this.ipsServed++;
-        }
-        this.computeIps.add(ipToBeAttached);
-        StableStorage databaseManager = DatabaseManager.getInstance();
-        databaseManager.put(this);
+    public FederatedNetworkInstance getInstance() {
+        return new FederatedNetworkInstance(this.id, this.name, this.requestingMember, this.providingMember,
+                this.cidr, this.providers, this.getComputeIdsAndIps(),
+                (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
+    }
+
+    public FederationUserToken getUser() {
+        return user;
+    }
+
+    public void setUser(FederationUserToken user) {
+        this.user = user;
+    }
+
+    public String getRequestingMember() {
+        return this.requestingMember;
+    }
+
+    public void setRequestingMember(String requestingMember) {
+        this.requestingMember = requestingMember;
+    }
+
+    public String getProvidingMember() {
+        return this.providingMember;
+    }
+
+    public void setProvidingMember(String providingMember) {
+        this.providingMember = providingMember;
+    }
+
+    public boolean isProviderLocal(String localMemberId) {
+        return this.providingMember.equals(localMemberId);
+    }
+
+    public boolean isRequesterRemote(String localMemberId) {
+        return !this.requestingMember.equals(localMemberId);
     }
 
     public String getCidr() {
@@ -113,32 +242,22 @@ public class FederatedNetworkOrder extends FederatedOrder {
         this.providers = providers;
     }
 
-    public int getIpsServed() {
-        return ipsServed;
+    public Queue<String> getCacheOfFreeIps() {
+        return cacheOfFreeIps;
     }
 
-    // Note that 'addAssociatedIp' already updates the ipsServed, be careful using this method.
-    public void setIpsServed(int ipsServed) {
-        this.ipsServed = ipsServed;
+    public void setCacheOfFreeIps(Queue<String> cacheOfFreeIps) {
+        this.cacheOfFreeIps = cacheOfFreeIps;
     }
 
-    public Queue<String> getFreedIps() {
-        return freedIps;
+    public Map<String, String> getComputeIdsAndIps() {
+        return computeIdsAndIps;
     }
 
-    public void setFreedIps(Queue<String> freedIps) {
-        this.freedIps = freedIps;
+    public void setComputeIdsAndIps(Map<String, String> computeIdsAndIps) {
+        this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public List<String> getComputeIps() {
-        return computeIps;
-    }
-
-    public void setComputeIps(List<String> computeIps) {
-        this.computeIps = computeIps;
-    }
-
-    @Override
     public FederatedResourceType getType() {
         return FederatedResourceType.FEDERATED_NETWORK;
     }
@@ -154,5 +273,11 @@ public class FederatedNetworkOrder extends FederatedOrder {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Order [id=" + this.id + ", orderState=" + this.orderState + ", requestingMember=" +
+                this.requestingMember + ", providingMember=" + this.providingMember + "]";
     }
 }
