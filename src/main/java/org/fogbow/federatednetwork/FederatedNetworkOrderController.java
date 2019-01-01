@@ -52,7 +52,7 @@ public class FederatedNetworkOrderController {
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUserToken federationUserToken)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedOperationException {
+            SQLException, UnauthorizedRequestException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federationUserToken, federatedNetworkId));
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, federationUserToken);
 
@@ -80,7 +80,7 @@ public class FederatedNetworkOrderController {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUserToken federationUserToken)
-            throws FederatedNetworkNotFoundException, UnauthorizedOperationException {
+            throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
 
         FederatedNetworkOrder federatedNetworkOrder = orderHolders.getOrder(federatedNetworkId);
 
@@ -88,7 +88,7 @@ public class FederatedNetworkOrderController {
             if (federatedNetworkOrder.getUser().equals(federationUserToken)) {
                 return federatedNetworkOrder;
             }
-            throw new UnauthorizedOperationException();
+            throw new UnauthorizedRequestException();
         }
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }

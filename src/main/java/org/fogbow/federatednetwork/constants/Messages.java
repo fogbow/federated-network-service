@@ -5,12 +5,18 @@ public class Messages {
         public static final String FATAL_ERROR = "Fatal error.";
         public static final String FOGBOW_FNS = "Fogbow RAS exception.";
         public static final String GENERIC_EXCEPTION = "Operation returned error: %s";
+        public static final String INSTANCE_NOT_FOUND = "Instance not found.";
         public static final String INVALID_CIDR = "Invalid CIDR (%s).";
+        public static final String INVALID_PARAMETER = "Invalid parameter.";
+        public static final String NO_AVAILABLE_RESOURCES = "No available resources.";
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
+        public static final String QUOTA_EXCEEDED = "Quota exceeded.";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
         public static final String UNABLE_TO_REMOVE_FEDERATED_NETWORK = "Unable to remove federated network.";
-        public static final String UNAUTHORIZED_OPERATION = "Unauthorized operation.";
+        public static final String UNAVAILABLE_PROVIDER = "Provider is not available.";
+        public static final String AUTHENTICATION_ERROR = "Authentication error.";
+        public static final String AUTHORIZATION_ERROR = "Authorization error.";
         public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";
     }
 

@@ -12,19 +12,23 @@ import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.InstanceStatus;
 import org.fogbow.federatednetwork.utils.HttpUtil;
 import org.fogbow.federatednetwork.utils.PropertiesHolder;
+import org.fogbowcloud.ras.core.exceptions.InvalidTokenException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import org.fogbowcloud.ras.api.http.Compute;
+import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
+
 import org.fogbowcloud.ras.core.AaaController;
 import org.fogbowcloud.ras.core.constants.Operation;
-import org.fogbowcloud.ras.core.exceptions.*;
 import org.fogbowcloud.ras.core.models.ResourceType;
-import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
+import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -62,8 +66,8 @@ public class ApplicationFacade {
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String federationTokenValue)
-            throws UnauthenticatedUserException, InvalidParameterException, UnavailableProviderException,
-            UnauthorizedRequestException, InvalidCidrException, SQLException {
+            throws UnauthenticatedUserException, org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException,
+            InvalidCidrException, InvalidTokenException, SQLException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.CREATE,
                 ResourceType.NETWORK);
@@ -72,25 +76,26 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
-            throws UnauthenticatedUserException, InvalidParameterException, FederatedNetworkNotFoundException,
-            UnavailableProviderException, UnauthorizedRequestException, UnauthorizedOperationException {
+            throws UnauthenticatedUserException, InvalidTokenException, FederatedNetworkNotFoundException,
+            org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException, UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.GET, ResourceType.NETWORK);
         return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId, federationUser);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue) throws
-            UnauthenticatedUserException, InvalidParameterException, UnavailableProviderException,
-            UnauthorizedRequestException {
+            UnauthenticatedUserException, InvalidTokenException,
+            org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.GET, ResourceType.NETWORK);
         return this.federatedNetworkOrderController.getUserFederatedNetworksStatus(federationUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
-            throws NotEmptyFederatedNetworkException, InvalidParameterException,
-            FederatedNetworkNotFoundException, AgentCommucationException, UnavailableProviderException,
-            UnauthorizedRequestException, SQLException, UnauthenticatedUserException, UnauthorizedOperationException {
+            throws NotEmptyFederatedNetworkException, InvalidTokenException,
+            FederatedNetworkNotFoundException, AgentCommucationException,
+            org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException, SQLException, UnauthenticatedUserException,
+            UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.DELETE,
                 ResourceType.NETWORK);
@@ -100,7 +105,8 @@ public class ApplicationFacade {
     // compute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
     public synchronized String createCompute(org.fogbow.federatednetwork.api.parameters.Compute compute,
-                                String federationTokenValue) throws Exception {
+                                String federationTokenValue) throws FogbowFnsException, IOException, SQLException,
+                                URISyntaxException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = compute.getFederatedNetworkId();
         String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkId);
@@ -126,7 +132,8 @@ public class ApplicationFacade {
         return computeId;
     }
 
-    public synchronized void deleteCompute(String computeId, String federationTokenValue) throws Exception {
+    public synchronized void deleteCompute(String computeId, String federationTokenValue) throws URISyntaxException,
+            FogbowFnsException, SQLException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -146,7 +153,8 @@ public class ApplicationFacade {
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
     }
 
-    public synchronized ComputeInstance getComputeById(String computeId, String federationTokenValue) throws Exception {
+    public synchronized ComputeInstance getComputeById(String computeId, String federationTokenValue)
+            throws URISyntaxException, FogbowFnsException, SQLException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -181,14 +189,14 @@ public class ApplicationFacade {
         this.aaController = aaController;
     }
 
-    private Exception mappedException(HttpStatus httpCode, String message) {
+    private FogbowFnsException mappedException(HttpStatus httpCode, String message) {
         switch(httpCode) {
             case FORBIDDEN:
                 return new UnauthorizedRequestException(message);
             case UNAUTHORIZED:
-                return new org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException(message);
+                return new org.fogbow.federatednetwork.exceptions.UnauthenticatedUserException(message);
             case BAD_REQUEST:
-                return new InvalidParameterException(message);
+                return new org.fogbow.federatednetwork.exceptions.InvalidParameterException(message);
             case NOT_FOUND:
                 return new InstanceNotFoundException(message);
             case CONFLICT:
@@ -196,12 +204,11 @@ public class ApplicationFacade {
             case NOT_ACCEPTABLE:
                 return new NoAvailableResourcesException(message);
             case GATEWAY_TIMEOUT:
-                return new UnavailableProviderException(message);
+                return new org.fogbow.federatednetwork.exceptions.UnavailableProviderException(message);
             case INTERNAL_SERVER_ERROR:
-                return new UnexpectedException(message);
             case UNSUPPORTED_MEDIA_TYPE:
             default:
-                return new Exception(message);
+                return new UnexpectedException(message);
         }
     }
 

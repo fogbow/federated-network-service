@@ -48,7 +48,7 @@ public class InstanceStatus {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
-        org.fogbowcloud.ras.core.models.InstanceStatus other = (org.fogbowcloud.ras.core.models.InstanceStatus) obj;
+        InstanceStatus other = (InstanceStatus) obj;
         if (this.instanceId == null) {
             if (other.getInstanceId() != null) return false;
         } else if (!this.instanceId.equals(other.getInstanceId())) return false;

@@ -2,7 +2,7 @@ package org.fogbow.federatednetwork.datastore.orderstorage;
 
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.OrderState;
-import org.fogbowcloud.ras.core.PropertiesHolder;
+import org.fogbow.federatednetwork.utils.PropertiesHolder;
 import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
