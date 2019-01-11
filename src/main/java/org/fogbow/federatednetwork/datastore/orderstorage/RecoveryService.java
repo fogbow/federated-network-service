@@ -16,9 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RecoveryService {
 
     @Autowired
-    OrderRepository orderRepository;
-
-    public RecoveryService() { }
+    private OrderRepository orderRepository;
 
     public FederatedNetworkOrder put(FederatedNetworkOrder order) {
         return orderRepository.save(order);
@@ -34,7 +32,7 @@ public class RecoveryService {
             try {
                 FederatedNetworkUtil.fillCacheOfFreeIps((FederatedNetworkOrder) order);
             } catch (SubnetAddressesCapacityReachedException e) {
-                // TODO add logging
+                // TODO put logging
             } catch (InvalidCidrException e) {
             }
             activeOrdersMap.put(order.getId(), order);

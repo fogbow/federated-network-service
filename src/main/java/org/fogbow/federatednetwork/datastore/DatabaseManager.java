@@ -1,9 +1,11 @@
 package org.fogbow.federatednetwork.datastore;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.datastore.orderstorage.OrderTimestampStorage;
+import org.fogbow.federatednetwork.datastore.orderstorage.AuditService;
 import org.fogbow.federatednetwork.datastore.orderstorage.RecoveryService;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbowcloud.ras.core.datastore.orderstorage.OrderTimestampStorage;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -13,11 +15,14 @@ public class DatabaseManager implements StableStorage {
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
     private static DatabaseManager instance;
-    private RecoveryService recoveryService;
-    private OrderTimestampStorage orderTimestampStorage;
 
-    private DatabaseManager() throws SQLException {
-        this.orderTimestampStorage = new OrderTimestampStorage();
+    @Autowired
+    private RecoveryService recoveryService;
+
+    @Autowired
+    private AuditService auditService;
+
+    private DatabaseManager() {
     }
 
     public static synchronized DatabaseManager getInstance() throws SQLException {
@@ -29,12 +34,8 @@ public class DatabaseManager implements StableStorage {
 
     @Override
     public void put(FederatedNetworkOrder order) {
-        try {
-            recoveryService.put(order);
-            orderTimestampStorage.addOrder(order);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        recoveryService.put(order);
+        auditService.updateStateTimestamp(order);
     }
 
     @Override
@@ -45,4 +46,5 @@ public class DatabaseManager implements StableStorage {
     public void setRecoveryService(RecoveryService recoveryService) {
         this.recoveryService = recoveryService;
     }
+
 }

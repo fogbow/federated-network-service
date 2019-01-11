@@ -50,7 +50,7 @@ public class Messages {
         public static final String TRYING_TO_CREATE_AGENT_OUTPUT = "Trying to create agent with atts (%s). Output : %s.";
         public static final String TRYING_TO_DELETE_AGENT_ERROR = "Trying to delete agent with atts (%s). Error : %s.";
         public static final String TRYING_TO_DELETE_AGENT_OUTPUT = "Trying to delete agent with atts (%s). Output : %s.";
-        public static final String UNABLE_TO_ADD_TIMESTAMP = "Unable to add timestamp.";
+        public static final String UNABLE_TO_ADD_TIMESTAMP = "Unable to put timestamp.";
         public static final String UNABLE_TO_CALL_AGENT = "Unable to call agent; process command: %s";
         public static final String UNABLE_TO_CLOSE_CONNECTION = "Unable to close connection.";
         public static final String UNABLE_TO_CLOSE_FILE = "Unable to close file %s.";

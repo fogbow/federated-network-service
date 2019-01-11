@@ -53,10 +53,7 @@ public class FederatedNetworkOrder implements Serializable {
     private Queue<String> cacheOfFreeIps;
 
     public FederatedNetworkOrder() {
-        this.id = String.valueOf(UUID.randomUUID());
-        this.providers = new HashSet<>();
-        this.cacheOfFreeIps = new LinkedList<>();
-        this.computeIdsAndIps = new HashMap<>();
+        this(String.valueOf(UUID.randomUUID()));
     }
 
     public FederatedNetworkOrder(String id) {
@@ -67,10 +64,8 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(FederationUserToken user, String requestingMember, String providingMember) {
+        this();
         this.id = String.valueOf(UUID.randomUUID());
-        this.providers = new HashSet<>();
-        this.cacheOfFreeIps = new LinkedList<>();
-        this.computeIdsAndIps = new HashMap<>();
         this.user = user;
         this.requestingMember = requestingMember;
         this.providingMember = providingMember;
