@@ -18,7 +18,6 @@ import org.fogbowcloud.ras.core.AaaPluginInstantiator;
 import org.fogbowcloud.ras.core.AaaPluginsHolder;
 import org.fogbowcloud.ras.core.plugins.aaa.RASAuthenticationHolder;
 
-import java.sql.SQLException;
 
 @Component
 public class Main implements ApplicationRunner {
@@ -56,7 +55,7 @@ public class Main implements ApplicationRunner {
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);
             this.applicationFacade.setAaaController(aaaController);
-        } catch (SQLException | FatalErrorException e) {
+        } catch (FatalErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();
         }

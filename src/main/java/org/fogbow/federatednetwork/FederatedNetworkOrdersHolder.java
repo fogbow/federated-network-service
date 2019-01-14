@@ -12,13 +12,13 @@ public class FederatedNetworkOrdersHolder {
 
     private Map<String, FederatedNetworkOrder> activeOrdersMap;
 
-    private FederatedNetworkOrdersHolder() throws SQLException {
+    private FederatedNetworkOrdersHolder() {
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         this.activeOrdersMap = databaseManager.retrieveActiveFederatedOrders();
         // retrieve from database
     }
 
-    public static synchronized FederatedNetworkOrdersHolder getInstance() throws SQLException {
+    public static synchronized FederatedNetworkOrdersHolder getInstance() {
         if (instance == null) {
             instance = new FederatedNetworkOrdersHolder();
         }

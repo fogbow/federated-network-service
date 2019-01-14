@@ -4,10 +4,8 @@ import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.datastore.orderstorage.AuditService;
 import org.fogbow.federatednetwork.datastore.orderstorage.RecoveryService;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.ras.core.datastore.orderstorage.OrderTimestampStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 public class DatabaseManager implements StableStorage {
@@ -25,7 +23,7 @@ public class DatabaseManager implements StableStorage {
     private DatabaseManager() {
     }
 
-    public static synchronized DatabaseManager getInstance() throws SQLException {
+    public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
             instance = new DatabaseManager();
         }

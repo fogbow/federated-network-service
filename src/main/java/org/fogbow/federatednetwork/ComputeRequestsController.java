@@ -12,7 +12,6 @@ import org.fogbow.federatednetwork.utils.PropertiesHolder;
 import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS;
 import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY;
@@ -22,7 +21,7 @@ public class ComputeRequestsController {
     // Compute methods
 
     public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
-                                throws FederatedNetworkNotFoundException, SQLException, InvalidCidrException,
+                                throws FederatedNetworkNotFoundException, InvalidCidrException,
                                         UnexpectedException, SubnetAddressesCapacityReachedException, IOException {
         String instanceIp = null;
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
@@ -41,7 +40,7 @@ public class ComputeRequestsController {
     }
 
     public void addIpToComputeAllocation(String instanceIp, String computeId, String federatedNetworkId)
-            throws SQLException, UnexpectedException {
+            throws UnexpectedException {
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
                     getFederatedNetworkOrder(federatedNetworkId);
@@ -52,7 +51,7 @@ public class ComputeRequestsController {
         }
     }
 
-    public void removeIpToComputeAllocation(String computeId) throws SQLException {
+    public void removeIpToComputeAllocation(String computeId) {
         String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
@@ -61,7 +60,7 @@ public class ComputeRequestsController {
         }
     }
 
-    public void addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String computeId) throws SQLException {
+    public void addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String computeId) {
         String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().

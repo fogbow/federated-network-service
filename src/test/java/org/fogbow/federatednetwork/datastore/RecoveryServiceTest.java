@@ -52,7 +52,7 @@ public class RecoveryServiceTest {
     private FederatedNetworkOrder federatedNetworkOrder;
 
     @Before
-    public void setUp() throws SQLException {
+    public void setUp() {
         user = new FederationUserToken(MEMBER, "", USER_ID, USER_NAME);
         databaseManager = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
@@ -68,8 +68,7 @@ public class RecoveryServiceTest {
     }
 
     @Test
-    public void testRecoveryFederatedNetwork() throws SubnetAddressesCapacityReachedException, InvalidCidrException,
-            SQLException {
+    public void testRecoveryFederatedNetwork() {
         //set up
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         activeOrdersMap.put(federatedNetworkOrder.getId(), federatedNetworkOrder);

@@ -31,7 +31,7 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: Tests if networks are correctly returned, to a given ips served amount.
     @Test
-    public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, SQLException, UnexpectedException {
+    public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
         //set up
         FederationUserToken user = mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
@@ -57,13 +57,13 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkOverflow() throws InvalidCidrException, SQLException {
+    public void testNetworkOverflow() throws InvalidCidrException {
         //set up
     }
 
     //test case: tests that if ips served is negative, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkUnderflow() throws InvalidCidrException, SQLException {
+    public void testNetworkUnderflow() throws InvalidCidrException {
         //set up
     }
 

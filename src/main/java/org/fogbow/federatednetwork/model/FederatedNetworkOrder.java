@@ -15,7 +15,6 @@ import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.*;
 
 @Entity
@@ -101,14 +100,14 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws SQLException {
+    public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) {
         this.computeIdsAndIps.put(computeId, ipToBeAttached);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
         ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
-    public synchronized void removeAssociatedIp(String computeId) throws SQLException {
+    public synchronized void removeAssociatedIp(String computeId) {
         this.computeIdsAndIps.remove(computeId);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
@@ -169,7 +168,7 @@ public class FederatedNetworkOrder implements Serializable {
         this.orderState = state;
     }
 
-    public synchronized void setOrderState(OrderState state) throws SQLException {
+    public synchronized void setOrderState(OrderState state) {
         this.orderState = state;
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);

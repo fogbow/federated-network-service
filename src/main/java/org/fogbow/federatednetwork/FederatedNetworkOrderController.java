@@ -22,14 +22,14 @@ public class FederatedNetworkOrderController {
 
     private FederatedNetworkOrdersHolder orderHolders;
 
-    public FederatedNetworkOrderController() throws SQLException {
+    public FederatedNetworkOrderController() {
         this.orderHolders = FederatedNetworkOrdersHolder.getInstance();
     }
 
     // Federated Network methods
 
     public void activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUserToken federationUser)
-            throws InvalidCidrException, SQLException {
+            throws InvalidCidrException {
 
         synchronized (federatedNetwork) {
             federatedNetwork.setUser(federationUser);
@@ -51,8 +51,7 @@ public class FederatedNetworkOrderController {
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, FederationUserToken federationUserToken)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException {
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException, UnauthorizedRequestException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federationUserToken, federatedNetworkId));
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, federationUserToken);
 

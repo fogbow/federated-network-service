@@ -29,7 +29,6 @@ import org.fogbowcloud.ras.core.exceptions.UnauthenticatedUserException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.Collection;
 
 public class ApplicationFacade {
@@ -67,7 +66,7 @@ public class ApplicationFacade {
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String federationTokenValue)
             throws UnauthenticatedUserException, org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException,
-            InvalidCidrException, InvalidTokenException, SQLException {
+            InvalidCidrException, InvalidTokenException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.CREATE,
                 ResourceType.NETWORK);
@@ -94,7 +93,7 @@ public class ApplicationFacade {
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws NotEmptyFederatedNetworkException, InvalidTokenException,
             FederatedNetworkNotFoundException, AgentCommucationException,
-            org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException, SQLException, UnauthenticatedUserException,
+            org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException, UnauthenticatedUserException,
             UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.DELETE,
@@ -105,7 +104,7 @@ public class ApplicationFacade {
     // compute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
     public synchronized String createCompute(org.fogbow.federatednetwork.api.parameters.Compute compute,
-                                String federationTokenValue) throws FogbowFnsException, IOException, SQLException,
+                                String federationTokenValue) throws FogbowFnsException, IOException,
                                 URISyntaxException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = compute.getFederatedNetworkId();
@@ -133,7 +132,7 @@ public class ApplicationFacade {
     }
 
     public synchronized void deleteCompute(String computeId, String federationTokenValue) throws URISyntaxException,
-            FogbowFnsException, SQLException {
+            FogbowFnsException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -154,7 +153,7 @@ public class ApplicationFacade {
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String federationTokenValue)
-            throws URISyntaxException, FogbowFnsException, SQLException {
+            throws URISyntaxException, FogbowFnsException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.

@@ -24,9 +24,9 @@ public class ApiDocumentation {
                         "(networkIds) that were previously created using RAS, the public key (publicKey) that is going to\n" +
                         "be used to allow remote connection to the compute, and information (userData) for the customization\n" +
                         "of the compute through the cloudinit mechanism.";
-        public static final String GET_BY_ID_OPERATION = "Lists a specific federated network.";
-        public static final String ID = "The ID of the specific federated network.";
-        public static final String DELETE_OPERATION = "Deletes a specific federated network.";
+        public static final String GET_BY_ID_OPERATION = "Lists a specific compute.";
+        public static final String ID = "The ID of the specific compute.";
+        public static final String DELETE_OPERATION = "Deletes a specific compute.";
     }
 
     public static class Version {

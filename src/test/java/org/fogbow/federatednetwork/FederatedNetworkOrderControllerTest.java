@@ -56,7 +56,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if the activation order made in federatedNetworkOrderController will call the expected methods
     @Test
-    public void testActivatingFederatedNetwork() throws InvalidCidrException, SQLException {
+    public void testActivatingFederatedNetwork() throws InvalidCidrException {
         //set up
         mockSingletons();
         String fakeCidr = "10.10.10.0/24";
@@ -81,7 +81,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if any error in communication with agent, will lead the order to fail
     @Test
-    public void testAgentCommunicationError() throws InvalidCidrException, SQLException {
+    public void testAgentCommunicationError() throws InvalidCidrException {
         //set up
         mockSingletons();
         String fakeCidr = "10.10.10.0/24";
@@ -122,7 +122,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Trying to retrieve a federated network  from another user must throw UnauthenticatedUserException.
     @Test
-    public void testGetFederatedNetworkWithDifferentUser() throws FederatedNetworkNotFoundException, SQLException {
+    public void testGetFederatedNetworkWithDifferentUser() throws FederatedNetworkNotFoundException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -142,7 +142,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
     @Test
-    public void testGetNotExistentFederatedNetwork() throws UnauthorizedRequestException, SQLException {
+    public void testGetNotExistentFederatedNetwork() throws UnauthorizedRequestException {
         //set up
         mockSingletons();
         try {
@@ -188,7 +188,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
     @Test
     public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException,
-            AgentCommucationException, SQLException, UnauthorizedRequestException {
+            AgentCommucationException, UnauthorizedRequestException {
         //set up
         mockSingletons();
         try {
@@ -203,7 +203,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     //test case: This test check if an error communicating with agent will throw an AgentCommucationException
     @Test
     public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException,
-            NotEmptyFederatedNetworkException, SQLException, UnauthorizedRequestException {
+            NotEmptyFederatedNetworkException, UnauthorizedRequestException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -225,7 +225,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if get all federated networks will return all federated networks added
     @Test
-    public void testGetFederatedNetworks() throws SQLException {
+    public void testGetFederatedNetworks() {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -252,7 +252,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     //test case: Tests if get all federated networks will return only one federated network, since the other one was
     // activated by another user
     @Test
-    public void testGetFederatedNetworksWithDifferentUser() throws SQLException {
+    public void testGetFederatedNetworksWithDifferentUser() {
         //set up
         mockSingletons();
         String nonAuthenticatedUserId = "non-authenticated";
@@ -279,7 +279,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if get all in an Empty federated networks list will return correctly
     @Test
-    public void testGetEmptyListOfFederatedNetworks() throws SQLException {
+    public void testGetEmptyListOfFederatedNetworks() {
         //set up
         mockSingletons();
         //exercise
@@ -293,7 +293,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if to add a new federated compute, federatedNetworkOrderController makes the correct calls to the collaborators.
     @Test
-    public void testAddFederatedCompute() throws SQLException {
+    public void testAddFederatedCompute() {
         //set up
         mockOnlyDatabase();
         String cidr = "10.10.10.0/24";
@@ -332,7 +332,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: This test expects a FederatedNetworkException, since will be given a nonexistent federatedNetwork id
     @Test
-    public void testAddComputeFederatedWithNonexistentNetwork() throws SQLException {
+    public void testAddComputeFederatedWithNonexistentNetwork() {
         //set up
         mockSingletons();
         String nonexistentId = "nonexistent-id";
@@ -350,7 +350,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if get all in an empty federated networks list will return the same computeOrder given as input.
     @Test
-    public void testAddComputeNotFederated() throws SQLException {
+    public void testAddComputeNotFederated() {
         //set up
         mockSingletons();
 //        ComputeOrder computeOrder = new ComputeOrder();
@@ -364,7 +364,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if updates correctly the compute with the new id
     @Test
-    public void testUpdateFederatedComputeId() throws SQLException {
+    public void testUpdateFederatedComputeId() {
         //set up
         mockSingletons();
         String newId = "fake-compute-new-id";
@@ -388,7 +388,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: This test should add federated data to federated compute when receives a get method.
     @Test
-    public void testGetFederatedCompute() throws SQLException {
+    public void testGetFederatedCompute() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -407,7 +407,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: This test should throw an UnauthenticatedUserException since, a different user is trying to access it.
     @Test
-    public void testGetFederatedComputeWithNonAuthenticatedUser() throws SQLException {
+    public void testGetFederatedComputeWithNonAuthenticatedUser() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -426,7 +426,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: A get method to a not federated compute should return exactly the same computeInstance, since it's not a federated compute.
     @Test
-    public void testGetNotFederatedCompute() throws SQLException {
+    public void testGetNotFederatedCompute() {
         //set up
         mockSingletons();
         List<String> ipAddresses = new ArrayList<>();
@@ -442,7 +442,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: This test should remove a compute order.
     @Test
-    public void testDeleteFederatedCompute() throws SQLException {
+    public void testDeleteFederatedCompute() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -478,7 +478,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: A delete in a nonexistent federated compute
     @Test
-    public void testRemoveNonFederatedCompute() throws SQLException {
+    public void testRemoveNonFederatedCompute() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -493,7 +493,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: A delete with a different user must raise an UnauthenticatedUserException.
     @Test
-    public void testRemoveFederatedComputeWithDifferentUser() throws SQLException {
+    public void testRemoveFederatedComputeWithDifferentUser() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -511,7 +511,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests rollback in a computeOrder, in case of failing to communicate with resource allocation service.
     @Test
-    public void testRoolbackInAFailedCompute() throws SQLException {
+    public void testRoolbackInAFailedCompute() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -567,7 +567,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
         }
     }
 
-    private void mockSingletons() throws SQLException {
+    private void mockSingletons() {
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         mockDatabase(activeOrdersMap);
         mockSharedOrderHolders();
@@ -588,7 +588,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
         }
     }
 
-    private void mockDatabase(Map<String, FederatedNetworkOrder> activeOrdersMap) throws SQLException {
+    private void mockDatabase(Map<String, FederatedNetworkOrder> activeOrdersMap) {
         database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
@@ -599,7 +599,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
         }
     }
 
-    private void mockOnlyDatabase() throws SQLException {
+    private void mockOnlyDatabase() {
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         database = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
