@@ -1,7 +1,6 @@
 package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
-import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
@@ -9,12 +8,8 @@ import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 import org.fogbowcloud.ras.core.models.instances.InstanceState;
