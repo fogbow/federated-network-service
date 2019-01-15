@@ -2,9 +2,15 @@ package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
+import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
+import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
+import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
+import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +19,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({AgentCommunicatorUtil.class, FederatedNetworkUtil.class, FederatedComputeUtil.class,
+        DatabaseManager.class, FederatedNetworkOrdersHolder.class})
 public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
 
     protected FederatedNetworkOrderController federatedNetworkOrderController;

@@ -29,10 +29,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({AgentCommunicatorUtil.class, FederatedNetworkUtil.class, FederatedComputeUtil.class,
-        DatabaseManager.class, FederatedNetworkOrdersHolder.class})
-public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkUnitTests{
+public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkUnitTests {
 
     private final String FEDERATED_NETWORK_ID = "fake-network-id";
     private final String FEDERATED_COMPUTE_ID = "fake-compute-id";
@@ -382,7 +379,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        //verify
 //        assertNotEquals(FEDERATED_COMPUTE_ID, federatedCompute.getId());
 //        assertEquals(newId, federatedCompute.getId());
-   }
+    }
 
     //test case: This test should add federated data to federated compute when receives a get method.
     @Test
@@ -564,7 +561,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
             fail();
         }
     }
-
 
 
     private Map<String, FederatedNetworkOrder> getFederatedNetworksMap(Collection<FederatedNetworkOrder> activeOrdersMap) {
