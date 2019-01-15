@@ -4,6 +4,7 @@ import org.fogbow.federatednetwork.ComputeIdToFederatedNetworkIdMapping;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
+import org.fogbow.federatednetwork.exceptions.FogbowFnsException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.exceptions.UnexpectedException;
@@ -107,7 +108,10 @@ public class FederatedNetworkOrder implements Serializable {
         ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
-    public synchronized void removeAssociatedIp(String computeId) {
+    public synchronized void removeAssociatedIp(String computeId) throws FogbowFnsException {
+        if(!this.computeIdsAndIps.containsKey(computeId)){
+            throw new FogbowFnsException();
+        }
         this.computeIdsAndIps.remove(computeId);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);

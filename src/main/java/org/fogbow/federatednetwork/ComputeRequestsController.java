@@ -1,10 +1,7 @@
 package org.fogbow.federatednetwork;
 
 import org.fogbow.federatednetwork.api.parameters.Compute;
-import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.exceptions.*;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
 import org.fogbow.federatednetwork.utils.PropertiesHolder;
@@ -51,7 +48,7 @@ public class ComputeRequestsController {
         }
     }
 
-    public void removeIpToComputeAllocation(String computeId) {
+    public void removeIpToComputeAllocation(String computeId) throws FogbowFnsException {
         String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
