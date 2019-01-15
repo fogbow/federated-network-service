@@ -42,7 +42,7 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
     @ElementCollection(targetClass = String.class)
-    @CollectionTable(name="federated_network_allowed_members")
+    @CollectionTable(name = "federated_network_allowed_members")
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> providers;
     @ElementCollection
@@ -71,7 +71,9 @@ public class FederatedNetworkOrder implements Serializable {
         this.providingMember = providingMember;
     }
 
-    /** Creating Order with predefined Id. */
+    /**
+     * Creating Order with predefined Id.
+     */
     public FederatedNetworkOrder(String id, FederationUserToken user, String requestingMember, String providingMember) {
         this(id);
         this.user = user;
@@ -108,9 +110,9 @@ public class FederatedNetworkOrder implements Serializable {
         ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
-    public synchronized void removeAssociatedIp(String computeId) throws FogbowFnsException {
-        if(!this.computeIdsAndIps.containsKey(computeId)){
-            throw new FogbowFnsException();
+    public synchronized void removeAssociatedIp(String computeId) {
+        if (!this.computeIdsAndIps.containsKey(computeId)) {
+            throw new IllegalArgumentException();
         }
         this.computeIdsAndIps.remove(computeId);
         StableStorage databaseManager = DatabaseManager.getInstance();
@@ -126,7 +128,7 @@ public class FederatedNetworkOrder implements Serializable {
         String ip = null;
         try {
             ip = this.cacheOfFreeIps.remove();
-        } catch(NoSuchElementException e1) {
+        } catch (NoSuchElementException e1) {
             fillCacheOfFreeIps();
             try {
                 ip = this.cacheOfFreeIps.remove();

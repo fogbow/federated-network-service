@@ -35,7 +35,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test
-    public void testRemoveAssociatedIp() throws FogbowFnsException {
+    public void testRemoveAssociatedIp(){
         // setup
         super.mockSingletons();
         Map<String, String> fakeAssociatedIps;
@@ -53,8 +53,8 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         assertEquals(0, fednetAssociatedIps.size());
     }
 
-    @Test(expected = FogbowFnsException.class)
-    public void testRemoveAssociatedIpWithNoAssociatedIps() throws FogbowFnsException {
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveAssociatedIpWithNoAssociatedIps(){
         // setup
         super.mockSingletons();
         Map<String, String> fakeAssociatedIps;
