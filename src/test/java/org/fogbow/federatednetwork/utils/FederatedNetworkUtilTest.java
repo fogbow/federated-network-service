@@ -1,7 +1,7 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.net.util.SubnetUtils;
-import org.fogbow.federatednetwork.BaseUnitTest;
+import org.fogbow.federatednetwork.MockedFederatedNetworkUnitTests;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.exceptions.UnexpectedException;
@@ -10,15 +10,14 @@ import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
-public class FederatedNetworkUtilTest extends BaseUnitTest {
+public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
     Properties properties;
 
@@ -33,22 +32,25 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
     @Test
     public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
         //set up
-        FederationUserToken user = mock(FederationUserToken.class);
+        FederationUserToken user = Mockito.mock(FederationUserToken.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
         String cidr = "10.0.0.0/24";
-        FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
+        FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
                 "name", allowedMembers, freedIps, computesIp));
-        doNothing().when(federatedNetwork).addAssociatedIp(anyString(), anyString());
+//        Mockito.doNothing().when(federatedNetwork).addAssociatedIp(anyString(), anyString());
+
         //exercise
         String freeIp = federatedNetwork.getFreeIp();
         //verify
         Assert.assertEquals("10.0.0.2", freeIp);
+
         //exercise
         freeIp = federatedNetwork.getFreeIp();
         //verify
         Assert.assertEquals("10.0.0.3", freeIp);
+
         //exercise
         freeIp = federatedNetwork.getFreeIp();
         //verify
@@ -57,8 +59,31 @@ public class FederatedNetworkUtilTest extends BaseUnitTest {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkOverflow() throws InvalidCidrException {
+    public void testNetworkOverflow() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
+        mockDatabase(new HashMap<>());
         //set up
+        FederationUserToken federationUserToken = Mockito.mock(FederationUserToken.class);
+        Set<String> providers = new HashSet<>();
+        Queue<String> cacheOfFreeIps = new LinkedList<>();
+        Map<String, String> computeIdsAndIps = new HashMap<>();
+        String cidr = "10.0.0.0/29";
+        FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(federationUserToken, MEMBER, MEMBER, cidr,
+                null, providers, cacheOfFreeIps, computeIdsAndIps);
+
+        // use the whole network
+        int freeIps = (int) (Math.pow(2, 3) - 3); // 2^freeBits - bitsForNetBroadcastAndAgent
+        for (int i = 0; i < freeIps; i++) {
+            String freeIp = federatedNetwork.getFreeIp();
+            System.out.println(freeIp);
+        }
+
+        //exercise
+        try {
+            String freeIp = federatedNetwork.getFreeIp();
+            fail();
+        } catch (SubnetAddressesCapacityReachedException e) {
+            //verify
+        }
     }
 
     //test case: tests that if ips served is negative, it must throw an exception, since this ip will be in a different network

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
+
     private static final String FAKE_IP = "fake-ip";
     private static final String FAKE_COMPUTE_ID = "fake-compute-id";
 
@@ -65,7 +66,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
         // exercise
         fakeFederatedNetworkOrder.removeAssociatedIp(FAKE_COMPUTE_ID);
-
     }
+
 }
 

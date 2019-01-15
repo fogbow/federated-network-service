@@ -37,7 +37,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     private Properties properties;
     private FederationUserToken user;
 
-
     @Before
     public void setUp() {
         properties = super.setProperties();
