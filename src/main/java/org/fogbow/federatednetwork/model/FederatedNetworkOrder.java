@@ -4,7 +4,6 @@ import org.fogbow.federatednetwork.ComputeIdToFederatedNetworkIdMapping;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
-import org.fogbow.federatednetwork.exceptions.FogbowFnsException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.exceptions.UnexpectedException;
@@ -21,34 +20,45 @@ import java.util.*;
 @Entity
 @Table(name = "federated_network_table")
 public class FederatedNetworkOrder implements Serializable {
+
     private static final long serialVersionUID = 1L;
+
     @Column
     @Id
     private String id;
+
     @Column
     @Enumerated(EnumType.STRING)
     private OrderState orderState;
+
     // TODO check how to make this persistent
     //@JoinColumn
     //@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @Transient
     private FederationUserToken user;
+
     @Column
     private String requestingMember;
+
     @Column
     private String providingMember;
+
     @Column
     private String cidr;
+
     @Column
     private String name;
+
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name = "federated_network_allowed_members")
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> providers;
-    @ElementCollection
+
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
     @Column
     private Map<String, String> computeIdsAndIps;
+
     @Transient
     private Queue<String> cacheOfFreeIps;
 

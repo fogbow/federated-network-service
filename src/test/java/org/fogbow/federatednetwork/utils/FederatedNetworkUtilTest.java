@@ -74,7 +74,6 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         int freeIps = (int) (Math.pow(2, 3) - 3); // 2^freeBits - bitsForNetBroadcastAndAgent
         for (int i = 0; i < freeIps; i++) {
             String freeIp = federatedNetwork.getFreeIp();
-            System.out.println(freeIp);
         }
 
         //exercise

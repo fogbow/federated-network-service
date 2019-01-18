@@ -6,9 +6,11 @@ import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
+import org.fogbowcloud.ras.core.models.orders.ComputeOrder;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
 import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
@@ -75,7 +77,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockSingletons();
         String fakeCidr = "10.10.10.0/24";
         SubnetUtils.SubnetInfo fakeSubnetInfo = new SubnetUtils(fakeCidr).getInfo();
-        FederationUserToken user = mock(FederationUserToken.class);
+        FederationUserToken user = Mockito.mock(FederationUserToken.class);
         FederatedNetworkOrder federatedNetworkOrder = spy(new FederatedNetworkOrder());
         federatedNetworkOrder.setId(FEDERATED_NETWORK_ID);
         federatedNetworkOrder.setCidr(fakeCidr);
@@ -277,10 +279,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         assertEquals(0, federatedNetworks.size());
     }
 
-
     // compute tests
-
-    //test case: Tests if to add a new federated compute, federatedNetworkOrderController makes the correct calls to the collaborators.
+    // test case: Tests if to add a new federated compute, federatedNetworkOrderController makes the correct calls to the collaborators.
     @Test
     public void testAddFederatedCompute() {
         //set up
@@ -319,27 +319,11 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertNotEquals(computeOrder.getUserData(), federatedNetworkOrdersHolder.getFederatedNetworkOrder(FEDERATED_NETWORK_ID));
     }
 
-    //test case: This test expects a FederatedNetworkException, since will be given a nonexistent federatedNetwork id
-    @Test
-    public void testAddComputeFederatedWithNonexistentNetwork() {
-        //set up
-        mockSingletons();
-        String nonexistentId = "nonexistent-id";
-//        ComputeOrder computeOrder = new ComputeOrder();
-//        computeOrder.setId(FEDERATED_COMPUTE_ID);
-//        FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(nonexistentId, "", computeOrder));
-//        try {
-//            //exercise
-//            federatedNetworkOrderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
-//            fail();
-//        } catch (FederatedNetworkNotFoundException e) {
-//            //verify
-//        }
-    }
+
 
     //test case: Tests if get all in an empty federated networks list will return the same computeOrder given as input.
     @Test
-    public void testAddComputeNotFederated() {
+    public void testAddNonFederatedCompute() {
         //set up
         mockSingletons();
 //        ComputeOrder computeOrder = new ComputeOrder();
@@ -500,7 +484,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests rollback in a computeOrder, in case of failing to communicate with resource allocation service.
     @Test
-    public void testRoolbackInAFailedCompute() {
+    public void testRollbackInAFailedCompute() {
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
@@ -556,10 +540,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         }
     }
 
-
     private Map<String, FederatedNetworkOrder> getFederatedNetworksMap(Collection<FederatedNetworkOrder> activeOrdersMap) {
         return activeOrdersMap.stream()
-                .map(order -> order)
                 .collect(Collectors.toMap(order -> order.getId(), order -> order));
     }
 }

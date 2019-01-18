@@ -30,8 +30,8 @@ public class ComputeRequestsController {
             if (federatedNetworkOrder == null) {
                 throw new FederatedNetworkNotFoundException(federatedNetworkId);
             }
-            String cidr = federatedNetworkOrder.getCidr();
             instanceIp = federatedNetworkOrder.getFreeIp();
+            String cidr = federatedNetworkOrder.getCidr();
             FederatedComputeUtil.addUserData(compute, instanceIp,
                     PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS), cidr,
                     PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_PRE_SHARED_KEY));
