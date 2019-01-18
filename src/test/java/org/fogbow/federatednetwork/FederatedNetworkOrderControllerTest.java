@@ -557,6 +557,48 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         assertEquals(OrderState.FULFILLED, federatedNetworkOrder.getOrderState());
     }
 
+    @Test(expected = AgentCommucationException.class)
+    public void testFailureWhileDeletingFederatedNetwork() throws AgentCommucationException, FederatedNetworkNotFoundException,
+            UnauthorizedRequestException, NotEmptyFederatedNetworkException {
+        // set up
+        mockDatabase(new HashMap<>());
+        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetworkOrder.getCidr())).thenReturn(false);
+
+        FederatedNetworkOrderController spiedController = Mockito.spy(new FederatedNetworkOrderController());
+        Mockito.doReturn(federatedNetworkOrder).when(spiedController)
+                .getFederatedNetwork(Mockito.eq(federatedNetworkOrder.getId()), Mockito.any(FederationUserToken.class));
+
+        // exercise
+        spiedController.deleteFederatedNetwork(federatedNetworkOrder.getId(), federationUserToken);
+
+        // verify
+        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
+
+        assertEquals(OrderState.FULFILLED, federatedNetworkOrder.getOrderState());
+    }
+
+    @Test
+    public void testSuccessfulDeletionOfFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException,
+            AgentCommucationException, NotEmptyFederatedNetworkException {
+        // set up
+        mockDatabase(new HashMap<>());
+        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetworkOrder.getCidr())).thenReturn(true);
+
+        FederatedNetworkOrderController spiedController = Mockito.spy(new FederatedNetworkOrderController());
+        Mockito.doReturn(federatedNetworkOrder).when(spiedController)
+                .getFederatedNetwork(Mockito.eq(federatedNetworkOrder.getId()), Mockito.any(FederationUserToken.class));
+
+        // exercise
+        spiedController.deleteFederatedNetwork(federatedNetworkOrder.getId(), federationUserToken);
+
+        // verify
+        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
+
+        assertEquals(OrderState.DEACTIVATED, federatedNetworkOrder.getOrderState());
+    }
+
     private void addComputeIntoActiveOrdersMap() {
 //        ComputeOrder computeOrder = new ComputeOrder();
 //        computeOrder.setId(FEDERATED_COMPUTE_ID);
