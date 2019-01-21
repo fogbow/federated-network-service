@@ -77,4 +77,26 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         }
     }
 
+    @Test
+    public void testFillCacheOfFreeIpsWithNoFreeIps() {
+        // FIXME FNS_TEST
+        // Create network
+        // Use all ips
+        // Call fillCacheOfFreeIps
+        // Assert Exception was thrown
+    }
+
+    @Test
+    public void testFillCacheOfFreeIps() {
+        // FIXME FNS_TEST
+        // Create network (mask should assure that network has more than FREE_IP_CACHE_MAX_SIZE free ips)
+        // Call fillCacheOfFreeIps
+        // Assert cache size is FREE_IP_CACHE_MAX_SIZE
+    }
+
+    @Test
+    public void testIsSubnetValid() {
+        // FIXME FNS_TEST
+    }
+
 }

@@ -244,7 +244,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
         BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrdersMap()).willReturn(fakeActiveFederatedNetworks);
         //exercise
-        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getUserFederatedNetworksStatus(federationUserToken));
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getFederatedNetworksStatusByUser(federationUserToken));
         //verify
         assertEquals(2, federatedNetworks.size());
         assertEquals(FEDERATED_NETWORK_ID, federatedNetworks.get(0).getInstanceId());
@@ -273,7 +273,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
         BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrdersMap()).willReturn(fakeActiveFederatedNetworks);
         //exercise
-        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getUserFederatedNetworksStatus(federationUserToken));
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getFederatedNetworksStatusByUser(federationUserToken));
         //verify
         assertEquals(1, federatedNetworks.size());
         assertEquals(FEDERATED_NETWORK_ID, federatedNetworks.get(0).getInstanceId());
@@ -285,7 +285,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockSingletons();
         //exercise
-        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getUserFederatedNetworksStatus(federationUserToken));
+        List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getFederatedNetworksStatusByUser(federationUserToken));
         //verify
         assertEquals(0, federatedNetworks.size());
     }
@@ -597,6 +597,19 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
 
         assertEquals(OrderState.DEACTIVATED, federatedNetworkOrder.getOrderState());
+    }
+
+    @Test
+    public void testGetNonExistentFederatedNetwork() {
+        // FIXME FNS_TEST
+    }
+
+    @Test
+    public void testGetFederatedNetworksStatusByUser() {
+        // FIXME FNS_TEST
+        // mock order holders to return a collection of orders with multiple users
+        // call getFedNetStatusByUser with specific user
+        // assert all the orders of that specific user and only them are returnd
     }
 
     private void addComputeIntoActiveOrdersMap() {

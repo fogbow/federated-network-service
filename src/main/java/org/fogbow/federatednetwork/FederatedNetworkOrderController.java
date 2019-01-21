@@ -14,11 +14,14 @@ import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FederatedNetworkOrderController {
 
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
+    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_NAME);
 
     private FederatedNetworkOrdersHolder orderHolders;
 
@@ -92,27 +95,23 @@ public class FederatedNetworkOrderController {
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
-    public Collection<InstanceStatus> getUserFederatedNetworksStatus(FederationUserToken federationUserToken) {
+    public Collection<InstanceStatus> getFederatedNetworksStatusByUser(FederationUserToken federationUserToken) {
         Collection<FederatedNetworkOrder> orders = this.orderHolders.getActiveOrdersMap().values();
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
-        List<FederatedNetworkOrder> requestedOrders =
-                orders.stream()
-                        .filter(order -> order.getUser().equals(federationUserToken))
-                        .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
-                        .collect(Collectors.toList());
-        return getFederatedNetworksStatus(requestedOrders);
+        return orders.stream()
+                    .filter(order -> order.getUser().equals(federationUserToken))
+                    .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
+                    .map(orderToInstanceStatus())
+                    .collect(Collectors.toList());
     }
 
-    private Collection<InstanceStatus> getFederatedNetworksStatus(Collection<FederatedNetworkOrder> allFederatedNetworks) {
-        Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
-        String memberName = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_NAME);
-        for (FederatedNetworkOrder federatedNetwork : allFederatedNetworks) {
-            InstanceStatus instanceStatus = new InstanceStatus(federatedNetwork.getId(), federatedNetwork.getName(),
-                    memberName, federatedNetwork.getInstanceStateFromOrderState());
-            instanceStatusList.add(instanceStatus);
-        }
-        return new ArrayList<>(instanceStatusList);
+    private Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
+        return order -> {
+            InstanceState status = order.getInstanceStateFromOrderState();
+            InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), RAS_NAME, status);
+            return instanceStatus;
+        };
     }
 }

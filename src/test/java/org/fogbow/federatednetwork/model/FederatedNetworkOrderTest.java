@@ -90,7 +90,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         // use the whole network
         int freeIps = (int) (Math.pow(2, 3) - 3); // 2^freeBits - bitsForNetBroadcastAndAgent
         for (int i = 0; i < freeIps; i++) {
-            // associating an IP address to a VM is a two step process
+            // associating an IP address to a VM is a two step process in the order
             String freeIp = federatedNetwork.getFreeIp();
             String uniqueComputeId = FAKE_COMPUTE_ID + i;
             federatedNetwork.addAssociatedIp(uniqueComputeId, freeIp);

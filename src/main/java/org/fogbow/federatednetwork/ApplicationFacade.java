@@ -87,7 +87,7 @@ public class ApplicationFacade {
             org.fogbowcloud.ras.core.exceptions.UnauthorizedRequestException {
         FederationUserToken federationUser = this.aaController.getFederationUser(federationTokenValue);
         this.aaController.authenticateAndAuthorize(this.memberId, federationUser, Operation.GET, ResourceType.NETWORK);
-        return this.federatedNetworkOrderController.getUserFederatedNetworksStatus(federationUser);
+        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(federationUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)

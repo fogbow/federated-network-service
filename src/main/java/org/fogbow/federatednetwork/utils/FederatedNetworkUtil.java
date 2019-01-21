@@ -16,21 +16,20 @@ public class FederatedNetworkUtil {
 
     public synchronized static void fillCacheOfFreeIps(FederatedNetworkOrder federatedNetwork) throws InvalidCidrException,
             SubnetAddressesCapacityReachedException {
-        int insertedIps = 0;
         int index = 1;
         String freeIp = null;
         List<String> usedIPs = getUsedIps(federatedNetwork);
         SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
-        while (subnetInfo.isInRange(lowAddress + index) && insertedIps < FREE_IP_CACHE_MAX_SIZE) {
+        Queue<String> cache = federatedNetwork.getCacheOfFreeIps();
+        while (subnetInfo.isInRange(lowAddress + index) && cache.size() < FREE_IP_CACHE_MAX_SIZE) {
             freeIp = toIpAddress(lowAddress + index);
             if (!usedIPs.contains(freeIp)) {
                 federatedNetwork.getCacheOfFreeIps().add(freeIp);
-                insertedIps++;
             }
             index++;
         }
-        if (insertedIps == 0) throw new SubnetAddressesCapacityReachedException(federatedNetwork.getCidr());
+        if (cache.isEmpty()) throw new SubnetAddressesCapacityReachedException(federatedNetwork.getCidr());
     }
 
     private synchronized static List<String> getUsedIps(FederatedNetworkOrder federatedNetworkOrder) {
@@ -43,7 +42,7 @@ public class FederatedNetworkUtil {
         try {
             return new SubnetUtils(cidrNotation).getInfo();
         } catch (IllegalArgumentException e) {
-            throw new InvalidCidrException(cidrNotation);
+            throw new InvalidCidrException(cidrNotation, e);
         }
     }
 

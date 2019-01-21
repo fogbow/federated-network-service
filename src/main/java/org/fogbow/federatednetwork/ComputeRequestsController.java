@@ -19,7 +19,6 @@ import static org.fogbow.federatednetwork.constants.ConfigurationConstants.FEDER
 public class ComputeRequestsController {
 
     // Compute methods
-
     public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
                                 throws FederatedNetworkNotFoundException, InvalidCidrException,
                                         UnexpectedException, SubnetAddressesCapacityReachedException, IOException {
@@ -66,7 +65,9 @@ public class ComputeRequestsController {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
                     getFederatedNetworkOrder(federatedNetworkId);
             String instanceIp = federatedNetworkOrder.getAssociatedIp(computeId);
-            computeInstance.getIpAddresses().add(instanceIp);
+            if (instanceIp != null) {
+                computeInstance.getIpAddresses().add(instanceIp);
+            }
         }
     }
 }
