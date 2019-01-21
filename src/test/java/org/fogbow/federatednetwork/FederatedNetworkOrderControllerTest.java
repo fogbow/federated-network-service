@@ -599,9 +599,15 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         assertEquals(OrderState.DEACTIVATED, federatedNetworkOrder.getOrderState());
     }
 
-    @Test
-    public void testGetNonExistentFederatedNetwork() {
-        // FIXME FNS_TEST
+    @Test(expected = FederatedNetworkNotFoundException.class)
+    public void testGetNonExistentFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException {
+        // set up
+        mockDatabase(new HashMap<>());
+        FederatedNetworkOrderController controller = new FederatedNetworkOrderController();
+
+        // verify
+        String nonExistentId = "non-existent-id";
+        FederatedNetworkOrder federatedNetwork = controller.getFederatedNetwork(nonExistentId, federationUserToken);
     }
 
     @Test
