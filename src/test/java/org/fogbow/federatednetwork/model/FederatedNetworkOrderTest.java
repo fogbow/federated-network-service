@@ -6,6 +6,7 @@ import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.exceptions.UnexpectedException;
 import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -20,6 +21,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     private static final String FAKE_IP = "fake-ip";
     private static final String FAKE_COMPUTE_ID = "fake-compute-id";
+    public static final String CIDR_EXAMPLE = "10.0.0.0/29";
 
     @Test
     public void testAddAssociatedIp() {
@@ -76,16 +78,10 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkOverflow() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
-        mockDatabase(new HashMap<>());
+    public void testGetIpForNetworkWithNoFreeIps() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
         //set up
-        FederationUserToken federationUserToken = Mockito.mock(FederationUserToken.class);
-        Set<String> providers = new HashSet<>();
-        Queue<String> cacheOfFreeIps = new LinkedList<>();
-        Map<String, String> computeIdsAndIps = new HashMap<>();
-        String cidr = "10.0.0.0/29";
-        FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(federationUserToken, null, null, cidr,
-                null, providers, cacheOfFreeIps, computeIdsAndIps);
+        mockDatabase(new HashMap<>());
+        FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
 
         // use the whole network
         int freeIps = (int) (Math.pow(2, 3) - 3); // 2^freeBits - bitsForNetBroadcastAndAgent
@@ -107,7 +103,45 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     //test case: tests that if ips served is negative, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testNetworkUnderflow() throws InvalidCidrException {
+    public void testGetIpNetworkUnderflow() throws InvalidCidrException {
         //set up
+        mockDatabase(new HashMap<>());
+        FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
+
+        // verify
+        federatedNetwork.getFreeIp();
+    }
+
+    @Test
+    public void testAddingAndRemovingAssociatedIps() {
+        // set up
+        mockDatabase(new HashMap<>());
+        FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
+
+        String fakeComputeId = "fake-compute-id";
+        String fakeIpAddress = "10.0.1.4";
+
+        Assert.assertEquals(null, federatedNetwork.getAssociatedIp(fakeComputeId));
+
+        // exercise
+        federatedNetwork.addAssociatedIp(fakeComputeId, fakeIpAddress);
+
+        // verify
+        Assert.assertEquals(fakeIpAddress, federatedNetwork.getAssociatedIp(fakeComputeId));
+
+        // exercise
+        federatedNetwork.removeAssociatedIp(fakeComputeId);
+
+        // verify
+        Assert.assertEquals(null, federatedNetwork.getAssociatedIp(fakeComputeId));
+    }
+
+    private FederatedNetworkOrder createFederatedNetworkOrder(String cidr) {
+        FederationUserToken federationUserToken = Mockito.mock(FederationUserToken.class);
+        Set<String> providers = new HashSet<>();
+        Queue<String> cacheOfFreeIps = new LinkedList<>();
+        Map<String, String> computeIdsAndIps = new HashMap<>();
+        return new FederatedNetworkOrder(federationUserToken, null, null, cidr,
+                null, providers, cacheOfFreeIps, computeIdsAndIps);
     }
 }
