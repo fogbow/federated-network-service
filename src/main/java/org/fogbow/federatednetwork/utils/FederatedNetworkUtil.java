@@ -13,6 +13,7 @@ import java.util.*;
 public class FederatedNetworkUtil {
 
     public static final int FREE_IP_CACHE_MAX_SIZE = 16;
+    public static final int RESERVED_IPS = 2;
 
     public synchronized static void fillCacheOfFreeIps(FederatedNetworkOrder federatedNetwork) throws InvalidCidrException,
             SubnetAddressesCapacityReachedException {
@@ -49,7 +50,10 @@ public class FederatedNetworkUtil {
     public static boolean isSubnetValid(SubnetUtils.SubnetInfo subnetInfo) {
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
         int highAddress = subnetInfo.asInteger(subnetInfo.getHighAddress());
-        return highAddress - lowAddress > 1;
+        int freeIps = highAddress - lowAddress;
+        // This is a closed range, so we need to increment this variable to match this requirement.
+        freeIps++;
+        return freeIps >= RESERVED_IPS;
     }
 
     private static String toIpAddress(int value) {

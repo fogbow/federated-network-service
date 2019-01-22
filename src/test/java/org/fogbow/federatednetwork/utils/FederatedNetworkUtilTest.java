@@ -19,6 +19,7 @@ import static org.mockito.Mockito.mock;
 
 public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
+    public static final int MAX_CIDR_SUFFIX = 32;
     Properties properties;
 
     private final String MEMBER = "fake-member";
@@ -60,43 +61,103 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testInvalidNetworkCidr() {
         //set up
-        FederationUserToken user = mock(FederationUserToken.class);
-        Set<String> allowedMembers = new HashSet<>();
-        Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
         String malformedCidr = "10..0.0/24";
-        FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, malformedCidr,
-                "name", allowedMembers, freedIps, computesIp);
-        SubnetUtils.SubnetInfo subnetInfo = null;
         //exercise
         try {
-            subnetInfo = FederatedNetworkUtil.getSubnetInfo(malformedCidr);
+            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(malformedCidr);
             fail();
         } catch (InvalidCidrException e) {
             //verify
         }
     }
 
+    //test case: if a network is already filled in, it should throw an exception when trying to fill cache of free ips
     @Test
-    public void testFillCacheOfFreeIpsWithNoFreeIps() {
-        // FIXME FNS_TEST
-        // Create network
-        // Use all ips
-        // Call fillCacheOfFreeIps
-        // Assert Exception was thrown
+    public void testFillCacheOfFreeIpsWithNoFreeIps() throws InvalidCidrException, UnexpectedException,
+            SubnetAddressesCapacityReachedException {
+        //set up
+        mockOnlyDatabase();
+        FederationUserToken user = mock(FederationUserToken.class);
+        Set<String> allowedMembers = new HashSet<>();
+        Queue<String> freedIps = new LinkedList<>();
+        Map<String, String> computesIp = new HashMap<>();
+        int mask = getMaskForCacheSize();
+
+        String cidr = "10.0.0.0/" + mask;
+        FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
+                "name", allowedMembers, freedIps, computesIp);
+
+        //exercise
+        fillInFederatedNetwork(federatedNetwork, mask);
+        try {
+            FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+            //verify()
+            fail();
+        } catch (SubnetAddressesCapacityReachedException e) {
+        }
     }
 
+    //test case: when calling fillCacheOfFreeIps, this should fill queue with FREE_IP_CACHE_MAX_SIZE elements
     @Test
-    public void testFillCacheOfFreeIps() {
-        // FIXME FNS_TEST
-        // Create network (mask should assure that network has more than FREE_IP_CACHE_MAX_SIZE free ips)
-        // Call fillCacheOfFreeIps
-        // Assert cache size is FREE_IP_CACHE_MAX_SIZE
+    public void testFillCacheOfFreeIps() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+        //set up
+        mockOnlyDatabase();
+        FederationUserToken user = mock(FederationUserToken.class);
+        Set<String> allowedMembers = new HashSet<>();
+        Queue<String> freedIps = new LinkedList<>();
+        Map<String, String> computesIp = new HashMap<>();
+        int mask = getMaskForCacheSize();
+
+        String cidr = "10.0.0.0/" + mask;
+        FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
+                "name", allowedMembers, freedIps, computesIp);
+        //exercise
+        FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+        //verify
+        Assert.assertEquals(FederatedNetworkUtil.FREE_IP_CACHE_MAX_SIZE, federatedNetwork.getCacheOfFreeIps().size());
     }
 
+    //test case: networks should have at least 2 free ips
     @Test
-    public void testIsSubnetValid() {
-        // FIXME FNS_TEST
+    public void testIsSubnetValid() throws InvalidCidrException {
+        String cidr = "10.0.0.0/";
+        for (int freeBits = 0; freeBits < MAX_CIDR_SUFFIX; freeBits++) {
+            //set up
+            double ipsInMask = Math.pow(2, freeBits);
+            double freeIps = (ipsInMask < FederatedNetworkUtil.RESERVED_IPS) ?
+                    ipsInMask : (ipsInMask - FederatedNetworkUtil.RESERVED_IPS);
+            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(cidr + (MAX_CIDR_SUFFIX - freeBits));
+            //verify
+            if (freeIps >= FederatedNetworkUtil.RESERVED_IPS) {
+                Assert.assertTrue(FederatedNetworkUtil.isSubnetValid(subnetInfo));
+            } else {
+                Assert.assertFalse(FederatedNetworkUtil.isSubnetValid(subnetInfo));
+            }
+        }
+    }
+
+    private int getMaskForCacheSize() {
+        int currentFreeIps = 1;
+        for (int i = MAX_CIDR_SUFFIX; i > 0; i--) {
+            if (currentFreeIps > FederatedNetworkUtil.FREE_IP_CACHE_MAX_SIZE) {
+                return i;
+            }
+            currentFreeIps = currentFreeIps * 2;
+        }
+        return 0;
+    }
+
+    private void fillInFederatedNetwork(FederatedNetworkOrder federatedNetwork, int mask) throws InvalidCidrException,
+            UnexpectedException, SubnetAddressesCapacityReachedException {
+        double freeIps = Math.pow(2, MAX_CIDR_SUFFIX - mask) - FederatedNetworkUtil.RESERVED_IPS;
+        // getFreeIp will give the second valid ip, because the first one is set to the agent,
+        // so we need to decrement our freeIps variable.
+        freeIps -= 1;
+        String computeId = "id-";
+        for (int i = 0; i < freeIps; i++) {
+            String ip = federatedNetwork.getFreeIp();
+            federatedNetwork.addAssociatedIp(computeId + i, ip);
+        }
     }
 
 }
