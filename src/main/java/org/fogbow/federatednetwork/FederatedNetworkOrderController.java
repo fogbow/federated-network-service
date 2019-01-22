@@ -107,7 +107,7 @@ public class FederatedNetworkOrderController {
                     .collect(Collectors.toList());
     }
 
-    private Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
+    public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
         return order -> {
             InstanceState status = order.getInstanceStateFromOrderState();
             InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), RAS_NAME, status);

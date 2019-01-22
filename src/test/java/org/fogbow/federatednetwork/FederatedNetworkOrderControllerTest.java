@@ -6,6 +6,7 @@ import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
@@ -607,15 +609,46 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
         // verify
         String nonExistentId = "non-existent-id";
-        FederatedNetworkOrder federatedNetwork = controller.getFederatedNetwork(nonExistentId, federationUserToken);
+        controller.getFederatedNetwork(nonExistentId, federationUserToken);
     }
 
     @Test
     public void testGetFederatedNetworksStatusByUser() {
-        // FIXME FNS_TEST
-        // mock order holders to return a collection of orders with multiple users
-        // call getFedNetStatusByUser with specific user
-        // assert all the orders of that specific user and only them are returnd
+        // set up
+        String member = "fake-member";
+
+        FederationUserToken user = new FederationUserToken(null, null, "user1", null);
+        FederationUserToken unusedUser = new FederationUserToken(null, null, "unusedUser", null);
+
+        String id1 = "fake-id-1";
+        FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member);
+        order1.setOrderStateInTestMode(OrderState.FULFILLED);
+
+        String id2 = "fake-id-2";
+        FederatedNetworkOrder order2 = new FederatedNetworkOrder(id2, unusedUser, member, member);
+        order2.setOrderStateInTestMode(OrderState.FULFILLED);
+
+        List<FederatedNetworkOrder> expectedFilteredOrders = new ArrayList<>();
+        expectedFilteredOrders.add(order1);
+
+        List<InstanceStatus> statusesFromOrders = expectedFilteredOrders
+                .stream()
+                .map(FederatedNetworkOrderController.orderToInstanceStatus())
+                .collect(Collectors.toList());
+        Collection<InstanceStatus> expectedResult = new ArrayList<>(statusesFromOrders);
+
+        mockSingletons();
+        Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
+        activeOrdersMap.put(order1.getId(), order1);
+        activeOrdersMap.put(order2.getId(), order2);
+        Mockito.when(federatedNetworkOrdersHolder.getActiveOrdersMap()).thenReturn(activeOrdersMap);
+
+        // exercise
+        Collection<InstanceStatus> federatedNetworksStatusByUser = federatedNetworkOrderController.getFederatedNetworksStatusByUser(user);
+        Collection<InstanceStatus> actualResult = new ArrayList<>(federatedNetworksStatusByUser);
+
+        // verify
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     private void addComputeIntoActiveOrdersMap() {

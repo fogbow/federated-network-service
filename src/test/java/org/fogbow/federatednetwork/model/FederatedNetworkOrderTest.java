@@ -101,17 +101,6 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         }
     }
 
-    //test case: tests that if ips served is negative, it must throw an exception, since this ip will be in a different network
-    @Test
-    public void testGetIpNetworkUnderflow() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
-        //set up
-        mockDatabase(new HashMap<>());
-        FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
-
-        // verify
-        federatedNetwork.getFreeIp();
-    }
-
     @Test
     public void testAddingAndRemovingAssociatedIps() {
         // set up
