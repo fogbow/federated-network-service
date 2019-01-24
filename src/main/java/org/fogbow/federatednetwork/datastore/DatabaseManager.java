@@ -45,4 +45,8 @@ public class DatabaseManager implements StableStorage {
         this.recoveryService = recoveryService;
     }
 
+    public void setAuditService(AuditService auditService) {
+        this.auditService = auditService;
+    }
+
 }
