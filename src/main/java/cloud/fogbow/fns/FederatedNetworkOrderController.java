@@ -16,7 +16,6 @@ import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.constants.ConfigurationConstants;
 import cloud.fogbow.fns.constants.Messages;
-import org.fogbow.federatednetwork.model.*;
 
 import java.util.*;
 import java.util.function.Function;

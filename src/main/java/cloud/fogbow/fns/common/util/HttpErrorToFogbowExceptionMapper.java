@@ -1,7 +1,6 @@
 package cloud.fogbow.fns.common.util;
 
 import cloud.fogbow.fns.common.exceptions.*;
-import org.fogbow.federatednetwork.common.exceptions.*;
 import org.springframework.http.HttpStatus;
 
 public class HttpErrorToFogbowExceptionMapper {

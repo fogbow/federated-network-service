@@ -14,7 +14,6 @@ import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
-import org.fogbow.federatednetwork.model.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -36,9 +36,7 @@ public class PublicKeysHolder {
         if (this.asPublicKey == null) {
             String asAddress = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AS_URL);
             String asPort = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AS_PORT);
-            // ToDo import dependency of AS
-            //this.asPublicKey = getPublicKey(asAddress, asPort, org.fogbowcloud.as.api.http.PublicKey.PUBLIC_KEY_ENDPOINT);
-            this.asPublicKey = getPublicKey(asAddress, asPort, "publicKey");
+            this.asPublicKey = getPublicKey(asAddress, asPort, cloud.fogbow.as.api.http.PublicKey.PUBLIC_KEY_ENDPOINT);
         }
         return this.asPublicKey;
     }
