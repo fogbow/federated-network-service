@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.datastore;
 
-import cloud.fogbow.fns.common.constants.FogbowConstants;
-import cloud.fogbow.fns.common.models.FederationUser;
+import cloud.fogbow.common.constants.FogbowConstants;
+import cloud.fogbow.common.models.FederationUser;
 import cloud.fogbow.fns.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.model.FederatedNetworkOrder;

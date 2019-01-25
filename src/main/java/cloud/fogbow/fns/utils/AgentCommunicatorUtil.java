@@ -2,7 +2,7 @@ package cloud.fogbow.fns.utils;
 
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.PropertiesHolder;
-import cloud.fogbow.fns.common.util.ProcessUtil;
+import cloud.fogbow.common.util.ProcessUtil;
 import cloud.fogbow.fns.constants.Messages;
 
 import static cloud.fogbow.fns.constants.ConfigurationConstants.*;

@@ -1,7 +1,7 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.common.plugins.authorization.AuthorizationPlugin;
-import cloud.fogbow.fns.common.util.PluginFactory;
+import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
+import cloud.fogbow.common.util.PluginFactory;
 import cloud.fogbow.fns.constants.ConfigurationConstants;
 
 public class AuthorizationPluginInstantiator {

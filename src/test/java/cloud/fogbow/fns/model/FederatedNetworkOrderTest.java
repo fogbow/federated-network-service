@@ -1,8 +1,8 @@
 package cloud.fogbow.fns.model;
 
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.common.models.FederationUser;
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.models.FederationUser;
 import cloud.fogbow.fns.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.exceptions.SubnetAddressesCapacityReachedException;
 import org.junit.Assert;

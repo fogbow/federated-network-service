@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.model;
 
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.common.models.FederationUser;
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.models.FederationUser;
 import cloud.fogbow.fns.datastore.DatabaseManager;
 import cloud.fogbow.fns.datastore.StableStorage;
 import cloud.fogbow.fns.exceptions.InvalidCidrException;

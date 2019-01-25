@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.api.http;
 
 import cloud.fogbow.fns.ApplicationFacade;
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.Messages;
 import io.swagger.annotations.Api;

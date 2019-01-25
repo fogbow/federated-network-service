@@ -1,9 +1,9 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.common.exceptions.UnavailableProviderException;
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.common.util.RSAUtil;
-import cloud.fogbow.fns.common.util.connectivity.HttpRequestClientUtil;
+import cloud.fogbow.common.exceptions.UnavailableProviderException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.RSAUtil;
+import cloud.fogbow.common.util.connectivity.HttpRequestClientUtil;
 import cloud.fogbow.fns.constants.ConfigurationConstants;
 import cloud.fogbow.fns.constants.Messages;
 import org.apache.http.client.HttpResponseException;

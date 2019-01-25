@@ -1,7 +1,7 @@
 package cloud.fogbow.fns;
 
 import cloud.fogbow.fns.api.parameters.Compute;
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationConstants;
 import cloud.fogbow.fns.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.exceptions.InvalidCidrException;
@@ -17,8 +17,8 @@ public class ComputeRequestsController {
 
     // Compute methods
     public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
-            throws FederatedNetworkNotFoundException, InvalidCidrException, UnexpectedException,
-            SubnetAddressesCapacityReachedException, IOException {
+            throws FederatedNetworkNotFoundException, InvalidCidrException,
+            SubnetAddressesCapacityReachedException, IOException, UnexpectedException {
         String instanceIp = null;
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().

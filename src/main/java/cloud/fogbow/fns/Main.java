@@ -1,10 +1,10 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.common.constants.FogbowConstants;
-import cloud.fogbow.fns.common.exceptions.FatalErrorException;
-import cloud.fogbow.fns.common.plugins.authorization.AuthorizationController;
-import cloud.fogbow.fns.common.plugins.authorization.AuthorizationPlugin;
-import cloud.fogbow.fns.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.common.constants.FogbowConstants;
+import cloud.fogbow.common.exceptions.FatalErrorException;
+import cloud.fogbow.common.plugins.authorization.AuthorizationController;
+import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
+import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.datastore.DatabaseManager;
 import cloud.fogbow.fns.datastore.orderstorage.RecoveryService;
 import org.apache.log4j.Logger;

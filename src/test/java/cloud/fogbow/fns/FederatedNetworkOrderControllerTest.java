@@ -1,8 +1,8 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.common.constants.FogbowConstants;
-import cloud.fogbow.fns.common.exceptions.UnauthorizedRequestException;
-import cloud.fogbow.fns.common.models.FederationUser;
+import cloud.fogbow.common.constants.FogbowConstants;
+import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
+import cloud.fogbow.common.models.FederationUser;
 import cloud.fogbow.fns.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.exceptions.InvalidCidrException;

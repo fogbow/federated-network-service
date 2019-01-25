@@ -1,8 +1,8 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.common.exceptions.FatalErrorException;
-import cloud.fogbow.fns.common.util.HomeDir;
-import cloud.fogbow.fns.common.util.PropertiesUtil;
+import cloud.fogbow.common.exceptions.FatalErrorException;
+import cloud.fogbow.common.util.HomeDir;
+import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.constants.SystemConstants;
 
 import java.util.ArrayList;

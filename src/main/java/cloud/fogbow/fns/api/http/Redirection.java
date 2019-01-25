@@ -1,9 +1,9 @@
 package cloud.fogbow.fns.api.http;
 
-import cloud.fogbow.fns.common.exceptions.FatalErrorException;
-import cloud.fogbow.fns.common.exceptions.UnauthenticatedUserException;
-import cloud.fogbow.fns.common.exceptions.UnavailableProviderException;
-import cloud.fogbow.fns.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.FatalErrorException;
+import cloud.fogbow.common.exceptions.UnauthenticatedUserException;
+import cloud.fogbow.common.exceptions.UnavailableProviderException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.utils.RedirectUtil;

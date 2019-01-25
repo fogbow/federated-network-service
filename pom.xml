@@ -8,8 +8,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>federated-network-service</name>
-    <description>Demo project for Spring Boot</description>
+    <name>fns</name>
+    <description>Fogbow Federated Network Service</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -102,13 +102,19 @@
 
         <dependency>
             <groupId>fogbow</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>fogbow</groupId>
             <artifactId>fogbow-ras-core</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>fogbow</groupId>
-            <artifactId>fogbow-as</artifactId>
+            <artifactId>as</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
