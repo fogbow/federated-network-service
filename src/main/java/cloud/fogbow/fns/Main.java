@@ -1,0 +1,61 @@
+package cloud.fogbow.fns;
+
+import cloud.fogbow.fns.common.constants.FogbowConstants;
+import cloud.fogbow.fns.common.exceptions.FatalErrorException;
+import cloud.fogbow.fns.common.plugins.authorization.AuthorizationController;
+import cloud.fogbow.fns.common.plugins.authorization.AuthorizationPlugin;
+import cloud.fogbow.fns.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.datastore.DatabaseManager;
+import cloud.fogbow.fns.datastore.orderstorage.RecoveryService;
+import org.apache.log4j.Logger;
+import cloud.fogbow.fns.datastore.orderstorage.AuditService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Main implements ApplicationRunner {
+
+    @Autowired
+    RecoveryService recoveryService;
+
+    @Autowired
+    AuditService auditService;
+
+    private static final Logger LOGGER = Logger.getLogger(Main.class);
+
+    private ApplicationFacade applicationFacade = ApplicationFacade.getInstance();
+
+    @Override
+    public void run(ApplicationArguments args) {
+        try {
+            DatabaseManager.getInstance().setRecoveryService(recoveryService);
+            DatabaseManager.getInstance().setAuditService(auditService);
+
+            // Setting up asymmetric cryptography
+            String publicKeyFilePath = PropertiesHolder.getInstance().getProperty(FogbowConstants.PUBLIC_KEY_FILE_PATH);
+            String privateKeyFilePath = PropertiesHolder.getInstance().getProperty(FogbowConstants.PRIVATE_KEY_FILE_PATH);
+            ServiceAsymmetricKeysHolder.getInstance().setPublicKeyFilePath(publicKeyFilePath);
+            ServiceAsymmetricKeysHolder.getInstance().setPrivateKeyFilePath(privateKeyFilePath);
+
+            // Setting up controllers and application facade
+            FederatedNetworkOrderController federatedNetworkOrderController = new FederatedNetworkOrderController();
+            ComputeRequestsController computeRequestsController = new ComputeRequestsController();
+            AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin();
+            AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
+
+            this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
+            this.applicationFacade.setComputeRequestsController(computeRequestsController);
+            this.applicationFacade.setAuthorizationController(authorizationController);
+        } catch (FatalErrorException e) {
+            LOGGER.fatal(e.getMessage(), e);
+            tryExit();
+        }
+    }
+
+    private void tryExit() {
+        if (!Boolean.parseBoolean(System.getenv("SKIP_TEST_ON_TRAVIS")))
+            System.exit(1);
+    }
+}
