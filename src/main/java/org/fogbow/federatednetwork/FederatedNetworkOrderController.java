@@ -2,26 +2,26 @@ package org.fogbow.federatednetwork;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.common.exceptions.UnauthorizedRequestException;
+import org.fogbow.federatednetwork.common.models.FederationUser;
 import org.fogbow.federatednetwork.constants.ConfigurationConstants;
 import org.fogbow.federatednetwork.constants.Messages;
-import org.fogbow.federatednetwork.exceptions.*;
+import org.fogbow.federatednetwork.exceptions.AgentCommucationException;
+import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
+import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
+import org.fogbow.federatednetwork.exceptions.NotEmptyFederatedNetworkException;
 import org.fogbow.federatednetwork.model.*;
 import org.fogbow.federatednetwork.utils.AgentCommunicatorUtil;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
-import org.fogbow.federatednetwork.utils.PropertiesHolder;
 
-import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
-
-import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FederatedNetworkOrderController {
 
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
-    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_NAME);
+    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.LOCAL_MEMBER_ID);
 
     private FederatedNetworkOrdersHolder orderHolders;
 
@@ -31,7 +31,7 @@ public class FederatedNetworkOrderController {
 
     // Federated Network methods
 
-    public void activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUserToken federationUser)
+    public void activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, FederationUser federationUser)
             throws InvalidCidrException {
 
         synchronized (federatedNetwork) {
@@ -53,10 +53,11 @@ public class FederatedNetworkOrderController {
         }
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, FederationUserToken federationUserToken)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException, UnauthorizedRequestException {
-        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federationUserToken, federatedNetworkId));
-        FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, federationUserToken);
+    public void deleteFederatedNetwork(String federatedNetworkId, FederationUser federationUser)
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
+            UnauthorizedRequestException {
+        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federationUser, federatedNetworkId));
+        FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, federationUser);
 
         synchronized (federatedNetwork) {
             if (federatedNetwork == null) {
@@ -81,13 +82,13 @@ public class FederatedNetworkOrderController {
         }
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUserToken federationUserToken)
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, FederationUser federationUser)
             throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
 
         FederatedNetworkOrder federatedNetworkOrder = orderHolders.getOrder(federatedNetworkId);
 
         if (federatedNetworkOrder != null) {
-            if (federatedNetworkOrder.getUser().equals(federationUserToken)) {
+            if (federatedNetworkOrder.getUser().equals(federationUser)) {
                 return federatedNetworkOrder;
             }
             throw new UnauthorizedRequestException();
@@ -95,13 +96,13 @@ public class FederatedNetworkOrderController {
         throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
-    public Collection<InstanceStatus> getFederatedNetworksStatusByUser(FederationUserToken federationUserToken) {
+    public Collection<InstanceStatus> getFederatedNetworksStatusByUser(FederationUser federationUser) {
         Collection<FederatedNetworkOrder> orders = this.orderHolders.getActiveOrdersMap().values();
 
         // Filter all orders of resourceType from federationUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
         return orders.stream()
-                    .filter(order -> order.getUser().equals(federationUserToken))
+                    .filter(order -> order.getUser().equals(federationUser))
                     .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
                     .map(orderToInstanceStatus())
                     .collect(Collectors.toList());

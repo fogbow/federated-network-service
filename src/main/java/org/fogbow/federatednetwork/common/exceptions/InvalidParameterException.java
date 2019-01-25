@@ -1,8 +1,8 @@
-package org.fogbow.federatednetwork.exceptions;
+package org.fogbow.federatednetwork.common.exceptions;
 
-import org.fogbow.federatednetwork.constants.Messages;
+import org.fogbow.federatednetwork.common.constants.Messages;
 
-public class InvalidParameterException extends FogbowFnsException {
+public class InvalidParameterException extends FogbowException {
     private static final long serialVersionUID = 1L;
 
     public InvalidParameterException() {
@@ -16,4 +16,5 @@ public class InvalidParameterException extends FogbowFnsException {
     public InvalidParameterException(String message, Throwable cause) {
         super(message, cause);
     }
+
 }

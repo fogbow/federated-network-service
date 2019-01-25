@@ -2,11 +2,11 @@ package org.fogbow.federatednetwork.utils;
 
 import org.apache.commons.net.util.SubnetUtils;
 import org.fogbow.federatednetwork.MockedFederatedNetworkUnitTests;
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.common.models.FederationUser;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
         //set up
-        FederationUserToken user = Mockito.mock(FederationUserToken.class);
+        FederationUser user = Mockito.mock(FederationUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
@@ -77,7 +77,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
             SubnetAddressesCapacityReachedException {
         //set up
         mockOnlyDatabase();
-        FederationUserToken user = mock(FederationUserToken.class);
+        FederationUser user = mock(FederationUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
@@ -102,7 +102,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     public void testFillCacheOfFreeIps() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         //set up
         mockOnlyDatabase();
-        FederationUserToken user = mock(FederationUserToken.class);
+        FederationUser user = mock(FederationUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();

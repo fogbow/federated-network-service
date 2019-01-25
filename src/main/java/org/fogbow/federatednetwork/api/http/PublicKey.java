@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.log4j.Logger;
 import org.fogbow.federatednetwork.ApplicationFacade;
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.constants.ApiDocumentation;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.springframework.http.HttpStatus;
@@ -15,23 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
-@RequestMapping(value = Version.VERSION_ENDPOINT)
-@Api(description = ApiDocumentation.Version.API)
-public class Version {
+@RequestMapping(value = PublicKey.PUBLIC_KEY_ENDPOINT)
+@Api(description = ApiDocumentation.PublicKey.API)
+public class PublicKey {
+    public static final String PUBLIC_KEY_ENDPOINT = "publicKey";
 
-    public static final String VERSION_ENDPOINT = "version";
+    private final Logger LOGGER = Logger.getLogger(PublicKey.class);
 
-    private final Logger LOGGER = Logger.getLogger(Version.class);
-
-    @ApiOperation(value = ApiDocumentation.Version.GET_OPERATION)
+    @ApiOperation(value = ApiDocumentation.PublicKey.GET_OPERATION)
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<String> getVersion() {
+    public ResponseEntity<String> getPublicKey() throws UnexpectedException {
         try {
-            LOGGER.info(Messages.Info.GET_VERSION);
-            String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
-            return new ResponseEntity<>(versionNumber, HttpStatus.OK);
+            LOGGER.info(Messages.Info.GET_PUBLIC_KEY);
+            String publicKey = ApplicationFacade.getInstance().getPublicKey();
+            return new ResponseEntity<>(publicKey, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()), e);
             throw e;
         }
     }

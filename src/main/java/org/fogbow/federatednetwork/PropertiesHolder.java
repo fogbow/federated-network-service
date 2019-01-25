@@ -1,7 +1,9 @@
-package org.fogbow.federatednetwork.utils;
+package org.fogbow.federatednetwork;
 
+import org.fogbow.federatednetwork.common.exceptions.FatalErrorException;
+import org.fogbow.federatednetwork.common.util.HomeDir;
+import org.fogbow.federatednetwork.common.util.PropertiesUtil;
 import org.fogbow.federatednetwork.constants.SystemConstants;
-import org.fogbow.federatednetwork.exceptions.FatalErrorException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,11 @@
 package org.fogbow.federatednetwork.model;
 
-public enum FederatedResourceType {
+public enum ResourceType {
     FEDERATED_NETWORK("federated-network");
 
     private String value;
 
-    private FederatedResourceType(String value) {
+    private ResourceType(String value) {
         this.value = value;
     }
 

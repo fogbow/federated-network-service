@@ -1,4 +1,4 @@
-package org.fogbow.federatednetwork.utils;
+package org.fogbow.federatednetwork.common.util;
 
 public class HomeDir {
     public static final String PRIVATE_DIRECTORY = "private/";

@@ -1,13 +1,12 @@
 package org.fogbow.federatednetwork;
 
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.api.parameters.Compute;
 import org.fogbow.federatednetwork.exceptions.FederatedNetworkNotFoundException;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.utils.FederatedComputeUtil;
-import org.fogbow.federatednetwork.utils.PropertiesHolder;
 
 import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
 
@@ -20,8 +19,8 @@ public class ComputeRequestsController {
 
     // Compute methods
     public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
-                                throws FederatedNetworkNotFoundException, InvalidCidrException,
-                                        UnexpectedException, SubnetAddressesCapacityReachedException, IOException {
+            throws FederatedNetworkNotFoundException, InvalidCidrException, UnexpectedException,
+            SubnetAddressesCapacityReachedException, IOException {
         String instanceIp = null;
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().

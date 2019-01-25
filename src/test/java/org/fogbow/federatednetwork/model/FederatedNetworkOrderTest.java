@@ -1,12 +1,10 @@
 package org.fogbow.federatednetwork.model;
 
 import org.fogbow.federatednetwork.MockedFederatedNetworkUnitTests;
-import org.fogbow.federatednetwork.exceptions.FogbowFnsException;
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.common.models.FederationUser;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.exceptions.UnexpectedException;
-import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -126,11 +124,11 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     private FederatedNetworkOrder createFederatedNetworkOrder(String cidr) {
-        FederationUserToken federationUserToken = Mockito.mock(FederationUserToken.class);
+        FederationUser federationUser = Mockito.mock(FederationUser.class);
         Set<String> providers = new HashSet<>();
         Queue<String> cacheOfFreeIps = new LinkedList<>();
         Map<String, String> computeIdsAndIps = new HashMap<>();
-        return new FederatedNetworkOrder(federationUserToken, null, null, cidr,
+        return new FederatedNetworkOrder(federationUser, null, null, cidr,
                 null, providers, cacheOfFreeIps, computeIdsAndIps);
     }
 }

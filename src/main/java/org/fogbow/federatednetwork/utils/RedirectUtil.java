@@ -1,11 +1,19 @@
 package org.fogbow.federatednetwork.utils;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.PropertiesHolder;
+import org.fogbow.federatednetwork.PublicKeysHolder;
 import org.fogbow.federatednetwork.api.http.Redirection;
+import org.fogbow.federatednetwork.common.constants.FogbowConstants;
+import org.fogbow.federatednetwork.common.exceptions.FatalErrorException;
+import org.fogbow.federatednetwork.common.exceptions.UnauthenticatedUserException;
+import org.fogbow.federatednetwork.common.exceptions.UnavailableProviderException;
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.common.util.ServiceAsymmetricKeysHolder;
+import org.fogbow.federatednetwork.common.util.TokenValueProtector;
 import org.fogbow.federatednetwork.constants.ConfigurationConstants;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.constants.SystemConstants;
-import org.fogbow.federatednetwork.exceptions.FatalErrorException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,15 +29,18 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 
-public class HttpUtil {
+public class RedirectUtil {
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
 
     public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
-                                                         Class<T> responseType) throws URISyntaxException, FatalErrorException {
+                                             Class<T> responseType) throws URISyntaxException, FatalErrorException,
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
         String requestUrl = request.getRequestURI();
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_IP);
+        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL);
         int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT));
 
         URI uri = new URI(SystemConstants.HTTP, null, coreBaseUrl, corePort, null,
@@ -41,7 +52,22 @@ public class HttpUtil {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            headers.set(headerName, request.getHeader(headerName));
+            if (headerName.equals(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
+                // If the header is the federationTokenValue, then it needs to be decrypted with the FNS public key,
+                // and then encrypted with the RAS public key, before being forwarded.
+                RSAPublicKey myPublicKey = null;
+                RSAPublicKey rasPublickey = PublicKeysHolder.getInstance().getRasPublicKey();
+                try {
+                    myPublicKey = ServiceAsymmetricKeysHolder.getInstance().getPublicKey();
+                } catch (IOException | GeneralSecurityException e) {
+                    throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
+                }
+                String rasTokenValue = TokenValueProtector.rewrap(myPublicKey, rasPublickey,
+                        request.getHeader(headerName), FogbowConstants.TOKEN_STRING_SEPARATOR);
+                headers.set(headerName, rasTokenValue);
+            } else {
+                headers.set(headerName, request.getHeader(headerName));
+            }
         }
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
@@ -58,15 +84,27 @@ public class HttpUtil {
     }
 
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
-                 String federationTokenValue, Class<T> responseType) throws URISyntaxException, FatalErrorException {
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_IP);
+                 String federationTokenValue, Class<T> responseType) throws URISyntaxException, FatalErrorException,
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
+        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL);
         int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT));
 
         URI uri = new URI(SystemConstants.HTTP, null, coreBaseUrl, corePort, path, null, null);
 
+        // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with
+        // the RAS public key, before being forwarded.
+        RSAPublicKey myPublicKey = null;
+        RSAPublicKey rasPublickey = PublicKeysHolder.getInstance().getRasPublicKey();
+        try {
+            myPublicKey = ServiceAsymmetricKeysHolder.getInstance().getPublicKey();
+        } catch (IOException | GeneralSecurityException e) {
+            throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
+        }
+        String rasTokenValue = TokenValueProtector.rewrap(myPublicKey, rasPublickey, federationTokenValue,
+                FogbowConstants.TOKEN_STRING_SEPARATOR);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.set(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY, federationTokenValue);
+        headers.set(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 

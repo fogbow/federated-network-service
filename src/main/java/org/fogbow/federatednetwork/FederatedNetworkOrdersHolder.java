@@ -3,7 +3,6 @@ package org.fogbow.federatednetwork;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 public class FederatedNetworkOrdersHolder {
@@ -27,10 +26,6 @@ public class FederatedNetworkOrdersHolder {
 
     public Map<String, FederatedNetworkOrder> getActiveOrdersMap() {
         return this.activeOrdersMap;
-    }
-
-    public void setActiveOrdersMap(Map<String, FederatedNetworkOrder> activeOrdersMap) {
-        this.activeOrdersMap = activeOrdersMap;
     }
 
     public FederatedNetworkOrder putOrder(FederatedNetworkOrder order) {

@@ -1,7 +1,6 @@
 package org.fogbow.federatednetwork.datastore.orderstorage;
 
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
-import org.fogbowcloud.ras.core.models.orders.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

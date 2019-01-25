@@ -1,8 +1,8 @@
-package org.fogbow.federatednetwork.exceptions;
+package org.fogbow.federatednetwork.common.exceptions;
 
-import org.fogbow.federatednetwork.constants.Messages;
+import org.fogbow.federatednetwork.common.constants.Messages;
 
-public class InstanceNotFoundException extends FogbowFnsException {
+public class InstanceNotFoundException extends FogbowException {
     private static final long serialVersionUID = 1L;
 
     public InstanceNotFoundException() {
@@ -16,4 +16,5 @@ public class InstanceNotFoundException extends FogbowFnsException {
     public InstanceNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
+
 }

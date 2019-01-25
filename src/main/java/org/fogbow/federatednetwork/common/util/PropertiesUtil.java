@@ -1,8 +1,8 @@
-package org.fogbow.federatednetwork.utils;
+package org.fogbow.federatednetwork.common.util;
 
 import org.apache.log4j.Logger;
-import org.fogbow.federatednetwork.constants.Messages;
-import org.fogbow.federatednetwork.exceptions.FatalErrorException;
+import org.fogbow.federatednetwork.common.constants.Messages;
+import org.fogbow.federatednetwork.common.exceptions.FatalErrorException;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Properties;
 
 public class PropertiesUtil {
-
     private static final Logger LOGGER = Logger.getLogger(PropertiesUtil.class.getName());
 
     public static Properties readProperties(String configFileName) throws FatalErrorException {
@@ -55,3 +54,4 @@ public class PropertiesUtil {
         return prop;
     }
 }
+

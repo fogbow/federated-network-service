@@ -1,12 +1,11 @@
 package org.fogbow.federatednetwork.datastore;
 
+import org.fogbow.federatednetwork.common.constants.FogbowConstants;
+import org.fogbow.federatednetwork.common.models.FederationUser;
 import org.fogbow.federatednetwork.datastore.orderstorage.OrderRepository;
 import org.fogbow.federatednetwork.datastore.orderstorage.RecoveryService;
-import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
-import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
 import org.fogbow.federatednetwork.model.FederatedNetworkOrder;
 import org.fogbow.federatednetwork.model.OrderState;
-import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
@@ -48,12 +47,17 @@ public class RecoveryServiceTest {
     private OrderRepository orderRepository;
 
     private DatabaseManager databaseManager;
-    private FederationUserToken user;
+    private FederationUser user;
     private FederatedNetworkOrder federatedNetworkOrder;
 
     @Before
     public void setUp() {
-        user = new FederationUserToken(MEMBER, "", USER_ID, USER_NAME);
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(FogbowConstants.PROVIDER_ID_KEY, MEMBER);
+        attributes.put(FogbowConstants.USER_ID_KEY, USER_ID);
+        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
+        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, "");
+        user = new FederationUser(attributes);
         databaseManager = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(databaseManager);

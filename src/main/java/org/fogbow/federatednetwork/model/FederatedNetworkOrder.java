@@ -1,17 +1,16 @@
 package org.fogbow.federatednetwork.model;
 
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
+import org.fogbow.federatednetwork.common.models.FederationUser;
 import org.fogbow.federatednetwork.ComputeIdToFederatedNetworkIdMapping;
 import org.fogbow.federatednetwork.constants.Messages;
 import org.fogbow.federatednetwork.datastore.DatabaseManager;
 import org.fogbow.federatednetwork.datastore.StableStorage;
 import org.fogbow.federatednetwork.exceptions.InvalidCidrException;
 import org.fogbow.federatednetwork.exceptions.SubnetAddressesCapacityReachedException;
-import org.fogbow.federatednetwork.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.utils.FederatedNetworkUtil;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-
-import org.fogbowcloud.ras.core.models.tokens.FederationUserToken;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -35,7 +34,7 @@ public class FederatedNetworkOrder implements Serializable {
     //@JoinColumn
     //@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @Transient
-    private FederationUserToken user;
+    private FederationUser user;
 
     @Column
     private String requestingMember;
@@ -73,7 +72,7 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = new HashMap<>();
     }
 
-    public FederatedNetworkOrder(FederationUserToken user, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(FederationUser user, String requestingMember, String providingMember) {
         this();
         this.id = String.valueOf(UUID.randomUUID());
         this.user = user;
@@ -84,14 +83,14 @@ public class FederatedNetworkOrder implements Serializable {
     /**
      * Creating Order with predefined Id.
      */
-    public FederatedNetworkOrder(String id, FederationUserToken user, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(String id, FederationUser user, String requestingMember, String providingMember) {
         this(id);
         this.user = user;
         this.requestingMember = requestingMember;
         this.providingMember = providingMember;
     }
 
-    public FederatedNetworkOrder(String id, FederationUserToken federatedUserToken, String requestingMember,
+    public FederatedNetworkOrder(String id, FederationUser federatedUserToken, String requestingMember,
                                  String providingMember, String cidr, String name, Set<String> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
         this(id, federatedUserToken, requestingMember, providingMember);
@@ -102,7 +101,7 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public FederatedNetworkOrder(FederationUserToken federatedUserToken, String requestingMember, String providingMember,
+    public FederatedNetworkOrder(FederationUser federatedUserToken, String requestingMember, String providingMember,
                                  String cidr, String name, Set<String> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
         this(federatedUserToken, requestingMember, providingMember);
@@ -134,7 +133,8 @@ public class FederatedNetworkOrder implements Serializable {
         return this.computeIdsAndIps.get(computeId);
     }
 
-    public synchronized String getFreeIp() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
+    public synchronized String getFreeIp() throws InvalidCidrException, UnexpectedException,
+            SubnetAddressesCapacityReachedException {
         String ip = null;
         try {
             ip = this.cacheOfFreeIps.remove();
@@ -196,11 +196,11 @@ public class FederatedNetworkOrder implements Serializable {
                 (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
     }
 
-    public FederationUserToken getUser() {
+    public FederationUser getUser() {
         return user;
     }
 
-    public void setUser(FederationUserToken user) {
+    public void setUser(FederationUser user) {
         this.user = user;
     }
 
@@ -268,8 +268,8 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public FederatedResourceType getType() {
-        return FederatedResourceType.FEDERATED_NETWORK;
+    public ResourceType getType() {
+        return ResourceType.FEDERATED_NETWORK;
     }
 
     @Override

@@ -34,6 +34,11 @@ public class ApiDocumentation {
         public static final String GET_OPERATION = "Returns the version of the API.";
     }
 
+    public static class PublicKey {
+        public static final String API = "Queries the public key of the service.";
+        public static final String GET_OPERATION = "Returns the public key of the service.";
+    }
+
     public static class CommonParameters {
         public static final String FEDERATION_TOKEN = "This is the token that identifies a federation user.\n" +
                 "It is typically created via a call to the /tokens endpoint of a Resource Allocation Service (RAS).";

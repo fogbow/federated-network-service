@@ -1,9 +1,12 @@
 package org.fogbow.federatednetwork.api.http;
 
 import org.apache.log4j.Logger;
+import org.fogbow.federatednetwork.common.exceptions.FatalErrorException;
+import org.fogbow.federatednetwork.common.exceptions.UnauthenticatedUserException;
+import org.fogbow.federatednetwork.common.exceptions.UnavailableProviderException;
+import org.fogbow.federatednetwork.common.exceptions.UnexpectedException;
 import org.fogbow.federatednetwork.constants.Messages;
-import org.fogbow.federatednetwork.exceptions.FatalErrorException;
-import org.fogbow.federatednetwork.utils.HttpUtil;
+import org.fogbow.federatednetwork.utils.RedirectUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,11 +40,12 @@ public class Redirection {
                                 "/" + Token.TOKEN_ENDPOINT + "/**",
                                 "/" + Volume.VOLUME_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
-                                     HttpServletRequest request) throws URISyntaxException, FatalErrorException {
+                                     HttpServletRequest request) throws URISyntaxException, FatalErrorException,
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
 
         try {
             LOGGER.info(Messages.Info.GENERIC_REQUEST);
-            return HttpUtil.redirectRequest(body, method, request, String.class);
+            return RedirectUtil.redirectRequest(body, method, request, String.class);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;

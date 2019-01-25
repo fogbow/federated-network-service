@@ -1,9 +1,8 @@
 package org.fogbow.federatednetwork.exceptions;
 
-import org.fogbow.federatednetwork.constants.ConfigurationConstants;
 import org.fogbow.federatednetwork.constants.Messages;
 
-public class SubnetAddressesCapacityReachedException extends FogbowFnsException {
+public class SubnetAddressesCapacityReachedException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public SubnetAddressesCapacityReachedException() {

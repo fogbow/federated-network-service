@@ -6,5 +6,4 @@ public class SystemConstants {
     public static final String HTTP = "http";
     public static final String API_VERSION_NUMBER = "2.0.0";
     public static final String FNS_CONF_FILE = "fns.conf";
-    public static final String AAA_CONF_FILE_NAME = "aaa.conf";
 }
