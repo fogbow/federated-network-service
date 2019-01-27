@@ -12,11 +12,11 @@ public class AgentCommunicatorUtil {
     private static final Logger LOGGER = Logger.getLogger(AgentCommunicatorUtil.class);
 
     public static boolean createFederatedNetwork(String cidrNotation, String virtualIpAddress) {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
-        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER);
-        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS);
-        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
 
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
@@ -41,10 +41,10 @@ public class AgentCommunicatorUtil {
     }
 
     public static boolean deleteFederatedNetwork(String cidr) {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH);
-        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS);
-        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
 
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,

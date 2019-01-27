@@ -11,7 +11,6 @@ import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.common.util.TokenValueProtector;
 import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import cloud.fogbow.fns.core.constants.Messages;
-import cloud.fogbow.fns.core.constants.SystemConstants;
 import cloud.fogbow.ras.api.http.Compute;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.PublicKeysHolder;
@@ -34,15 +33,16 @@ import java.util.Enumeration;
 
 public class RedirectUtil {
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
+    private static final String PROTOCOL = "http";
 
     public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
                                              Class<T> responseType) throws URISyntaxException, FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
         String requestUrl = request.getRequestURI();
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL);
-        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT));
+        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
+        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(SystemConstants.HTTP, null, coreBaseUrl, corePort, null,
+        URI uri = new URI(PROTOCOL, null, coreBaseUrl, corePort, null,
                 null, null);
         uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
                 .query(request.getQueryString()).build(true).toUri();
@@ -85,10 +85,10 @@ public class RedirectUtil {
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
                  String federationTokenValue, Class<T> responseType) throws URISyntaxException, FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL);
-        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT));
+        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
+        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(SystemConstants.HTTP, null, coreBaseUrl, corePort, path, null, null);
+        URI uri = new URI(PROTOCOL, null, coreBaseUrl, corePort, path, null, null);
 
         // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with
         // the RAS public key, before being forwarded.

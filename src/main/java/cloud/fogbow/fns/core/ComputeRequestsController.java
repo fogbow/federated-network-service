@@ -28,8 +28,8 @@ public class ComputeRequestsController {
             instanceIp = federatedNetworkOrder.getFreeIp();
             String cidr = federatedNetworkOrder.getCidr();
             FederatedComputeUtil.addUserData(compute, instanceIp,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS), cidr,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY));
+                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
+                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
         }
         return instanceIp;
     }

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class FederatedNetworkOrderController {
 
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
-    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.LOCAL_MEMBER_ID);
+    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.LOCAL_MEMBER_ID_KEY);
 
     private FederatedNetworkOrdersHolder orderHolders;
 

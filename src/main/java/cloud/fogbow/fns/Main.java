@@ -48,7 +48,7 @@ public class Main implements ApplicationRunner {
             // Setting up controllers and application facade
             FederatedNetworkOrderController federatedNetworkOrderController = new FederatedNetworkOrderController();
             ComputeRequestsController computeRequestsController = new ComputeRequestsController();
-            String className = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AUTHORIZATION_PLUGIN_CLASS);
+            String className = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AUTHORIZATION_PLUGIN_CLASS_KEY);
             AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
             AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
 

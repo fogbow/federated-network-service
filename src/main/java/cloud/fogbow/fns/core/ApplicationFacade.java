@@ -45,7 +45,7 @@ public class ApplicationFacade {
 
     private ApplicationFacade() {
         this.asPublicKey = null;
-        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.BUILD_NUMBER,
+        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.BUILD_NUMBER_KEY,
                 DefaultConfigurationConstants.BUILD_NUMBER);
     }
 

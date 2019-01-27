@@ -41,7 +41,6 @@ public class Messages {
         public static final String TRYING_TO_DELETE_AGENT_ERROR = "Trying to delete agent with atts (%s). Error : %s.";
         public static final String TRYING_TO_DELETE_AGENT_OUTPUT = "Trying to delete agent with atts (%s). Output : %s.";
         public static final String UNABLE_TO_CALL_AGENT = "Unable to call agent; process command: %s";
-        public static final String UNABLE_TO_CLOSE_FILE = "Unable to close file %s.";
         public static final String UNABLE_TO_DELETE_AGENT = "Unable to delete agent; process command: %s";
     }
 }

@@ -12,13 +12,13 @@ public class BaseUnitTest {
 
     public Properties setProperties() {
         Properties p = new Properties();
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH, "fake-file.pem");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER, "fake-user");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS, "fake-private-ip");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS, "fake-public-ip");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY, "fake-psk");
-        p.setProperty(ConfigurationConstants.ADD_FEDERATED_NETWORK_SCRIPT_PATH, "fake-script-path");
-        p.setProperty(ConfigurationConstants.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH, "fake-script-path");
+        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
+        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
+        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
+        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
+        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
+        p.setProperty(ConfigurationConstants.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
+        p.setProperty(ConfigurationConstants.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         return p;
     }
 
