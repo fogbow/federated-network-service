@@ -1,11 +1,10 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.ras.core.models.UserData;
+import cloud.fogbow.ras.core.plugins.interoperability.util.CloudInitUserDataBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import cloud.fogbow.fns.api.parameters.Compute;
-
-import org.fogbowcloud.ras.core.models.UserData;
-import org.fogbowcloud.ras.core.plugins.interoperability.util.CloudInitUserDataBuilder;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,10 +34,10 @@ public class FederatedComputeUtil {
 
         UserData newUserData = new UserData(encryptedScript,
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
-        org.fogbowcloud.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
         if (userDataList == null) {
-            userDataList = new ArrayList<UserData>();
+            userDataList = new ArrayList<>();
             rasCompute.setUserData((ArrayList<UserData>) userDataList);
         }
         userDataList.add(newUserData);

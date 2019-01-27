@@ -4,8 +4,9 @@ import cloud.fogbow.common.exceptions.FatalErrorException;
 import cloud.fogbow.common.exceptions.UnauthenticatedUserException;
 import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.ras.api.http.*;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.constants.Messages;
 import cloud.fogbow.fns.utils.RedirectUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -14,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.annotations.ApiIgnore;
-
-import org.fogbowcloud.ras.api.http.*;
-import org.fogbowcloud.ras.api.http.Compute;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URISyntaxException;
@@ -30,14 +28,13 @@ public class Redirection {
 
     @RequestMapping(value = {   "/" + Attachment.ATTACHMENT_ENDPOINT + "/**",
                                 "/" + Cloud.CLOUD_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + Compute.STATUS_ENDPOINT,
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + Compute.QUOTA_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + Compute.ALLOCATION_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.STATUS_ENDPOINT,
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.QUOTA_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.ALLOCATION_ENDPOINT + "/**",
                                 "/" + GenericRequest.GENERIC_REQUEST_ENDPOINT + "/**",
                                 "/" + Image.IMAGE_ENDPOINT + "/**",
                                 "/" + Network.NETWORK_ENDPOINT + "/**",
                                 "/" + PublicIp.PUBLIC_IP_ENDPOINT + "/**",
-                                "/" + Token.TOKEN_ENDPOINT + "/**",
                                 "/" + Volume.VOLUME_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
                                      HttpServletRequest request) throws URISyntaxException, FatalErrorException,

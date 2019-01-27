@@ -1,7 +1,9 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.datastore.DatabaseManager;
-import cloud.fogbow.fns.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.FederatedNetworkOrderController;
+import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
+import cloud.fogbow.fns.core.datastore.DatabaseManager;
+import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;

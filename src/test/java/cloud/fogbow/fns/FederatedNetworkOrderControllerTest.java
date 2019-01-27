@@ -3,16 +3,19 @@ package cloud.fogbow.fns;
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.models.FederationUser;
-import cloud.fogbow.fns.exceptions.AgentCommucationException;
-import cloud.fogbow.fns.exceptions.FederatedNetworkNotFoundException;
-import cloud.fogbow.fns.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.exceptions.NotEmptyFederatedNetworkException;
-import cloud.fogbow.fns.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.model.InstanceStatus;
-import cloud.fogbow.fns.model.OrderState;
+import cloud.fogbow.fns.core.FederatedNetworkOrderController;
+import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
+import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
+import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
+import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.InstanceStatus;
+import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
+import cloud.fogbow.ras.core.models.instances.ComputeInstance;
+import cloud.fogbow.ras.core.models.instances.InstanceState;
 import org.apache.commons.net.util.SubnetUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,8 +25,6 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
-import org.fogbowcloud.ras.core.models.instances.ComputeInstance;
-import org.fogbowcloud.ras.core.models.instances.InstanceState;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -401,7 +402,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         addComputeIntoActiveOrdersMap();
         List<String> ipAddresses = new ArrayList<>();
         ipAddresses.add("192.168.0.2");
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, org.fogbowcloud.ras.core.models.instances.InstanceState.READY, "host",
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host",
                 2, 8, 20, ipAddresses);
         //exercise
 //        ComputeInstance federatedComputeInstance = federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);

@@ -3,12 +3,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fogbow</groupId>
-    <artifactId>federated-network-service</artifactId>
+    <groupId>fogbow</groupId>
+    <artifactId>fogbow-fns</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>fns</name>
+    <name>fogbow-fns</name>
     <description>Fogbow Federated Network Service</description>
 
     <parent>
@@ -108,13 +108,13 @@
 
         <dependency>
             <groupId>fogbow</groupId>
-            <artifactId>fogbow-ras-core</artifactId>
+            <artifactId>fogbow-ras</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>fogbow</groupId>
-            <artifactId>as</artifactId>
+            <artifactId>fogbow-as</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

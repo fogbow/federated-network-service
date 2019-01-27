@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.api.parameters;
 
-import cloud.fogbow.fns.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 
 import java.util.*;
 

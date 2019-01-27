@@ -1,6 +1,6 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.constants.ConfigurationConstants;
+import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import org.junit.After;
 
 import java.io.File;

@@ -4,11 +4,17 @@ import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
 import cloud.fogbow.common.plugins.authorization.AuthorizationController;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
+import cloud.fogbow.common.plugins.authorization.AuthorizationPluginInstantiator;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.fns.datastore.DatabaseManager;
-import cloud.fogbow.fns.datastore.orderstorage.RecoveryService;
+import cloud.fogbow.fns.core.ApplicationFacade;
+import cloud.fogbow.fns.core.ComputeRequestsController;
+import cloud.fogbow.fns.core.FederatedNetworkOrderController;
+import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.core.datastore.DatabaseManager;
+import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.datastore.orderstorage.AuditService;
+import cloud.fogbow.fns.core.datastore.orderstorage.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -42,7 +48,8 @@ public class Main implements ApplicationRunner {
             // Setting up controllers and application facade
             FederatedNetworkOrderController federatedNetworkOrderController = new FederatedNetworkOrderController();
             ComputeRequestsController computeRequestsController = new ComputeRequestsController();
-            AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin();
+            String className = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AUTHORIZATION_PLUGIN_CLASS);
+            AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
             AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
 
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);

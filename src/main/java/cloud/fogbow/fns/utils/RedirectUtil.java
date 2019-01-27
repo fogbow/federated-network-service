@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.utils;
 
-import cloud.fogbow.fns.PropertiesHolder;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.api.http.Redirection;
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
@@ -9,11 +9,12 @@ import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.common.util.TokenValueProtector;
-import cloud.fogbow.fns.constants.ConfigurationConstants;
-import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.constants.SystemConstants;
+import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.core.constants.SystemConstants;
+import cloud.fogbow.ras.api.http.Compute;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.PublicKeysHolder;
+import cloud.fogbow.fns.core.PublicKeysHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,8 +23,6 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import org.fogbowcloud.ras.api.http.Compute;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;

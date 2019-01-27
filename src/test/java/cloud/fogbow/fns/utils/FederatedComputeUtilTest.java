@@ -18,7 +18,7 @@ public class FederatedComputeUtilTest {
     public void testAddUserData() throws IOException {
         //set up
         Compute fnsCompute = new Compute();
-        org.fogbowcloud.ras.api.parameters.Compute rasCompute = new org.fogbowcloud.ras.api.parameters.Compute();
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = new cloud.fogbow.ras.api.parameters.Compute();
         fnsCompute.setCompute(rasCompute);
         int userDataSize = rasCompute.getUserData() == null ? 0 : rasCompute.getUserData().size();
 
