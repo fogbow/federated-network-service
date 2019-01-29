@@ -30,8 +30,9 @@ public class FederatedNetworkOrder implements Serializable {
     @Enumerated(EnumType.STRING)
     private OrderState orderState;
 
-    @JoinColumn
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JoinColumn
+    //@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Transient
     private FederationUser user;
 
     @Column
