@@ -28,12 +28,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 
 public class RedirectUtil {
+    public static final String PROTOCOL = "http";
+
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
-    private static final String PROTOCOL = "http";
 
     public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
                                              Class<T> responseType) throws URISyntaxException, FatalErrorException,
@@ -51,19 +53,19 @@ public class RedirectUtil {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            if (headerName.equals(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
+            if (headerName.equalsIgnoreCase(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
                 // If the header is the federationTokenValue, then it needs to be decrypted with the FNS public key,
                 // and then encrypted with the RAS public key, before being forwarded.
-                RSAPublicKey myPublicKey = null;
-                RSAPublicKey rasPublickey = PublicKeysHolder.getInstance().getRasPublicKey();
+                RSAPrivateKey myPrivateKey = null;
+                RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();
                 try {
-                    myPublicKey = ServiceAsymmetricKeysHolder.getInstance().getPublicKey();
+                    myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
                 } catch (IOException | GeneralSecurityException e) {
                     throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
                 }
-                String rasTokenValue = TokenValueProtector.rewrap(myPublicKey, rasPublickey,
+                String rasTokenValue = TokenValueProtector.rewrap(myPrivateKey, rasPublicKey,
                         request.getHeader(headerName), FogbowConstants.TOKEN_STRING_SEPARATOR);
-                headers.set(headerName, rasTokenValue);
+                headers.set(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
             } else {
                 headers.set(headerName, request.getHeader(headerName));
             }
@@ -92,14 +94,14 @@ public class RedirectUtil {
 
         // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with
         // the RAS public key, before being forwarded.
-        RSAPublicKey myPublicKey = null;
-        RSAPublicKey rasPublickey = PublicKeysHolder.getInstance().getRasPublicKey();
+        RSAPrivateKey myPrivateKey = null;
+        RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();
         try {
-            myPublicKey = ServiceAsymmetricKeysHolder.getInstance().getPublicKey();
+            myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
         } catch (IOException | GeneralSecurityException e) {
             throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
         }
-        String rasTokenValue = TokenValueProtector.rewrap(myPublicKey, rasPublickey, federationTokenValue,
+        String rasTokenValue = TokenValueProtector.rewrap(myPrivateKey, rasPublicKey, federationTokenValue,
                 FogbowConstants.TOKEN_STRING_SEPARATOR);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");

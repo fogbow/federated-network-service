@@ -2,11 +2,13 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.models.CloudToken;
 import cloud.fogbow.common.util.RSAUtil;
 import cloud.fogbow.common.util.connectivity.HttpRequestClientUtil;
 import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import cloud.fogbow.fns.core.constants.DefaultConfigurationConstants;
 import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.PublicKey;
 import org.apache.http.client.HttpResponseException;
 
@@ -56,10 +58,10 @@ public class PublicKeysHolder {
     private RSAPublicKey getPublicKey(String serviceAddress, String servicePort, String suffix)
             throws UnavailableProviderException, UnexpectedException {
         RSAPublicKey publicKey = null;
-        String endpoint = serviceAddress + ":" + servicePort + "/" + suffix;
+        String endpoint = RedirectUtil.PROTOCOL + "://" + serviceAddress + ":" + servicePort + "/" + suffix;
         String responseStr = null;
         try {
-            responseStr = this.client.doGetRequest(endpoint, null);
+            responseStr = this.client.doGetRequest(endpoint, new CloudToken("", "", ""));
         } catch (HttpResponseException e) {
             throw new UnavailableProviderException(e.getMessage(), e);
         }
