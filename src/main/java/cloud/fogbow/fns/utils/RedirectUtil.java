@@ -33,7 +33,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 
 public class RedirectUtil {
-    public static final String PROTOCOL = "http";
 
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
 
@@ -41,12 +40,11 @@ public class RedirectUtil {
                                              Class<T> responseType) throws URISyntaxException, FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
         String requestUrl = request.getRequestURI();
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
-        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
+        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
+        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(PROTOCOL, null, coreBaseUrl, corePort, null,
-                null, null);
-        uri = UriComponentsBuilder.fromUri(uri).path(requestUrl)
+        URI uri = new URI(rasUrl);
+        uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(requestUrl)
                 .query(request.getQueryString()).build(true).toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -87,10 +85,11 @@ public class RedirectUtil {
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
                  String federationTokenValue, Class<T> responseType) throws URISyntaxException, FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
-        String coreBaseUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
-        int corePort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
+        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
+        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(PROTOCOL, null, coreBaseUrl, corePort, path, null, null);
+        URI uri = new URI(rasUrl);
+        uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(path).build(true).toUri();
 
         // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with
         // the RAS public key, before being forwarded.
