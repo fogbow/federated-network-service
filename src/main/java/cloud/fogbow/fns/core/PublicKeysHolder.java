@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core;
 
+import cloud.fogbow.common.exceptions.ConfigurationErrorException;
 import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.CloudToken;
@@ -8,7 +9,6 @@ import cloud.fogbow.common.util.connectivity.HttpRequestClientUtil;
 import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import cloud.fogbow.fns.core.constants.DefaultConfigurationConstants;
 import cloud.fogbow.fns.core.constants.Messages;
-import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.PublicKey;
 import org.apache.http.client.HttpResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,7 +40,8 @@ public class PublicKeysHolder {
         return instance;
     }
 
-    public RSAPublicKey getAsPublicKey() throws UnavailableProviderException, UnexpectedException, URISyntaxException {
+    public RSAPublicKey getAsPublicKey() throws UnavailableProviderException, UnexpectedException,
+            ConfigurationErrorException {
         if (this.asPublicKey == null) {
             String asAddress = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AS_URL_KEY);
             String asPort = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AS_PORT_KEY);
@@ -49,7 +50,8 @@ public class PublicKeysHolder {
         return this.asPublicKey;
     }
 
-    public RSAPublicKey getRasPublicKey() throws UnavailableProviderException, UnexpectedException, URISyntaxException {
+    public RSAPublicKey getRasPublicKey() throws UnavailableProviderException, UnexpectedException,
+            ConfigurationErrorException {
         if (this.rasPublicKey == null) {
             String rasAddress = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
             String rasPort = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY);
@@ -59,10 +61,15 @@ public class PublicKeysHolder {
     }
 
     private RSAPublicKey getPublicKey(String serviceAddress, String servicePort, String suffix)
-            throws UnavailableProviderException, UnexpectedException, URISyntaxException {
+            throws UnavailableProviderException, UnexpectedException, ConfigurationErrorException {
         RSAPublicKey publicKey = null;
 
-        URI uri = new URI(serviceAddress);
+        URI uri = null;
+        try {
+            uri = new URI(serviceAddress);
+        } catch (URISyntaxException e) {
+            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, serviceAddress));
+        }
         uri = UriComponentsBuilder.fromUri(uri).port(servicePort).path(suffix).build(true).toUri();
 
         String responseStr = null;

@@ -1,19 +1,16 @@
 package cloud.fogbow.fns.utils;
 
-import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.api.http.Redirection;
 import cloud.fogbow.common.constants.FogbowConstants;
-import cloud.fogbow.common.exceptions.FatalErrorException;
-import cloud.fogbow.common.exceptions.UnauthenticatedUserException;
-import cloud.fogbow.common.exceptions.UnavailableProviderException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.common.util.TokenValueProtector;
+import cloud.fogbow.fns.api.http.Redirection;
+import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.PublicKeysHolder;
 import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import cloud.fogbow.fns.core.constants.Messages;
 import cloud.fogbow.ras.api.http.Compute;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.core.PublicKeysHolder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -37,13 +34,18 @@ public class RedirectUtil {
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
 
     public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
-                                             Class<T> responseType) throws URISyntaxException, FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
+                                                        Class<T> responseType) throws FatalErrorException,
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
         String requestUrl = request.getRequestURI();
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(rasUrl);
+        URI uri = null;
+        try {
+            uri = new URI(rasUrl);
+        } catch (URISyntaxException e) {
+            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, rasUrl));
+        }
         uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(requestUrl)
                 .query(request.getQueryString()).build(true).toUri();
 
@@ -83,12 +85,17 @@ public class RedirectUtil {
     }
 
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
-                 String federationTokenValue, Class<T> responseType) throws URISyntaxException, FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
+                                                             String federationTokenValue, Class<T> responseType) throws FatalErrorException,
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
 
-        URI uri = new URI(rasUrl);
+        URI uri = null;
+        try {
+            uri = new URI(rasUrl);
+        } catch (URISyntaxException e) {
+            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, rasUrl));
+        }
         uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(path).build(true).toUri();
 
         // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with

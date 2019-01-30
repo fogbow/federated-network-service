@@ -1,9 +1,6 @@
 package cloud.fogbow.fns.api.http;
 
-import cloud.fogbow.common.exceptions.FatalErrorException;
-import cloud.fogbow.common.exceptions.UnauthenticatedUserException;
-import cloud.fogbow.common.exceptions.UnavailableProviderException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.ras.api.http.*;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.constants.Messages;
@@ -38,7 +35,7 @@ public class Redirection {
                                 "/" + Volume.VOLUME_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
                                      HttpServletRequest request) throws URISyntaxException, FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException {
+            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
 
         try {
             LOGGER.info(Messages.Info.GENERIC_REQUEST);

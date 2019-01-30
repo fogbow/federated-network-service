@@ -7,20 +7,20 @@ import cloud.fogbow.common.util.AuthenticationUtil;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.RSAUtil;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.core.constants.DefaultConfigurationConstants;
+import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.core.constants.SystemConstants;
 import cloud.fogbow.fns.core.exceptions.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceStatus;
 import cloud.fogbow.fns.core.model.Operation;
 import cloud.fogbow.fns.core.model.ResourceType;
+import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.Compute;
 import cloud.fogbow.ras.core.models.instances.ComputeInstance;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.core.constants.DefaultConfigurationConstants;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
-import cloud.fogbow.fns.core.constants.Messages;
-import cloud.fogbow.fns.core.constants.SystemConstants;
-import cloud.fogbow.fns.utils.RedirectUtil;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +77,7 @@ public class ApplicationFacade {
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String federationTokenValue)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            InvalidCidrException, InvalidTokenException, UnavailableProviderException {
+            InvalidCidrException, InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -87,7 +87,7 @@ public class ApplicationFacade {
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            FederatedNetworkNotFoundException, InvalidTokenException, UnavailableProviderException {
+            FederatedNetworkNotFoundException, InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.GET.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -96,7 +96,7 @@ public class ApplicationFacade {
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            InvalidTokenException, UnavailableProviderException {
+            InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.GET_ALL.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -116,8 +116,8 @@ public class ApplicationFacade {
     // compute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
     public synchronized String createCompute(cloud.fogbow.fns.api.parameters.Compute compute,
-                                             String federationTokenValue) throws FogbowException, IOException, URISyntaxException,
-                 InvalidCidrException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException {
+                                             String federationTokenValue) throws FogbowException, IOException,
+            InvalidCidrException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = compute.getFederatedNetworkId();
         String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkId);
@@ -142,8 +142,7 @@ public class ApplicationFacade {
         return computeId;
     }
 
-    public synchronized void deleteCompute(String computeId, String federationTokenValue) throws URISyntaxException,
-            FogbowException {
+    public synchronized void deleteCompute(String computeId, String federationTokenValue) throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -164,7 +163,7 @@ public class ApplicationFacade {
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String federationTokenValue)
-            throws URISyntaxException, FogbowException {
+            throws FogbowException, URISyntaxException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -199,7 +198,7 @@ public class ApplicationFacade {
         this.authorizationController = authorizationController;
     }
 
-    public RSAPublicKey getAsPublicKey() throws UnexpectedException, UnavailableProviderException {
+    public RSAPublicKey getAsPublicKey() throws UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
         if (this.asPublicKey == null) {
             this.asPublicKey = PublicKeysHolder.getInstance().getAsPublicKey();
         }
