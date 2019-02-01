@@ -6,6 +6,7 @@ import cloud.fogbow.fns.core.constants.Messages;
 import cloud.fogbow.fns.core.model.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceStatus;
+import cloud.fogbow.ras.api.http.CommonKeys;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,7 +25,6 @@ public class FederatedNetwork {
     private final Logger LOGGER = Logger.getLogger(FederatedNetwork.class);
 
     public static final String FEDERATED_NETWORK_ENDPOINT = "federatedNetworks";
-    public static final String FEDERATION_TOKEN_VALUE_HEADER_KEY = "federationTokenValue";
 
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)
@@ -32,7 +32,7 @@ public class FederatedNetwork {
             @ApiParam(value = ApiDocumentation.FederatedNetwork.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.FederatedNetwork federatedNetwork,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {
@@ -50,7 +50,7 @@ public class FederatedNetwork {
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.GET_OPERATION)
     public ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {
@@ -70,7 +70,7 @@ public class FederatedNetwork {
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {
@@ -92,7 +92,7 @@ public class FederatedNetwork {
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {

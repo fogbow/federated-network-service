@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.api.http;
 
 import cloud.fogbow.fns.core.constants.ApiDocumentation;
+import cloud.fogbow.ras.api.http.CommonKeys;
 import cloud.fogbow.ras.core.models.instances.ComputeInstance;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @Api(description = ApiDocumentation.Compute.API)
 public class Compute {
     public static final String COMPUTE_ENDPOINT = "computes";
-    public static final String FEDERATION_TOKEN_VALUE_HEADER_KEY = "federationTokenValue";
 
     private final Logger LOGGER = Logger.getLogger(Compute.class);
 
@@ -28,7 +28,7 @@ public class Compute {
             @ApiParam(value = ApiDocumentation.Compute.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.Compute compute,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {
@@ -47,7 +47,7 @@ public class Compute {
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {
@@ -66,7 +66,7 @@ public class Compute {
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
             throws Exception {
 
         try {

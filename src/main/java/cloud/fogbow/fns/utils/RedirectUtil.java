@@ -9,7 +9,7 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.PublicKeysHolder;
 import cloud.fogbow.fns.core.constants.ConfigurationConstants;
 import cloud.fogbow.fns.core.constants.Messages;
-import cloud.fogbow.ras.api.http.Compute;
+import cloud.fogbow.ras.api.http.CommonKeys;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -53,7 +53,7 @@ public class RedirectUtil {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            if (headerName.equalsIgnoreCase(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
+            if (headerName.equalsIgnoreCase(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
                 // If the header is the federationTokenValue, then it needs to be decrypted with the FNS public key,
                 // and then encrypted with the RAS public key, before being forwarded.
                 RSAPrivateKey myPrivateKey = null;
@@ -65,7 +65,7 @@ public class RedirectUtil {
                 }
                 String rasTokenValue = TokenValueProtector.rewrap(myPrivateKey, rasPublicKey,
                         request.getHeader(headerName), FogbowConstants.TOKEN_STRING_SEPARATOR);
-                headers.set(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
+                headers.set(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
             } else {
                 headers.set(headerName, request.getHeader(headerName));
             }
@@ -111,7 +111,7 @@ public class RedirectUtil {
                 FogbowConstants.TOKEN_STRING_SEPARATOR);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.set(Compute.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
+        headers.set(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 
