@@ -15,7 +15,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 public class SwaggerConfiguration {
 
-    public static final String BASE_PACKAGE = "org.fogbow.federatednetwork";
+    public static final String BASE_PACKAGE = "cloud.fogbow.fns";
     public static final String API_TITLE = "Fogbow Federated Network Service (FNS) API";
     public static final String API_DESCRIPTION = "This document introduces Fogbow's FNS REST API, " +
             "provides guidelines on how to use it, and describes the available features accessible from it. " +
