@@ -54,7 +54,7 @@ public class RedirectUtil {
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             if (headerName.equalsIgnoreCase(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
-                // If the header is the federationTokenValue, then it needs to be decrypted with the FNS public key,
+                // If the header is the federationTokenValue, then it needs to be decrypted with the FNS private key,
                 // and then encrypted with the RAS public key, before being forwarded.
                 RSAPrivateKey myPrivateKey = null;
                 RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();

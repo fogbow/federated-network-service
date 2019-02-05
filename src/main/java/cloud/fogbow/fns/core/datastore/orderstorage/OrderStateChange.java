@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 public class OrderStateChange {
     @Id
     @GeneratedValue
-    private String id;
+    private Long id;
 
     @ManyToOne
     private FederatedNetworkOrder order;
