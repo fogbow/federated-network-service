@@ -1,7 +1,7 @@
 package cloud.fogbow.fns;
 
 import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.core.constants.SystemConstants;
+import cloud.fogbow.fns.constants.SystemConstants;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

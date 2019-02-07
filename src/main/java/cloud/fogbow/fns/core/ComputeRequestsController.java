@@ -2,7 +2,7 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
@@ -28,8 +28,8 @@ public class ComputeRequestsController {
             instanceIp = federatedNetworkOrder.getFreeIp();
             String cidr = federatedNetworkOrder.getCidr();
             FederatedComputeUtil.addUserData(compute, instanceIp,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
+                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
+                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
         }
         return instanceIp;
     }

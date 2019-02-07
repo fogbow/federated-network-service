@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.api.http;
 
-import cloud.fogbow.fns.core.constants.ApiDocumentation;
+import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.ras.api.http.CommonKeys;
 import cloud.fogbow.ras.core.models.instances.ComputeInstance;
 import io.swagger.annotations.Api;
@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.Messages;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

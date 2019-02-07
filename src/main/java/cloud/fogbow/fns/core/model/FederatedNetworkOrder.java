@@ -8,7 +8,7 @@ import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.Messages;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 

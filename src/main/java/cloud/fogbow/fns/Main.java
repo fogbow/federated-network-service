@@ -10,7 +10,7 @@ import cloud.fogbow.fns.core.ApplicationFacade;
 import cloud.fogbow.fns.core.ComputeRequestsController;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import org.apache.log4j.Logger;
@@ -48,7 +48,7 @@ public class Main implements ApplicationRunner {
             // Setting up controllers and application facade
             FederatedNetworkOrderController federatedNetworkOrderController = new FederatedNetworkOrderController();
             ComputeRequestsController computeRequestsController = new ComputeRequestsController();
-            String className = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.AUTHORIZATION_PLUGIN_CLASS_KEY);
+            String className = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.AUTHORIZATION_PLUGIN_CLASS_KEY);
             AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
             AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
 

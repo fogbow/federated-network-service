@@ -1,6 +1,6 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import org.junit.After;
 
 import java.io.File;
@@ -12,13 +12,13 @@ public class BaseUnitTest {
 
     public Properties setProperties() {
         Properties p = new Properties();
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
-        p.setProperty(ConfigurationConstants.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
-        p.setProperty(ConfigurationConstants.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
-        p.setProperty(ConfigurationConstants.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
+        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
+        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
+        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
+        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
+        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
+        p.setProperty(ConfigurationPropertyKeys.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
+        p.setProperty(ConfigurationPropertyKeys.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         return p;
     }
 

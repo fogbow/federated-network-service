@@ -1,6 +1,6 @@
-package cloud.fogbow.fns.core.constants;
+package cloud.fogbow.fns.constants;
 
-public class ConfigurationConstants {
+public class ConfigurationPropertyKeys {
     // FNS configuration
     public static final String LOCAL_MEMBER_ID_KEY = "xmpp_jid";
     public static final String BUILD_NUMBER_KEY = "build_number";

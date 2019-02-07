@@ -1,8 +1,8 @@
 package cloud.fogbow.fns.api.http;
 
 import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.core.constants.ApiDocumentation;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.ApiDocumentation;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.model.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceStatus;

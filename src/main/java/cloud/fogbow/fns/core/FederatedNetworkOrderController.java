@@ -14,8 +14,8 @@ import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 
 import java.util.*;
 import java.util.function.Function;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class FederatedNetworkOrderController {
 
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
-    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.LOCAL_MEMBER_ID_KEY);
+    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_ID_KEY);
 
     private FederatedNetworkOrdersHolder orderHolders;
 

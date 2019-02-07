@@ -3,7 +3,7 @@ package cloud.fogbow.fns.api.http;
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.ras.api.http.*;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.utils.RedirectUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;

@@ -7,10 +7,10 @@ import cloud.fogbow.common.util.AuthenticationUtil;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.RSAUtil;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
-import cloud.fogbow.fns.core.constants.DefaultConfigurationConstants;
-import cloud.fogbow.fns.core.constants.Messages;
-import cloud.fogbow.fns.core.constants.SystemConstants;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
+import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.exceptions.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceStatus;
@@ -45,8 +45,8 @@ public class ApplicationFacade {
 
     private ApplicationFacade() {
         this.asPublicKey = null;
-        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.BUILD_NUMBER_KEY,
-                DefaultConfigurationConstants.BUILD_NUMBER);
+        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY,
+                ConfigurationPropertyDefaults.BUILD_NUMBER);
     }
 
     public static ApplicationFacade getInstance() {

@@ -7,8 +7,8 @@ import cloud.fogbow.common.util.TokenValueProtector;
 import cloud.fogbow.fns.api.http.Redirection;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.PublicKeysHolder;
-import cloud.fogbow.fns.core.constants.ConfigurationConstants;
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.ras.api.http.CommonKeys;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpEntity;
@@ -37,8 +37,8 @@ public class RedirectUtil {
                                                         Class<T> responseType) throws FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
         String requestUrl = request.getRequestURI();
-        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
-        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
+        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
+        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
 
         URI uri = null;
         try {
@@ -87,8 +87,8 @@ public class RedirectUtil {
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
                                                              String federationTokenValue, Class<T> responseType) throws FatalErrorException,
             UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
-        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_URL_KEY);
-        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationConstants.RAS_PORT_KEY));
+        String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
+        int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
 
         URI uri = null;
         try {

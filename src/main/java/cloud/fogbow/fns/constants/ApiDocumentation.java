@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.core.constants;
+package cloud.fogbow.fns.constants;
 
 public class ApiDocumentation {
     public static class FederatedNetwork {

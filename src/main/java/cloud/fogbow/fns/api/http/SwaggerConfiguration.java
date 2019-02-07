@@ -25,8 +25,8 @@ public class SwaggerConfiguration {
             "underlying RAS service, forwarding requests that it cannot handle to the underlying RAS.";
 
     public static final String CONTACT_NAME = "Fogbow";
-    public static final String CONTACT_URL = "https://www.fogbowcloud.org";
-    public static final String CONTACT_EMAIL = "contact@fogbowcloud.org";
+    public static final String CONTACT_URL = "https://www.fogbow.cloud";
+    public static final String CONTACT_EMAIL = "contact@fogbow.cloud";
     public static final Contact CONTACT = new Contact(
         CONTACT_NAME,
         CONTACT_URL,

@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.core.datastore.orderstorage;
 
-import cloud.fogbow.fns.core.constants.Messages;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
