@@ -35,7 +35,7 @@ public class Redirection {
                                 "/" + Volume.VOLUME_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
                                      HttpServletRequest request) throws URISyntaxException, FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
+            FogbowException {
 
         try {
             LOGGER.info(Messages.Info.GENERIC_REQUEST);

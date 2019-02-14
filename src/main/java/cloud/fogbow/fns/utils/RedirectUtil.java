@@ -35,7 +35,7 @@ public class RedirectUtil {
 
     public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
                                                         Class<T> responseType) throws FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
+            FogbowException {
         String requestUrl = request.getRequestURI();
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
@@ -86,7 +86,7 @@ public class RedirectUtil {
 
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
                                                              String federationTokenValue, Class<T> responseType) throws FatalErrorException,
-            UnauthenticatedUserException, UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
+            FogbowException {
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
 

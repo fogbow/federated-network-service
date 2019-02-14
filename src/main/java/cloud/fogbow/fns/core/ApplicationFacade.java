@@ -76,8 +76,8 @@ public class ApplicationFacade {
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String federationTokenValue)
-            throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            InvalidCidrException, InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
+            throws FogbowException,
+            InvalidCidrException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -86,8 +86,8 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
-            throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            FederatedNetworkNotFoundException, InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
+            throws FogbowException,
+            FederatedNetworkNotFoundException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.GET.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -95,8 +95,7 @@ public class ApplicationFacade {
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue)
-            throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            InvalidTokenException, UnavailableProviderException, ConfigurationErrorException {
+            throws FogbowException {
         FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
         this.authorizationController.authorize(federationUser, Operation.GET_ALL.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
@@ -198,7 +197,7 @@ public class ApplicationFacade {
         this.authorizationController = authorizationController;
     }
 
-    public RSAPublicKey getAsPublicKey() throws UnexpectedException, UnavailableProviderException, ConfigurationErrorException {
+    public RSAPublicKey getAsPublicKey() throws FogbowException {
         if (this.asPublicKey == null) {
             this.asPublicKey = PublicKeysHolder.getInstance().getAsPublicKey();
         }
