@@ -13,6 +13,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.ras.api.http.PublicKey;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -75,7 +76,7 @@ public class PublicKeysHolder {
 
 
         String endpoint = uri.toString();
-        GenericRequestHttpResponse response = this.client.doGenericRequest("GET", endpoint, new HashMap<>(), new HashMap<>());
+        GenericRequestHttpResponse response = this.client.doGenericRequest(HttpMethod.GET, endpoint, new HashMap<>(), new HashMap<>());
         if (response.getHttpCode() > HttpStatus.SC_OK) {
             Throwable e = new HttpResponseException(response.getHttpCode(), response.getContent());
             throw new UnavailableProviderException(e.getMessage(), e);
