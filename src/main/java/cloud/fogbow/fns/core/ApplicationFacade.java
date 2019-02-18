@@ -134,7 +134,7 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode(), responseEntity.getBody());
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
         }
         String computeId = responseEntity.getBody();
         this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId, compute.getFederatedNetworkId());
@@ -156,7 +156,7 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode(), responseEntity.getBody());
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
         }
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
     }
@@ -177,7 +177,7 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode(), responseEntity.getBody());
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
         }
         ComputeInstance computeInstance = gson.fromJson(responseEntity.getBody(), ComputeInstance.class);
         this.computeRequestsController.addFederatedIpInGetInstanceIfApplied(computeInstance, computeId);
