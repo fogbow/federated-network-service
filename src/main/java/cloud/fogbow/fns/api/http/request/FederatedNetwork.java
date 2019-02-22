@@ -1,11 +1,12 @@
-package cloud.fogbow.fns.api.http;
+package cloud.fogbow.fns.api.http.request;
 
+import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.core.ApplicationFacade;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.model.FederatedNetworkInstance;
+import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.InstanceStatus;
+import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.ras.api.http.CommonKeys;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +29,7 @@ public class FederatedNetwork {
 
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<String> createFederatedNetwork(
+    public ResponseEntity<ResourceId> createFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.FederatedNetwork federatedNetwork,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
@@ -39,7 +40,7 @@ public class FederatedNetwork {
             LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK, federatedNetwork.getOrder()));
             String federatedNetworkId = ApplicationFacade.getInstance().
                     createFederatedNetwork(federatedNetwork.getOrder(), federationTokenValue);
-            return new ResponseEntity<String>(federatedNetworkId, HttpStatus.CREATED);
+            return new ResponseEntity<>(new ResourceId(federatedNetworkId), HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;
