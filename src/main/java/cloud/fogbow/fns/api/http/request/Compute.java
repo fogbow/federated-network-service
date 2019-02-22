@@ -1,5 +1,6 @@
-package cloud.fogbow.fns.api.http;
+package cloud.fogbow.fns.api.http.request;
 
+import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.ras.api.http.CommonKeys;
 import cloud.fogbow.ras.core.models.instances.ComputeInstance;
@@ -24,7 +25,7 @@ public class Compute {
 
     @ApiOperation(value = ApiDocumentation.Compute.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<String> createCompute(
+    public ResponseEntity<ResourceId> createCompute(
             @ApiParam(value = ApiDocumentation.Compute.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.Compute compute,
             @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
@@ -34,7 +35,7 @@ public class Compute {
         try {
             LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE, compute));
             String computeId = ApplicationFacade.getInstance().createCompute(compute, federationTokenValue);
-            return new ResponseEntity<String>(computeId, HttpStatus.CREATED);
+            return new ResponseEntity<>(new ResourceId(computeId), HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;

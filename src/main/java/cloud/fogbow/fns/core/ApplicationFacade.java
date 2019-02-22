@@ -13,7 +13,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.exceptions.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.InstanceStatus;
+import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.core.model.Operation;
 import cloud.fogbow.fns.core.model.ResourceType;
 import cloud.fogbow.fns.utils.RedirectUtil;

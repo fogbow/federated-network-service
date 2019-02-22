@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.api.http;
+package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.ras.api.http.*;

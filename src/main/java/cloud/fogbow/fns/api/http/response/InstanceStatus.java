@@ -1,4 +1,6 @@
-package cloud.fogbow.fns.core.model;
+package cloud.fogbow.fns.api.http.response;
+
+import cloud.fogbow.fns.core.model.InstanceState;
 
 public class InstanceStatus {
     private String instanceId;

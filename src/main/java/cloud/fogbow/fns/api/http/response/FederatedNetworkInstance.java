@@ -1,4 +1,6 @@
-package cloud.fogbow.fns.core.model;
+package cloud.fogbow.fns.api.http.response;
+
+import cloud.fogbow.fns.core.model.InstanceState;
 
 import java.util.Map;
 import java.util.Set;

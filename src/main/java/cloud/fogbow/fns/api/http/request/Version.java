@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.api.http;
+package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.fns.core.ApplicationFacade;
 import cloud.fogbow.fns.constants.ApiDocumentation;
@@ -25,11 +25,12 @@ public class Version {
 
     @ApiOperation(value = ApiDocumentation.Version.GET_OPERATION)
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<String> getVersion() {
+    public ResponseEntity<cloud.fogbow.fns.api.http.response.Version> getVersion() {
         try {
             LOGGER.info(Messages.Info.GET_VERSION);
             String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
-            return new ResponseEntity<>(versionNumber, HttpStatus.OK);
+            cloud.fogbow.fns.api.http.response.Version version = new cloud.fogbow.fns.api.http.response.Version(versionNumber);
+            return new ResponseEntity<>(version, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;

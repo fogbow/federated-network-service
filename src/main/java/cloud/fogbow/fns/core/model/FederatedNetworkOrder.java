@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core.model;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.FederationUser;
+import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
