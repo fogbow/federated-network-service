@@ -2,8 +2,8 @@ package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
-import org.apache.commons.net.util.SubnetUtils;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import org.apache.commons.net.util.SubnetUtils;
 
 import java.math.BigInteger;
 import java.net.InetAddress;

@@ -33,13 +33,16 @@ public class RecoveryService {
     public Map<String, FederatedNetworkOrder> readActiveOrders() {
         Map<String, FederatedNetworkOrder> activeOrdersMap = new ConcurrentHashMap<>();
         for (FederatedNetworkOrder order: orderRepository.findAll()) {
-            try {
-                FederatedNetworkUtil.fillCacheOfFreeIps((FederatedNetworkOrder) order);
-            } catch (SubnetAddressesCapacityReachedException e) {
-                LOGGER.info(Messages.Exception.NO_MORE_IPS_AVAILABLE);
-            } catch (InvalidCidrException e) {
+            if (!(order.getOrderState().equals(OrderState.DEACTIVATED))) {
+                try {
+                    FederatedNetworkUtil.fillCacheOfFreeIps(order);
+                } catch (SubnetAddressesCapacityReachedException e) {
+                    LOGGER.info(Messages.Exception.NO_MORE_IPS_AVAILABLE);
+                } catch (InvalidCidrException e) {
+                    LOGGER.error(Messages.Error.INVALID_CIDR);
+                }
+                activeOrdersMap.put(order.getId(), order);
             }
-            activeOrdersMap.put(order.getId(), order);
         }
         return activeOrdersMap;
     }
