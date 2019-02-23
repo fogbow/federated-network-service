@@ -3,7 +3,7 @@ package cloud.fogbow.fns.api.http.request;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.ras.api.http.CommonKeys;
-import cloud.fogbow.ras.core.models.instances.ComputeInstance;
+import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.common.exceptions.*;
-import cloud.fogbow.ras.api.http.*;
+import cloud.fogbow.ras.api.http.request.*;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.utils.RedirectUtil;
@@ -25,9 +25,9 @@ public class Redirection {
 
     @RequestMapping(value = {   "/" + Attachment.ATTACHMENT_ENDPOINT + "/**",
                                 "/" + Cloud.CLOUD_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.STATUS_ENDPOINT,
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.QUOTA_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.Compute.ALLOCATION_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.STATUS_ENDPOINT,
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.QUOTA_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.ALLOCATION_ENDPOINT + "/**",
                                 "/" + GenericRequest.GENERIC_REQUEST_ENDPOINT + "/**",
                                 "/" + Image.IMAGE_ENDPOINT + "/**",
                                 "/" + Network.NETWORK_ENDPOINT + "/**",

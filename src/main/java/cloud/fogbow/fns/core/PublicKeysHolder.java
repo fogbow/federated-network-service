@@ -11,7 +11,7 @@ import cloud.fogbow.common.util.connectivity.HttpRequestClientUtil;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.ras.api.http.PublicKey;
+import cloud.fogbow.ras.api.http.request.PublicKey;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -48,7 +48,7 @@ public class PublicKeysHolder {
         if (this.asPublicKey == null) {
             String asAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.AS_URL_KEY);
             String asPort = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.AS_PORT_KEY);
-            this.asPublicKey = getPublicKey(asAddress, asPort, cloud.fogbow.as.api.http.PublicKey.PUBLIC_KEY_ENDPOINT);
+            this.asPublicKey = getPublicKey(asAddress, asPort, cloud.fogbow.as.api.http.request.PublicKey.PUBLIC_KEY_ENDPOINT);
         }
         return this.asPublicKey;
     }

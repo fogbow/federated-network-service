@@ -8,7 +8,7 @@ import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
-import cloud.fogbow.ras.core.models.instances.ComputeInstance;
+import cloud.fogbow.ras.api.http.response.ComputeInstance;
 
 import java.io.IOException;
 
