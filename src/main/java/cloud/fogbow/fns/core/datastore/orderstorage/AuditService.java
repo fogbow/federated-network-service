@@ -14,7 +14,7 @@ public class AuditService {
 
     public void updateStateTimestamp(FederatedNetworkOrder order) {
         Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-        OrderStateChange orderStateChange = new OrderStateChange(currentTimestamp, order, order.getOrderState());
+        AuditableOrderStateChange orderStateChange = new AuditableOrderStateChange(currentTimestamp, order, order.getOrderState());
         this.orderStateChangeRepository.save(orderStateChange);
     }
 
