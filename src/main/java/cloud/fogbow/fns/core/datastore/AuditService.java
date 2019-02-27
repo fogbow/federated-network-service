@@ -1,5 +1,7 @@
-package cloud.fogbow.fns.core.datastore.orderstorage;
+package cloud.fogbow.fns.core.datastore;
 
+import cloud.fogbow.fns.core.datastore.orderstorage.AuditableOrderStateChange;
+import cloud.fogbow.fns.core.datastore.orderstorage.OrderStateChangeRepository;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
