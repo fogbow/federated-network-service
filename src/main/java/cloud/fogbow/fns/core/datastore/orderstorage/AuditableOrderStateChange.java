@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "order_state_change")
-public class OrderStateChange {
+public class AuditableOrderStateChange {
     @Id
     @GeneratedValue
     private Long id;
@@ -23,7 +23,7 @@ public class OrderStateChange {
     @Enumerated(EnumType.STRING)
     private OrderState newState;
 
-    public OrderStateChange(Timestamp timestamp, FederatedNetworkOrder order, OrderState newState) {
+    public AuditableOrderStateChange(Timestamp timestamp, FederatedNetworkOrder order, OrderState newState) {
         this.order = order;
         this.timestamp = timestamp;
         this.newState = newState;
