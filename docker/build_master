@@ -1,4 +1,6 @@
 #!/bin/bash
 
-./build master latest
+sudo docker build --build-arg BRANCH_FNS=master --build-arg BRANCH_AS=master --build-arg BRANCH_RAS=master \
+ --build-arg BRANCH_COMMON=master --no-cache -t fogbow/federated-network-service:latest \
+ -t fogbow/federated-network-service:master .
 
