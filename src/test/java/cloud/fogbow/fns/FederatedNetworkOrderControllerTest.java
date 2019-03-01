@@ -59,12 +59,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes.put(FogbowConstants.USER_ID_KEY, USER_ID);
-        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        this.federationUser = new FederationUser(attributes);
+        this.federationUser = new FederationUser(TOKEN_PROVIDER, USER_ID, USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
         this.federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, federationUser, MEMBER,
                 MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp);
     }
@@ -145,12 +140,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
 
         String nonAuthenticatedUserId = "non-autheticated";
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes.put(FogbowConstants.USER_ID_KEY, nonAuthenticatedUserId);
-        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        FederationUser nonAuthenticatedUser = new FederationUser(attributes);
+        FederationUser nonAuthenticatedUser = new FederationUser(TOKEN_PROVIDER, nonAuthenticatedUserId, USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
         //exercise
         try {
             federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, nonAuthenticatedUser);
@@ -276,12 +266,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockSingletons();
         String nonAuthenticatedUserId = "non-authenticated";
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes.put(FogbowConstants.USER_ID_KEY, nonAuthenticatedUserId);
-        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        FederationUser nonAuthenticatedUser = new FederationUser(attributes);
+        FederationUser nonAuthenticatedUser = new FederationUser(TOKEN_PROVIDER, nonAuthenticatedUserId, USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         FederatedNetworkOrder federatedNetwork2 = mock(FederatedNetworkOrder.class);
         String federatedNetworkId2 = FEDERATED_NETWORK_ID + 2;
@@ -421,12 +406,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         addComputeIntoActiveOrdersMap();
         ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID);
         String nonAuthenticatedUserId = "non-authenticated";
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes.put(FogbowConstants.USER_ID_KEY, nonAuthenticatedUserId);
-        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        FederationUser nonAuthenticatedUser = new FederationUser(attributes);
+        FederationUser nonAuthenticatedUser = new FederationUser(TOKEN_PROVIDER, nonAuthenticatedUserId, USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
         //exercise
 //        try {
 //            federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, nonAuthenticatedUser);
@@ -642,18 +622,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     public void testGetFederatedNetworksStatusByUser() {
         // set up
         String member = "fake-member";
-        Map<String, String> attributes1 = new HashMap<>();
-        attributes1.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes1.put(FogbowConstants.USER_ID_KEY, "user1");
-        attributes1.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes1.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        FederationUser user = new FederationUser(attributes1);
-        Map<String, String> attributes2 = new HashMap<>();
-        attributes2.put(FogbowConstants.PROVIDER_ID_KEY, TOKEN_PROVIDER);
-        attributes2.put(FogbowConstants.USER_ID_KEY, "unusedUser");
-        attributes2.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes2.put(FogbowConstants.TOKEN_VALUE_KEY, TOKEN_USER_VALUE);
-        FederationUser unusedUser = new FederationUser(attributes2);
+        FederationUser user = new FederationUser(TOKEN_PROVIDER, "user1", USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
+        FederationUser unusedUser = new FederationUser(TOKEN_PROVIDER, "unusedUser", USER_NAME, TOKEN_USER_VALUE, new HashMap<>());
 
         String id1 = "fake-id-1";
         FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member);

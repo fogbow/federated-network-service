@@ -51,12 +51,7 @@ public class RecoveryServiceTest {
 
     @Before
     public void setUp() {
-        Map<String, String> attributes = new HashMap<>();
-        attributes.put(FogbowConstants.PROVIDER_ID_KEY, MEMBER);
-        attributes.put(FogbowConstants.USER_ID_KEY, USER_ID);
-        attributes.put(FogbowConstants.USER_NAME_KEY, USER_NAME);
-        attributes.put(FogbowConstants.TOKEN_VALUE_KEY, "");
-        user = new FederationUser(attributes);
+        user = new FederationUser(MEMBER, USER_ID, USER_NAME, "", new HashMap<>());
         databaseManager = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(databaseManager);
