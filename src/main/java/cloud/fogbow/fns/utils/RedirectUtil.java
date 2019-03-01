@@ -3,7 +3,7 @@ package cloud.fogbow.fns.utils;
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.common.util.TokenValueProtector;
+import cloud.fogbow.as.core.util.TokenValueProtector;
 import cloud.fogbow.fns.api.http.request.Redirection;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.PublicKeysHolder;
