@@ -3,7 +3,7 @@ package cloud.fogbow.fns.utils;
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.as.core.util.TokenValueProtector;
+import cloud.fogbow.as.core.util.TokenProtector;
 import cloud.fogbow.fns.api.http.request.Redirection;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.PublicKeysHolder;
@@ -53,7 +53,7 @@ public class RedirectUtil {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
-            if (headerName.equalsIgnoreCase(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY)) {
+            if (headerName.equalsIgnoreCase(CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY)) {
                 // If the header is the federationTokenValue, then it needs to be decrypted with the FNS private key,
                 // and then encrypted with the RAS public key, before being forwarded.
                 RSAPrivateKey myPrivateKey = null;
@@ -63,9 +63,9 @@ public class RedirectUtil {
                 } catch (IOException | GeneralSecurityException e) {
                     throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
                 }
-                String rasTokenValue = TokenValueProtector.rewrap(myPrivateKey, rasPublicKey,
+                String rasTokenValue = TokenProtector.rewrap(myPrivateKey, rasPublicKey,
                         request.getHeader(headerName), FogbowConstants.TOKEN_STRING_SEPARATOR);
-                headers.set(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
+                headers.set(CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY, rasTokenValue);
             } else {
                 headers.set(headerName, request.getHeader(headerName));
             }
@@ -85,8 +85,7 @@ public class RedirectUtil {
     }
 
     public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
-                                                             String federationTokenValue, Class<T> responseType) throws FatalErrorException,
-            FogbowException {
+                 String systemUserToken, Class<T> responseType) throws FatalErrorException, FogbowException {
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
 
@@ -98,7 +97,7 @@ public class RedirectUtil {
         }
         uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(path).build(true).toUri();
 
-        // The federationTokenValue needs to be decrypted with the FNS public key, and then encrypted with
+        // The systemUserToken needs to be decrypted with the FNS public key, and then encrypted with
         // the RAS public key, before being forwarded.
         RSAPrivateKey myPrivateKey = null;
         RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();
@@ -107,11 +106,11 @@ public class RedirectUtil {
         } catch (IOException | GeneralSecurityException e) {
             throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
         }
-        String rasTokenValue = TokenValueProtector.rewrap(myPrivateKey, rasPublicKey, federationTokenValue,
+        String rasTokenValue = TokenProtector.rewrap(myPrivateKey, rasPublicKey, systemUserToken,
                 FogbowConstants.TOKEN_STRING_SEPARATOR);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        headers.set(CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY, rasTokenValue);
+        headers.set(CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY, rasTokenValue);
 
         HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);
 

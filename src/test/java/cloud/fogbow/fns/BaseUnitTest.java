@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.Properties;
 
 public class BaseUnitTest {
-
     public static final String TEST_DATABASE_FILE_PATH = "federated-networks-test.db";
 
     public Properties setProperties() {

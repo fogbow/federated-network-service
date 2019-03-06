@@ -2,7 +2,7 @@ package cloud.fogbow.fns.core.model;
 
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.models.FederationUser;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import org.junit.Assert;
@@ -124,11 +124,11 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     private FederatedNetworkOrder createFederatedNetworkOrder(String cidr) {
-        FederationUser federationUser = Mockito.mock(FederationUser.class);
+        SystemUser systemUser = Mockito.mock(SystemUser.class);
         Set<String> providers = new HashSet<>();
         Queue<String> cacheOfFreeIps = new LinkedList<>();
         Map<String, String> computeIdsAndIps = new HashMap<>();
-        return new FederatedNetworkOrder(federationUser, null, null, cidr,
+        return new FederatedNetworkOrder(systemUser, null, null, cidr,
                 null, providers, cacheOfFreeIps, computeIdsAndIps);
     }
 }

@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.core.model;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.models.FederationUser;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
@@ -31,10 +31,9 @@ public class FederatedNetworkOrder implements Serializable {
     @Enumerated(EnumType.STRING)
     private OrderState orderState;
 
-    //@JoinColumn
-    //@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    // TODO: check if this is correct; we need to save the systemUser.
     @Transient
-    private FederationUser user;
+    private SystemUser systemUser;
 
     @Column
     private String requestingMember;
@@ -72,10 +71,10 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = new HashMap<>();
     }
 
-    public FederatedNetworkOrder(FederationUser user, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember) {
         this();
         this.id = String.valueOf(UUID.randomUUID());
-        this.user = user;
+        this.systemUser = systemUser;
         this.requestingMember = requestingMember;
         this.providingMember = providingMember;
     }
@@ -83,17 +82,17 @@ public class FederatedNetworkOrder implements Serializable {
     /**
      * Creating Order with predefined Id.
      */
-    public FederatedNetworkOrder(String id, FederationUser user, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember, String providingMember) {
         this(id);
-        this.user = user;
+        this.systemUser = systemUser;
         this.requestingMember = requestingMember;
         this.providingMember = providingMember;
     }
 
-    public FederatedNetworkOrder(String id, FederationUser federatedUserToken, String requestingMember,
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember,
                                  String providingMember, String cidr, String name, Set<String> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
-        this(id, federatedUserToken, requestingMember, providingMember);
+        this(id, systemUser, requestingMember, providingMember);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
@@ -101,10 +100,10 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public FederatedNetworkOrder(FederationUser federatedUserToken, String requestingMember, String providingMember,
+    public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember,
                                  String cidr, String name, Set<String> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
-        this(federatedUserToken, requestingMember, providingMember);
+        this(systemUser, requestingMember, providingMember);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
@@ -196,12 +195,12 @@ public class FederatedNetworkOrder implements Serializable {
                 (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
     }
 
-    public FederationUser getUser() {
-        return user;
+    public SystemUser getSystemUser() {
+        return systemUser;
     }
 
-    public void setUser(FederationUser user) {
-        this.user = user;
+    public void setSystemUser(SystemUser systemUser) {
+        this.systemUser = systemUser;
     }
 
     public String getRequestingMember() {

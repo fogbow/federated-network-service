@@ -1,7 +1,6 @@
 package cloud.fogbow.fns.core.datastore;
 
-import cloud.fogbow.common.constants.FogbowConstants;
-import cloud.fogbow.common.models.FederationUser;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -46,12 +45,12 @@ public class RecoveryServiceTest {
     private OrderRepository orderRepository;
 
     private DatabaseManager databaseManager;
-    private FederationUser user;
+    private SystemUser user;
     private FederatedNetworkOrder federatedNetworkOrder;
 
     @Before
     public void setUp() {
-        user = new FederationUser(MEMBER, USER_ID, USER_NAME, "", new HashMap<>());
+        user = new SystemUser(USER_ID, USER_NAME, MEMBER);
         databaseManager = Mockito.mock(DatabaseManager.class);
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(databaseManager);

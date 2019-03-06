@@ -32,14 +32,14 @@ public class FederatedNetwork {
     public ResponseEntity<ResourceId> createFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.FederatedNetwork federatedNetwork,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK, federatedNetwork.getOrder()));
             String federatedNetworkId = ApplicationFacade.getInstance().
-                    createFederatedNetwork(federatedNetwork.getOrder(), federationTokenValue);
+                    createFederatedNetwork(federatedNetwork.getOrder(), systemUserToken);
             return new ResponseEntity<>(new ResourceId(federatedNetworkId), HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
@@ -50,14 +50,14 @@ public class FederatedNetwork {
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.GET_OPERATION)
     public ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(Messages.Info.GET_FEDERATED_NETWORK_STATUS);
             Collection<InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().
-                    getFederatedNetworksStatus(federationTokenValue);
+                    getFederatedNetworksStatus(systemUserToken);
             return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
@@ -70,15 +70,15 @@ public class FederatedNetwork {
     public ResponseEntity<FederatedNetworkInstance> getFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.GET_FEDERATED_NETWORK_BY_ID,
                     (federatedNetworkId == null ? "null" : federatedNetworkId)));
             FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().
-                    getFederatedNetwork(federatedNetworkId, federationTokenValue);
+                    getFederatedNetwork(federatedNetworkId, systemUserToken);
             FederatedNetworkInstance instance = federatedNetwork.getInstance();
             return new ResponseEntity<FederatedNetworkInstance>(instance, HttpStatus.OK);
         } catch (Exception e) {
@@ -92,14 +92,14 @@ public class FederatedNetwork {
     public ResponseEntity<String> deleteFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.DELETE_FEDERATED_NETWORK,
                     (federatedNetworkId == null ? "null" : federatedNetworkId)));
-            ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, federationTokenValue);
+            ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, systemUserToken);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));

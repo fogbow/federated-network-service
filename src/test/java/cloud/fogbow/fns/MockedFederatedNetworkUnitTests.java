@@ -23,14 +23,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /*
-This class should be ignored because it doesn't tests
+This class should be ignored because it doesn't test
  */
 @Ignore
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AgentCommunicatorUtil.class, FederatedNetworkUtil.class, FederatedComputeUtil.class,
         DatabaseManager.class, FederatedNetworkOrdersHolder.class})
 public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
-
     protected FederatedNetworkOrderController federatedNetworkOrderController;
     protected FederatedNetworkOrdersHolder federatedNetworkOrdersHolder;
     protected DatabaseManager database;
@@ -80,5 +79,4 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
             fail();
         }
     }
-
 }

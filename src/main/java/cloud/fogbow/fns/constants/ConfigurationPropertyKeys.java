@@ -4,7 +4,6 @@ public class ConfigurationPropertyKeys {
     // FNS configuration
     public static final String LOCAL_MEMBER_ID_KEY = "xmpp_jid";
     public static final String BUILD_NUMBER_KEY = "build_number";
-    public static final String HTTP_REQUEST_TIMEOUT_KEY = "http_request_timeout";
 
     // Plugins
     public static final String AUTHORIZATION_PLUGIN_CLASS_KEY = "authorization_plugin_class";

@@ -9,7 +9,6 @@ import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.common.util.connectivity.HttpRequestClientUtil;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.ras.api.http.request.PublicKey;
 import com.google.gson.Gson;
@@ -25,16 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PublicKeysHolder {
-    private HttpRequestClientUtil client;
     private RSAPublicKey asPublicKey;
     private RSAPublicKey rasPublicKey;
 
     private static PublicKeysHolder instance;
 
     private PublicKeysHolder() {
-        String timeoutStr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.HTTP_REQUEST_TIMEOUT_KEY,
-                ConfigurationPropertyDefaults.HTTP_REQUEST_TIMEOUT);
-        this.client = new HttpRequestClientUtil();
         this.asPublicKey = null;
         this.rasPublicKey = null;
     }
@@ -78,7 +73,7 @@ public class PublicKeysHolder {
 
 
         String endpoint = uri.toString();
-        HttpResponse response = this.client.doGenericRequest(HttpMethod.GET, endpoint, new HashMap<>(), new HashMap<>());
+        HttpResponse response = HttpRequestClientUtil.doGenericRequest(HttpMethod.GET, endpoint, new HashMap<>(), new HashMap<>());
         if (response.getHttpCode() > HttpStatus.SC_OK) {
             Throwable e = new HttpResponseException(response.getHttpCode(), response.getContent());
             throw new UnavailableProviderException(e.getMessage(), e);
@@ -86,6 +81,7 @@ public class PublicKeysHolder {
             try {
                 Gson gson = new Gson();
                 Map<String, String> jsonResponse = gson.fromJson(response.getContent(), HashMap.class);
+                //TODO: the key should be a constant defined elsewhere; this class is a candidate to go to common
                 String publicKeyString = jsonResponse.get("publicKey");
                 publicKey = CryptoUtil.getPublicKeyFromString(publicKeyString);
             } catch (GeneralSecurityException e) {

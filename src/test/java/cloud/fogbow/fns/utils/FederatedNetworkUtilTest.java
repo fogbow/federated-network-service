@@ -1,8 +1,8 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.models.FederationUser;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -18,7 +18,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
-
     public static final int MAX_CIDR_SUFFIX = 32;
     Properties properties;
 
@@ -33,7 +32,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
         //set up
-        FederationUser user = Mockito.mock(FederationUser.class);
+        SystemUser user = Mockito.mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
@@ -77,7 +76,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
             SubnetAddressesCapacityReachedException {
         //set up
         mockOnlyDatabase();
-        FederationUser user = mock(FederationUser.class);
+        SystemUser user = mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
@@ -102,7 +101,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     public void testFillCacheOfFreeIps() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
         //set up
         mockOnlyDatabase();
-        FederationUser user = mock(FederationUser.class);
+        SystemUser user = mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
@@ -159,5 +158,4 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
             federatedNetwork.addAssociatedIp(computeId + i, ip);
         }
     }
-
 }

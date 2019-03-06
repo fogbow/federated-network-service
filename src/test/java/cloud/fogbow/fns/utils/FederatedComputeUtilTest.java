@@ -7,7 +7,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 public class FederatedComputeUtilTest {
-
     private String federatedComputeIp = "fake-federatedComputeIp";
     private String agentPublicIp = "fake-agentPublicIp";
     private String cidr = "fake-cidr";

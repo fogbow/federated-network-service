@@ -2,11 +2,13 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.*;
-import cloud.fogbow.common.models.FederationUser;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationController;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.api.http.response.ResourceId;
+import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
@@ -75,48 +77,48 @@ public class ApplicationFacade {
 
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
-    public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String federationTokenValue)
+    public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String systemUserToken)
             throws FogbowException,
             InvalidCidrException {
-        FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
-        this.authorizationController.authorize(federationUser, Operation.CREATE.getValue(),
+        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        this.authorizationController.authorize(systemUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        this.federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, federationUser);
+        this.federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, systemUser);
         return federatedNetworkOrder.getId();
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String federationTokenValue)
+    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException,
             FederatedNetworkNotFoundException {
-        FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
-        this.authorizationController.authorize(federationUser, Operation.GET.getValue(),
+        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        this.authorizationController.authorize(systemUser, Operation.GET.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId, federationUser);
+        return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId, systemUser);
     }
 
-    public Collection<InstanceStatus> getFederatedNetworksStatus(String federationTokenValue)
+    public Collection<InstanceStatus> getFederatedNetworksStatus(String systemUserToken)
             throws FogbowException {
-        FederationUser federationUser = AuthenticationUtil.authenticate(getAsPublicKey(), federationTokenValue);
-        this.authorizationController.authorize(federationUser, Operation.GET_ALL.getValue(),
+        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        this.authorizationController.authorize(systemUser, Operation.GET_ALL.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(federationUser);
+        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser);
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, String federationTokenValue)
+    public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
             FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException, AgentCommucationException,
             InvalidTokenException {
-        FederationUser federationUser = AuthenticationUtil.authenticate(this.asPublicKey, federationTokenValue);
-        this.authorizationController.authorize(federationUser, Operation.DELETE.getValue(),
+        SystemUser systemUser = AuthenticationUtil.authenticate(this.asPublicKey, systemUserToken);
+        this.authorizationController.authorize(systemUser, Operation.DELETE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        this.federatedNetworkOrderController.deleteFederatedNetwork(federatedNetworkId, federationUser);
+        this.federatedNetworkOrderController.deleteFederatedNetwork(federatedNetworkId, systemUser);
     }
 
     // compute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
-    public synchronized String createCompute(cloud.fogbow.fns.api.parameters.Compute compute,
-                                             String federationTokenValue) throws FogbowException, IOException,
-            InvalidCidrException, SubnetAddressesCapacityReachedException, FederatedNetworkNotFoundException {
+    public synchronized String createCompute(cloud.fogbow.fns.api.parameters.Compute compute, String systemUserToken)
+            throws FogbowException, IOException, InvalidCidrException, SubnetAddressesCapacityReachedException,
+            FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = compute.getFederatedNetworkId();
         String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkId);
@@ -125,7 +127,7 @@ public class ApplicationFacade {
         try {
             String body = gson.toJson(compute.getCompute());
             responseEntity = RedirectUtil.createAndSendRequest("/" + Compute.COMPUTE_ENDPOINT, body,
-                    HttpMethod.POST, federationTokenValue, String.class);
+                    HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
                     body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
@@ -134,20 +136,21 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
+            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
-        String computeId = responseEntity.getBody();
-        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId, compute.getFederatedNetworkId());
-        return computeId;
+        ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
+        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), compute.getFederatedNetworkId());
+        return computeId.getId();
     }
 
-    public synchronized void deleteCompute(String computeId, String federationTokenValue) throws FogbowException {
+    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
             responseEntity = RedirectUtil.createAndSendRequest(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId), "",
-                    HttpMethod.DELETE, federationTokenValue, String.class);
+                    HttpMethod.DELETE, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
                     body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
@@ -156,19 +159,20 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
+            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
     }
 
-    public synchronized ComputeInstance getComputeById(String computeId, String federationTokenValue)
+    public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
             throws FogbowException, URISyntaxException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
             responseEntity = RedirectUtil.createAndSendRequest(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId),
-                    "", HttpMethod.GET, federationTokenValue, String.class);
+                    "", HttpMethod.GET, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
                     body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
@@ -177,12 +181,12 @@ public class ApplicationFacade {
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), responseEntity.getBody());
+            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ComputeInstance computeInstance = gson.fromJson(responseEntity.getBody(), ComputeInstance.class);
         this.computeRequestsController.addFederatedIpInGetInstanceIfApplied(computeInstance, computeId);
         return computeInstance;
-
     }
 
     public void setFederatedNetworkOrderController(FederatedNetworkOrderController federatedNetworkOrderController) {

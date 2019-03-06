@@ -11,6 +11,5 @@ import java.util.List;
 @Repository
 @Transactional
 public interface OrderRepository extends JpaRepository<FederatedNetworkOrder, String> {
-
     List<FederatedNetworkOrder> findByOrderState(OrderState orderState);
 }

@@ -9,14 +9,14 @@ import java.util.Map;
 public interface StableStorage {
 
     /**
-     * Add or update the federatedNetworkOrder into database, so we can recovery it when necessary.
+     * Add or update the federatedNetworkOrder into database, so it can be recovered in case of a crash.
      * @param order {@link FederatedNetworkOrder}
      */
     public void put(FederatedNetworkOrder order);
 
     /**
-     * Retrieve all federated networks, may be interest to create a database recovery
-     * @return A map of user id to federated order {@link FederatedNetworkOrder}
+     * Retrieve all federated networks that have not been deactivated.
+     * @return A map of order id and the corresponding {@link FederatedNetworkOrder}
      */
     public Map<String, FederatedNetworkOrder> retrieveActiveFederatedOrders() throws SubnetAddressesCapacityReachedException, InvalidCidrException;
 }

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FederatedComputeUtil {
-
     private static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
     public static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
     public static final String RIGHT_IP = "#RIGHT_IP#";

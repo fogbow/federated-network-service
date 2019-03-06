@@ -28,14 +28,14 @@ public class Compute {
     public ResponseEntity<ResourceId> createCompute(
             @ApiParam(value = ApiDocumentation.Compute.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.Compute compute,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE, compute));
-            String computeId = ApplicationFacade.getInstance().createCompute(compute, federationTokenValue);
-            return new ResponseEntity<>(new ResourceId(computeId), HttpStatus.CREATED);
+            String computeId = ApplicationFacade.getInstance().createCompute(compute, systemUserToken);
+            return new ResponseEntity<ResourceId>(new ResourceId(computeId), HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;
@@ -47,13 +47,13 @@ public class Compute {
     public ResponseEntity<Boolean> deleteCompute(
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.DELETE_COMPUTE, computeId));
-            ApplicationFacade.getInstance().deleteCompute(computeId, federationTokenValue);
+            ApplicationFacade.getInstance().deleteCompute(computeId, systemUserToken);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
@@ -66,13 +66,13 @@ public class Compute {
     public ResponseEntity<ComputeInstance> getCompute(
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = ApiDocumentation.CommonParameters.FEDERATION_TOKEN)
-            @RequestHeader(required = false, value = CommonKeys.FEDERATION_TOKEN_VALUE_HEADER_KEY) String federationTokenValue)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
             LOGGER.info(String.format(Messages.Info.GET_COMPUTE_BY_ID, computeId));
-            ComputeInstance compute = ApplicationFacade.getInstance().getComputeById(computeId, federationTokenValue);
+            ComputeInstance compute = ApplicationFacade.getInstance().getComputeById(computeId, systemUserToken);
             return new ResponseEntity<ComputeInstance>(compute, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
