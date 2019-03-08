@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sudo docker build --build-arg BRANCH_FNS=develop --build-arg BRANCH_AS=develop --build-arg BRANCH_RAS=develop \
- --build-arg BRANCH_COMMON=develop --no-cache -t fogbow/federated-network-service:develop .
+sudo docker build --build-arg FNS_BRANCH=develop --build-arg RAS_BRANCH=develop --build-arg AS_BRANCH=develop \
+ --build-arg COMMON_BRANCH=develop --no-cache -t fogbow/federated-network-service:develop .
 
