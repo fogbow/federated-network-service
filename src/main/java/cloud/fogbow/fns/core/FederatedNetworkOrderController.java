@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
@@ -35,7 +36,7 @@ public class FederatedNetworkOrderController {
     // Federated Network methods
 
     public void activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
-            throws InvalidCidrException {
+            throws InvalidCidrException, UnexpectedException {
 
         synchronized (federatedNetwork) {
             federatedNetwork.setSystemUser(systemUser);
@@ -58,7 +59,7 @@ public class FederatedNetworkOrderController {
 
     public void deleteFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
             throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
-            UnauthorizedRequestException {
+            UnauthorizedRequestException, UnexpectedException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, systemUser, federatedNetworkId));
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, systemUser);
 

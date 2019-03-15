@@ -1,6 +1,7 @@
 package cloud.fogbow.fns;
 
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
@@ -63,7 +64,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if the activation order made in federatedNetworkOrderController will call the expected methods
     @Test
-    public void testActivatingFederatedNetwork() throws InvalidCidrException {
+    public void testActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         //set up
         mockSingletons();
         String fakeCidr = "10.10.10.0/24";
@@ -88,7 +89,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if any error in communication with agent, will lead the order to fail
     @Test
-    public void testAgentCommunicationError() throws InvalidCidrException {
+    public void testAgentCommunicationError() throws InvalidCidrException, UnexpectedException {
         //set up
         mockSingletons();
         String fakeCidr = "10.10.10.0/24";
@@ -164,7 +165,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
     public void testDeleteFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException {
+            SQLException, UnauthorizedRequestException, UnexpectedException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -195,7 +196,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
     @Test
     public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException,
-            AgentCommucationException, UnauthorizedRequestException {
+            AgentCommucationException, UnauthorizedRequestException, UnexpectedException {
         //set up
         mockSingletons();
         try {
@@ -210,7 +211,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: This test check if an error communicating with agent will throw an AgentCommucationException
     @Test
     public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException,
-            NotEmptyFederatedNetworkException, UnauthorizedRequestException {
+            NotEmptyFederatedNetworkException, UnauthorizedRequestException, UnexpectedException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -529,7 +530,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     }
 
     @Test
-    public void testFailureWhileActivatingFederatedNetwork() throws InvalidCidrException {
+    public void testFailureWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         // set up
         mockDatabase(new HashMap<>());
 
@@ -546,7 +547,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     }
 
     @Test
-    public void testSuccessWhileActivatingFederatedNetwork() throws InvalidCidrException {
+    public void testSuccessWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         // set up
         mockDatabase(new HashMap<>());
 
@@ -564,7 +565,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     @Test(expected = AgentCommucationException.class)
     public void testFailureWhileDeletingFederatedNetwork() throws AgentCommucationException, FederatedNetworkNotFoundException,
-            UnauthorizedRequestException, NotEmptyFederatedNetworkException {
+            UnauthorizedRequestException, NotEmptyFederatedNetworkException, UnexpectedException {
         // set up
         mockDatabase(new HashMap<>());
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
@@ -585,7 +586,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     @Test
     public void testSuccessfulDeletionOfFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException,
-            AgentCommucationException, NotEmptyFederatedNetworkException {
+            AgentCommucationException, NotEmptyFederatedNetworkException, UnexpectedException {
         // set up
         mockDatabase(new HashMap<>());
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);

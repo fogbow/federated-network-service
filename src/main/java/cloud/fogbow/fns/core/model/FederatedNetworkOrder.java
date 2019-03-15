@@ -111,14 +111,14 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) {
+    public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws UnexpectedException {
         this.computeIdsAndIps.put(computeId, ipToBeAttached);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
         ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
-    public synchronized void removeAssociatedIp(String computeId) {
+    public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
         if (!this.computeIdsAndIps.containsKey(computeId)) {
             throw new IllegalArgumentException();
         }
@@ -183,7 +183,7 @@ public class FederatedNetworkOrder implements Serializable {
         this.orderState = state;
     }
 
-    public synchronized void setOrderState(OrderState state) {
+    public synchronized void setOrderState(OrderState state) throws UnexpectedException {
         this.orderState = state;
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);

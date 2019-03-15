@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.datastore;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
@@ -65,7 +66,7 @@ public class RecoveryServiceTest {
     }
 
     @Test
-    public void testRecoveryFederatedNetwork() {
+    public void testRecoveryFederatedNetwork() throws UnexpectedException {
         //set up
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         activeOrdersMap.put(federatedNetworkOrder.getId(), federatedNetworkOrder);

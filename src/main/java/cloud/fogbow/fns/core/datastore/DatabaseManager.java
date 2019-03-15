@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.datastore;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import org.apache.log4j.Logger;
@@ -30,7 +31,7 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public void put(FederatedNetworkOrder order) {
+    public void put(FederatedNetworkOrder order) throws UnexpectedException {
         recoveryService.put(order);
         auditService.updateStateTimestamp(order);
     }
