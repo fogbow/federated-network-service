@@ -1,9 +1,9 @@
 FROM openjdk:8
 
-ARG BRANCH_COMMON
-ARG BRANCH_AS
-ARG BRANCH_RAS
-ARG BRANCH_FNS
+ARG COMMON_BRANCH
+ARG AS_BRANCH
+ARG RAS_BRANCH
+ARG FNS_BRANCH
 
 # Install.
 RUN \
@@ -25,22 +25,22 @@ WORKDIR /root
 # Installing Common
 RUN \
   git clone https://github.com/fogbow/common.git && \
- (cd common && git checkout $BRANCH_COMMON && mvn install -Dmaven.test.skip=true)
+ (cd common && git checkout $COMMON_BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Installing Authentication Service
 RUN \
   git clone https://github.com/fogbow/authentication-service.git && \
- (cd authentication-service && git checkout $BRANCH_AS && mvn install -Dmaven.test.skip=true)
+ (cd authentication-service && git checkout $AS_BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Installing Resource Allocation Service
 RUN \
   git clone https://github.com/fogbow/resource-allocation-service.git && \
-  (cd resource-allocation-service && git checkout $BRANCH_RAS && mvn install -Dmaven.test.skip=true)
+  (cd resource-allocation-service && git checkout $RAS_BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Installing Federated Network Service
 RUN \
   git clone https://github.com/fogbow/federated-network-service.git && \
-  (cd federated-network-service && git checkout $BRANCH_FNS)
+  (cd federated-network-service && git checkout $FNS_BRANCH)
 
 # Define working directory.
 WORKDIR /root/federated-network-service

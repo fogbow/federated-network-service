@@ -1,10 +1,10 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <image tag>"
+  echo "Usage: $0 <image_tag>"
   exit 1
 fi
 
-tag=$1
-sudo docker push fogbow/federated-network-service:$tag
+image_tag=$1
+sudo docker push fogbow/federated-network-service:$image_tag
 
