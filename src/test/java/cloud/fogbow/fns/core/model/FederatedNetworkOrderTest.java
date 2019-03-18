@@ -22,7 +22,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     public static final String CIDR_EXAMPLE = "10.0.0.0/29";
 
     @Test
-    public void testAddAssociatedIp() {
+    public void testAddAssociatedIp() throws UnexpectedException {
         // setup
         super.mockSingletons();
         Map<String, String> fakeAssociatedIps;
@@ -42,7 +42,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test
-    public void testRemoveAssociatedIp(){
+    public void testRemoveAssociatedIp() throws UnexpectedException {
         // setup
         super.mockSingletons();
         Map<String, String> fakeAssociatedIps;
@@ -61,7 +61,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRemoveAssociatedIpWithNoAssociatedIps(){
+    public void testRemoveAssociatedIpWithNoAssociatedIps() throws UnexpectedException {
         // setup
         super.mockSingletons();
         Map<String, String> fakeAssociatedIps;
@@ -100,7 +100,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test
-    public void testAddingAndRemovingAssociatedIps() {
+    public void testAddingAndRemovingAssociatedIps() throws UnexpectedException {
         // set up
         mockDatabase(new HashMap<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);

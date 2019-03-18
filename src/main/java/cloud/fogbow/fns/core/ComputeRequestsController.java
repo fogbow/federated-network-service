@@ -46,7 +46,7 @@ public class ComputeRequestsController {
         }
     }
 
-    public void removeIpToComputeAllocation(String computeId) {
+    public void removeIpToComputeAllocation(String computeId) throws UnexpectedException {
         String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().

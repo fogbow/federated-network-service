@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.datastore;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -12,7 +13,7 @@ public interface StableStorage {
      * Add or update the federatedNetworkOrder into database, so it can be recovered in case of a crash.
      * @param order {@link FederatedNetworkOrder}
      */
-    public void put(FederatedNetworkOrder order);
+    public void put(FederatedNetworkOrder order) throws UnexpectedException;
 
     /**
      * Retrieve all federated networks that have not been deactivated.
