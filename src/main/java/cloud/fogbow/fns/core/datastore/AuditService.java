@@ -1,10 +1,10 @@
 package cloud.fogbow.fns.core.datastore;
 
+import cloud.fogbow.common.datastore.FogbowDatabaseService;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.datastore.orderstorage.AuditableOrderStateChange;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderStateChangeRepository;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.ras.core.datastore.services.FogbowDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

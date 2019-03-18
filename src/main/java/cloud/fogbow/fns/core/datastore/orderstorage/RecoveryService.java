@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.datastore.orderstorage;
 
+import cloud.fogbow.common.datastore.FogbowDatabaseService;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
@@ -7,7 +8,6 @@ import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import cloud.fogbow.ras.core.datastore.services.FogbowDatabaseService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
