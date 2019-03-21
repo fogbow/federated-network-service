@@ -6,7 +6,7 @@ import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.as.core.util.TokenProtector;
 import cloud.fogbow.fns.api.http.request.Redirection;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.PublicKeysHolder;
+import cloud.fogbow.fns.core.FnsPublicKeysHolder;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.ras.api.http.CommonKeys;
@@ -57,7 +57,7 @@ public class RedirectUtil {
                 // If the header is the federationTokenValue, then it needs to be decrypted with the FNS private key,
                 // and then encrypted with the RAS public key, before being forwarded.
                 RSAPrivateKey myPrivateKey = null;
-                RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();
+                RSAPublicKey rasPublicKey = FnsPublicKeysHolder.getInstance().getRasPublicKey();
                 try {
                     myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
                 } catch (IOException | GeneralSecurityException e) {
@@ -100,7 +100,7 @@ public class RedirectUtil {
         // The systemUserToken needs to be decrypted with the FNS public key, and then encrypted with
         // the RAS public key, before being forwarded.
         RSAPrivateKey myPrivateKey = null;
-        RSAPublicKey rasPublicKey = PublicKeysHolder.getInstance().getRasPublicKey();
+        RSAPublicKey rasPublicKey = FnsPublicKeysHolder.getInstance().getRasPublicKey();
         try {
             myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
         } catch (IOException | GeneralSecurityException e) {

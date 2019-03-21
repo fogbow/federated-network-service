@@ -5,7 +5,6 @@ public class Messages {
         public static final String INVALID_URL = "Please check the url %s";
         public static final String GENERIC_EXCEPTION = "Operation returned error: %s";
         public static final String INVALID_CIDR = "Invalid CIDR (%s).";
-        public static final String INVALID_PUBLIC_KEY = "Invalid public key fetched from external server.";
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
