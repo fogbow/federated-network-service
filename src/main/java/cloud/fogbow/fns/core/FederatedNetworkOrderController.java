@@ -23,37 +23,30 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FederatedNetworkOrderController {
-
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
     public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_ID_KEY);
 
-    private FederatedNetworkOrdersHolder orderHolders;
-
-    public FederatedNetworkOrderController() {
-        this.orderHolders = FederatedNetworkOrdersHolder.getInstance();
-    }
-
     // Federated Network methods
 
-    public void activateFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
-            throws InvalidCidrException, UnexpectedException {
-
+    public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
+            throws InvalidCidrException {
         synchronized (federatedNetwork) {
             federatedNetwork.setSystemUser(systemUser);
 
-            SubnetUtils.SubnetInfo subnetInfo = null;
-            subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
+            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
 
             if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
                 LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
                 throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
             }
-            if (AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidr(), subnetInfo.getLowAddress())) {
-                federatedNetwork.setOrderState(OrderState.FULFILLED);
-            } else {
-                federatedNetwork.setOrderState(OrderState.FAILED);
-            }
-            orderHolders.putOrder(federatedNetwork);
+            // TODO ARNETT REMOVE THIS
+//            if (AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidr(), subnetInfo.getLowAddress())) {
+//                federatedNetwork.setOrderState(OrderState.FULFILLED);
+//            } else {
+//                federatedNetwork.setOrderState(OrderState.FAILED);
+//            }
+
+            OrderStateTransitioner.activateOrder(federatedNetwork);
         }
     }
 
@@ -78,7 +71,7 @@ public class FederatedNetworkOrderController {
                 // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
                 // need to be thrown.
                 LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                orderHolders.removeOrder(federatedNetworkId);
+                FederatedNetworkOrdersHolder.getInstance().removeOrder(federatedNetworkId);
                 federatedNetwork.setOrderState(OrderState.DEACTIVATED);
             } else {
                 throw new AgentCommucationException();
@@ -89,7 +82,7 @@ public class FederatedNetworkOrderController {
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
             throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
 
-        FederatedNetworkOrder federatedNetworkOrder = orderHolders.getOrder(federatedNetworkId);
+        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(federatedNetworkId);
 
         if (federatedNetworkOrder != null) {
             if (federatedNetworkOrder.getSystemUser().equals(systemUser)) {
@@ -101,7 +94,7 @@ public class FederatedNetworkOrderController {
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {
-        Collection<FederatedNetworkOrder> orders = this.orderHolders.getActiveOrdersMap().values();
+        Collection<FederatedNetworkOrder> orders = FederatedNetworkOrdersHolder.getInstance().getActiveOrders().values();
 
         // Filter all orders of resourceType from systemUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).

@@ -8,6 +8,7 @@ public class Messages {
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
+        public static final String UNABLE_TO_FIND_LIST_FOR_REQUESTS = "Unable to find list for requests in state %s.";
         public static final String UNABLE_TO_LOAD_PUBLIC_KEY = "Unable to load FNS public key.";
         public static final String UNABLE_TO_REMOVE_FEDERATED_NETWORK = "Unable to remove federated network.";
         public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";

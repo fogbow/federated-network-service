@@ -83,7 +83,7 @@ public class ApplicationFacade {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
         this.authorizationController.authorize(systemUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        this.federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, systemUser);
+        this.federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, systemUser);
         return federatedNetworkOrder.getId();
     }
 

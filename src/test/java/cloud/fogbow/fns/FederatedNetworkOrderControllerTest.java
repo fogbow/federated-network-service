@@ -81,7 +81,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         BDDMockito.given(AgentCommunicatorUtil.createFederatedNetwork(anyString(), anyString()))
                 .willReturn(true);
         // exercise
-        federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, user);
+        federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, user);
         //verify
         verify(federatedNetworkOrder, times(1)).setOrderState(OrderState.FULFILLED);
         assertEquals(FEDERATED_NETWORK_ID, federatedNetworkOrder.getId());
@@ -106,7 +106,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
         BDDMockito.given(AgentCommunicatorUtil.createFederatedNetwork(anyString(), anyString())).willReturn(false);
         // exercise
-        federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, user);
+        federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, user);
         assertEquals(federatedNetworkOrder.getOrderState(), OrderState.FAILED);
     }
 
@@ -171,7 +171,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
         when(federatedNetwork.getId()).thenReturn(FEDERATED_NETWORK_ID);
-        federatedNetworkOrdersHolder.putOrder(federatedNetwork);
+        federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
         BDDMockito.given(AgentCommunicatorUtil.deleteFederatedNetwork(anyString())).willReturn(true);
@@ -248,7 +248,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
-        BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrdersMap()).willReturn(fakeActiveFederatedNetworks);
+        BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrders()).willReturn(fakeActiveFederatedNetworks);
         //exercise
         List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser));
         //verify
@@ -277,7 +277,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         when(federatedNetwork2.getOrderState()).thenReturn(OrderState.FULFILLED);
         fakeActiveFederatedNetworks.put(FEDERATED_NETWORK_ID, federatedNetwork);
         fakeActiveFederatedNetworks.put(federatedNetworkId2, federatedNetwork2);
-        BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrdersMap()).willReturn(fakeActiveFederatedNetworks);
+        BDDMockito.given(federatedNetworkOrdersHolder.getActiveOrders()).willReturn(fakeActiveFederatedNetworks);
         //exercise
         List<InstanceStatus> federatedNetworks = new ArrayList<>(federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser));
         //verify
@@ -308,7 +308,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, freedIps, computesIp));
-        federatedNetworkOrdersHolder.putOrder(federatedNetwork);
+        federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
         String federatedIp = "10.10.10.2";
 //        ComputeOrder computeOrder = new ComputeOrder();
@@ -442,7 +442,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        federatedNetworkOrderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
 //        federatedNetworkOrderController.updateIdOnComputeCreation(federatedCompute, FEDERATED_COMPUTE_ID);
 //        //pre conditions
-//        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrdersMap().values();
+//        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrders().values();
 //        Map<String, FederatedNetworkOrder> federatedNetworks = getFederatedNetworksMap(orders);
 //        Map<String, FederatedComputeOrder> federatedComputes = getFederatedComputesMap(orders);
 //        FederatedNetworkOrder federatedNetwork = federatedNetworkOrdersHolder.getFederatedNetworkOrder(FEDERATED_NETWORK_ID);
@@ -472,7 +472,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockOnlyDatabase();
         addNetworkIntoActiveOrdersMap();
-        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrdersMap().values();
+        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrders().values();
         Map<String, FederatedNetworkOrder> federatedNetworks = getFederatedNetworksMap(orders);
         FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
         //exercise
@@ -511,7 +511,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        FederatedComputeOrder federatedCompute = spy(new FederatedComputeOrder(FEDERATED_NETWORK_ID, "", computeOrder));
 //        federatedNetworkOrderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
 //
-//        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrdersMap().values();
+//        Collection<FederatedNetworkOrder> orders = federatedNetworkOrdersHolder.getActiveOrders().values();
 //        Map<String, FederatedNetworkOrder> federatedNetworks = getFederatedNetworksMap(orders);
 //        FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
 //
@@ -538,7 +538,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
 
         // exercise
-        new FederatedNetworkOrderController().activateFederatedNetwork(federatedNetworkOrder, systemUser);
+        new FederatedNetworkOrderController().addFederatedNetwork(federatedNetworkOrder, systemUser);
 
         // verify
         PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
@@ -555,7 +555,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 
         // exercise
-        new FederatedNetworkOrderController().activateFederatedNetwork(federatedNetworkOrder, systemUser);
+        new FederatedNetworkOrderController().addFederatedNetwork(federatedNetworkOrder, systemUser);
 
         // verify
         PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
@@ -644,7 +644,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
         activeOrdersMap.put(order1.getId(), order1);
         activeOrdersMap.put(order2.getId(), order2);
-        Mockito.when(federatedNetworkOrdersHolder.getActiveOrdersMap()).thenReturn(activeOrdersMap);
+        Mockito.when(federatedNetworkOrdersHolder.getActiveOrders()).thenReturn(activeOrdersMap);
 
         // exercise
         Collection<InstanceStatus> federatedNetworksStatusByUser = federatedNetworkOrderController.getFederatedNetworksStatusByUser(user);
@@ -662,7 +662,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        when(federatedCompute.getId()).thenReturn(FEDERATED_COMPUTE_ID);
 //        when(federatedCompute.getSystemUser()).thenReturn(user);
 //        try {
-//            federatedNetworkOrdersHolder.getInstance().putOrder(federatedCompute);
+//            federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedCompute);
 //        } catch (Exception e) {
 //            fail();
 //        }
@@ -676,7 +676,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, freedIps, computesIp));
         try {
-            federatedNetworkOrdersHolder.getInstance().putOrder(federatedNetwork);
+            federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);
         } catch (Exception e) {
             fail();
         }
