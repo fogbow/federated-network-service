@@ -55,12 +55,18 @@ public class FederatedNetworkOrdersHolder {
     }
 
     public FederatedNetworkOrder removeOrder(String id) {
+        FederatedNetworkOrder order = activeOrders.get(id);
+        SynchronizedDoublyLinkedList<FederatedNetworkOrder> list = getOrdersList(order.getOrderState());
+        list.removeItem(order);
         return activeOrders.remove(id);
     }
 
+    public FederatedNetworkOrder removeOrder(Order order) {
+        return removeOrder(order.getId());
+    }
 
-    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getOrdersList(OrderState currentState) {
-        switch (currentState) {
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getOrdersList(OrderState orderState) {
+        switch (orderState) {
             case OPEN:
                 return this.openOrders;
             case FULFILLED:
@@ -72,13 +78,13 @@ public class FederatedNetworkOrdersHolder {
         }
     }
 
-    private void addAll(Map<String, FederatedNetworkOrder> activeOrdersMap,
+    private void addAll(Map<String, FederatedNetworkOrder> activeOrders,
                         SynchronizedDoublyLinkedList<FederatedNetworkOrder>... listsToBeAdded) {
         FederatedNetworkOrder order;
 
         for (SynchronizedDoublyLinkedList<FederatedNetworkOrder> listToBeAdded : listsToBeAdded) {
             while ((order = listToBeAdded.getNext()) != null) {
-                activeOrdersMap.put(order.getId(), order);
+                activeOrders.put(order.getId(), order);
             }
             listToBeAdded.resetPointer();
         }
