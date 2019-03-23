@@ -56,7 +56,7 @@ public class FederatedNetworkOrdersHolder {
     }
 
     public FederatedNetworkOrder insertNewOrder(FederatedNetworkOrder order) {
-        openOrders.addItem(order);
+        getOrdersList(order.getOrderState()).addItem(order);
         return activeOrders.put(order.getId(), order);
     }
 

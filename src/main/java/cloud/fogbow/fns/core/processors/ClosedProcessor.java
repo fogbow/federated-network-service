@@ -13,15 +13,15 @@ import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
-public class OpenProcessor implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.OpenProcessor.class);
+public class ClosedProcessor implements Runnable {
+    private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.ClosedProcessor.class);
 
-    private Long sleepTime;
+    private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;
 
-    public OpenProcessor(Long sleepTime) {
+    public ClosedProcessor(Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getOpenOrders();
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
     }
 
     @Override
@@ -46,15 +46,9 @@ public class OpenProcessor implements Runnable {
         }
     }
 
-    private void processOrder(FederatedNetworkOrder federatedNetwork) throws UnexpectedException, InvalidCidrException {
-        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
-        boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
-                federatedNetwork.getCidr(),subnetInfo.getLowAddress());
-
-        if (successfullyCreated) {
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.FULFILLED);
-        } else {
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.FAILED);
+    private void processOrder(FederatedNetworkOrder order) throws UnexpectedException, InvalidCidrException {
+        synchronized (order) {
+            OrderStateTransitioner.deactivateOrder(order);
         }
     }
 }
