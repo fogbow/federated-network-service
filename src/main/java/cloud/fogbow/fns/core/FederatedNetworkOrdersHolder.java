@@ -9,13 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FederatedNetworkOrdersHolder {
-
     private static FederatedNetworkOrdersHolder instance;
 
     private Map<String, FederatedNetworkOrder> activeOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> openOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> fulfilledOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> failedOrders;
+    private SynchronizedDoublyLinkedList<FederatedNetworkOrder> closedOrders;
 
     private FederatedNetworkOrdersHolder() {
         // retrieve from database
@@ -23,10 +23,9 @@ public class FederatedNetworkOrdersHolder {
         this.openOrders = databaseManager.readActiveOrders(OrderState.OPEN);
         this.fulfilledOrders = databaseManager.readActiveOrders(OrderState.FULFILLED);
         this.failedOrders = databaseManager.readActiveOrders(OrderState.FAILED);
+        this.closedOrders = databaseManager.readActiveOrders(OrderState.CLOSED);
 
-        // initialize activeOrders
-        this.activeOrders = new HashMap<>();
-        addAll(this.activeOrders, this.openOrders, this.fulfilledOrders, this.failedOrders);
+        this.activeOrders = initializeActiveOrders(this.openOrders, this.fulfilledOrders, this.failedOrders, this.closedOrders);
     }
 
     public static synchronized FederatedNetworkOrdersHolder getInstance() {
@@ -34,6 +33,22 @@ public class FederatedNetworkOrdersHolder {
             instance = new FederatedNetworkOrdersHolder();
         }
         return instance;
+    }
+
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getOpenOrders() {
+        return this.openOrders;
+    }
+
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getFulfilledOrders() {
+        return this.fulfilledOrders;
+    }
+
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getFailedOrders() {
+        return this.failedOrders;
+    }
+
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getClosedOrders() {
+        return this.closedOrders;
     }
 
     public Map<String, FederatedNetworkOrder> getActiveOrders() {
@@ -57,11 +72,11 @@ public class FederatedNetworkOrdersHolder {
     public FederatedNetworkOrder removeOrder(String id) {
         FederatedNetworkOrder order = activeOrders.get(id);
         SynchronizedDoublyLinkedList<FederatedNetworkOrder> list = getOrdersList(order.getOrderState());
-        list.removeItem(order);
+        getOrdersList(order.getOrderState()).removeItem(order);
         return activeOrders.remove(id);
     }
 
-    public FederatedNetworkOrder removeOrder(Order order) {
+    public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) {
         return removeOrder(order.getId());
     }
 
@@ -73,13 +88,15 @@ public class FederatedNetworkOrdersHolder {
                 return this.fulfilledOrders;
             case FAILED:
                 return this.failedOrders;
+            case CLOSED:
+                return this.closedOrders;
             default:
                 return null;
         }
     }
 
-    private void addAll(Map<String, FederatedNetworkOrder> activeOrders,
-                        SynchronizedDoublyLinkedList<FederatedNetworkOrder>... listsToBeAdded) {
+    private HashMap<String, FederatedNetworkOrder> initializeActiveOrders(SynchronizedDoublyLinkedList<FederatedNetworkOrder>... listsToBeAdded) {
+        HashMap<String, FederatedNetworkOrder> allOrders = new HashMap();
         FederatedNetworkOrder order;
 
         for (SynchronizedDoublyLinkedList<FederatedNetworkOrder> listToBeAdded : listsToBeAdded) {
@@ -88,5 +105,6 @@ public class FederatedNetworkOrdersHolder {
             }
             listToBeAdded.resetPointer();
         }
+        return allOrders;
     }
 }

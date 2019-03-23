@@ -23,9 +23,10 @@ public class OrderStateTransitioner {
     public static void deactivateOrder(FederatedNetworkOrder order) {
         synchronized (order) {
             if (!order.getOrderState().equals(OrderState.CLOSED)) {
-                throw new RuntimeException(Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED);
+                String message = Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED;
+                throw new RuntimeException(String.format(message, order.getId()));
             }
-            FederatedNetworkOrderController.removeOrder(order);
+            FederatedNetworkOrdersHolder.getInstance().removeOrder(order);
         }
     }
 

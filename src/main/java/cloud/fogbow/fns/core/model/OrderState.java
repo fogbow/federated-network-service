@@ -4,5 +4,6 @@ public enum OrderState {
     OPEN,
     FULFILLED,
     FAILED,
-    DEACTIVATED;
+    CLOSED,
+    DEACTIVATED
 }
