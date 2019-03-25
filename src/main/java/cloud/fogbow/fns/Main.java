@@ -6,13 +6,11 @@ import cloud.fogbow.common.plugins.authorization.AuthorizationController;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPluginInstantiator;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.core.ComputeRequestsController;
-import cloud.fogbow.fns.core.FederatedNetworkOrderController;
-import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
+import cloud.fogbow.ras.core.ProcessorsThreadController;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +49,10 @@ public class Main implements ApplicationRunner {
             String className = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.AUTHORIZATION_PLUGIN_CLASS_KEY);
             AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
             AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
+
+            // Setting up order processors
+            ProcessorThreadsController processorsThreadController = new ProcessorThreadsController();
+            processorsThreadController.startFnsThreads();
 
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);

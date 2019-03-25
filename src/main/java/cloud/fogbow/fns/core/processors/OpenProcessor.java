@@ -8,7 +8,6 @@ import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
@@ -36,9 +35,9 @@ public class OpenProcessor implements Runnable {
                     Thread.sleep(this.sleepTime);
                 }
             } catch (InvalidCidrException e) {
-                e.printStackTrace();
+                LOGGER.error("", e);
             } catch (UnexpectedException e) {
-                e.printStackTrace();
+                LOGGER.error("", e);
             } catch (InterruptedException e) {
                 LOGGER.error(Messages.Exception.THREAD_HAS_BEEN_INTERRUPTED, e);
                 break;
@@ -48,8 +47,16 @@ public class OpenProcessor implements Runnable {
 
     private void processOrder(FederatedNetworkOrder federatedNetwork) throws UnexpectedException, InvalidCidrException {
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
-        boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
-                federatedNetwork.getCidr(),subnetInfo.getLowAddress());
+        boolean successfullyCreated = true;
+//        boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
+//                federatedNetwork.getCidr(),subnetInfo.getLowAddress());
+
+        // TODO ARNETT REMOVE THIS AND USE CODE ABOVE INSTEAD
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if (successfullyCreated) {
             OrderStateTransitioner.transition(federatedNetwork, OrderState.FULFILLED);

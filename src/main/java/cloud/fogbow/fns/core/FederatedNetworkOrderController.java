@@ -29,7 +29,7 @@ public class FederatedNetworkOrderController {
     // Federated Network methods
 
     public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
-            throws InvalidCidrException {
+            throws InvalidCidrException, UnexpectedException {
         synchronized (federatedNetwork) {
             federatedNetwork.setSystemUser(systemUser);
 
@@ -39,43 +39,26 @@ public class FederatedNetworkOrderController {
                 LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
                 throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
             }
-            // TODO ARNETT REMOVE THIS
-//            if (AgentCommunicatorUtil.createFederatedNetwork(federatedNetwork.getCidr(), subnetInfo.getLowAddress())) {
-//                federatedNetwork.setOrderState(OrderState.FULFILLED);
-//            } else {
-//                federatedNetwork.setOrderState(OrderState.FAILED);
-//            }
 
             OrderStateTransitioner.activateOrder(federatedNetwork);
         }
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException, AgentCommucationException,
+            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException,
             UnauthorizedRequestException, UnexpectedException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, systemUser, federatedNetworkId));
         FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, systemUser);
 
+        if (federatedNetwork == null) {
+            throw new IllegalArgumentException(
+                    String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
+        } else if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
+            throw new NotEmptyFederatedNetworkException();
+        }
+
         synchronized (federatedNetwork) {
-            if (federatedNetwork == null) {
-                throw new IllegalArgumentException(
-                        String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
-            }
-            LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
-            if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
-                throw new NotEmptyFederatedNetworkException();
-            }
-            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidr());
-            if (wasDeleted == true || federatedNetwork.getOrderState() == OrderState.FAILED) {
-                // If the state of the order is FAILED, this is because in the creation, it was not possible to
-                // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
-                // need to be thrown.
-                LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                FederatedNetworkOrdersHolder.getInstance().removeOrder(federatedNetworkId);
-                federatedNetwork.setOrderState(OrderState.DEACTIVATED);
-            } else {
-                throw new AgentCommucationException();
-            }
+            OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
         }
     }
 
@@ -99,10 +82,10 @@ public class FederatedNetworkOrderController {
         // Filter all orders of resourceType from systemUser that are not closed (closed orders have been deleted by
         // the user and should not be seen; they will disappear from the system).
         return orders.stream()
-                    .filter(order -> order.getSystemUser().equals(systemUser))
-                    .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
-                    .map(orderToInstanceStatus())
-                    .collect(Collectors.toList());
+                .filter(order -> order.getSystemUser().equals(systemUser))
+                .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
+                .map(orderToInstanceStatus())
+                .collect(Collectors.toList());
     }
 
     public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {

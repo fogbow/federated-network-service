@@ -5,8 +5,8 @@ import cloud.fogbow.fns.core.processors.ClosedProcessor;
 import cloud.fogbow.fns.core.processors.OpenProcessor;
 import org.apache.log4j.Logger;
 
-public class ProcessorsThreadController {
-    private static final Logger LOGGER = Logger.getLogger(ProcessorsThreadController.class);
+public class ProcessorThreadsController {
+    private static final Logger LOGGER = Logger.getLogger(ProcessorThreadsController.class);
 
     private static final Long DEFAULT_SLEEP_TIME = 1000L;
 
@@ -16,7 +16,7 @@ public class ProcessorsThreadController {
     private final Thread openProcessorThread;
     private final Thread closedProcessorThread;
 
-    public ProcessorsThreadController() {
+    public ProcessorThreadsController() {
         OpenProcessor openProcessor = new OpenProcessor(DEFAULT_SLEEP_TIME);
         ClosedProcessor closedProcessor = new ClosedProcessor(DEFAULT_SLEEP_TIME);
 
@@ -28,7 +28,7 @@ public class ProcessorsThreadController {
      * This method starts all FNS processors, if you defined a new FNS operation and this
      * operation require a new thread to run, you should start this thread at this method.
      */
-    public void startRasThreads() {
+    public void startFnsThreads() {
         LOGGER.info(Messages.Info.STARTING_THREADS);
         this.openProcessorThread.start();
         this.closedProcessorThread.start();

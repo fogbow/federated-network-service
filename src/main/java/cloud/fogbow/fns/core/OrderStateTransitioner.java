@@ -20,7 +20,7 @@ public class OrderStateTransitioner {
         }
     }
 
-    public static void deactivateOrder(FederatedNetworkOrder order) {
+    public static void deactivateOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {
             if (!order.getOrderState().equals(OrderState.CLOSED)) {
                 String message = Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED;

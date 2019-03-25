@@ -81,6 +81,10 @@ public class ApplicationFacade {
             throws FogbowException,
             InvalidCidrException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+
+        // setting the user who is creating the federated network
+        federatedNetworkOrder.setSystemUser(systemUser);
+
         this.authorizationController.authorize(systemUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
         this.federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, systemUser);

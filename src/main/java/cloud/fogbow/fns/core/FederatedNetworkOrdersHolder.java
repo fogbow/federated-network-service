@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -69,15 +70,18 @@ public class FederatedNetworkOrdersHolder {
         return order;
     }
 
-    public FederatedNetworkOrder removeOrder(String id) {
-        FederatedNetworkOrder order = activeOrders.get(id);
-        SynchronizedDoublyLinkedList<FederatedNetworkOrder> list = getOrdersList(order.getOrderState());
-        getOrdersList(order.getOrderState()).removeItem(order);
-        return activeOrders.remove(id);
+    public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        return removeOrder(order.getId());
     }
 
-    public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) {
-        return removeOrder(order.getId());
+    public FederatedNetworkOrder removeOrder(String id) throws UnexpectedException {
+        FederatedNetworkOrder order = activeOrders.get(id);
+
+        getOrdersList(order.getOrderState()).removeItem(order);
+        FederatedNetworkOrder removedOrder = activeOrders.remove(id);
+
+        order.setOrderState(OrderState.DEACTIVATED);
+        return removedOrder;
     }
 
     public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getOrdersList(OrderState orderState) {

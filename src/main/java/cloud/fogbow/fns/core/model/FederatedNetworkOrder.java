@@ -152,10 +152,15 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public synchronized InstanceState getInstanceStateFromOrderState() {
-        if (this.getOrderState().equals(OrderState.FULFILLED)) {
-            return InstanceState.READY;
-        } else {
-            return InstanceState.FAILED;
+        switch (this.getOrderState()) {
+            case OPEN:
+                return InstanceState.OPEN;
+            case FAILED:
+                return InstanceState.FAILED;
+            case FULFILLED:
+                return InstanceState.READY;
+            default:
+                return null;
         }
     }
 
