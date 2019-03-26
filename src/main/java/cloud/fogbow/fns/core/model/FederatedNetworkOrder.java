@@ -91,13 +91,14 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember,
                                  String providingMember, String cidr, String name, Set<String> providers,
-                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
+                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps, OrderState orderState) {
         this(id, systemUser, requestingMember, providingMember);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.computeIdsAndIps = computeIdsAndIps;
+        this.orderState = orderState;
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember,

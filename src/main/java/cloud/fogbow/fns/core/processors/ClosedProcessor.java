@@ -49,9 +49,7 @@ public class ClosedProcessor implements Runnable {
     private void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {
             LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, order.toString()));
-            // TODO ARNETT REMOVE THE COMMENT
-//            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
-            boolean wasDeleted = true;
+            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
             if (wasDeleted || order.getOrderState() == OrderState.FAILED) {
                 // If the state of the order is FAILED, this is because in the creation, it was not possible to
                 // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not

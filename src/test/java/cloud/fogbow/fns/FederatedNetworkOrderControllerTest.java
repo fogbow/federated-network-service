@@ -59,55 +59,75 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Map<String, String> computesIp = new HashMap<>();
         this.systemUser = new SystemUser(USER_ID, USER_NAME, TOKEN_PROVIDER);
         this.federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp);
+                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN);
     }
 
     //test case: Tests if the activation order made in federatedNetworkOrderController will call the expected methods
     @Test
-    public void testActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
+    public void testAddingAFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         //set up
         mockSingletons();
-        String fakeCidr = "10.10.10.0/24";
-        SubnetUtils.SubnetInfo fakeSubnetInfo = new SubnetUtils(fakeCidr).getInfo();
-        SystemUser user = mock(SystemUser.class);
-        FederatedNetworkOrder federatedNetworkOrder = spy(new FederatedNetworkOrder());
+
+        String cidr = "10.10.10.0/24";
+        SubnetUtils.SubnetInfo subnetInfo = new SubnetUtils(cidr).getInfo();
+        SystemUser user = Mockito.mock(SystemUser.class);
+
+        FederatedNetworkOrder federatedNetworkOrder = Mockito.spy(new FederatedNetworkOrder());
         federatedNetworkOrder.setId(FEDERATED_NETWORK_ID);
-        federatedNetworkOrder.setCidr(fakeCidr);
-        doNothing().when(federatedNetworkOrder).setOrderState(OrderState.FULFILLED);
+        federatedNetworkOrder.setCidr(cidr);
+
+        doNothing().when(federatedNetworkOrder).setOrderState(Mockito.any());
+
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
-        BDDMockito.given(FederatedNetworkUtil.getSubnetInfo(anyString())).willReturn(fakeSubnetInfo);
+        BDDMockito.given(FederatedNetworkUtil.getSubnetInfo(anyString())).willReturn(subnetInfo);
         BDDMockito.given(FederatedNetworkUtil.isSubnetValid(any(SubnetUtils.SubnetInfo.class))).willReturn(true);
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        BDDMockito.given(AgentCommunicatorUtil.createFederatedNetwork(anyString(), anyString()))
-                .willReturn(true);
+
         // exercise
         federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, user);
+
         //verify
-        verify(federatedNetworkOrder, times(1)).setOrderState(OrderState.FULFILLED);
         assertEquals(FEDERATED_NETWORK_ID, federatedNetworkOrder.getId());
     }
 
-    //test case: Tests if any error in communication with agent, will lead the order to fail
+    //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
-    public void testAgentCommunicationError() throws InvalidCidrException, UnexpectedException {
+    public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException {
         //set up
-        mockSingletons();
-        String fakeCidr = "10.10.10.0/24";
-        SubnetUtils.SubnetInfo fakeSubnetInfo = new SubnetUtils(fakeCidr).getInfo();
-        SystemUser user = Mockito.mock(SystemUser.class);
-        FederatedNetworkOrder federatedNetworkOrder = spy(new FederatedNetworkOrder());
-        federatedNetworkOrder.setId(FEDERATED_NETWORK_ID);
-        federatedNetworkOrder.setCidr(fakeCidr);
-        PowerMockito.mockStatic(FederatedNetworkUtil.class);
-        BDDMockito.given(FederatedNetworkUtil.getSubnetInfo(anyString())).willReturn(fakeSubnetInfo);
-        BDDMockito.given(FederatedNetworkUtil.isSubnetValid(any(SubnetUtils.SubnetInfo.class))).willReturn(true);
-        doNothing().when(federatedNetworkOrder).setOrderState(OrderState.FULFILLED);
+        mockOnlyDatabase();
+        FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
+                "requestingMember", "providingMember"));
 
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        BDDMockito.given(AgentCommunicatorUtil.createFederatedNetwork(anyString(), anyString())).willReturn(false);
-        // exercise
-        federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, user);
-        assertEquals(federatedNetworkOrder.getOrderState(), OrderState.FAILED);
+        federatedNetwork.setOrderState(OrderState.OPEN);
+        when(federatedNetwork.getComputeIdsAndIps()).thenReturn(new HashMap<>());
+
+        federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
+
+        //exercise
+        federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+
+        FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+        assertEquals(OrderState.CLOSED, returnedOrder.getOrderState());
+    }
+
+    //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
+    @Test(expected = NotEmptyFederatedNetworkException.class)
+    public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException {
+        //set up
+        mockOnlyDatabase();
+        FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
+                "requestingMember", "providingMember"));
+
+        federatedNetwork.setOrderState(OrderState.OPEN);
+        HashMap<String, String> computeIdsAndIps = new HashMap<>();
+        computeIdsAndIps.put("someId", "someIp");
+        when(federatedNetwork.getComputeIdsAndIps()).thenReturn(computeIdsAndIps);
+
+        federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
+
+        //exercise
+        federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
     }
 
     //test case: Tests that can retrieve a federated network stored into activeFederatedNetwork.
@@ -162,37 +182,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         }
     }
 
-    //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
-    @Test
-    public void testDeleteFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException {
-        //set up
-        mockOnlyDatabase();
-        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
-        when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
-        when(federatedNetwork.getId()).thenReturn(FEDERATED_NETWORK_ID);
-        federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
-
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        BDDMockito.given(AgentCommunicatorUtil.deleteFederatedNetwork(anyString())).willReturn(true);
-        try {
-            //exercise
-            federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
-            //verify
-        } catch (NotEmptyFederatedNetworkException e) {
-            fail();
-        }
-        try {
-            //exercise
-            FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
-            fail();
-        } catch (FederatedNetworkNotFoundException e) {
-            //verify
-        }
-        verify(federatedNetwork, times(1)).setOrderState(OrderState.DEACTIVATED);
-        assertNull(federatedNetworkOrdersHolder.getFederatedNetworkOrder(FEDERATED_NETWORK_ID));
-    }
-
     //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
     @Test
     public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException,
@@ -207,30 +196,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
             //verify
         }
     }
-
-    // TODO ARNETT REMOVE THIS
-//    //test case: This test check if an error communicating with agent will throw an AgentCommucationException
-//    @Test
-//    public void testErrorInAgentCommunication() throws FederatedNetworkNotFoundException,
-//            NotEmptyFederatedNetworkException, UnauthorizedRequestException, UnexpectedException {
-//        //set up
-//        mockSingletons();
-//        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
-//        federatedNetwork.setId(FEDERATED_NETWORK_ID);
-//        when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
-//        when(federatedNetwork.getOrderState()).thenReturn(OrderState.FULFILLED);
-//        when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
-//
-//        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-//        BDDMockito.given(AgentCommunicatorUtil.deleteFederatedNetwork(anyString())).willReturn(false);
-//        try {
-//            //exercise
-//            federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
-//            fail();
-//        } catch (AgentCommucationException e) {
-//            //verify
-//        }
-//    }
 
     //test case: Tests if get all federated networks will return all federated networks added
     @Test
@@ -300,7 +265,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     // compute tests
     // test case: Tests if to add a new federated compute, federatedNetworkOrderController makes the correct calls to the collaborators.
     @Test
-    public void testAddFederatedCompute() {
+    public void testAddFederatedCompute() throws UnexpectedException {
         //set up
         mockOnlyDatabase();
         String cidr = "10.10.10.0/24";
@@ -308,7 +273,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp));
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+        federatedNetwork.setOrderState(OrderState.OPEN);
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
         String federatedIp = "10.10.10.2";
@@ -530,82 +496,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getCacheOfFreeIps().element());
     }
 
-    @Test
-    public void testFailureWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
-        // set up
-        mockDatabase(new HashMap<>());
-
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
-
-        // exercise
-        new FederatedNetworkOrderController().addFederatedNetwork(federatedNetworkOrder, systemUser);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
-
-        assertEquals(OrderState.FAILED, federatedNetworkOrder.getOrderState());
-    }
-
-    @Test
-    public void testSuccessWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
-        // set up
-        mockDatabase(new HashMap<>());
-
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-
-        // exercise
-        new FederatedNetworkOrderController().addFederatedNetwork(federatedNetworkOrder, systemUser);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
-
-        assertEquals(OrderState.FULFILLED, federatedNetworkOrder.getOrderState());
-    }
-
-    @Test(expected = AgentCommucationException.class)
-    public void testFailureWhileDeletingFederatedNetwork() throws AgentCommucationException, FederatedNetworkNotFoundException,
-            UnauthorizedRequestException, NotEmptyFederatedNetworkException, UnexpectedException {
-        // set up
-        mockDatabase(new HashMap<>());
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetworkOrder.getCidr())).thenReturn(false);
-
-        FederatedNetworkOrderController spiedController = Mockito.spy(new FederatedNetworkOrderController());
-        Mockito.doReturn(federatedNetworkOrder).when(spiedController)
-                .getFederatedNetwork(Mockito.eq(federatedNetworkOrder.getId()), Mockito.any(SystemUser.class));
-
-        // exercise
-        spiedController.deleteFederatedNetwork(federatedNetworkOrder.getId(), systemUser);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
-
-        assertEquals(OrderState.FULFILLED, federatedNetworkOrder.getOrderState());
-    }
-
-    @Test
-    public void testSuccessfulDeletionOfFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException,
-            AgentCommucationException, NotEmptyFederatedNetworkException, UnexpectedException {
-        // set up
-        mockDatabase(new HashMap<>());
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetworkOrder.getCidr())).thenReturn(true);
-
-        FederatedNetworkOrderController spiedController = Mockito.spy(new FederatedNetworkOrderController());
-        Mockito.doReturn(federatedNetworkOrder).when(spiedController)
-                .getFederatedNetwork(Mockito.eq(federatedNetworkOrder.getId()), Mockito.any(SystemUser.class));
-
-        // exercise
-        spiedController.deleteFederatedNetwork(federatedNetworkOrder.getId(), systemUser);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
-
-        assertEquals(OrderState.DEACTIVATED, federatedNetworkOrder.getOrderState());
-    }
-
     @Test(expected = FederatedNetworkNotFoundException.class)
     public void testGetNonExistentFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException {
         // set up
@@ -675,12 +565,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp));
-        try {
-            federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);
-        } catch (Exception e) {
-            fail();
-        }
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+        federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);
     }
 
 
