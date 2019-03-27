@@ -46,7 +46,7 @@ public class OpenProcessor implements Runnable {
         }
     }
 
-    private void processOrder(FederatedNetworkOrder federatedNetwork) throws UnexpectedException, InvalidCidrException {
+    protected void processOrder(FederatedNetworkOrder federatedNetwork) throws UnexpectedException, InvalidCidrException {
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
         boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
                 federatedNetwork.getCidr(),subnetInfo.getLowAddress());

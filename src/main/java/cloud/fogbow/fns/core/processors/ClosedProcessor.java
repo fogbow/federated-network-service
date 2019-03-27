@@ -46,7 +46,7 @@ public class ClosedProcessor implements Runnable {
         }
     }
 
-    private void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
+    protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {
             LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, order.toString()));
             boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
