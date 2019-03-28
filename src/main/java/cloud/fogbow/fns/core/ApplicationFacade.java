@@ -81,9 +81,13 @@ public class ApplicationFacade {
             throws FogbowException,
             InvalidCidrException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+
+        // setting the user who is creating the federated network
+        federatedNetworkOrder.setSystemUser(systemUser);
+
         this.authorizationController.authorize(systemUser, Operation.CREATE.getValue(),
                 ResourceType.FEDERATED_NETWORK.getValue());
-        this.federatedNetworkOrderController.activateFederatedNetwork(federatedNetworkOrder, systemUser);
+        this.federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, systemUser);
         return federatedNetworkOrder.getId();
     }
 
@@ -203,7 +207,7 @@ public class ApplicationFacade {
 
     public RSAPublicKey getAsPublicKey() throws FogbowException {
         if (this.asPublicKey == null) {
-            this.asPublicKey = PublicKeysHolder.getInstance().getAsPublicKey();
+            this.asPublicKey = FnsPublicKeysHolder.getInstance().getAsPublicKey();
         }
         return this.asPublicKey;
     }

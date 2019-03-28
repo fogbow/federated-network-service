@@ -2,11 +2,12 @@ package cloud.fogbow.fns.core.model;
 
 public enum InstanceState {
     READY("ready"),
-    FAILED("failed");
+    FAILED("failed"),
+    OPEN("open");
 
     private String value;
 
-    private InstanceState(String value) {
+    InstanceState(String value) {
         this.value = value;
     }
 

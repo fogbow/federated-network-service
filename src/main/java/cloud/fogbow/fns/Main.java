@@ -6,10 +6,7 @@ import cloud.fogbow.common.plugins.authorization.AuthorizationController;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPluginInstantiator;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.core.ComputeRequestsController;
-import cloud.fogbow.fns.core.FederatedNetworkOrderController;
-import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
@@ -55,6 +52,11 @@ public class Main implements ApplicationRunner {
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);
             this.applicationFacade.setAuthorizationController(authorizationController);
+
+            // Setting up order processors
+            ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);
+            processorsThreadController.startFnsThreads();
+
         } catch (FatalErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();

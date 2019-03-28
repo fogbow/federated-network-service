@@ -1,9 +1,11 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -68,15 +70,21 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
 
     protected void mockOnlyDatabase() {
         Map<String, FederatedNetworkOrder> activeOrdersMap = new HashMap<>();
-        database = Mockito.mock(DatabaseManager.class);
+
+        this.database = mockDatabaseManager();
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
-        try {
-            when(database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
-            federatedNetworkOrdersHolder = FederatedNetworkOrdersHolder.getInstance();
-            federatedNetworkOrderController = new FederatedNetworkOrderController();
-        } catch (Exception e) {
-            fail();
+        when(this.database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
+
+        federatedNetworkOrdersHolder = FederatedNetworkOrdersHolder.getInstance();
+        federatedNetworkOrderController = new FederatedNetworkOrderController();
+    }
+
+    private DatabaseManager mockDatabaseManager() {
+        DatabaseManager mockedDatabase = Mockito.mock(DatabaseManager.class);
+        for (OrderState state : OrderState.values()) {
+            Mockito.when(mockedDatabase.readActiveOrders(state)).thenReturn(new SynchronizedDoublyLinkedList<>());
         }
+        return mockedDatabase;
     }
 }

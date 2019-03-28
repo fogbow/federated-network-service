@@ -88,7 +88,7 @@ public class RecoveryServiceTest {
         Queue<String> freedIps = new LinkedList<>();
         Map<String, String> computesIp = new HashMap<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp);
+                "name", allowedMembers, freedIps, computesIp, OrderState.OPEN);
         federatedNetworkOrder.setOrderStateInTestMode(OrderState.FULFILLED);
         return federatedNetworkOrder;
     }
