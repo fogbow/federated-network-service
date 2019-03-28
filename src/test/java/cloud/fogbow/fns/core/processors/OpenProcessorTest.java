@@ -21,12 +21,13 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testFailureWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         // set up
+        FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
         mockOnlyDatabase();
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
         FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requestingMember",
                 "providingMember", "10.0.30.1/20", "name", new HashSet<>(), new LinkedList<>(), new HashMap<>(), null);
 
-        OrderStateTransitioner.activateOrder(order);
+        orderController.activateOrder(order);
 
         OpenProcessor openProcessor = new OpenProcessor(1000L);
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
@@ -44,12 +45,13 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testSuccessWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
         // set up
+        FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
         mockOnlyDatabase();
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
         FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requestingMember",
                 "providingMember", "10.0.30.1/20", "name", new HashSet<>(), new LinkedList<>(), new HashMap<>(), null);
 
-        OrderStateTransitioner.activateOrder(order);
+        orderController.activateOrder(order);
 
         OpenProcessor openProcessor = new OpenProcessor(1000L);
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);

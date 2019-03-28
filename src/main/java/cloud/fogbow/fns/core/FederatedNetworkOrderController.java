@@ -40,7 +40,7 @@ public class FederatedNetworkOrderController {
                 throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
             }
 
-            OrderStateTransitioner.activateOrder(federatedNetwork);
+            this.activateOrder(federatedNetwork);
         }
     }
 
@@ -94,5 +94,22 @@ public class FederatedNetworkOrderController {
             InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), RAS_NAME, status);
             return instanceStatus;
         };
+    }
+
+    public void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        synchronized (order) {
+            order.setOrderState(OrderState.OPEN);
+            FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
+        }
+    }
+
+    public void deactivateOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        synchronized (order) {
+            if (!order.getOrderState().equals(OrderState.CLOSED)) {
+                String message = Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED;
+                throw new RuntimeException(String.format(message, order.getId()));
+            }
+            FederatedNetworkOrdersHolder.getInstance().removeOrder(order);
+        }
     }
 }

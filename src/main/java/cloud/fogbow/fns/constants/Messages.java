@@ -2,8 +2,8 @@ package cloud.fogbow.fns.constants;
 
 public class Messages {
     public static class Exception {
-        public static final String INVALID_URL = "Please check the url %s";
         public static final String GENERIC_EXCEPTION = "Operation returned error: %s";
+        public static final String INVALID_URL = "Please check the url %s";
         public static final String INVALID_CIDR = "Invalid CIDR (%s).";
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
         public static final String ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED = "Order '%s' should be closed before deactivated.";
@@ -12,8 +12,8 @@ public class Messages {
         public static final String UNABLE_TO_FIND_LIST_FOR_REQUESTS = "Unable to find list for requests in state %s.";
         public static final String UNABLE_TO_LOAD_PUBLIC_KEY = "Unable to load FNS public key.";
         public static final String UNABLE_TO_REMOVE_FEDERATED_NETWORK = "Unable to remove federated network.";
-        public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";
         public static final String THREAD_HAS_BEEN_INTERRUPTED = "Thread has been interrupted";
+        public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";
     }
 
     public static class Fatal {

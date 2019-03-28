@@ -5,12 +5,9 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
-import cloud.fogbow.fns.core.OrderStateTransitioner;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.ras.core.OrderController;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,7 +34,7 @@ public class ClosedProcessorTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
 
         // exercise
-        ClosedProcessor closedProcessor = new ClosedProcessor(SLEEP_TIME);
+        ClosedProcessor closedProcessor = new ClosedProcessor(new FederatedNetworkOrderController(), SLEEP_TIME);
         closedProcessor.processOrder(order);
 
         // verify
@@ -58,7 +55,7 @@ public class ClosedProcessorTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
 
         // exercise
-        ClosedProcessor closedProcessor = new ClosedProcessor(SLEEP_TIME);
+        ClosedProcessor closedProcessor = new ClosedProcessor(new FederatedNetworkOrderController(), SLEEP_TIME);
         closedProcessor.processOrder(order);
     }
 }

@@ -46,14 +46,19 @@ public class OpenProcessor implements Runnable {
         }
     }
 
-    protected void processOrder(FederatedNetworkOrder federatedNetwork) throws UnexpectedException, InvalidCidrException {
-        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
-        boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
-                federatedNetwork.getCidr(),subnetInfo.getLowAddress());
-        if (successfullyCreated) {
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.FULFILLED);
-        } else {
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.FAILED);
+    protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException, InvalidCidrException {
+        // The order object synchronization is needed to prevent a race
+        // condition on order access. For example: a user can delete an open
+        // order while this method is trying to create the federated network.
+        synchronized (order) {
+            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
+            boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
+                    order.getCidr(), subnetInfo.getLowAddress());
+            if (successfullyCreated) {
+                OrderStateTransitioner.transition(order, OrderState.FULFILLED);
+            } else {
+                OrderStateTransitioner.transition(order, OrderState.FAILED);
+            }
         }
     }
 }

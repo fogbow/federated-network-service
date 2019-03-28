@@ -3,16 +3,12 @@ package cloud.fogbow.fns.core.processors;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
-import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
 public class ClosedProcessor implements Runnable {
@@ -20,10 +16,12 @@ public class ClosedProcessor implements Runnable {
 
     private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;
+    private FederatedNetworkOrderController orderController;
 
-    public ClosedProcessor(Long sleepTime) {
+    public ClosedProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
         this.sleepTime = sleepTime;
         this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
+        this.orderController = orderController;
     }
 
     @Override
@@ -56,9 +54,9 @@ public class ClosedProcessor implements Runnable {
                 // need to be thrown.
                 LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, order.toString()));
 
-                OrderStateTransitioner.deactivateOrder(order);
+                this.orderController.deactivateOrder(order);
             } else {
-                throw new UnexpectedException("", new AgentCommucationException());
+                throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
             }
         }
     }

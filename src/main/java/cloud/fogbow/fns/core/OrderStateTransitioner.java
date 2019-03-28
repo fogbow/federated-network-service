@@ -7,26 +7,9 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 
 public class OrderStateTransitioner {
-    public static void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        synchronized (order) {
-            order.setOrderState(OrderState.OPEN);
-            FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
-        }
-    }
-
     public static void transition(FederatedNetworkOrder order, OrderState newState) throws UnexpectedException {
         synchronized (order) {
             doTransition(order, newState);
-        }
-    }
-
-    public static void deactivateOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        synchronized (order) {
-            if (!order.getOrderState().equals(OrderState.CLOSED)) {
-                String message = Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED;
-                throw new RuntimeException(String.format(message, order.getId()));
-            }
-            FederatedNetworkOrdersHolder.getInstance().removeOrder(order);
         }
     }
 

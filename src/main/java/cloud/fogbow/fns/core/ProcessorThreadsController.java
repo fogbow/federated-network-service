@@ -16,9 +16,9 @@ public class ProcessorThreadsController {
     private final Thread openProcessorThread;
     private final Thread closedProcessorThread;
 
-    public ProcessorThreadsController() {
+    public ProcessorThreadsController(FederatedNetworkOrderController orderController) {
         OpenProcessor openProcessor = new OpenProcessor(DEFAULT_SLEEP_TIME);
-        ClosedProcessor closedProcessor = new ClosedProcessor(DEFAULT_SLEEP_TIME);
+        ClosedProcessor closedProcessor = new ClosedProcessor(orderController, DEFAULT_SLEEP_TIME);
 
         this.openProcessorThread = new Thread(openProcessor, OPEN_PROCESSOR_THREAD_NAME);
         this.closedProcessorThread = new Thread(closedProcessor, CLOSED_PROCESSOR_THREAD_NAME);

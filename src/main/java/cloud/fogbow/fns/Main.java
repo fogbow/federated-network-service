@@ -10,7 +10,6 @@ import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
-import cloud.fogbow.ras.core.ProcessorsThreadController;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +49,14 @@ public class Main implements ApplicationRunner {
             AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
             AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
 
-            // Setting up order processors
-            ProcessorThreadsController processorsThreadController = new ProcessorThreadsController();
-            processorsThreadController.startFnsThreads();
-
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);
             this.applicationFacade.setAuthorizationController(authorizationController);
+
+            // Setting up order processors
+            ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);
+            processorsThreadController.startFnsThreads();
+
         } catch (FatalErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();
