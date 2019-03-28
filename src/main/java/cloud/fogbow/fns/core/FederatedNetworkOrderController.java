@@ -1,24 +1,24 @@
 package cloud.fogbow.fns.core;
 
+import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
-import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.api.http.response.InstanceStatus;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceState;
-import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
+import cloud.fogbow.ras.core.models.orders.Order;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.Messages;
 
-import java.util.*;
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,6 +27,13 @@ public class FederatedNetworkOrderController {
     public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_ID_KEY);
 
     // Federated Network methods
+    public FederatedNetworkOrder getOrder(String orderId) throws InstanceNotFoundException {
+        FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
+        if (requestedOrder == null) {
+            throw new InstanceNotFoundException();
+        }
+        return requestedOrder;
+    }
 
     public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
             throws InvalidCidrException, UnexpectedException {
