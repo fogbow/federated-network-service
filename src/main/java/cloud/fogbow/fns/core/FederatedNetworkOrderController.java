@@ -1,20 +1,17 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
-import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceState;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import cloud.fogbow.ras.core.models.orders.Order;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
@@ -27,7 +24,7 @@ public class FederatedNetworkOrderController {
     public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_ID_KEY);
 
     // Federated Network methods
-    public FederatedNetworkOrder getOrder(String orderId) throws InstanceNotFoundException {
+    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws InstanceNotFoundException {
         FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
         if (requestedOrder == null) {
             throw new InstanceNotFoundException();
@@ -51,36 +48,17 @@ public class FederatedNetworkOrderController {
         }
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException,
-            UnauthorizedRequestException, UnexpectedException {
-        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, systemUser, federatedNetworkId));
-        FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, systemUser);
+    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
+            throws NotEmptyFederatedNetworkException, UnexpectedException {
+        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
-        if (federatedNetwork == null) {
-            throw new IllegalArgumentException(
-                    String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
-        } else if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
+        if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
 
         synchronized (federatedNetwork) {
             OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
         }
-    }
-
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-            throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
-
-        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(federatedNetworkId);
-
-        if (federatedNetworkOrder != null) {
-            if (federatedNetworkOrder.getSystemUser().equals(systemUser)) {
-                return federatedNetworkOrder;
-            }
-            throw new UnauthorizedRequestException();
-        }
-        throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {
@@ -94,6 +72,20 @@ public class FederatedNetworkOrderController {
                 .map(orderToInstanceStatus())
                 .collect(Collectors.toList());
     }
+
+//    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
+//            throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
+//
+//        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getFederatedNetwork(federatedNetworkId);
+//
+//        if (federatedNetworkOrder != null) {
+//            if (federatedNetworkOrder.getSystemUser().equals(systemUser)) {
+//                return federatedNetworkOrder;
+//            }
+//            throw new UnauthorizedRequestException();
+//        }
+//        throw new FederatedNetworkNotFoundException(federatedNetworkId);
+//    }
 
     public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
         return order -> {

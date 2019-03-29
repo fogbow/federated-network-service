@@ -1,5 +1,6 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
@@ -92,7 +93,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
     public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException {
+            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException, InstanceNotFoundException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
@@ -104,9 +105,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
         //exercise
-        federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+        federatedNetworkOrderController.deleteFederatedNetwork(federatedNetwork);
 
-        FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+        FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
         assertEquals(OrderState.CLOSED, returnedOrder.getOrderState());
     }
 
@@ -127,72 +128,54 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
         //exercise
-        federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+        federatedNetworkOrderController.deleteFederatedNetwork(federatedNetwork);
     }
 
     //test case: Tests that can retrieve a federated network stored into activeFederatedNetwork.
     @Test
-    public void testGetFederatedNetwork() throws SQLException, UnauthorizedRequestException {
+    public void testGetFederatedNetwork() throws InstanceNotFoundException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
         when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
         when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
         //exercise
-        try {
-            FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
-            //verify
-            assertEquals(federatedNetwork, returnedOrder);
-        } catch (FederatedNetworkNotFoundException e) {
-            fail();
-        }
+        FederatedNetworkOrder returnedOrder = federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
+        //verify
+        assertEquals(federatedNetwork, returnedOrder);
     }
 
     //test case: Trying to retrieve a federated network  from another user must throw UnauthenticatedUserException.
-    @Test
-    public void testGetFederatedNetworkWithDifferentUser() throws FederatedNetworkNotFoundException {
-        //set up
-        mockSingletons();
-        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
-        when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
-        when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
-
-        String nonAuthenticatedUserId = "non-autheticated";
-        SystemUser nonAuthenticatedUser = new SystemUser(nonAuthenticatedUserId, USER_NAME, TOKEN_PROVIDER);
-        //exercise
-        try {
-            federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, nonAuthenticatedUser);
-            fail();
-        } catch (UnauthorizedRequestException e) {
-            //verify
-        }
-    }
+    // TODO MOVE TO AppFacadeTest
+//    @Test
+//    public void testGetFederatedNetworkWithDifferentUser() throws InstanceNotFoundException {
+//        //set up
+//        mockSingletons();
+//        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
+//        when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
+//        when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
+//
+//        String nonAuthenticatedUserId = "non-autheticated";
+//        SystemUser nonAuthenticatedUser = new SystemUser(nonAuthenticatedUserId, USER_NAME, TOKEN_PROVIDER);
+//        //exercise
+//        try {
+//            federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
+//            fail();
+//        } catch (UnauthorizedRequestException e) {
+//            //verify
+//        }
+//    }
 
     //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
     @Test
-    public void testGetNotExistentFederatedNetwork() throws UnauthorizedRequestException {
+    public void testGetNotExistentFederatedNetwork() {
         //set up
         mockSingletons();
         try {
             //exercise
-            federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
+            federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
             fail();
-        } catch (FederatedNetworkNotFoundException e) {
-            //verify
-        }
-    }
-
-    //test case: This test check if a delete in nonexistent federatedNetwork will throw a FederatedNetworkNotFoundException
-    @Test
-    public void testDeleteNonExistentFederatedNetwork() throws NotEmptyFederatedNetworkException,
-            AgentCommucationException, UnauthorizedRequestException, UnexpectedException {
-        //set up
-        mockSingletons();
-        try {
-            //exercise
-            federatedNetworkOrderController.deleteFederatedNetwork(FEDERATED_NETWORK_ID, systemUser);
-            fail();
-        } catch (FederatedNetworkNotFoundException e) {
+        } catch (InstanceNotFoundException e) {
             //verify
         }
     }
@@ -496,15 +479,15 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getCacheOfFreeIps().element());
     }
 
-    @Test(expected = FederatedNetworkNotFoundException.class)
-    public void testGetNonExistentFederatedNetwork() throws UnauthorizedRequestException, FederatedNetworkNotFoundException {
+    @Test(expected = InstanceNotFoundException.class)
+    public void testGetNonExistentFederatedNetwork() throws InstanceNotFoundException {
         // set up
         mockDatabase(new HashMap<>());
         FederatedNetworkOrderController controller = new FederatedNetworkOrderController();
 
         // verify
         String nonExistentId = "non-existent-id";
-        controller.getFederatedNetwork(nonExistentId, systemUser);
+        controller.getFederatedNetwork(nonExistentId);
     }
 
     @Test

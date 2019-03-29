@@ -36,7 +36,7 @@ public class Messages {
         public static final String GET_FEDERATED_NETWORK_STATUS = "Get federated network status request";
         public static final String GET_PUBLIC_KEY = "Get public key received.";
         public static final String GET_VERSION = "Get version request received.";
-        public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, user: %s, federated network id: %s.";
+        public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, federated network id: %s.";
         public static final Object STARTING_THREADS = "Starting threads.";
     }
 

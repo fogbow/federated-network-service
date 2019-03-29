@@ -91,12 +91,11 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
-            throws FogbowException,
-            FederatedNetworkNotFoundException {
+            throws FogbowException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
-        FederatedNetworkOrder order = this.federatedNetworkOrderController.getOrder(federatedNetworkId);
+        FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
-        return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId, systemUser);
+        return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String systemUserToken)
@@ -109,12 +108,11 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException, AgentCommucationException,
-            InvalidTokenException, InstanceNotFoundException {
+            NotEmptyFederatedNetworkException, InvalidTokenException, InstanceNotFoundException {
         SystemUser systemUser = AuthenticationUtil.authenticate(this.asPublicKey, systemUserToken);
-        FederatedNetworkOrder order = this.federatedNetworkOrderController.getOrder(federatedNetworkId);
+        FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
-        this.federatedNetworkOrderController.deleteFederatedNetwork(federatedNetworkId, systemUser);
+        this.federatedNetworkOrderController.deleteFederatedNetwork(order);
     }
 
     // compute requests that involve federated network need to be synchronized because there is no order object to
