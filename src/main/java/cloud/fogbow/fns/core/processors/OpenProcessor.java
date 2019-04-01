@@ -51,13 +51,15 @@ public class OpenProcessor implements Runnable {
         // condition on order access. For example: a user can delete an open
         // order while this method is trying to create the federated network.
         synchronized (order) {
-            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
-            boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
-                    order.getCidr(), subnetInfo.getLowAddress());
-            if (successfullyCreated) {
-                OrderStateTransitioner.transition(order, OrderState.FULFILLED);
-            } else {
-                OrderStateTransitioner.transition(order, OrderState.FAILED);
+            if (order.getOrderState().equals(OrderState.OPEN)) {
+                SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
+                boolean successfullyCreated = AgentCommunicatorUtil.createFederatedNetwork(
+                        order.getCidr(), subnetInfo.getLowAddress());
+                if (successfullyCreated) {
+                    OrderStateTransitioner.transition(order, OrderState.FULFILLED);
+                } else {
+                    OrderStateTransitioner.transition(order, OrderState.FAILED);
+                }
             }
         }
     }
