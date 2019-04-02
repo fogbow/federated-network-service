@@ -10,8 +10,6 @@ import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.constants.Messages;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -47,10 +45,10 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
 
-    @ElementCollection(targetClass = String.class)
-    @CollectionTable(name = "federated_network_allowed_members")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private Set<String> providers;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn
+    @Column
+    private HashMap<String, MemberConfigurationState> providers;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
@@ -66,7 +64,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkOrder(String id) {
         this.id = id;
-        this.providers = new HashSet<>();
+        this.providers = new HashMap<>();
         this.cacheOfFreeIps = new LinkedList<>();
         this.computeIdsAndIps = new HashMap<>();
     }
@@ -79,9 +77,6 @@ public class FederatedNetworkOrder implements Serializable {
         this.providingMember = providingMember;
     }
 
-    /**
-     * Creating Order with predefined Id.
-     */
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember, String providingMember) {
         this(id);
         this.systemUser = systemUser;
@@ -90,7 +85,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember,
-                                 String providingMember, String cidr, String name, Set<String> providers,
+                                 String providingMember, String cidr, String name, HashMap<String, MemberConfigurationState> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps, OrderState orderState) {
         this(id, systemUser, requestingMember, providingMember);
         this.cidr = cidr;
@@ -102,12 +97,35 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember,
-                                 String cidr, String name, Set<String> providers,
+                                 String cidr, String name, HashMap<String, MemberConfigurationState> providers,
                                  Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
         this(systemUser, requestingMember, providingMember);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
+        this.cacheOfFreeIps = cacheOfFreeIps;
+        this.computeIdsAndIps = computeIdsAndIps;
+    }
+
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember,
+                                 String providingMember, String cidr, String name, Set<String> providers,
+                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps, OrderState orderState) {
+        this(id, systemUser, requestingMember, providingMember);
+        this.cidr = cidr;
+        this.name = name;
+        this.providers = FederatedNetworkUtil.initializeMemberConfigurationMap(providers);
+        this.cacheOfFreeIps = cacheOfFreeIps;
+        this.computeIdsAndIps = computeIdsAndIps;
+        this.orderState = orderState;
+    }
+
+    public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember,
+                                 String cidr, String name, Set<String> providers,
+                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
+        this(systemUser, requestingMember, providingMember);
+        this.cidr = cidr;
+        this.name = name;
+        this.providers = FederatedNetworkUtil.initializeMemberConfigurationMap(providers);
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.computeIdsAndIps = computeIdsAndIps;
     }
@@ -197,7 +215,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkInstance getInstance() {
         return new FederatedNetworkInstance(this.id, this.name, this.requestingMember, this.providingMember,
-                this.cidr, this.providers, this.getComputeIdsAndIps(),
+                this.cidr, this.providers.keySet(), this.getComputeIdsAndIps(),
                 (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
     }
 
@@ -249,11 +267,11 @@ public class FederatedNetworkOrder implements Serializable {
         this.name = name;
     }
 
-    public Set<String> getProviders() {
+    public HashMap<String, MemberConfigurationState> getProviders() {
         return providers;
     }
 
-    public void setProviders(Set<String> providers) {
+    public void setProviders(HashMap<String, MemberConfigurationState> providers) {
         this.providers = providers;
     }
 

@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.api.parameters;
 
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 
 import java.util.*;
 
@@ -14,7 +15,8 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         FederatedNetworkOrder order = new FederatedNetworkOrder();
         order.setCidr(this.cidr);
         order.setName(this.name);
-        order.setProviders(this.providingMembers);
+        order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providingMembers));
+
         return order;
     }
 

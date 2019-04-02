@@ -11,14 +11,14 @@ import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import org.apache.log4j.Logger;
 
-public class ClosedProcessor implements Runnable {
+public class FulfilledProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.ClosedProcessor.class);
 
     private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;
     private FederatedNetworkOrderController orderController;
 
-    public ClosedProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
+    public FulfilledProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
         this.sleepTime = sleepTime;
         this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
         this.orderController = orderController;
@@ -46,16 +46,9 @@ public class ClosedProcessor implements Runnable {
 
     protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {
-            LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, order.toString()));
-            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
-            if (wasDeleted || order.getOrderState() == OrderState.FAILED) {
-                // If the state of the order is FAILED, this is because in the creation, it was not possible to
-                // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
-                // need to be thrown.
-                LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, order.toString()));
+            // Check if the order is still FULFILLED (its state may have been changed by another thread)
+            if (order.getOrderState().equals(OrderState.FULFILLED)) {
                 this.orderController.deactivateOrder(order);
-            } else {
-                throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
             }
         }
     }
