@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.ras.core.models.UserData;
-import cloud.fogbow.ras.core.plugins.interoperability.util.CloudInitUserDataBuilder;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import cloud.fogbow.fns.api.parameters.Compute;
