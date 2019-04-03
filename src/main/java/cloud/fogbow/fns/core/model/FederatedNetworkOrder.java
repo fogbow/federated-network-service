@@ -45,6 +45,13 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
 
+    @Column
+    private int vlanId;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private ConfigurationMode configurationMode;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
     @Column
@@ -291,8 +298,16 @@ public class FederatedNetworkOrder implements Serializable {
         this.computeIdsAndIps = computeIdsAndIps;
     }
 
-    public ResourceType getType() {
-        return ResourceType.FEDERATED_NETWORK;
+    public ConfigurationMode getConfigurationMode() {
+        return configurationMode;
+    }
+
+    public int getVlanId() {
+        return vlanId;
+    }
+
+    public void setVlanId(int vlanId) {
+        this.vlanId = vlanId;
     }
 
     @Override

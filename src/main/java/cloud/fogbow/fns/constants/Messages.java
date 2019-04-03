@@ -2,10 +2,12 @@ package cloud.fogbow.fns.constants;
 
 public class Messages {
     public static class Exception {
+        public static final String CONFIGURATION_MODE_NOT_IMPLEMENTED = "Configuration mode not implemented.";
         public static final String GENERIC_EXCEPTION = "Operation returned error: %s";
         public static final String INVALID_URL = "Please check the url %s";
         public static final String INVALID_CIDR = "Invalid CIDR (%s).";
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
+        public static final String NO_MORE_VLAN_IDS_AVAILABLE = "No more Vlan IDs available.";
         public static final String ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED = "Order '%s' should be closed before deactivated.";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
