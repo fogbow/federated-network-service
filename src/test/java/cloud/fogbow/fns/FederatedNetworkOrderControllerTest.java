@@ -149,27 +149,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         assertEquals(federatedNetwork, returnedOrder);
     }
 
-    //test case: Trying to retrieve a federated network  from another user must throw UnauthenticatedUserException.
-    // TODO MOVE TO AppFacadeTest
-//    @Test
-//    public void testGetFederatedNetworkWithDifferentUser() throws InstanceNotFoundException {
-//        //set up
-//        mockSingletons();
-//        FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
-//        when(federatedNetwork.getSystemUser()).thenReturn(systemUser);
-//        when(federatedNetworkOrdersHolder.getOrder(FEDERATED_NETWORK_ID)).thenReturn(federatedNetwork);
-//
-//        String nonAuthenticatedUserId = "non-autheticated";
-//        SystemUser nonAuthenticatedUser = new SystemUser(nonAuthenticatedUserId, USER_NAME, TOKEN_PROVIDER);
-//        //exercise
-//        try {
-//            federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
-//            fail();
-//        } catch (UnauthorizedRequestException e) {
-//            //verify
-//        }
-//    }
-
     //test case: This test check if a federated network that can't be found, this get operation should throw a FederatedNetworkNotFoundException
     @Test
     public void testGetNotExistentFederatedNetwork() {
@@ -359,6 +338,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID);
         String nonAuthenticatedUserId = "non-authenticated";
         SystemUser nonAuthenticatedUser = new SystemUser(nonAuthenticatedUserId, USER_NAME, TOKEN_PROVIDER);
+
         //exercise
 //        try {
 //            federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, nonAuthenticatedUser);
