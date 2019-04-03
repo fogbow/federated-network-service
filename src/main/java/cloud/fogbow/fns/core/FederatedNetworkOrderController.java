@@ -85,20 +85,6 @@ public class FederatedNetworkOrderController {
                 .collect(Collectors.toList());
     }
 
-//    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-//            throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
-//
-//        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getFederatedNetwork(federatedNetworkId);
-//
-//        if (federatedNetworkOrder != null) {
-//            if (federatedNetworkOrder.getSystemUser().equals(systemUser)) {
-//                return federatedNetworkOrder;
-//            }
-//            throw new UnauthorizedRequestException();
-//        }
-//        throw new FederatedNetworkNotFoundException(federatedNetworkId);
-//    }
-
     public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
         return order -> {
             InstanceState status = order.getInstanceStateFromOrderState();
