@@ -55,9 +55,8 @@ public class OpenProcessor implements Runnable {
         synchronized (order) {
             ConfigurationMode mode = order.getConfigurationMode();
             ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, LOCAL_MEMBER_NAME);
-            int acquiredVlanId = 0;
             try {
-                acquiredVlanId = serviceConnector.acquireVlanId();
+                int acquiredVlanId = serviceConnector.acquireVlanId();
                 order.setVlanId(acquiredVlanId);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
             } catch (NoVlanIdsLeftException e) {

@@ -38,11 +38,13 @@ public class Messages {
         public static final String GET_PUBLIC_KEY = "Get public key received.";
         public static final String GET_VERSION = "Get version request received.";
         public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, user: %s, federated network id: %s.";
-        public static final Object STARTING_THREADS = "Starting threads.";
+        public static final String STARTING_THREADS = "Starting threads.";
+        public static final String NO_REMOTE_COMMUNICATION_CONFIGURED = "No remote communication configured.";
     }
 
     public static class Error {
         public static final String INVALID_CIDR = "Recovering and order with wrong CIDR.";
+        public static final String NO_PACKET_SENDER = "No packet sender.";
         public static final String RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND = "Resource Allocation Service does not respond.";public static final String TRYING_TO_CREATE_AGENT_ERROR = "Trying to create agent with atts (%s). Error : %s.";
         public static final String TRYING_TO_CREATE_AGENT_OUTPUT = "Trying to create agent with atts (%s). Output : %s.";
         public static final String TRYING_TO_DELETE_AGENT_ERROR = "Trying to delete agent with atts (%s). Error : %s.";

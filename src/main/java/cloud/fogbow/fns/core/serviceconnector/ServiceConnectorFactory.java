@@ -25,7 +25,7 @@ public class ServiceConnectorFactory {
                 if (memberName.equals(LOCAL_MEMBER_NAME)) {
                     return new LocalDfnsServiceConnector();
                 } else {
-                    return new RemoteDfnsServiceConnector();
+                    return new RemoteDfnsServiceConnector(memberName);
                 }
             case VANILLA:
                 return new VanillaServiceConnector();
