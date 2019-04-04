@@ -56,7 +56,17 @@ public class FederatedNetworkOrderController {
         }
 
         synchronized (federatedNetwork) {
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
+            LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
+            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidr());
+            if (wasDeleted || federatedNetwork.getOrderState() == OrderState.FAILED) {
+                // If the state of the order is FAILED, this is because in the creation, it was not possible to
+                // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
+                // need to be thrown.
+                LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
+                OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
+            } else {
+                throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
+            }
         }
     }
 
