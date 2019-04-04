@@ -3,21 +3,21 @@ package cloud.fogbow.fns.core.processors;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
-import cloud.fogbow.ras.core.OrderController;
 import org.apache.log4j.Logger;
 
 public class OpenProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.OpenProcessor.class);
+
+    // TODO ARNETT
+    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     private Long sleepTime;
 
@@ -54,7 +54,7 @@ public class OpenProcessor implements Runnable {
         // order while this method is trying to create the federated network.
         synchronized (order) {
             ConfigurationMode mode = order.getConfigurationMode();
-            ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode);
+            ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, LOCAL_MEMBER_NAME);
             int acquiredVlanId = 0;
             try {
                 acquiredVlanId = serviceConnector.acquireVlanId();
