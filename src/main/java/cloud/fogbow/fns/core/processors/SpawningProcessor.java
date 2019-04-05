@@ -14,9 +14,7 @@ import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SpawningProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.ClosedProcessor.class);
@@ -86,7 +84,7 @@ public class SpawningProcessor implements Runnable {
     }
 
     private void processDFNSOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        List<MemberConfigurationState> memberConfigurationStates = new ArrayList<>();
+        Set<MemberConfigurationState> memberConfigurationStates = new HashSet<>();
         for (Map.Entry<String, MemberConfigurationState> provider : order.getProviders().entrySet()) {
             ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
                     ConfigurationMode.DFNS, provider.getKey());
@@ -98,26 +96,16 @@ public class SpawningProcessor implements Runnable {
         OrderStateTransitioner.transition(order, nextOrderState);
     }
 
-    private OrderState getNextOrderState(List<MemberConfigurationState> memberConfigurationStates) {
-        OrderState orderState = OrderState.FULFILLED;
-        boolean hasFail = false;
-        boolean hasSuccess = false;
+    private OrderState getNextOrderState(Set<MemberConfigurationState> memberConfigurationStates) {
+        OrderState orderState = OrderState.PARTIALLY_FULFILLED;
 
-        for (MemberConfigurationState state : memberConfigurationStates) {
-            if (state == MemberConfigurationState.PARTIAL_SUCCESS) {
-                orderState = OrderState.PARTIALLY_FULFILLED;
-                break;
-            }  else if (state == MemberConfigurationState.SUCCESS) {
-                hasSuccess = true;
-            }  else {
-                hasFail = true;
-            }
-        }
+        if (memberConfigurationStates.contains(MemberConfigurationState.PARTIAL_SUCCESS)) return orderState;
 
-        if (orderState != OrderState.PARTIALLY_FULFILLED) {
-            if (hasFail) {
-                orderState = hasSuccess ? OrderState.PARTIALLY_FULFILLED : OrderState.FAILED;
-            }
+        boolean hasFail = memberConfigurationStates.contains(null) || memberConfigurationStates.contains(MemberConfigurationState.FAILED);
+        boolean hasSuccess = memberConfigurationStates.contains(MemberConfigurationState.SUCCESS);
+
+        if (hasFail) {
+            orderState = hasSuccess ? OrderState.PARTIALLY_FULFILLED : OrderState.FAILED;
         }
 
         return orderState;
