@@ -1,15 +1,13 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
-import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
-import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
-
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
+import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
-import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
-
-import com.google.gson.Gson;
+import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
+import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
@@ -28,7 +26,7 @@ public class RemoteConfigureMemberRequest implements RemoteRequest<MemberConfigu
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.targetMember);
-        return MemberConfigurationState.FAILED;
+        return unmarshal(response);
     }
 
     private IQ marshal(FederatedNetworkOrder order) {
@@ -41,9 +39,13 @@ public class RemoteConfigureMemberRequest implements RemoteRequest<MemberConfigu
 
         Element orderElement = queryElement.addElement(IqElement.FEDERATED_NETWORK_ORDER.toString());
 
-        String orderJson = new Gson().toJson(order);
+        String orderJson = GsonHolder.getInstance().toJson(order);
         orderElement.setText(orderJson);
 
         return iq;
+    }
+
+    private MemberConfigurationState unmarshal(IQ response) {
+        return null;
     }
 }

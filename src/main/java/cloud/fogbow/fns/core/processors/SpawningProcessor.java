@@ -15,6 +15,7 @@ import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -62,14 +63,12 @@ public class SpawningProcessor implements Runnable {
                         this.processVanillaOrder(order);
                         break;
                     case DFNS:
-                        this.processDFNSOrder(order);
+                        this.processDfnsOrder(order);
                         break;
                     default:
                         throw new RuntimeException(Messages.Exception.CONFIGURATION_MODE_NOT_IMPLEMENTED);
                 }
             }
-
-
         }
     }
 
@@ -85,20 +84,19 @@ public class SpawningProcessor implements Runnable {
         }
     }
 
-    private void processDFNSOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        List<MemberConfigurationState> memberConfigurationStates = new ArrayList<>();
-        for (Map.Entry<String, MemberConfigurationState> provider : order.getProviders().entrySet()) {
+    private void processDfnsOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        for (String provider : order.getProviders().keySet()) {
             ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                    ConfigurationMode.DFNS, provider.getKey());
+                    ConfigurationMode.DFNS, provider);
             MemberConfigurationState memberState = connector.configure(order);
-            memberConfigurationStates.add(memberState);
+            order.getProviders().put(provider, memberState);
         }
 
-        OrderState nextOrderState = getNextOrderState(memberConfigurationStates);
+        OrderState nextOrderState = getNextOrderState(order.getProviders().values());
         OrderStateTransitioner.transition(order, nextOrderState);
     }
 
-    private OrderState getNextOrderState(List<MemberConfigurationState> memberConfigurationStates) {
+    private OrderState getNextOrderState(Collection<MemberConfigurationState> memberConfigurationStates) {
         OrderState orderState = OrderState.FULFILLED;
         boolean hasFail = false;
         boolean hasSuccess = false;

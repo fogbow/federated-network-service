@@ -55,7 +55,8 @@ public class FederatedNetworkOrder implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
     @Column
-    private HashMap<String, MemberConfigurationState> providers;
+    @CollectionTable
+    private Map<String, MemberConfigurationState> providers;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
@@ -274,11 +275,11 @@ public class FederatedNetworkOrder implements Serializable {
         this.name = name;
     }
 
-    public HashMap<String, MemberConfigurationState> getProviders() {
+    public Map<String, MemberConfigurationState> getProviders() {
         return providers;
     }
 
-    public void setProviders(HashMap<String, MemberConfigurationState> providers) {
+    public void setProviders(Map<String, MemberConfigurationState> providers) {
         this.providers = providers;
     }
 
