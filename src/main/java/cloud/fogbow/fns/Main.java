@@ -2,7 +2,6 @@ package cloud.fogbow.fns;
 
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
-import cloud.fogbow.common.plugins.authorization.AuthorizationController;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPluginInstantiator;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
@@ -10,6 +9,7 @@ import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
+import cloud.fogbow.fns.core.model.FnsOperation;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +46,11 @@ public class Main implements ApplicationRunner {
             FederatedNetworkOrderController federatedNetworkOrderController = new FederatedNetworkOrderController();
             ComputeRequestsController computeRequestsController = new ComputeRequestsController();
             String className = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.AUTHORIZATION_PLUGIN_CLASS_KEY);
-            AuthorizationPlugin authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
-            AuthorizationController authorizationController =  new AuthorizationController(authorizationPlugin);
+            AuthorizationPlugin<FnsOperation> authorizationPlugin = AuthorizationPluginInstantiator.getAuthorizationPlugin(className);
 
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);
-            this.applicationFacade.setAuthorizationController(authorizationController);
+            this.applicationFacade.setAuthorizationPlugin(authorizationPlugin);
 
             // Setting up order processors
             ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);
