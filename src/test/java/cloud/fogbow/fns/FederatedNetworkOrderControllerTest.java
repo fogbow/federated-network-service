@@ -4,6 +4,7 @@ import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
+import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
@@ -97,6 +98,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember"));
+
+        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
         when(federatedNetwork.getComputeIdsAndIps()).thenReturn(new HashMap<>());
