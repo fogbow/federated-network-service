@@ -79,25 +79,25 @@ public class ApplicationFacade {
 
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
-    public String createFederatedNetwork(FederatedNetworkOrder federatedNetworkOrder, String systemUserToken)
+    public String createFederatedNetwork(FederatedNetworkOrder order, String systemUserToken)
             throws FogbowException,
             InvalidCidrException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
 
         // setting the user who is creating the federated network
-        federatedNetworkOrder.setSystemUser(systemUser);
+        order.setSystemUser(systemUser);
 
-        this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.CREATE, ResourceType.FEDERATED_NETWORK, federatedNetworkOrder));
-        this.federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, systemUser);
-        return federatedNetworkOrder.getId();
+        this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.CREATE, ResourceType.FEDERATED_NETWORK, order));
+        this.federatedNetworkOrderController.addFederatedNetwork(order, systemUser);
+        return order.getId();
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
-            throws FogbowException,
-            FederatedNetworkNotFoundException {
+            throws FogbowException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
-        this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.GET, ResourceType.FEDERATED_NETWORK));
-        return this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId, systemUser);
+        FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
+        authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
+        return order;
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String systemUserToken)
@@ -109,11 +109,11 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            FederatedNetworkNotFoundException, NotEmptyFederatedNetworkException, AgentCommucationException,
-            InvalidTokenException {
+            NotEmptyFederatedNetworkException, InvalidTokenException, InstanceNotFoundException {
         SystemUser systemUser = AuthenticationUtil.authenticate(this.asPublicKey, systemUserToken);
-        this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.DELETE, ResourceType.FEDERATED_NETWORK));
-        this.federatedNetworkOrderController.deleteFederatedNetwork(federatedNetworkId, systemUser);
+        FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
+        authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
+        this.federatedNetworkOrderController.deleteFederatedNetwork(order);
     }
 
     // compute requests that involve federated network need to be synchronized because there is no order object to
@@ -216,5 +216,17 @@ public class ApplicationFacade {
 
     public void setBuildNumber(String buildNumber) {
         this.buildNumber = buildNumber;
+    }
+
+    protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
+                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException, InstanceNotFoundException {
+        // Check whether requester owns order
+        SystemUser orderOwner = order.getSystemUser();
+        String ownerUserId = orderOwner.getId();
+        String requestUserId = requester.getId();
+        if (!ownerUserId.equals(requestUserId)) {
+            throw new UnauthorizedRequestException(Messages.Exception.REQUESTER_DOES_NOT_OWN_REQUEST);
+        }
+        this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 }
