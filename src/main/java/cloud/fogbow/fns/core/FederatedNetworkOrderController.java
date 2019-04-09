@@ -1,13 +1,12 @@
 package cloud.fogbow.fns.core;
 
-import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
+import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -27,6 +26,13 @@ public class FederatedNetworkOrderController {
     public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
 
     // Federated Network methods
+    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws InstanceNotFoundException {
+        FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
+        if (requestedOrder == null) {
+            throw new InstanceNotFoundException();
+        }
+        return requestedOrder;
+    }
 
     public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
             throws InvalidCidrException, UnexpectedException {
@@ -44,16 +50,11 @@ public class FederatedNetworkOrderController {
         }
     }
 
-    public void deleteFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-            throws NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException,
-            UnauthorizedRequestException, UnexpectedException {
-        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, systemUser, federatedNetworkId));
-        FederatedNetworkOrder federatedNetwork = this.getFederatedNetwork(federatedNetworkId, systemUser);
+    public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
+            throws NotEmptyFederatedNetworkException, UnexpectedException {
+        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
-        if (federatedNetwork == null) {
-            throw new IllegalArgumentException(
-                    String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, federatedNetworkId));
-        } else if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
+        if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
 
@@ -70,20 +71,6 @@ public class FederatedNetworkOrderController {
                 throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
             }
         }
-    }
-
-    public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, SystemUser systemUser)
-            throws FederatedNetworkNotFoundException, UnauthorizedRequestException {
-
-        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(federatedNetworkId);
-
-        if (federatedNetworkOrder != null) {
-            if (federatedNetworkOrder.getSystemUser().equals(systemUser)) {
-                return federatedNetworkOrder;
-            }
-            throw new UnauthorizedRequestException();
-        }
-        throw new FederatedNetworkNotFoundException(federatedNetworkId);
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {

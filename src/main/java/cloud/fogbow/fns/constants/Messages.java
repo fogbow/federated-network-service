@@ -9,12 +9,13 @@ public class Messages {
         public static final String NO_MORE_IPS_AVAILABLE = "No more IPs available.";
         public static final String NO_MORE_VLAN_IDS_AVAILABLE = "No more Vlan IDs available.";
         public static final String ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED = "Order '%s' should be closed before deactivated.";
+        public static final String REQUESTER_DOES_NOT_OWN_REQUEST = "Requester does not own request.";
+        public static final String THREAD_HAS_BEEN_INTERRUPTED = "Thread has been interrupted";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
         public static final String UNABLE_TO_FIND_LIST_FOR_REQUESTS = "Unable to find list for requests in state %s.";
         public static final String UNABLE_TO_LOAD_PUBLIC_KEY = "Unable to load FNS public key.";
         public static final String UNABLE_TO_REMOVE_FEDERATED_NETWORK = "Unable to remove federated network.";
-        public static final String THREAD_HAS_BEEN_INTERRUPTED = "Thread has been interrupted";
         public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";
     }
 
@@ -37,9 +38,9 @@ public class Messages {
         public static final String GET_FEDERATED_NETWORK_STATUS = "Get federated network status request";
         public static final String GET_PUBLIC_KEY = "Get public key received.";
         public static final String GET_VERSION = "Get version request received.";
-        public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, user: %s, federated network id: %s.";
         public static final String STARTING_THREADS = "Starting threads.";
         public static final String NO_REMOTE_COMMUNICATION_CONFIGURED = "No remote communication configured.";
+        public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, federated network id: %s.";
     }
 
     public static class Error {
