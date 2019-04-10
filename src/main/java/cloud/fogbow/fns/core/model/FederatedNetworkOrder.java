@@ -303,6 +303,10 @@ public class FederatedNetworkOrder implements Serializable {
         return configurationMode;
     }
 
+    public void setConfigurationMode(ConfigurationMode configurationMode) {
+        this.configurationMode = configurationMode;
+    }
+
     public int getVlanId() {
         return vlanId;
     }
