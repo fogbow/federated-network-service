@@ -50,4 +50,4 @@ if [ "true" = "#IS_FEDERATED_VM#" ]; then
 fi
 EOL
 chmod +x /bin/fogbow-config-client-federated
-setsid /bin/fogbow-config-client-federated
+/bin/fogbow-config-client-federated
