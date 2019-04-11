@@ -14,6 +14,8 @@ public class FederatedNetworkOrdersHolder {
 
     private Map<String, FederatedNetworkOrder> activeOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> openOrders;
+    private SynchronizedDoublyLinkedList<FederatedNetworkOrder> spawningOrders;
+    private SynchronizedDoublyLinkedList<FederatedNetworkOrder> partiallyFulfilledOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> fulfilledOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> failedOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> closedOrders;
@@ -22,7 +24,9 @@ public class FederatedNetworkOrdersHolder {
         // retrieve from database
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         this.openOrders = databaseManager.readActiveOrders(OrderState.OPEN);
+        this.spawningOrders = databaseManager.readActiveOrders(OrderState.SPAWNING);
         this.fulfilledOrders = databaseManager.readActiveOrders(OrderState.FULFILLED);
+        this.partiallyFulfilledOrders = databaseManager.readActiveOrders(OrderState.PARTIALLY_FULFILLED);
         this.failedOrders = databaseManager.readActiveOrders(OrderState.FAILED);
         this.closedOrders = databaseManager.readActiveOrders(OrderState.CLOSED);
 
@@ -34,22 +38,6 @@ public class FederatedNetworkOrdersHolder {
             instance = new FederatedNetworkOrdersHolder();
         }
         return instance;
-    }
-
-    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getOpenOrders() {
-        return this.openOrders;
-    }
-
-    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getFulfilledOrders() {
-        return this.fulfilledOrders;
-    }
-
-    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getFailedOrders() {
-        return this.failedOrders;
-    }
-
-    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> getClosedOrders() {
-        return this.closedOrders;
     }
 
     public Map<String, FederatedNetworkOrder> getActiveOrders() {
@@ -88,6 +76,10 @@ public class FederatedNetworkOrdersHolder {
         switch (orderState) {
             case OPEN:
                 return this.openOrders;
+            case SPAWNING:
+                return this.spawningOrders;
+            case PARTIALLY_FULFILLED:
+                return this.partiallyFulfilledOrders;
             case FULFILLED:
                 return this.fulfilledOrders;
             case FAILED:

@@ -20,7 +20,7 @@ public class FulfilledProcessor implements Runnable {
 
     public FulfilledProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.FULFILLED);
         this.orderController = orderController;
     }
 

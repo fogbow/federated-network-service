@@ -22,12 +22,10 @@ public class SpawningProcessor implements Runnable {
 
     private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;
-    private FederatedNetworkOrderController orderController;
 
-    public SpawningProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
+    public SpawningProcessor(Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
-        this.orderController = orderController;
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.SPAWNING);
     }
 
     @Override

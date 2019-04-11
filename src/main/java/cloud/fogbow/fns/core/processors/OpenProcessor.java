@@ -25,7 +25,7 @@ public class OpenProcessor implements Runnable {
 
     public OpenProcessor(Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getOpenOrders();
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.OPEN);
     }
 
     @Override

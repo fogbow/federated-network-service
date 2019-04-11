@@ -20,7 +20,7 @@ public class PartiallyFulfilledProcessor implements Runnable {
 
     public PartiallyFulfilledProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.PARTIALLY_FULFILLED);
         this.orderController = orderController;
     }
 

@@ -20,7 +20,7 @@ public class ClosedProcessor implements Runnable {
 
     public ClosedProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
         this.sleepTime = sleepTime;
-        this.orders = FederatedNetworkOrdersHolder.getInstance().getClosedOrders();
+        this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.CLOSED);
         this.orderController = orderController;
     }
 
