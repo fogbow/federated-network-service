@@ -219,12 +219,10 @@ public class ApplicationFacade {
     }
 
     protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
-                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException, InstanceNotFoundException {
+                      FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
         // Check whether requester owns order
         SystemUser orderOwner = order.getSystemUser();
-        String ownerUserId = orderOwner.getId();
-        String requestUserId = requester.getId();
-        if (!ownerUserId.equals(requestUserId)) {
+        if (!orderOwner.equals(requester)) {
             throw new UnauthorizedRequestException(Messages.Exception.REQUESTER_DOES_NOT_OWN_REQUEST);
         }
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
