@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
+import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteConfigureMemberRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 
@@ -19,6 +20,11 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) {
-        return MemberConfigurationState.FAILED;
+        RemoteConfigureMemberRequest request = new RemoteConfigureMemberRequest(this.memberToBeConfigured, order);
+        try {
+            return request.send();
+        } catch (Exception e) {
+            return MemberConfigurationState.FAILED;
+        }
     }
 }

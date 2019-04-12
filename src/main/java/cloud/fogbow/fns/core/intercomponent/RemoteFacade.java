@@ -1,13 +1,12 @@
 package cloud.fogbow.fns.core.intercomponent;
 
-import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 
 public class RemoteFacade {
-    // TODO ARNETT
+    // TODO retrieve the name from the configuration file
     private static final String LOCAL_MEMBER_ID = "retrieveFromFile";
 
     private static RemoteFacade instance;
