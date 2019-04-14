@@ -28,7 +28,6 @@ import java.util.*;
 @PowerMockIgnore({"javax.management.*", "org.apache.http.conn.ssl.*", "org.apache.http.conn.util.*",
         "javax.net.ssl.*" , "javax.crypto.*"})
 @PrepareForTest({DatabaseManager.class})
-@RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @SpringBootTest
 public class RecoveryServiceTest {
