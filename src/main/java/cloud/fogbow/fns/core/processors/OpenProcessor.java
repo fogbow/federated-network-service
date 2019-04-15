@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 public class OpenProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.OpenProcessor.class);
 
-    // TODO ARNETT
+    // TODO DFNS retrieve from file
     private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     private Long sleepTime;

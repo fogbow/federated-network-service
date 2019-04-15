@@ -19,6 +19,10 @@ public class VanillaServiceConnector implements ServiceConnector {
     }
 
     @Override
+    public void releaseVlanId() {
+    }
+
+    @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) {
         MemberConfigurationState result = MemberConfigurationState.FAILED;
         try {

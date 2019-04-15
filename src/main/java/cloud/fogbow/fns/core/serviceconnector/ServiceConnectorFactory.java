@@ -4,7 +4,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 
 public class ServiceConnectorFactory {
-    // TODO ARNETT
+    // TODO DFNS retrieve from file
     private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     private static ServiceConnectorFactory instance = null;

@@ -6,7 +6,7 @@ import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 
 public class RemoteFacade {
-    // TODO retrieve the name from the configuration file
+    // TODO DFNS retrieve the name from the configuration file
     private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     private static RemoteFacade instance;

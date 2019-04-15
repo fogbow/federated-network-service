@@ -5,7 +5,6 @@ import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteConfigureMembe
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 
-// TODO ARNETT implement
 public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     private String memberToBeConfigured;
 
@@ -15,7 +14,13 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public int acquireVlanId() throws NoVlanIdsLeftException {
+        // TODO DFNS
         return -1;
+    }
+
+    @Override
+    public void releaseVlanId() {
+        // TODO DFNS
     }
 
     @Override

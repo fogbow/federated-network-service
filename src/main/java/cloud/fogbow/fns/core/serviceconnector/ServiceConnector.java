@@ -7,5 +7,7 @@ import cloud.fogbow.fns.core.model.MemberConfigurationState;
 public interface ServiceConnector {
     int acquireVlanId() throws NoVlanIdsLeftException;
 
+    void releaseVlanId();
+
     MemberConfigurationState configure(FederatedNetworkOrder order);
 }

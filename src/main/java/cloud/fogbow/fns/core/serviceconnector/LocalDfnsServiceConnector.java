@@ -4,7 +4,6 @@ import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 
-// TODO ARNETT implement
 public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     @Override
     public int acquireVlanId() throws NoVlanIdsLeftException {
@@ -12,7 +11,12 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
+    public void releaseVlanId() {
+    }
+
+    @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) {
+        // TODO DFNS
         return MemberConfigurationState.FAILED;
     }
 }
