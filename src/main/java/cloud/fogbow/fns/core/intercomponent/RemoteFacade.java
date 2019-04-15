@@ -7,7 +7,7 @@ import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 
 public class RemoteFacade {
     // TODO retrieve the name from the configuration file
-    private static final String LOCAL_MEMBER_ID = "retrieveFromFile";
+    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     private static RemoteFacade instance;
 
@@ -25,7 +25,7 @@ public class RemoteFacade {
 
     public MemberConfigurationState configureMember(FederatedNetworkOrder order) {
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                order.getConfigurationMode(), LOCAL_MEMBER_ID);
+                order.getConfigurationMode(), LOCAL_MEMBER_NAME);
         return serviceConnector.configure(order);
     }
 
