@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
+import cloud.fogbow.fns.utils.BashScriptRunner;
 
 public class ServiceConnectorFactory {
     // TODO DFNS retrieve from file
@@ -23,7 +24,7 @@ public class ServiceConnectorFactory {
         switch (configurationMode) {
             case DFNS:
                 if (memberName.equals(LOCAL_MEMBER_NAME)) {
-                    return new LocalDfnsServiceConnector();
+                    return new LocalDfnsServiceConnector(new BashScriptRunner());
                 } else {
                     return new RemoteDfnsServiceConnector(memberName);
                 }

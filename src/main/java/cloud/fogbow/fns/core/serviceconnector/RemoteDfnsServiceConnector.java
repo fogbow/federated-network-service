@@ -27,7 +27,8 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     public MemberConfigurationState configure(FederatedNetworkOrder order) {
         RemoteConfigureMemberRequest request = new RemoteConfigureMemberRequest(this.memberToBeConfigured, order);
         try {
-            return request.send();
+            MemberConfigurationState state = request.send();
+            return state;
         } catch (Exception e) {
             return MemberConfigurationState.FAILED;
         }
