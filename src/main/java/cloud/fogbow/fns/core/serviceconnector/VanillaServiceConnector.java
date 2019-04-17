@@ -19,7 +19,7 @@ public class VanillaServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public void releaseVlanId() {
+    public void releaseVlanId(int vlandId) {
     }
 
     @Override

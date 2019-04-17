@@ -1,13 +1,15 @@
 package cloud.fogbow.fns.core.intercomponent;
 
+import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 
 public class RemoteFacade {
-    // TODO DFNS retrieve the name from the configuration file
-    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
+    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
+            ConfigurationPropertyDefaults.XMPP_JID_KEY);
 
     private static RemoteFacade instance;
 
@@ -28,5 +30,4 @@ public class RemoteFacade {
                 order.getConfigurationMode(), LOCAL_MEMBER_NAME);
         return serviceConnector.configure(order);
     }
-
 }

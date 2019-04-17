@@ -1,7 +1,8 @@
-package cloud.fogbow.fns.core.serviceconnector.xmpp;
+package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.ras.core.intercomponent.xmpp.IqElement;
+import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
+import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.ras.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
 import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
@@ -38,16 +39,16 @@ public class RemoteGetVlanIdRequest implements RemoteRequest<Integer> {
         IQ iq = new IQ(IQ.Type.get);
         iq.setTo(provider);
 
-        iq.getElement().addElement(IqElement.QUERY.toString(), GET_FREE_VLAN_ID);
+        iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_GET_FREE_VLAN_ID.toString());
 
         return iq;
     }
 
     private Integer unmarshalImages(IQ response) throws UnexpectedException {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
-        String listStr = queryElement.element(AVAILABLE_VLAN_ID).getText();
+        String listStr = queryElement.element(IqElement.AVAILABLE_VLAN_ID.toString()).getText();
 
-        String instanceClassName = queryElement.element(AVAILABLE_VLAN_ID_CLASS_NAME).getText();
+        String instanceClassName = queryElement.element(IqElement.AVAILABLE_VLAN_ID_CLASS_NAME.toString()).getText();
 
         Integer freeIp;
 

@@ -1,12 +1,15 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 
 public class ServiceConnectorFactory {
-    // TODO DFNS retrieve from file
-    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
+    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
+            ConfigurationPropertyDefaults.XMPP_JID_KEY);
 
     private static ServiceConnectorFactory instance = null;
 

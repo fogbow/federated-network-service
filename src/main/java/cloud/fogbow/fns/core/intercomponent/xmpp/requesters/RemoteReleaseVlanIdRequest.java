@@ -1,6 +1,7 @@
-package cloud.fogbow.fns.core.serviceconnector.xmpp;
+package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
-import cloud.fogbow.ras.core.intercomponent.xmpp.IqElement;
+import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
+import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.ras.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
 import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
@@ -39,8 +40,8 @@ public class RemoteReleaseVlanIdRequest implements RemoteRequest<Void> {
         iq.setTo(provider);
         iq.setID(vlanId);
 
-        Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(), RELEASE_VLAN_ID);
-        Element vlanIdElement = queryElement.addElement(VLAN_ID);
+        Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_RELEASE_VLAN_ID.toString());
+        Element vlanIdElement = queryElement.addElement(IqElement.VLAN_ID.toString());
         vlanIdElement.setText(vlanId);
 
         return iq;
