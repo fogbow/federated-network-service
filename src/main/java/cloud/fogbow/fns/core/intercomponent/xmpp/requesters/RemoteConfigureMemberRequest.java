@@ -46,6 +46,8 @@ public class RemoteConfigureMemberRequest implements RemoteRequest<MemberConfigu
     }
 
     private MemberConfigurationState unmarshal(IQ response) {
-        return null;
+        Element queryElement = response.getElement().element(IqElement.QUERY.toString());
+        Element memberConfigurationStateElement = queryElement.element(IqElement.MEMBER_CONFIGURATION_STATE.toString());
+        return GsonHolder.getInstance().fromJson(memberConfigurationStateElement.getText(), MemberConfigurationState.class);
     }
 }

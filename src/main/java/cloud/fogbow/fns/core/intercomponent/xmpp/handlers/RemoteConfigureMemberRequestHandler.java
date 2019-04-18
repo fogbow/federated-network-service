@@ -26,14 +26,18 @@ public class RemoteConfigureMemberRequestHandler extends AbstractQueryHandler {
         MemberConfigurationState state = null;
         try {
             state = configureMember(order);
-            Element queryElement = response.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_CONFIGURE_MEMBER.toString());
-            Element memberConfigurationState = queryElement.addElement(IqElement.MEMBER_CONFIGURATION_STATE.toString());
-            memberConfigurationState.setText(new Gson().toJson(state));
+            marshalState(response, state);
         } catch (UnexpectedException e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
 
         return response;
+    }
+
+    private void marshalState(IQ response, MemberConfigurationState state) {
+        Element queryElement = response.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_CONFIGURE_MEMBER.toString());
+        Element memberConfigurationState = queryElement.addElement(IqElement.MEMBER_CONFIGURATION_STATE.toString());
+        memberConfigurationState.setText(new Gson().toJson(state));
     }
 
     private FederatedNetworkOrder unmarshalOrder(IQ iq) {
