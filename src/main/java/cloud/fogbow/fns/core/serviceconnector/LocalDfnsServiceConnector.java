@@ -1,12 +1,8 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-import cloud.fogbow.common.exceptions.NoAvailableResourcesException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteGetVlanIdRequest;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteReleaseVlanIdRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.BashScriptRunner;
@@ -21,35 +17,6 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     public LocalDfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
-    }
-
-    @Override
-    public int acquireVlanId() throws NoVlanIdsLeftException {
-        int vlanId = -1;
-
-        try {
-            RemoteGetVlanIdRequest remoteGetVlanIdRequest = new RemoteGetVlanIdRequest(LOCAL_MEMBER_NAME);
-            vlanId = remoteGetVlanIdRequest.send();
-        } catch (Exception e) {
-            if (e instanceof NoAvailableResourcesException) {
-                throw new NoVlanIdsLeftException();
-            }
-
-            e.printStackTrace();
-        }
-
-        return vlanId;
-    }
-
-    @Override
-    public void releaseVlanId(int vlanId) {
-        RemoteReleaseVlanIdRequest remoteGetVlanIdRequest = new RemoteReleaseVlanIdRequest(LOCAL_MEMBER_NAME, vlanId);
-
-        try {
-            remoteGetVlanIdRequest.send();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

@@ -15,10 +15,6 @@ import org.xmpp.packet.IQ;
 public class RemoteGetVlanIdRequest implements RemoteRequest<Integer> {
     private static final Logger LOGGER = Logger.getLogger(RemoteGetVlanIdRequest.class);
 
-    private static final String GET_FREE_VLAN_ID = "getFreeVlanId";
-    private static final String AVAILABLE_VLAN_ID = "availableVlanId";
-    private static final String AVAILABLE_VLAN_ID_CLASS_NAME = "availableVlanIdClassName";
-
     private String provider;
 
     public RemoteGetVlanIdRequest(String provider) {
