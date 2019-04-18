@@ -9,21 +9,25 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
-import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.InstanceState;
-import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
+import cloud.fogbow.fns.core.model.*;
+import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
+import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
+import javax.validation.spi.ConfigurationState;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FederatedNetworkOrderController {
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
+
     public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
+
+    // TODO join this with RAS_NAME
+    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     // Federated Network methods
     public FederatedNetworkOrder getFederatedNetwork(String orderId) throws InstanceNotFoundException {
@@ -60,17 +64,39 @@ public class FederatedNetworkOrderController {
 
         synchronized (federatedNetwork) {
             LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
-            boolean wasDeleted = AgentCommunicatorUtil.deleteFederatedNetwork(federatedNetwork.getCidr());
-            if (wasDeleted || federatedNetwork.getOrderState() == OrderState.FAILED) {
-                // If the state of the order is FAILED, this is because in the creation, it was not possible to
-                // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
-                // need to be thrown.
-                LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
-            } else {
-                throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
+
+            if (federatedNetwork.getOrderState() != OrderState.FAILED) {
+                for (String provider : federatedNetwork.getProviders().keySet()) {
+                    ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                            federatedNetwork.getConfigurationMode(), provider);
+                    if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
+                        if (connector.remove(federatedNetwork)) {
+                            federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
+                        }
+                    }
+                }
+
+                boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
+                if (!providersRemovedTheConfiguration) {
+                    LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
+                    throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
+                }
+            }
+
+            // If the state of the order is still FAILED, this is because in the creation, it was not possible to
+            // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
+            // need to be thrown.
+            OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
+        }
+    }
+
+    private boolean allProvidersRemovedTheConfiguration(Collection<MemberConfigurationState> values) {
+        for (MemberConfigurationState state : values) {
+            if (!state.equals(MemberConfigurationState.REMOVED)) {
+                return false;
             }
         }
+        return true;
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {

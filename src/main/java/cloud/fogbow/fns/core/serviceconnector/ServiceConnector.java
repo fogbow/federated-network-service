@@ -11,4 +11,6 @@ public interface ServiceConnector {
     void releaseVlanId(int vlanId);
 
     MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException;
+
+    boolean remove(FederatedNetworkOrder order) throws UnexpectedException;
 }

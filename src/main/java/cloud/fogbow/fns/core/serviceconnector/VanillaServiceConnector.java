@@ -36,4 +36,9 @@ public class VanillaServiceConnector implements ServiceConnector {
         }
         return result;
     }
+
+    @Override
+    public boolean remove(FederatedNetworkOrder order) {
+        return AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
+    }
 }

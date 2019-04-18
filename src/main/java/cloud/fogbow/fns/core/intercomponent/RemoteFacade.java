@@ -31,4 +31,10 @@ public class RemoteFacade {
                 order.getConfigurationMode(), LOCAL_MEMBER_NAME);
         return serviceConnector.configure(order);
     }
+
+    public void remove(FederatedNetworkOrder order) throws UnexpectedException {
+        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                order.getConfigurationMode(), LOCAL_MEMBER_NAME);
+        serviceConnector.remove(order);
+    }
 }

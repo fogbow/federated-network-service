@@ -30,4 +30,11 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
             return MemberConfigurationState.FAILED;
         }
     }
+
+    @Override
+    public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
+        BashScriptRunner.Output output = this.runner.run("echo", "Hello");
+
+        return output.getExitCode() == EXIT_CODE_SUCCESS;
+    }
 }
