@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.intercomponent;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -25,7 +26,7 @@ public class RemoteFacade {
         }
     }
 
-    public MemberConfigurationState configureMember(FederatedNetworkOrder order) {
+    public MemberConfigurationState configureMember(FederatedNetworkOrder order) throws UnexpectedException {
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(
                 order.getConfigurationMode(), LOCAL_MEMBER_NAME);
         return serviceConnector.configure(order);

@@ -47,7 +47,7 @@ public class BashScriptRunner {
         }
     }
 
-    class Output {
+    public class Output {
         private int exitCode;
         private String content;
 
