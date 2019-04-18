@@ -103,6 +103,8 @@ public class SpawningProcessor implements Runnable {
 
         if (hasFail) {
             orderState = hasSuccess ? OrderState.PARTIALLY_FULFILLED : OrderState.FAILED;
+        } else {
+            orderState = OrderState.FULFILLED;
         }
 
         return orderState;
