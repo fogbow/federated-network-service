@@ -3,7 +3,7 @@ package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
-import cloud.fogbow.ras.core.intercomponent.xmpp.PacketSenderHolder;
+import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
 import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
 import com.google.gson.Gson;
