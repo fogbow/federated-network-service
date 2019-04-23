@@ -12,9 +12,6 @@ import org.xmpp.packet.IQ;
 public class RemoteReleaseVlanIdRequest implements RemoteRequest<Void> {
     private static final Logger LOGGER = Logger.getLogger(RemoteReleaseVlanIdRequest.class);
 
-    private static final String RELEASE_VLAN_ID = "releaseVlanId";
-    private static final String VLAN_ID = "vlanId";
-
     private String provider;
     private int id;
 

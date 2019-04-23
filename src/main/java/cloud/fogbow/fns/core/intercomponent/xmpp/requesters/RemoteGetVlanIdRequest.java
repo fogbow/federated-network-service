@@ -28,32 +28,32 @@ public class RemoteGetVlanIdRequest implements RemoteRequest<Integer> {
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
 
-        return unmarshalImages(response);
+        return unmarshalVlanId(response);
     }
 
     public static IQ marshal(String provider) {
         IQ iq = new IQ(IQ.Type.get);
         iq.setTo(provider);
 
-        iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_GET_FREE_VLAN_ID.toString());
+        iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_GET_VLAN_ID.toString());
 
         return iq;
     }
 
-    private Integer unmarshalImages(IQ response) throws UnexpectedException {
+    private Integer unmarshalVlanId(IQ response) throws UnexpectedException {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
-        String listStr = queryElement.element(IqElement.AVAILABLE_VLAN_ID.toString()).getText();
+        String listStr = queryElement.element(IqElement.VLAN_ID.toString()).getText();
 
-        String instanceClassName = queryElement.element(IqElement.AVAILABLE_VLAN_ID_CLASS_NAME.toString()).getText();
+        String instanceClassName = queryElement.element(IqElement.VLAN_ID_CLASS_NAME.toString()).getText();
 
-        Integer freeIp;
+        Integer vlanId;
 
         try {
-            freeIp = (Integer) new Gson().fromJson(listStr, Class.forName(instanceClassName));
+            vlanId = (Integer) new Gson().fromJson(listStr, Class.forName(instanceClassName));
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage());
         }
 
-        return freeIp;
+        return vlanId;
     }
 }

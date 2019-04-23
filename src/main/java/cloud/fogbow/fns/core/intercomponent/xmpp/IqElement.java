@@ -4,9 +4,8 @@ public enum IqElement {
     QUERY("query"),
     FEDERATED_NETWORK_ORDER("order"),
     MEMBER_CONFIGURATION_STATE("memberConfigurationState"),
-    AVAILABLE_VLAN_ID("availableVlanId"),
-    AVAILABLE_VLAN_ID_CLASS_NAME("availableVlanIdClassName"),
-    VLAN_ID("vlanId");
+    VLAN_ID("vlanId"),
+    VLAN_ID_CLASS_NAME("vlanIdClassName");
 
     private final String element;
 
