@@ -1,6 +1,8 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteConfigureMemberRequest;
+import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveAgentToComputeTunnelRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveFedNetRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -35,6 +37,17 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    @Override
+    public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
+        RemoteRemoveAgentToComputeTunnelRequest request = new RemoteRemoveAgentToComputeTunnelRequest(this.memberToBeConfigured, hostIp, vlanId);
+        try {
+            request.send();
+            return true;
+        } catch (Exception e) {
+            throw new UnexpectedException(e.getMessage(), e);
         }
     }
 }

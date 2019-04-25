@@ -15,22 +15,14 @@ import java.io.IOException;
 public class ComputeRequestsController {
 
     // Compute methods
-    public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
-            throws FederatedNetworkNotFoundException, InvalidCidrException,
+    public String addScriptToSetupTunnelIfNeeded(Compute compute, FederatedNetworkOrder federatedNetworkOrder)
+            throws InvalidCidrException,
             SubnetAddressesCapacityReachedException, IOException, UnexpectedException {
-        String instanceIp = null;
-        if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
-                    getFederatedNetworkOrder(federatedNetworkId);
-            if (federatedNetworkOrder == null) {
-                throw new FederatedNetworkNotFoundException(federatedNetworkId);
-            }
-            instanceIp = federatedNetworkOrder.getFreeIp();
-            String cidr = federatedNetworkOrder.getCidr();
-            FederatedComputeUtil.addUserData(compute, instanceIp,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
-                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
-        }
+        String instanceIp = federatedNetworkOrder.getFreeIp();
+        String cidr = federatedNetworkOrder.getCidr();
+        FederatedComputeUtil.addUserData(compute, instanceIp,
+                PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
+                PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
         return instanceIp;
     }
 

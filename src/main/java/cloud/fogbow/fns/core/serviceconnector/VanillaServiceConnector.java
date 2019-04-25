@@ -1,25 +1,36 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
+import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
+import cloud.fogbow.ras.core.models.UserData;
+import cloud.fogbow.ras.core.models.orders.ComputeOrder;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
+
 public class VanillaServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceConnector.class);
+    public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY);
+    public static final String AGENT_IP_ADDRESS = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
     @Override
-    public int acquireVlanId() throws NoVlanIdsLeftException {
+    public int acquireVlanId() {
         return -1;
     }
 
     @Override
-    public void releaseVlanId(int vlandId) {
+    public boolean releaseVlanId(int vlandId) {
+        return true;
     }
 
     @Override
@@ -40,5 +51,10 @@ public class VanillaServiceConnector implements ServiceConnector {
     @Override
     public boolean remove(FederatedNetworkOrder order) {
         return AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
+    }
+
+    @Override
+    public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
+        return true;
     }
 }

@@ -1,6 +1,5 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.handlers;
 
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
@@ -11,30 +10,35 @@ import org.dom4j.Element;
 import org.jamppa.component.handler.AbstractQueryHandler;
 import org.xmpp.packet.IQ;
 
-public class RemoteRemoveComputeReverseTunnelRequestHandler extends AbstractQueryHandler {
-    public RemoteRemoveComputeReverseTunnelRequestHandler() {
-        super(RemoteMethod.REMOTE_REMOVE_COMPUTE_REVERSE_TUNNEL.toString());
+public class RemoteRemoveAgentToComputeTunnelRequestHandler extends AbstractQueryHandler {
+    public RemoteRemoveAgentToComputeTunnelRequestHandler() {
+        super(RemoteMethod.REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL.toString());
     }
 
     @Override
     public IQ handle(IQ iq) {
-        FederatedNetworkOrder order = unmarshalOrder(iq);
+        String hostIp = unmarshalHostIp(iq);
+        int vlanId = unmarshalVlanId(iq);
         IQ response = iq.createResultIQ(iq);
 
         try {
-            RemoteFacade.getInstance().removeComputeReverseTunnel(order);
-        } catch (UnexpectedException e) {
+            RemoteFacade.getInstance().removeAgentToComputeTunnel(hostIp, vlanId);
+        } catch (Throwable e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
 
         return response;
     }
 
-    private FederatedNetworkOrder unmarshalOrder(IQ iq) {
+    private String unmarshalHostIp(IQ iq) {
         Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
-        Element fedNetOrderElement = queryElement.element(IqElement.FEDERATED_NETWORK_ORDER.toString());
-        String fedNetOrderElementText = fedNetOrderElement.getText();
+        Element hostIpElement = queryElement.element(IqElement.HOST_IP.toString());
+        return hostIpElement.getText();
+    }
 
-        return GsonHolder.getInstance().fromJson(fedNetOrderElementText, FederatedNetworkOrder.class);
+    private int unmarshalVlanId(IQ iq) {
+        Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
+        Element vlanIdElement = queryElement.element(IqElement.VLAN_ID.toString());
+        return Integer.valueOf(vlanIdElement.getText());
     }
 }

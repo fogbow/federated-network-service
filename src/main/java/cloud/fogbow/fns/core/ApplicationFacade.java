@@ -4,25 +4,30 @@ import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
-import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.CryptoUtil;
+import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
-import cloud.fogbow.fns.core.authorization.DefaultAuthorizationPlugin;
-import cloud.fogbow.fns.core.model.FnsOperation;
+import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.constants.SystemConstants;
+import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
+import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
+import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
+import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
+import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveAgentToComputeTunnelRequest;
+import cloud.fogbow.fns.core.model.*;
+import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
+import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
+import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.fns.core.serviceconnector.VanillaServiceConnector;
+import cloud.fogbow.fns.utils.FederatedComputeUtil;
+import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
-import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.core.exceptions.*;
-import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.core.model.Operation;
-import cloud.fogbow.fns.core.model.ResourceType;
-import cloud.fogbow.fns.utils.RedirectUtil;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
@@ -93,7 +98,7 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
-            throws FogbowException {
+            throws FogbowException, FederatedNetworkNotFoundException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
@@ -109,7 +114,7 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws UnauthenticatedUserException, UnauthorizedRequestException, UnexpectedException,
-            NotEmptyFederatedNetworkException, InvalidTokenException, InstanceNotFoundException {
+            NotEmptyFederatedNetworkException, InvalidTokenException, FederatedNetworkNotFoundException {
         SystemUser systemUser = AuthenticationUtil.authenticate(this.asPublicKey, systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
@@ -122,8 +127,22 @@ public class ApplicationFacade {
             throws FogbowException, IOException, InvalidCidrException, SubnetAddressesCapacityReachedException,
             FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
-        String federatedNetworkId = compute.getFederatedNetworkId();
-        String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkId);
+        FederatedNetworkOrder federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(compute.getFederatedNetworkId());
+        String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkOrder);
+
+        ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
+        String provider = compute.getCompute().getProvider();
+        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
+
+        switch (mode) {
+            case VANILLA:
+                FederatedComputeUtil.getVanillaUserData(instanceIp, agentPublicIp, federatedNetworkOrder.getCidr(), preSharedKey);
+                break;
+            case DFNS:
+                FederatedComputeUtil.getDfnsUserData(instanceIp, dfnsAgentPublicIp, federatedNetworkOrder.getVlanId(), accessKey);
+                break;
+        }
+
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
@@ -165,6 +184,9 @@ public class ApplicationFacade {
             throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
+
+        // TODO DFNS
+        removeAgentToComputeTunnel(null, null, null, -1);
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
@@ -219,7 +241,7 @@ public class ApplicationFacade {
     }
 
     protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
-                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException, InstanceNotFoundException {
+                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
         // Check whether requester owns order
         SystemUser orderOwner = order.getSystemUser();
         String ownerUserId = orderOwner.getId();
@@ -228,5 +250,10 @@ public class ApplicationFacade {
             throw new UnauthorizedRequestException(Messages.Exception.REQUESTER_DOES_NOT_OWN_REQUEST);
         }
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
+    }
+
+    private void removeAgentToComputeTunnel(ConfigurationMode fedNetConfigurationMode, String provider, String hostIp, int vlanId) throws UnexpectedException {
+        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(fedNetConfigurationMode, provider);
+        serviceConnector.removeAgentToComputeTunnel(hostIp, vlanId);
     }
 }

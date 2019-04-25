@@ -5,8 +5,7 @@ public enum RemoteMethod {
     REMOTE_GET_VLAN_ID("getVlanId"),
     REMOTE_RELEASE_VLAN_ID("releaseVlanId"),
     REMOTE_REMOVE_FEDNET("removeFederatedNetwork"),
-    REMOTE_CREATE_COMPUTE_REVERSE_TUNNEL("createComputeReverseTunnel"),
-    REMOTE_REMOVE_COMPUTE_REVERSE_TUNNEL("removeComputeReverseTunnel");
+    REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL("removeAgentToComputeTunnel");
 
     private final String namespace;
 

@@ -1,8 +1,7 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp;
 
 import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteConfigureMemberRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteCreateComputeReverseTunnelRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteRemoveComputeReverseTunnelRequestHandler;
+import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteRemoveAgentToComputeTunnelRequestHandler;
 import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteRemoveFedNetRequestHandler;
 import org.apache.log4j.Logger;
 import org.jamppa.component.XMPPComponent;
@@ -15,8 +14,8 @@ public class XmppComponentManager extends XMPPComponent {
         // instantiate set handlers here
         addSetHandler(new RemoteConfigureMemberRequestHandler());
         addSetHandler(new RemoteRemoveFedNetRequestHandler());
-        addSetHandler(new RemoteCreateComputeReverseTunnelRequestHandler());
-        addSetHandler(new RemoteRemoveComputeReverseTunnelRequestHandler());
+        addSetHandler(new RemoteRemoveAgentToComputeTunnelRequestHandler());
+        addSetHandler(new RemoteRemoveAgentToComputeTunnelRequestHandler());
 
         // instantiate get handlers here
     }

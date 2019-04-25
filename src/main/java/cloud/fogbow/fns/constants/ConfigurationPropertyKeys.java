@@ -8,6 +8,8 @@ public class ConfigurationPropertyKeys {
     public static final String XMPP_C2C_PORT_KEY = "xmpp_c2c_port";
     public static final String XMPP_TIMEOUT_KEY = "xmpp_timeout";
 
+    public static final String DFNS_LOCAL_AGENT_IP_ADDRESS_KEY = "dfns_local_agent_ip_address";
+
     public static final String BUILD_NUMBER_KEY = "build_number";
 
     // Plugins

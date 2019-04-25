@@ -7,6 +7,7 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.ras.core.models.orders.ComputeOrder;
 
 public class RemoteFacade {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
@@ -36,5 +37,9 @@ public class RemoteFacade {
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(
                 order.getConfigurationMode(), LOCAL_MEMBER_NAME);
         serviceConnector.remove(order);
+    }
+
+    public void removeAgentToComputeTunnel(String hostIp, int vlanId) {
+        // TODO DFNS remove the tunnel created for this hostIp via this vlanId
     }
 }

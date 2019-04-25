@@ -7,6 +7,7 @@ import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
@@ -30,10 +31,10 @@ public class FederatedNetworkOrderController {
     private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
 
     // Federated Network methods
-    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws InstanceNotFoundException {
+    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {
         FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
         if (requestedOrder == null) {
-            throw new InstanceNotFoundException();
+            throw new FederatedNetworkNotFoundException(orderId);
         }
         return requestedOrder;
     }

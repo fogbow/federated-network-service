@@ -5,6 +5,7 @@ import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import cloud.fogbow.fns.api.parameters.Compute;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,15 +25,7 @@ public class FederatedComputeUtil {
 
     public static void addUserData(Compute fnsCompute, String federatedComputeIp, String agentPublicIp,
                                            String cidr, String preSharedKey) throws IOException {
-        InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
-        String cloudInitScript = IOUtils.toString(inputStream);
-        String newScript = replaceScriptValues(cloudInitScript, federatedComputeIp, agentPublicIp, cidr, preSharedKey);
-        byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
-        byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
-        String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
-
-        UserData newUserData = new UserData(encryptedScript,
-                CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
+        UserData newUserData = getVanillaUserData(federatedComputeIp, agentPublicIp, cidr, preSharedKey);
         cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
         if (userDataList == null) {
@@ -40,6 +33,31 @@ public class FederatedComputeUtil {
             rasCompute.setUserData((ArrayList<UserData>) userDataList);
         }
         userDataList.add(newUserData);
+    }
+
+    @NotNull
+    public static UserData getVanillaUserData(String federatedIp, String agentPublicIp, String cidr, String preSharedKey) throws IOException {
+        InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
+        String cloudInitScript = IOUtils.toString(inputStream);
+        String newScript = replaceScriptValues(cloudInitScript, federatedIp, agentPublicIp, cidr, preSharedKey);
+        byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
+        String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
+
+        return new UserData(encryptedScript,
+                CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
+    }
+
+    @NotNull
+    public static UserData getDfnsUserData(String federatedIp, String agentPublicIp, String hostIp, int vlanId, String accessKey) throws IOException {
+        // TODO DFNS
+        String newScript = "echo Hello";
+        byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
+        String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
+
+        return new UserData(encryptedScript,
+                CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
     }
 
     private static String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp,
