@@ -2,9 +2,11 @@ package cloud.fogbow.fns.core.processors;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -16,8 +18,7 @@ import org.apache.log4j.Logger;
 public class OpenProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.OpenProcessor.class);
 
-    // TODO DFNS retrieve from file
-    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
+    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
 
     private Long sleepTime;
 

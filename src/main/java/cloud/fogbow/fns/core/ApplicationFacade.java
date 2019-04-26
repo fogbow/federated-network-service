@@ -187,7 +187,7 @@ public class ApplicationFacade {
         }
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
-        // TODO DFNS
+        // TODO
         removeAgentToComputeTunnel(null, null, null, -1);
     }
 

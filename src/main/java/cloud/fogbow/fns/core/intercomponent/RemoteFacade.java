@@ -43,7 +43,7 @@ public class RemoteFacade {
     }
 
     public void removeAgentToComputeTunnel(String hostIp, int vlanId) {
-        // TODO DFNS remove the tunnel created for this hostIp via this vlanId
+        // TODO remove the tunnel created for this hostIp via this vlanId
     }
 
     public boolean addInstancePublicKey(String publicKey) throws UnexpectedException {
