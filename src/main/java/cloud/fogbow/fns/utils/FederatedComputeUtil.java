@@ -1,6 +1,8 @@
 package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -11,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +23,15 @@ public class FederatedComputeUtil {
     public static final String RIGHT_IP = "#RIGHT_IP#";
     public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
     public static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
-    public static final String PRE_SHARED_KEY = "#PRE_SHARED_KEY#";
+    public static final String PRE_SHARED_KEY_KEY = "#PRE_SHARED_KEY#";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
-    public static void addUserData(Compute fnsCompute, String federatedComputeIp, String agentPublicIp,
-                                           String cidr, String preSharedKey) throws IOException {
-        UserData newUserData = getVanillaUserData(federatedComputeIp, agentPublicIp, cidr, preSharedKey);
+    public static final String AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+    public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY);
+
+    public static void addUserData(Compute fnsCompute, String federatedComputeIp,
+                                           String cidr) throws IOException {
+        UserData newUserData = getVanillaUserData(federatedComputeIp, cidr);
         cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
         if (userDataList == null) {
@@ -36,10 +42,10 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getVanillaUserData(String federatedIp, String agentPublicIp, String cidr, String preSharedKey) throws IOException {
+    public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
         String cloudInitScript = IOUtils.toString(inputStream);
-        String newScript = replaceScriptValues(cloudInitScript, federatedIp, agentPublicIp, cidr, preSharedKey);
+        String newScript = replaceScriptValues(cloudInitScript, federatedIp, AGENT_PUBLIC_IP, cidr, PRE_SHARED_KEY);
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
@@ -49,7 +55,7 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getDfnsUserData(String federatedIp, String agentPublicIp, String hostIp, int vlanId, String accessKey) throws IOException {
+    public static UserData getDfnsUserData(String federatedIp, String dfnsAgentName, int vlanId, PrivateKey accessKey) throws IOException {
         // TODO DFNS
         String newScript = "echo Hello";
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
@@ -67,7 +73,7 @@ public class FederatedComputeUtil {
         scriptReplaced = scriptReplaced.replace(LEFT_SOURCE_IP_KEY, federatedComputeIp);
         scriptReplaced = scriptReplaced.replace(RIGHT_IP, agentPublicIp);
         scriptReplaced = scriptReplaced.replace(RIGHT_SUBNET_KEY, cidr);
-        scriptReplaced = scriptReplaced.replace(PRE_SHARED_KEY, preSharedKey);
+        scriptReplaced = scriptReplaced.replace(PRE_SHARED_KEY_KEY, preSharedKey);
         scriptReplaced = scriptReplaced.replace("\n", "[[\\n]]");
         scriptReplaced = scriptReplaced.replace("\r", "");
         return scriptReplaced;

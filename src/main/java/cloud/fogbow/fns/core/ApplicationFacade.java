@@ -17,17 +17,14 @@ import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveAgentToComputeTunnelRequest;
 import cloud.fogbow.fns.core.model.*;
-import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
-import cloud.fogbow.fns.core.serviceconnector.VanillaServiceConnector;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
+import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
@@ -39,7 +36,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ApplicationFacade {
     private final Logger LOGGER = Logger.getLogger(ApplicationFacade.class);
@@ -128,20 +127,13 @@ public class ApplicationFacade {
             FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
         FederatedNetworkOrder federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(compute.getFederatedNetworkId());
-        String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkOrder);
+        String instanceIp = federatedNetworkOrder.getFreeIp();
 
         ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
         String provider = compute.getCompute().getProvider();
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
-
-        switch (mode) {
-            case VANILLA:
-                FederatedComputeUtil.getVanillaUserData(instanceIp, agentPublicIp, federatedNetworkOrder.getCidr(), preSharedKey);
-                break;
-            case DFNS:
-                FederatedComputeUtil.getDfnsUserData(instanceIp, dfnsAgentPublicIp, federatedNetworkOrder.getVlanId(), accessKey);
-                break;
-        }
+        UserData userData = serviceConnector.getTunnelCreationInitScript(instanceIp, compute, federatedNetworkOrder);
+        addUserDataToCompute(compute, userData);
 
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -163,6 +155,16 @@ public class ApplicationFacade {
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
         this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), compute.getFederatedNetworkId());
         return computeId.getId();
+    }
+
+    private void addUserDataToCompute(cloud.fogbow.fns.api.parameters.Compute compute, UserData userData) {
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
+        List<UserData> userDataList = rasCompute.getUserData();
+        if (userDataList == null) {
+            userDataList = new ArrayList<>();
+            rasCompute.setUserData((ArrayList<UserData>) userDataList);
+        }
+        userDataList.add(userData);
     }
 
     public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException {

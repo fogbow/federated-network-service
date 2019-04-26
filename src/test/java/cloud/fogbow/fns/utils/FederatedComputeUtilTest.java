@@ -22,7 +22,7 @@ public class FederatedComputeUtilTest {
         int userDataSize = rasCompute.getUserData() == null ? 0 : rasCompute.getUserData().size();
 
         //exercise
-        FederatedComputeUtil.addUserData(fnsCompute, federatedComputeIp, agentPublicIp, cidr, preSharedKey);
+        FederatedComputeUtil.addUserData(fnsCompute, federatedComputeIp, cidr);
 
         //verify
         Assert.assertEquals(userDataSize + 1, fnsCompute.getCompute().getUserData().size());

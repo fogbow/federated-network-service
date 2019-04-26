@@ -1,30 +1,10 @@
 package cloud.fogbow.fns.core;
 
-import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 
-import java.io.IOException;
-
 public class ComputeRequestsController {
-
-    // Compute methods
-    public String addScriptToSetupTunnelIfNeeded(Compute compute, FederatedNetworkOrder federatedNetworkOrder)
-            throws InvalidCidrException,
-            SubnetAddressesCapacityReachedException, IOException, UnexpectedException {
-        String instanceIp = federatedNetworkOrder.getFreeIp();
-        String cidr = federatedNetworkOrder.getCidr();
-        FederatedComputeUtil.addUserData(compute, instanceIp,
-                PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
-                PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
-        return instanceIp;
-    }
 
     public void addIpToComputeAllocation(String instanceIp, String computeId, String federatedNetworkId)
             throws UnexpectedException {

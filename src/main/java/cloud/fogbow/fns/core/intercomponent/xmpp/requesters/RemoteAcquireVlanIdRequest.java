@@ -12,18 +12,18 @@ import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
 
-public class RemoteGetVlanIdRequest implements RemoteRequest<Integer> {
-    private static final Logger LOGGER = Logger.getLogger(RemoteGetVlanIdRequest.class);
+public class RemoteAcquireVlanIdRequest implements RemoteRequest<Integer> {
+    private static final Logger LOGGER = Logger.getLogger(RemoteAcquireVlanIdRequest.class);
 
     private String provider;
 
-    public RemoteGetVlanIdRequest(String provider) {
+    public RemoteAcquireVlanIdRequest(String provider) {
         this.provider = provider;
     }
 
     @Override
     public Integer send() throws Exception {
-        IQ iq = RemoteGetVlanIdRequest.marshal(this.provider);
+        IQ iq = RemoteAcquireVlanIdRequest.marshal(this.provider);
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
@@ -35,7 +35,7 @@ public class RemoteGetVlanIdRequest implements RemoteRequest<Integer> {
         IQ iq = new IQ(IQ.Type.get);
         iq.setTo(provider);
 
-        iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_GET_VLAN_ID.toString());
+        iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.ACQUIRE_VLAN_ID.toString());
 
         return iq;
     }

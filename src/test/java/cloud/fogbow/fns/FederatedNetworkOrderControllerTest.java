@@ -137,7 +137,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests that can retrieve a federated network stored into activeFederatedNetwork.
     @Test
-    public void testGetFederatedNetwork() throws InstanceNotFoundException {
+    public void testGetFederatedNetwork() throws FederatedNetworkNotFoundException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -158,7 +158,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
             //exercise
             federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
             fail();
-        } catch (InstanceNotFoundException e) {
+        } catch (FederatedNetworkNotFoundException e) {
             //verify
         }
     }
@@ -464,7 +464,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     }
 
     @Test(expected = InstanceNotFoundException.class)
-    public void testGetNonExistentFederatedNetwork() throws InstanceNotFoundException {
+    public void testGetNonExistentFederatedNetwork() throws FederatedNetworkNotFoundException {
         // set up
         mockDatabase(new HashMap<>());
         FederatedNetworkOrderController controller = new FederatedNetworkOrderController();

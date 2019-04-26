@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
@@ -25,11 +26,13 @@ public class VanillaServiceConnector implements ServiceConnector {
 
     @Override
     public int acquireVlanId() {
+        // not needed for vanilla
         return -1;
     }
 
     @Override
     public boolean releaseVlanId(int vlandId) {
+        // not needed for vanilla
         return true;
     }
 
@@ -55,6 +58,16 @@ public class VanillaServiceConnector implements ServiceConnector {
 
     @Override
     public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
+        // not needed for vanilla
         return true;
+    }
+
+    @Override
+    public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+        try {
+            return FederatedComputeUtil.getVanillaUserData(federatedIp, order.getCidr());
+        } catch (IOException e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
     }
 }

@@ -1,12 +1,23 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.NoAvailableResourcesException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.CryptoUtil;
+import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteGetVlanIdRequest;
+import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAcquireVlanIdRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteReleaseVlanIdRequest;
+import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.utils.BashScriptRunner;
+import cloud.fogbow.fns.utils.FederatedComputeUtil;
+import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 
 public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
@@ -18,8 +29,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         try {
             String xmppVlanIdServiceJid = PropertiesHolder.getInstance()
                     .getProperty(ConfigurationPropertyDefaults.XMPP_VLAN_ID_SERVICE_JID);
-            RemoteGetVlanIdRequest remoteGetVlanIdRequest = new RemoteGetVlanIdRequest(xmppVlanIdServiceJid);
-            vlanId = remoteGetVlanIdRequest.send();
+            RemoteAcquireVlanIdRequest remoteAcquireVlanIdRequest = new RemoteAcquireVlanIdRequest(xmppVlanIdServiceJid);
+            vlanId = remoteAcquireVlanIdRequest.send();
         } catch (Exception e) {
             if (e instanceof NoAvailableResourcesException) {
                 throw new NoVlanIdsLeftException();
@@ -43,6 +54,20 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    @Override
+    public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+        try {
+            KeyPair keyPair = CryptoUtil.generateKeyPair();
+
+            // TODO DFNS copy keyPair.getPublic() to the DFNS agent (its ip should be provided in the conf file)
+            new BashScriptRunner().run("ssh ");
+
+            return FederatedComputeUtil.getDfnsUserData(federatedIp, compute.getCompute().getProvider(), order.getVlanId(), keyPair.getPrivate());
+        } catch (NoSuchAlgorithmException|IOException e) {
+            throw new UnexpectedException(e.getMessage(), e);
         }
     }
 }
