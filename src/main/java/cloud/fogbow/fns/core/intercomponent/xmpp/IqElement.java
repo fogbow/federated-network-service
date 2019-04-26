@@ -6,7 +6,9 @@ public enum IqElement {
     COMPUTE_ORDER("computeOrder"),
     MEMBER_CONFIGURATION_STATE("memberConfigurationState"),
     VLAN_ID("vlanId"),
-    VLAN_ID_CLASS_NAME("vlanIdClassName"), HOST_IP("hostIp");
+    VLAN_ID_CLASS_NAME("vlanIdClassName"),
+    HOST_IP("hostIp"),
+    INSTANCE_PUBLIC_KEY("instancePublicKey");
 
     private final String element;
 

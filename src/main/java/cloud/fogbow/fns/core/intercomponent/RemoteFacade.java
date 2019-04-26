@@ -3,8 +3,11 @@ package cloud.fogbow.fns.core.intercomponent;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
+import cloud.fogbow.fns.core.serviceconnector.RemoteDfnsServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import cloud.fogbow.ras.core.models.orders.ComputeOrder;
@@ -41,5 +44,11 @@ public class RemoteFacade {
 
     public void removeAgentToComputeTunnel(String hostIp, int vlanId) {
         // TODO DFNS remove the tunnel created for this hostIp via this vlanId
+    }
+
+    public boolean addInstancePublicKey(String publicKey) throws UnexpectedException {
+        DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
+                ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
+        return serviceConnector.addInstancePublicKeyToAgent(publicKey);
     }
 }

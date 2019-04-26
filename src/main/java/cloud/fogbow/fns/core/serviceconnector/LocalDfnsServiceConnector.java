@@ -39,4 +39,18 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         BashScriptRunner.Output output = this.runner.run("echo", "Hello");
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
+
+    @Override
+    public boolean addInstancePublicKeyToAgent(String instancePublicKey) throws UnexpectedException {
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+        String publicKey = String.format("'%s'", instancePublicKey);
+        BashScriptRunner.Output output = this.runner.run("echo", publicKey, "|", "ssh", sshCredentials, "-i",
+                permissionFilePath,  "-T", "cat", ">>", "~/.ssh/authorized_keys");
+
+        return output.getExitCode() == SUCCESS_EXIT_CODE;
+    }
 }

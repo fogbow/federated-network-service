@@ -61,13 +61,14 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
+            String providerName = compute.getCompute().getProvider();
 
             // TODO DFNS copy keyPair.getPublic() to the DFNS agent (its ip should be provided in the conf file)
-            new BashScriptRunner().run("ssh ");
-
             return FederatedComputeUtil.getDfnsUserData(federatedIp, compute.getCompute().getProvider(), order.getVlanId(), keyPair.getPrivate());
         } catch (NoSuchAlgorithmException|IOException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
+
+    public abstract boolean addInstancePublicKeyToAgent(String instancePublicKey) throws UnexpectedException;
 }
