@@ -24,6 +24,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
+        // TODO DFNS
         BashScriptRunner.Output output = this.runner.run("echo", "Hello");
         return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
     }

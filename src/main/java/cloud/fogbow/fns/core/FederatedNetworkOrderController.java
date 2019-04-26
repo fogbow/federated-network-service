@@ -1,6 +1,5 @@
 package cloud.fogbow.fns.core;
 
-import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
@@ -17,7 +16,6 @@ import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
-import javax.validation.spi.ConfigurationState;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -25,10 +23,7 @@ import java.util.stream.Collectors;
 public class FederatedNetworkOrderController {
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
 
-    public static final String RAS_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
-
-    // TODO join this with RAS_NAME
-    private static final String LOCAL_MEMBER_NAME = "fakeMemberName";
+    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
 
     // Federated Network methods
     public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {
@@ -115,7 +110,7 @@ public class FederatedNetworkOrderController {
     public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
         return order -> {
             InstanceState status = order.getInstanceStateFromOrderState();
-            InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), RAS_NAME, status);
+            InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), LOCAL_MEMBER_NAME, status);
             return instanceStatus;
         };
     }
