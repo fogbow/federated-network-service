@@ -318,7 +318,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         addComputeIntoActiveOrdersMap();
         List<String> ipAddresses = new ArrayList<>();
         ipAddresses.add("192.168.0.2");
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host",
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY.toString(), "host",
                 2, 8, 20, ipAddresses);
         //exercise
 //        ComputeInstance federatedComputeInstance = federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
@@ -355,7 +355,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockSingletons();
         List<String> ipAddresses = new ArrayList<>();
         ipAddresses.add("192.168.0.2");
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY, "host",
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY.toString(), "host",
                 2, 8, 20, ipAddresses);
         //exercise
 //        ComputeInstance federatedComputeInstance = federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
