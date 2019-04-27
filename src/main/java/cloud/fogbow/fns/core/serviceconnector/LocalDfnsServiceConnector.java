@@ -8,6 +8,12 @@ import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static cloud.fogbow.fns.constants.ConfigurationPropertyKeys.CREATE_TUNNELS_SCRIPT_PATH;
+
 public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(LocalDfnsServiceConnector.class);
 
@@ -24,8 +30,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
-        // TODO DFNS
-        BashScriptRunner.Output output = this.runner.run("echo", "Hello");
+        String createTunnelsScriptPath = PropertiesHolder.getInstance().getProperty(CREATE_TUNNELS_SCRIPT_PATH);
+        List<String> commandList = new ArrayList<>();
+        commandList.add("bash");
+        commandList.add(createTunnelsScriptPath);
+        List<String> otherProviders = order.getProviders().keySet().stream().filter(provider -> provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
+        commandList.addAll(otherProviders);
+        String[] command = commandList.toArray(new String[] {});
+        BashScriptRunner.Output output = this.runner.run(command);
         return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
     }
 

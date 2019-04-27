@@ -1,5 +1,7 @@
 package cloud.fogbow.fns.constants;
 
+import sun.management.resources.agent;
+
 public class ConfigurationPropertyKeys {
     // FNS configuration
     public static final String XMPP_JID_KEY = "xmpp_jid";
@@ -31,4 +33,7 @@ public class ConfigurationPropertyKeys {
     public static final String FEDERATED_NETWORK_AGENT_ADDRESS_KEY = "federated_network_agent_address";
     public static final String FEDERATED_NETWORK_PRE_SHARED_KEY_KEY = "federated_network_agent_pre_shared_key";
     public static final String REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY = "remove_federated_network_script_path";
+
+    // DFNS Agent configuration
+    public static final String CREATE_TUNNELS_SCRIPT_PATH = "create_federated_network_script_path";
 }
