@@ -90,8 +90,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         String sshCredentials = agentUser + "@" + agentPublicIp;
         String scpPath = sshCredentials + ":" + TUNNEL_SCRIPT_REMOTE_PATH;
 
-        BashScriptRunner.Output output = this.runner.run("scp", "-i", permissionFilePath, CREATE_TUNNEL_SCRIPT_PATH,
-                sshCredentials, scpPath);
+        BashScriptRunner.Output output = this.runner.run("scp", "-i", permissionFilePath, CREATE_TUNNEL_SCRIPT_PATH, scpPath);
 
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
