@@ -1,8 +1,7 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteAddInstancePublicKeyRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAddInstancePublicKeyRequest;
+import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAllowAccessFromComputeToAgentRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteConfigureMemberRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveAgentToComputeTunnelRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteRemoveFedNetRequest;
@@ -55,7 +54,7 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException {
-        RemoteAddInstancePublicKeyRequest request = new RemoteAddInstancePublicKeyRequest(this.memberToBeConfigured, instancePublicKey);
+        RemoteAllowAccessFromComputeToAgentRequest request = new RemoteAllowAccessFromComputeToAgentRequest(this.memberToBeConfigured, instancePublicKey);
         try {
             request.send();
             return true;

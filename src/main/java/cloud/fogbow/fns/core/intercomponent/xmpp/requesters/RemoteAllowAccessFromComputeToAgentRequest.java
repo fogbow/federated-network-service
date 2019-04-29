@@ -9,13 +9,13 @@ import org.apache.log4j.Logger;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-public class RemoteAddInstancePublicKeyRequest implements RemoteRequest<Void> {
-    private static final Logger LOGGER = Logger.getLogger(RemoteAddInstancePublicKeyRequest.class);
+public class RemoteAllowAccessFromComputeToAgentRequest implements RemoteRequest<Void> {
+    private static final Logger LOGGER = Logger.getLogger(RemoteAllowAccessFromComputeToAgentRequest.class);
 
     private final String provider;
     private final String instancePublicKey;
 
-    public RemoteAddInstancePublicKeyRequest(String provider, String instancePublicKey) {
+    public RemoteAllowAccessFromComputeToAgentRequest(String provider, String instancePublicKey) {
         this.provider = provider;
         this.instancePublicKey = instancePublicKey;
     }

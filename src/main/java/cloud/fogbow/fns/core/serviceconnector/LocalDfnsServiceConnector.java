@@ -27,7 +27,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private BashScriptRunner runner;
 
     public LocalDfnsServiceConnector(BashScriptRunner runner) {
-        this.runner = runner;
+        super(runner);
     }
 
     @Override

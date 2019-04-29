@@ -11,8 +11,8 @@ import org.dom4j.Element;
 import org.jamppa.component.handler.AbstractQueryHandler;
 import org.xmpp.packet.IQ;
 
-public class RemoteAddInstancePublicKeyRequestHandler extends AbstractQueryHandler {
-    public RemoteAddInstancePublicKeyRequestHandler() {
+public class RemoteAllowAccessFromComputeToAgentRequestHandler extends AbstractQueryHandler {
+    public RemoteAllowAccessFromComputeToAgentRequestHandler() {
         super(RemoteMethod.REMOTE_ADD_INSTANCE_PUBLIC_KEY.toString());
     }
 
