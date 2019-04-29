@@ -7,11 +7,10 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +22,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     private static final int SUCCESS_EXIT_CODE = 0;
     public static final String CREATE_TUNNELS_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.CREATE_TUNNELS_SCRIPT_PATH);
+    public static final String BASH_COMMAND = "bash";
 
     private BashScriptRunner runner;
 
@@ -32,9 +32,26 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
-        String[] command = getConfigureCommand(order.getProviders().keySet());
-        BashScriptRunner.Output output = this.runner.run(command);
-        return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+
+        try {
+            List<String> command = new ArrayList<>();
+            command.add("ssh");
+            command.add(sshCredentials);
+            command.add("-i");
+            command.add(permissionFilePath);
+            command.add("-T");
+            command.addAll(getConfigureCommand(getIpAddresses(order.getProviders().keySet())));
+
+            BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[] {}));
+            return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
+        } catch (UnknownHostException e) {
+            LOGGER.error(e.getMessage(), e);
+            return MemberConfigurationState.FAILED;
+        }
     }
 
     @Override
@@ -50,7 +67,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public boolean addInstancePublicKeyToAgent(String instancePublicKey) throws UnexpectedException {
+    public boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
@@ -63,18 +80,28 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
-    @NotNull
-    private String[] getConfigureCommand(Collection<String> allProviders) {
+    private List<String> getConfigureCommand(Collection<String> allProviders) {
         List<String> command = new ArrayList<>();
-        command.add("bash");
+        command.add(BASH_COMMAND);
         command.add(CREATE_TUNNELS_SCRIPT_PATH);
         command.addAll(excludeLocalProvider(allProviders));
-        return command.toArray(new String[] {});
+        return command;
     }
 
-    @NotNull
     private List<String> excludeLocalProvider(Collection<String> allProviders) {
         Stream<String> providersStream = allProviders.stream();
-        return providersStream.filter(provider -> provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
+        return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
+    }
+
+    private Set<String> getIpAddresses(Set<String> serverNames) throws UnknownHostException {
+        Set<String> ipAddresses = new HashSet<>();
+        for (String serverName : serverNames) {
+            ipAddresses.add(getIpAddress(serverName));
+        }
+        return ipAddresses;
+    }
+
+    private String getIpAddress(String serverName) throws UnknownHostException {
+        return InetAddress.getByName(serverName).getHostAddress();
     }
 }

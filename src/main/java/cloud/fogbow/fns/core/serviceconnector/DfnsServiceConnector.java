@@ -10,7 +10,6 @@ import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAcquireVlanIdRequest;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteReleaseVlanIdRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
@@ -61,14 +60,14 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
-            String providerName = compute.getCompute().getProvider();
 
-            // TODO DFNS copy keyPair.getPublic() to the DFNS agent (its ip should be provided in the conf file)
+            allowAccessFromComputeToAgent(keyPair.getPublic().toString());
+
             return FederatedComputeUtil.getDfnsUserData(federatedIp, compute.getCompute().getProvider(), order.getVlanId(), keyPair.getPrivate());
         } catch (NoSuchAlgorithmException|IOException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
 
-    public abstract boolean addInstancePublicKeyToAgent(String instancePublicKey) throws UnexpectedException;
+    public abstract boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException;
 }

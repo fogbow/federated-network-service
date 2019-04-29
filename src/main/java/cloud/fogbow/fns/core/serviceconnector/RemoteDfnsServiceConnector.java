@@ -54,7 +54,7 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public boolean addInstancePublicKeyToAgent(String instancePublicKey) throws UnexpectedException {
+    public boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException {
         RemoteAddInstancePublicKeyRequest request = new RemoteAddInstancePublicKeyRequest(this.memberToBeConfigured, instancePublicKey);
         try {
             request.send();

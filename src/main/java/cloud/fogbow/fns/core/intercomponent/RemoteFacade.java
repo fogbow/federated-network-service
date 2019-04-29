@@ -7,10 +7,8 @@ import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.RemoteDfnsServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
-import cloud.fogbow.ras.core.models.orders.ComputeOrder;
 
 public class RemoteFacade {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
@@ -49,6 +47,6 @@ public class RemoteFacade {
     public boolean addInstancePublicKey(String publicKey) throws UnexpectedException {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
-        return serviceConnector.addInstancePublicKeyToAgent(publicKey);
+        return serviceConnector.allowAccessFromComputeToAgent(publicKey);
     }
 }
