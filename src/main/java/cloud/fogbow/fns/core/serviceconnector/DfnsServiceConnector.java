@@ -30,6 +30,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     private BashScriptRunner runner;
 
+    public DfnsServiceConnector() {}
+
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
     }
