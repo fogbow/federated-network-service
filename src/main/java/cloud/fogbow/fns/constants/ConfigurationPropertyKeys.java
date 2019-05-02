@@ -37,4 +37,5 @@ public class ConfigurationPropertyKeys {
     // DFNS Agent configuration
     public static final String CREATE_TUNNELS_SCRIPT_PATH = "create_federated_network_script_path";
     public static final String CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH = "create_tunnel_from_agent_to_compute_script_path";
+    public static final String DEFAULT_NETWORK_CIDR_KEY = "default_network_cidr_key";
 }

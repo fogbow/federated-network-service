@@ -17,8 +17,13 @@ import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
@@ -30,7 +35,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     private BashScriptRunner runner;
 
-    public DfnsServiceConnector() {}
+    public DfnsServiceConnector() {
+    }
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
@@ -71,16 +77,28 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         }
     }
 
+    // TODO this should be abstract. The remote connector should use XMPP to retrieve the default network cidr
+    // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException {
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+
+        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, serializedPublicKey);
+    }
+
     @Override
     public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
 
-            this.allowAccessFromComputeToAgent(keyPair.getPublic().toString());
-            this.copyCreateTunnelFromAgentToComputeScript();
+            allowAccessFromComputeToAgent(serializePublicKey(keyPair.getPublic()));
+            copyCreateTunnelFromAgentToComputeScript();
 
-            return FederatedComputeUtil.getDfnsUserData(federatedIp, compute.getCompute().getProvider(), order.getVlanId(), keyPair.getPrivate());
-        } catch (NoSuchAlgorithmException|IOException e) {
+            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(CryptoUtil.savePublicKey(keyPair.getPublic()));
+            String agentIp = getIpAddress(compute.getCompute().getProvider());
+            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, agentIp, order.getVlanId(), keyPair.getPrivate());
+        } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
@@ -98,4 +116,20 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     public abstract boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException;
+
+    private String serializePublicKey(PublicKey publicKey) throws GeneralSecurityException {
+        return String.format("ssh-rsa %s", CryptoUtil.savePublicKey(publicKey));
+    }
+
+    protected Set<String> getIpAddresses(Set<String> serverNames) throws UnknownHostException {
+        Set<String> ipAddresses = new HashSet<>();
+        for (String serverName : serverNames) {
+            ipAddresses.add(getIpAddress(serverName));
+        }
+        return ipAddresses;
+    }
+
+    protected String getIpAddress(String serverName) throws UnknownHostException {
+        return InetAddress.getByName(serverName).getHostAddress();
+    }
 }

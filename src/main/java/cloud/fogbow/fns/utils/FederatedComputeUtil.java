@@ -1,8 +1,10 @@
 package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
+import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -15,12 +17,15 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FederatedComputeUtil {
-    private static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
+    public static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
     public static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
     public static final String RIGHT_IP = "#RIGHT_IP#";
     public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
@@ -30,6 +35,16 @@ public class FederatedComputeUtil {
 
     public static final String AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
     public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY);
+
+    // DFNS TOKENS
+    public static final String CIDR_KEY = "#CIDR#";
+    public static final String GATEWAY_IP_KEY = "#GATEWAY_IP#";
+    public static final String VLAN_ID_KEY = "#VLAN_ID#";
+    public static final String FEDERATED_IP_KEY = "#FEDERATED_IP#";
+    public static final String AGENT_USER_KEY = "#AGENT_USER#";
+    public static final String AGENT_PUBLIC_IP_KEY = "#AGENT_PUBLIC_IP#";
+    public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
+    public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
 
     public static void addUserData(Compute fnsCompute, String federatedComputeIp,
                                            String cidr) throws IOException {
@@ -57,10 +72,24 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getDfnsUserData(String federatedIp, String dfnsAgentName, int vlanId, PrivateKey accessKey) throws IOException {
+    public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, PrivateKey accessKey) throws IOException, GeneralSecurityException {
         // TODO DFNS
-        String newScript = "echo Hello";
-        byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
+        InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
+        String templateScript = IOUtils.toString(inputStream);
+
+
+        Map<String, String> scriptTokenValues = new HashMap<>();
+        scriptTokenValues.put(CIDR_KEY, configuration.getDefaultNetworkCidr());
+        scriptTokenValues.put(GATEWAY_IP_KEY, agentIp);
+        scriptTokenValues.put(VLAN_ID_KEY, String.valueOf(vlanId));
+        scriptTokenValues.put(FEDERATED_IP_KEY, federatedIp);
+        scriptTokenValues.put(AGENT_USER_KEY, configuration.getAgentUser());
+        scriptTokenValues.put(PRIVATE_KEY_KEY, CryptoUtil.savePrivateKey(accessKey));
+        scriptTokenValues.put(PUBLIC_KEY_KEY, configuration.getPublicKey());
+
+        String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
+
+        byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
 
@@ -79,6 +108,14 @@ public class FederatedComputeUtil {
         scriptReplaced = scriptReplaced.replace("\n", "[[\\n]]");
         scriptReplaced = scriptReplaced.replace("\r", "");
         return scriptReplaced;
+    }
+
+    private static String replaceScriptTokens(String scriptTemplate, Map<String, String> scriptTokenValues) {
+        String result = scriptTemplate;
+        for (String scriptToken : scriptTokenValues.keySet()) {
+            result = result.replace(scriptToken, scriptTokenValues.get(scriptToken));
+        }
+        return result;
     }
 }
 

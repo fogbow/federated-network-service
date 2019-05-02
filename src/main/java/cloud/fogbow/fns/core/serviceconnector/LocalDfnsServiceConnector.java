@@ -73,7 +73,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
         String sshCredentials = agentUser + "@" + agentPublicIp;
-        String publicKey = String.format("'%s'", instancePublicKey);
+        String publicKey = String.format("'ssh-rsa %s'", instancePublicKey);
         BashScriptRunner.Output output = this.runner.run("echo", publicKey, "|", "ssh", sshCredentials, "-i",
                 permissionFilePath,  "-T", "cat", ">>", "~/.ssh/authorized_keys");
 
@@ -91,17 +91,5 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private List<String> excludeLocalProvider(Collection<String> allProviders) {
         Stream<String> providersStream = allProviders.stream();
         return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
-    }
-
-    private Set<String> getIpAddresses(Set<String> serverNames) throws UnknownHostException {
-        Set<String> ipAddresses = new HashSet<>();
-        for (String serverName : serverNames) {
-            ipAddresses.add(getIpAddress(serverName));
-        }
-        return ipAddresses;
-    }
-
-    private String getIpAddress(String serverName) throws UnknownHostException {
-        return InetAddress.getByName(serverName).getHostAddress();
     }
 }
