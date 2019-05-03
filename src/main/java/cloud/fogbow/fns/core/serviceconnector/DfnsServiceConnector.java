@@ -33,7 +33,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String CREATE_TUNNEL_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(
             ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
 
-    private BashScriptRunner runner;
+    protected BashScriptRunner runner;
 
     public DfnsServiceConnector() {
     }
@@ -92,7 +92,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
 
-            allowAccessFromComputeToAgent(serializePublicKey(keyPair.getPublic()));
+            addKeyToAgentAuthorizedPublicKeys(serializePublicKey(keyPair.getPublic()));
             copyCreateTunnelFromAgentToComputeScript();
 
             DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(CryptoUtil.savePublicKey(keyPair.getPublic()));
@@ -115,7 +115,14 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
-    public abstract boolean allowAccessFromComputeToAgent(String instancePublicKey) throws UnexpectedException;
+    /**
+     * Adds the provided <tt>publicKey</tt> to the .authorized_keys of the DFNS agent.
+     *
+     * @param publicKey
+     * @return
+     * @throws UnexpectedException
+     */
+    public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
 
     private String serializePublicKey(PublicKey publicKey) throws GeneralSecurityException {
         return String.format("ssh-rsa %s", CryptoUtil.savePublicKey(publicKey));

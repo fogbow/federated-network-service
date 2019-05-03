@@ -47,6 +47,6 @@ public class RemoteFacade {
     public boolean addInstancePublicKey(String publicKey) throws UnexpectedException {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
-        return serviceConnector.allowAccessFromComputeToAgent(publicKey);
+        return serviceConnector.addKeyToAgentAuthorizedPublicKeys(publicKey);
     }
 }
