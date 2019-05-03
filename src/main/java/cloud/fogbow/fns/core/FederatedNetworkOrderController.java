@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class FederatedNetworkOrderController {
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
 
-    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY);
+    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
 
     // Federated Network methods
     public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {

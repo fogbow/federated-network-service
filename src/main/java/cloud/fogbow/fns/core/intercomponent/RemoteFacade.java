@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core.intercomponent;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -12,7 +13,7 @@ import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 
 public class RemoteFacade {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyDefaults.XMPP_JID_KEY);
+            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
 
     private static RemoteFacade instance;
 
