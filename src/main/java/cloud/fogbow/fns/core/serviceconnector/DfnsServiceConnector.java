@@ -77,16 +77,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         }
     }
 
-    // TODO this should be abstract. The remote connector should use XMPP to retrieve the default network cidr
-    // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException {
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
-
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-
-        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, serializedPublicKey);
-    }
-
     @Override
     public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
@@ -123,6 +113,9 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
      * @throws UnexpectedException
      */
     public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
+
+    // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
+    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException, UnexpectedException;
 
     private String serializePublicKey(PublicKey publicKey) throws GeneralSecurityException {
         return String.format("ssh-rsa %s", CryptoUtil.savePublicKey(publicKey));

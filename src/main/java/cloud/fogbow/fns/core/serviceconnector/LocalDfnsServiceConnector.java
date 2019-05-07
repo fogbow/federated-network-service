@@ -74,6 +74,15 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
+    @Override
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException {
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+
+        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, serializedPublicKey);
+    }
+
     private List<String> getConfigureCommand(Collection<String> allProviders) {
         List<String> command = new ArrayList<>();
         command.add("bash");
