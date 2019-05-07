@@ -54,7 +54,7 @@ public class RemoteFacade {
         return serviceConnector.addKeyToAgentAuthorizedPublicKeys(publicKey);
     }
 
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException, UnexpectedException {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
         return serviceConnector.getDfnsAgentConfiguration(publicKey);
