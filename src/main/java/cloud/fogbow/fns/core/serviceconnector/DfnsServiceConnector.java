@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -128,7 +129,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         return String.format("ssh-rsa %s", CryptoUtil.savePublicKey(publicKey));
     }
 
-    protected Set<String> getIpAddresses(Set<String> serverNames) throws UnknownHostException {
+    protected Collection<String> getIpAddresses(Collection<String> serverNames) throws UnknownHostException {
         Set<String> ipAddresses = new HashSet<>();
         for (String serverName : serverNames) {
             ipAddresses.add(getIpAddress(serverName));
