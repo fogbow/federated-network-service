@@ -1,9 +1,6 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp;
 
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteAllowAccessFromComputeToAgentRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteConfigureMemberRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteRemoveAgentToComputeTunnelRequestHandler;
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteRemoveFedNetRequestHandler;
+import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.*;
 import org.apache.log4j.Logger;
 import org.jamppa.component.XMPPComponent;
 
@@ -19,5 +16,6 @@ public class XmppComponentManager extends XMPPComponent {
         addSetHandler(new RemoteRemoveAgentToComputeTunnelRequestHandler());
         addSetHandler(new RemoteAllowAccessFromComputeToAgentRequestHandler());
         // instantiate get handlers here
+        addGetHandler(new RemoteGetDfnsAgentConfigurationRequestHandler());
     }
 }

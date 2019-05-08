@@ -7,9 +7,12 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
 import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+
+import java.net.UnknownHostException;
 
 public class RemoteFacade {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
@@ -49,5 +52,11 @@ public class RemoteFacade {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
         return serviceConnector.addKeyToAgentAuthorizedPublicKeys(publicKey);
+    }
+
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException, UnexpectedException {
+        DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
+                ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
+        return serviceConnector.getDfnsAgentConfiguration(publicKey);
     }
 }

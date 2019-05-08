@@ -17,7 +17,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(LocalDfnsServiceConnector.class);
 
     public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
+            ConfigurationPropertyKeys.XMPP_JID_KEY);
 
     public static final int SUCCESS_EXIT_CODE = 0;
     public static final String CREATE_TUNNELS_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.CREATE_TUNNELS_SCRIPT_PATH);
@@ -74,6 +74,15 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
                 permissionFilePath, "-T", "cat", ">>", "~/.ssh/authorized_keys");
 
         return output.getExitCode() == SUCCESS_EXIT_CODE;
+    }
+
+    @Override
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException {
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+
+        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, serializedPublicKey);
     }
 
     private List<String> getConfigureCommand(Collection<String> providersIps) {

@@ -6,7 +6,8 @@ public enum RemoteMethod {
     REMOTE_RELEASE_VLAN_ID("releaseVlanId"),
     REMOTE_REMOVE_FEDNET("removeFederatedNetwork"),
     REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL("removeAgentToComputeTunnel"),
-    REMOTE_ADD_INSTANCE_PUBLIC_KEY("addInstancePublicKey");
+    REMOTE_ADD_INSTANCE_PUBLIC_KEY("addInstancePublicKey"),
+    REMOTE_GET_DFNS_AGENT_CONFIGURATION("getDfnsAgentConfiguration");
 
     private final String namespace;
 
