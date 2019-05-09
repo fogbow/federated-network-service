@@ -1,9 +1,9 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.intercomponent.xmpp.XmppComponentManager;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 
@@ -29,7 +29,8 @@ public class ServiceConnectorFactory {
                 if (memberName.equals(LOCAL_MEMBER_NAME)) {
                     return new LocalDfnsServiceConnector(new BashScriptRunner());
                 } else {
-                    return new RemoteDfnsServiceConnector(memberName);
+                    String fullName = XmppComponentManager.XMPP_JID_PREFIX + memberName;
+                    return new RemoteDfnsServiceConnector(fullName);
                 }
             case VANILLA:
                 return new VanillaServiceConnector();
