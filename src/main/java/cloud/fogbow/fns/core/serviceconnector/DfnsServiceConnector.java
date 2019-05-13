@@ -1,20 +1,26 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-import cloud.fogbow.common.exceptions.NoAvailableResourcesException;
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.CryptoUtil;
+import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.fns.api.parameters.Compute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAcquireVlanIdRequest;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteReleaseVlanIdRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
+import cloud.fogbow.fns.utils.RedirectUtil;
+import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.core.models.UserData;
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -34,6 +40,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String CREATE_TUNNEL_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(
             ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
 
+    private Gson gson = new Gson();
     protected BashScriptRunner runner;
 
     public DfnsServiceConnector() {
@@ -44,38 +51,55 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public int acquireVlanId() throws NoVlanIdsLeftException {
-        int vlanId = -1;
+    public int acquireVlanId() throws NoVlanIdsLeftException, FogbowException {
+        ResponseEntity<String> responseEntity = null;
 
+        // We need a try-catch here, because a connect exception may be thrown
         try {
-            String xmppVlanIdServiceJid = PropertiesHolder.getInstance()
-                    .getProperty(ConfigurationPropertyDefaults.XMPP_VLAN_ID_SERVICE_JID);
-            RemoteAcquireVlanIdRequest remoteAcquireVlanIdRequest = new RemoteAcquireVlanIdRequest(xmppVlanIdServiceJid);
-            vlanId = remoteAcquireVlanIdRequest.send();
-        } catch (Exception e) {
-            if (e instanceof NoAvailableResourcesException) {
-                throw new NoVlanIdsLeftException();
-            }
-
-            LOGGER.error(e.getMessage(), e);
+            responseEntity = RedirectUtil.createAndSendRequest("/" + VlanId.VLAN_ID_ENDPOINT, null,
+                    HttpMethod.GET, null, String.class);
+        } catch (RestClientException e) {
+            responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
+                    body(Messages.Error.VLAN_ID_SERVICE_DOES_NOT_RESPOND);
         }
 
-        return vlanId;
+        // if response status was not successful, return the status and rollback, undoing the latest modifications
+        if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+            // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
+            // since it is eventually recovered when the cached list gets empty and is later refilled.
+            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
+        }
+
+        VlanId vlanId = gson.fromJson(responseEntity.getBody(), VlanId.class);
+
+        return vlanId.getVlanId();
     }
 
     @Override
-    public boolean releaseVlanId(int vlanId) {
-        String xmppVlanIdServiceJid = PropertiesHolder.getInstance()
-                .getProperty(ConfigurationPropertyDefaults.XMPP_VLAN_ID_SERVICE_JID);
-        RemoteReleaseVlanIdRequest remoteGetVlanIdRequest = new RemoteReleaseVlanIdRequest(xmppVlanIdServiceJid, vlanId);
+    public boolean releaseVlanId(int vlanId) throws FogbowException {
+        ResponseEntity<String> responseEntity = null;
 
+        // We need a try-catch here, because a connect exception may be thrown
         try {
-            remoteGetVlanIdRequest.send();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            return false;
+            String body = gson.toJson(new VlanId(vlanId));
+            responseEntity = RedirectUtil.createAndSendRequest("/" + VlanId.VLAN_ID_ENDPOINT, body,
+                    HttpMethod.POST, null, String.class);
+        } catch (RestClientException e) {
+            responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
+                    body(Messages.Error.VLAN_ID_SERVICE_DOES_NOT_RESPOND);
         }
+        // if response status was not successful, return the status and rollback, undoing the latest modifications
+        if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
+            // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
+            // since it is eventually recovered when the cached list gets empty and is later refilled.
+            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
+            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
+        }
+
+        VlanId vlanId1 = gson.fromJson(responseEntity.getBody(), VlanId.class);
+
+        return vlanId1.getVlanId();
     }
 
     @Override
