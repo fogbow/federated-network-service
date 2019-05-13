@@ -1,9 +1,12 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
 
 import java.net.UnknownHostException;
@@ -72,5 +75,18 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+        String scpPath = sshCredentials + ":" + SCRIPT_TARGET_PATH;
+
+        BashScriptRunner.Output output = this.runner.run("scp", "-i", permissionFilePath, SCRIPT_TARGET_PATH, scpPath);
+
+        return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 }

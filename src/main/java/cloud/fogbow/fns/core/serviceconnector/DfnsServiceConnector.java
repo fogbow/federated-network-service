@@ -16,6 +16,7 @@ import cloud.fogbow.fns.utils.RedirectUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
+import cloud.fogbow.vlanid.api.http.response.VlanId;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -35,13 +36,12 @@ import java.util.Set;
 public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
 
-    private static final int SUCCESS_EXIT_CODE = 0;
-    public static final String TUNNEL_SCRIPT_REMOTE_PATH = "/tmp";
-    public static final String CREATE_TUNNEL_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
+    public static final int SUCCESS_EXIT_CODE = 0;
 
     private Gson gson = new Gson();
     protected BashScriptRunner runner;
+
+    public static final String SCRIPT_TARGET_PATH = "/tmp/";
 
     public DfnsServiceConnector() {
     }
@@ -108,7 +108,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
 
             addKeyToAgentAuthorizedPublicKeys(serializePublicKey(keyPair.getPublic()));
-            copyCreateTunnelFromAgentToComputeScript();
 
             DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(CryptoUtil.savePublicKey(keyPair.getPublic()));
             String agentIp = getIpAddress(compute.getCompute().getProvider());
@@ -118,17 +117,11 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         }
     }
 
-    private boolean copyCreateTunnelFromAgentToComputeScript() throws UnexpectedException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String sshCredentials = agentUser + "@" + agentPublicIp;
-        String scpPath = sshCredentials + ":" + TUNNEL_SCRIPT_REMOTE_PATH;
-
-        BashScriptRunner.Output output = this.runner.run("scp", "-i", permissionFilePath, CREATE_TUNNEL_SCRIPT_PATH, scpPath);
-
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
-    }
+    /**
+     * Sends the script that creates a tunnel from the agent to the compute to the agent
+     * @return
+     */
+    public abstract boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException;
 
     /**
      * Adds the provided <tt>publicKey</tt> to the .authorized_keys of the DFNS agent.

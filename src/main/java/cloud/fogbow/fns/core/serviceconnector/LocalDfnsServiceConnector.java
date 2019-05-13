@@ -48,6 +48,28 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
+    // TODO Remove this
+    public MemberConfigurationState configureWithSsh(FederatedNetworkOrder order) throws UnexpectedException {
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+
+        try {
+            String[] commandFirstPart = {"ssh", sshCredentials, "-i", permissionFilePath, "-T"};
+            List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
+            Set<String> allProviders = order.getProviders().keySet();
+            Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
+            command.addAll(getConfigureCommand(ipAddresses));
+
+            BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[]{}));
+            return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
+        } catch (UnknownHostException e) {
+            LOGGER.error(e.getMessage(), e);
+            return MemberConfigurationState.FAILED;
+        }
+    }
+
     @Override
     public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
         // TODO implement this
@@ -96,5 +118,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private Collection<String> excludeLocalProvider(Collection<String> allProviders) {
         Stream<String> providersStream = allProviders.stream();
         return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
+        String createTunnelFromAgentToComputeScriptPath = PropertiesHolder.getInstance().getProperty(
+                ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
+
+        BashScriptRunner.Output output = this.runner.run("cp", createTunnelFromAgentToComputeScriptPath, SCRIPT_TARGET_PATH);
+        return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 }
