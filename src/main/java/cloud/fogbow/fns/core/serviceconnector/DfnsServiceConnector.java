@@ -1,27 +1,24 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.common.constants.HttpConstants;
+import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.CryptoUtil;
-import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.common.util.connectivity.HttpRequestClient;
+import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
-import cloud.fogbow.fns.utils.RedirectUtil;
-import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
-import cloud.fogbow.vlanid.api.http.response.VlanId;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -30,6 +27,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,6 +40,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     protected BashScriptRunner runner;
 
     public static final String SCRIPT_TARGET_PATH = "/tmp/";
+    public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
+    public static final String VLAN_ID_ENDPOINT = "/vlanId";
 
     public DfnsServiceConnector() {
     }
@@ -52,54 +52,33 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     @Override
     public int acquireVlanId() throws NoVlanIdsLeftException, FogbowException {
-        ResponseEntity<String> responseEntity = null;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        String acquireVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
 
-        // We need a try-catch here, because a connect exception may be thrown
-        try {
-            responseEntity = RedirectUtil.createAndSendRequest("/" + VlanId.VLAN_ID_ENDPOINT, null,
-                    HttpMethod.GET, null, String.class);
-        } catch (RestClientException e) {
-            responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.VLAN_ID_SERVICE_DOES_NOT_RESPOND);
-        }
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
 
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
-        if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-            // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
-            // since it is eventually recovered when the cached list gets empty and is later refilled.
-            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
-        }
-
-        VlanId vlanId = gson.fromJson(responseEntity.getBody(), VlanId.class);
+        cloud.fogbow.vlanid.api.http.response.VlanId vlanId = gson.fromJson(response.getContent(),
+                cloud.fogbow.vlanid.api.http.response.VlanId.class);
 
         return vlanId.getVlanId();
     }
 
     @Override
     public boolean releaseVlanId(int vlanId) throws FogbowException {
-        ResponseEntity<String> responseEntity = null;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
 
-        // We need a try-catch here, because a connect exception may be thrown
-        try {
-            String body = gson.toJson(new VlanId(vlanId));
-            responseEntity = RedirectUtil.createAndSendRequest("/" + VlanId.VLAN_ID_ENDPOINT, body,
-                    HttpMethod.POST, null, String.class);
-        } catch (RestClientException e) {
-            responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.VLAN_ID_SERVICE_DOES_NOT_RESPOND);
-        }
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
-        if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
-            // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
-            // since it is eventually recovered when the cached list gets empty and is later refilled.
-            ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
-        }
+        String jsonBody = GsonHolder.getInstance().toJson(new cloud.fogbow.vlanid.api.http.response.VlanId(vlanId));
+        HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
 
-        VlanId vlanId1 = gson.fromJson(responseEntity.getBody(), VlanId.class);
+        String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
 
-        return vlanId1.getVlanId();
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.POST, releaseVlanIdEndpoint, headers, body);
+
+        return response.getHttpCode() == HttpStatus.OK.value();
     }
 
     @Override
