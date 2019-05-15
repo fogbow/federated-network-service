@@ -1,7 +1,5 @@
 package cloud.fogbow.fns.constants;
 
-import sun.management.resources.agent;
-
 public class ConfigurationPropertyKeys {
     // FNS configuration
     public static final String XMPP_JID_KEY = "xmpp_jid";
@@ -24,6 +22,9 @@ public class ConfigurationPropertyKeys {
     // RAS configuration
     public static final String RAS_PORT_KEY = "ras_port";
     public static final String RAS_URL_KEY = "ras_url";
+
+    // VLAN ID service configuration
+    public static final String VLAN_ID_SERVICE_URL = "vlan_id_service_url";
 
     // Agent configuration
     public static final String ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY = "add_federated_network_script_path";

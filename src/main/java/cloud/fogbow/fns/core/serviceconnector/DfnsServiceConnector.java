@@ -1,20 +1,24 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-import cloud.fogbow.common.exceptions.NoAvailableResourcesException;
+import cloud.fogbow.common.constants.HttpConstants;
+import cloud.fogbow.common.constants.HttpMethod;
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.CryptoUtil;
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.common.util.connectivity.HttpRequestClient;
+import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.Compute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteAcquireVlanIdRequest;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.RemoteReleaseVlanIdRequest;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
+import com.google.gson.Gson;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -23,6 +27,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,9 +36,12 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     public static final int SUCCESS_EXIT_CODE = 0;
 
+    private Gson gson = new Gson();
     protected BashScriptRunner runner;
 
     public static final String SCRIPT_TARGET_PATH = "/tmp/";
+    public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
+    public static final String VLAN_ID_ENDPOINT = "/vlanId";
 
     public DfnsServiceConnector() {
     }
@@ -43,38 +51,34 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public int acquireVlanId() throws NoVlanIdsLeftException {
-        int vlanId = -1;
+    public int acquireVlanId() throws NoVlanIdsLeftException, FogbowException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        String acquireVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
 
-        try {
-            String xmppVlanIdServiceJid = PropertiesHolder.getInstance()
-                    .getProperty(ConfigurationPropertyDefaults.XMPP_VLAN_ID_SERVICE_JID);
-            RemoteAcquireVlanIdRequest remoteAcquireVlanIdRequest = new RemoteAcquireVlanIdRequest(xmppVlanIdServiceJid);
-            vlanId = remoteAcquireVlanIdRequest.send();
-        } catch (Exception e) {
-            if (e instanceof NoAvailableResourcesException) {
-                throw new NoVlanIdsLeftException();
-            }
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
 
-            LOGGER.error(e.getMessage(), e);
-        }
+        cloud.fogbow.vlanid.api.http.response.VlanId vlanId = gson.fromJson(response.getContent(),
+                cloud.fogbow.vlanid.api.http.response.VlanId.class);
 
-        return vlanId;
+        return vlanId.getVlanId();
     }
 
     @Override
-    public boolean releaseVlanId(int vlanId) {
-        String xmppVlanIdServiceJid = PropertiesHolder.getInstance()
-                .getProperty(ConfigurationPropertyDefaults.XMPP_VLAN_ID_SERVICE_JID);
-        RemoteReleaseVlanIdRequest remoteGetVlanIdRequest = new RemoteReleaseVlanIdRequest(xmppVlanIdServiceJid, vlanId);
+    public boolean releaseVlanId(int vlanId) throws FogbowException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
 
-        try {
-            remoteGetVlanIdRequest.send();
-            return true;
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            return false;
-        }
+        String jsonBody = GsonHolder.getInstance().toJson(new cloud.fogbow.vlanid.api.http.response.VlanId(vlanId));
+        HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
+
+        String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
+
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.POST, releaseVlanIdEndpoint, headers, body);
+
+        return response.getHttpCode() == HttpStatus.OK.value();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.processors;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
@@ -60,7 +61,7 @@ public class OpenProcessor implements Runnable {
                 int acquiredVlanId = serviceConnector.acquireVlanId();
                 order.setVlanId(acquiredVlanId);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
-            } catch (NoVlanIdsLeftException e) {
+            } catch (NoVlanIdsLeftException | FogbowException e) {
                 LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
                 OrderStateTransitioner.transition(order, OrderState.FAILED);
             }
