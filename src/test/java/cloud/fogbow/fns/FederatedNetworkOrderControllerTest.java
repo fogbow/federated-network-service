@@ -1,5 +1,6 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
@@ -94,7 +95,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
     public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException, InstanceNotFoundException {
+            SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
@@ -118,7 +119,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test(expected = NotEmptyFederatedNetworkException.class)
     public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException {
+            SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,

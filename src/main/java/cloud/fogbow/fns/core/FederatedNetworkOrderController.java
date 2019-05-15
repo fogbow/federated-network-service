@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
@@ -51,7 +52,7 @@ public class FederatedNetworkOrderController {
     }
 
     public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
-            throws NotEmptyFederatedNetworkException, UnexpectedException {
+            throws NotEmptyFederatedNetworkException, FogbowException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
         if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
