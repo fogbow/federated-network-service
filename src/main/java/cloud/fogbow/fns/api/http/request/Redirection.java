@@ -1,10 +1,13 @@
 package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.common.exceptions.*;
+import cloud.fogbow.fns.constants.SystemConstants;
+import cloud.fogbow.fns.utils.RedirectSwaggerDocumentationUtil;
 import cloud.fogbow.ras.api.http.request.*;
+import cloud.fogbow.ras.api.http.request.Compute;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.utils.RedirectUtil;
+import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,23 +26,37 @@ import java.net.URISyntaxException;
 public class Redirection {
     private static final Logger LOGGER = Logger.getLogger(Redirection.class);
 
-    @RequestMapping(value = {   "/" + Attachment.ATTACHMENT_ENDPOINT + "/**",
-                                "/" + Cloud.CLOUD_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.STATUS_ENDPOINT,
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.QUOTA_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.ALLOCATION_ENDPOINT + "/**",
-                                "/" + GenericRequest.GENERIC_REQUEST_ENDPOINT + "/**",
-                                "/" + Image.IMAGE_ENDPOINT + "/**",
-                                "/" + Network.NETWORK_ENDPOINT + "/**",
-                                "/" + PublicIp.PUBLIC_IP_ENDPOINT + "/**",
-                                "/" + Volume.VOLUME_ENDPOINT + "/**"})
+    @RequestMapping(value = {   "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Attachment.ATTACHMENT_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Cloud.CLOUD_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.STATUS_SUFFIX_ENDPOINT,
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.QUOTA_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.ALLOCATION_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + GenericRequest.GENERIC_REQUEST_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Image.IMAGE_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Network.NETWORK_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + PublicIp.PUBLIC_IP_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Volume.VOLUME_SUFFIX_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
                                      HttpServletRequest request) throws URISyntaxException, FatalErrorException,
             FogbowException {
 
         try {
-            LOGGER.info(Messages.Info.GENERIC_REQUEST);
-            return RedirectUtil.redirectRequest(body, method, request, String.class);
+            LOGGER.info(Messages.Info.REDIRECT_REQUEST);
+            return RedirectToRasUtil.redirectRequestToRas(body, method, request, String.class);
+        } catch (Exception e) {
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            throw e;
+        }
+    }
+
+    @RequestMapping(value = SystemConstants.SERVICE_BASE_ENDPOINT + "doc")
+    public ResponseEntity redirectDocumentationRequest(@RequestBody(required = false) String body, HttpMethod method,
+                                                       HttpServletRequest request) throws URISyntaxException, FatalErrorException,
+            FogbowException {
+        try {
+            LOGGER.info(Messages.Info.REDIRECT_SWAGGER_DOCUMENTATION);
+
+            return RedirectSwaggerDocumentationUtil.redirectRequest(body, method, request, String.class);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;

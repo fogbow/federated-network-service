@@ -8,7 +8,6 @@ import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.ResourceId;
-import cloud.fogbow.fns.core.authorization.DefaultAuthorizationPlugin;
 import cloud.fogbow.fns.core.model.FnsOperation;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
@@ -22,7 +21,7 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.core.model.Operation;
 import cloud.fogbow.fns.core.model.ResourceType;
-import cloud.fogbow.fns.utils.RedirectUtil;
+import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
@@ -128,7 +127,7 @@ public class ApplicationFacade {
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
             String body = gson.toJson(compute.getCompute());
-            responseEntity = RedirectUtil.createAndSendRequest("/" + Compute.COMPUTE_ENDPOINT, body,
+            responseEntity = RedirectToRasUtil.createAndSendRequestToRas("/" + Compute.COMPUTE_ENDPOINT, body,
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
@@ -151,7 +150,7 @@ public class ApplicationFacade {
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
-            responseEntity = RedirectUtil.createAndSendRequest(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId), "",
+            responseEntity = RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId), "",
                     HttpMethod.DELETE, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
@@ -173,7 +172,7 @@ public class ApplicationFacade {
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
-            responseEntity = RedirectUtil.createAndSendRequest(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId),
+            responseEntity = RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + computeId),
                     "", HttpMethod.GET, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).

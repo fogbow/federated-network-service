@@ -2,6 +2,7 @@ package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.constants.ApiDocumentation;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.ras.api.http.CommonKeys;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import io.swagger.annotations.Api;
@@ -19,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = Compute.COMPUTE_ENDPOINT)
 @Api(description = ApiDocumentation.Compute.API)
 public class Compute {
-    public static final String COMPUTE_ENDPOINT = "computes";
+    public static final String COMPUTE_ENDPOINT = SystemConstants.SERVICE_BASE_ENDPOINT +
+            cloud.fogbow.ras.api.http.request.Compute.COMPUTE_SUFFIX_ENDPOINT;
 
     private final Logger LOGGER = Logger.getLogger(Compute.class);
 
