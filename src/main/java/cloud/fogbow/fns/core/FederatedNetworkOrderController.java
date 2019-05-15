@@ -77,6 +77,11 @@ public class FederatedNetworkOrderController {
                     LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
                     throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
                 }
+
+                ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                        federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
+                connector.releaseVlanId(federatedNetwork.getVlanId());
+                federatedNetwork.setVlanId(-1);
             }
 
             // If the state of the order is still FAILED, this is because in the creation, it was not possible to

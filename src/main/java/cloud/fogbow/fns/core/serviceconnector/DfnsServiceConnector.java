@@ -14,7 +14,6 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
-import cloud.fogbow.vlanid.api.http.response.VlanId;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
