@@ -30,7 +30,6 @@ public class Messages {
         public static final String DELETE_FEDERATED_NETWORK = "Delete federated network with id: %s";
         public static final String DELETED_FEDERATED_NETWORK = "Successfully deleted federated network %s on agent.";
         public static final String DELETING_FEDERATED_NETWORK = "Deleting federated network: %s.";
-        public static final String REDIRECT_SWAGGER_DOCUMENTATION = "Redirecting swagger documentation to fixed location.";
         public static final String REDIRECT_REQUEST = "Request redirected to RAS";
         public static final String GET_COMPUTE_BY_ID = "Get compute request received: [%s]";
         public static final String GET_FEDERATED_NETWORK_BY_ID = "Get federated network with id: %s";

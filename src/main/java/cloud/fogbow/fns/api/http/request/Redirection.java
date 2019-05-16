@@ -2,7 +2,6 @@ package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.utils.RedirectSwaggerDocumentationUtil;
 import cloud.fogbow.ras.api.http.request.*;
 import cloud.fogbow.ras.api.http.request.Compute;
 import org.apache.log4j.Logger;
@@ -43,20 +42,6 @@ public class Redirection {
         try {
             LOGGER.info(Messages.Info.REDIRECT_REQUEST);
             return RedirectToRasUtil.redirectRequestToRas(body, method, request, String.class);
-        } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
-            throw e;
-        }
-    }
-
-    @RequestMapping(value = SystemConstants.SERVICE_BASE_ENDPOINT + "doc")
-    public ResponseEntity redirectDocumentationRequest(@RequestBody(required = false) String body, HttpMethod method,
-                                                       HttpServletRequest request) throws URISyntaxException, FatalErrorException,
-            FogbowException {
-        try {
-            LOGGER.info(Messages.Info.REDIRECT_SWAGGER_DOCUMENTATION);
-
-            return RedirectSwaggerDocumentationUtil.redirectRequest(body, method, request, String.class);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;
