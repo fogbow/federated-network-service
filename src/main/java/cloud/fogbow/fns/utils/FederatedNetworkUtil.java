@@ -60,7 +60,7 @@ public class FederatedNetworkUtil {
     public static HashMap<String, MemberConfigurationState> initializeMemberConfigurationMap(Collection<String> providingMembers) {
         HashMap<String, MemberConfigurationState> providers = new HashMap<>();
         for (String member : providingMembers) {
-            providers.put(member, null);
+            providers.put(member, MemberConfigurationState.UNDEFINED);
         }
         return providers;
     }

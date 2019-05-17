@@ -62,7 +62,7 @@ public class OpenProcessor implements Runnable {
                 order.setVlanId(acquiredVlanId);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
             } catch (NoVlanIdsLeftException | FogbowException e) {
-                LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
+                LOGGER.error(e.getMessage(), e);
                 OrderStateTransitioner.transition(order, OrderState.FAILED);
             }
         }

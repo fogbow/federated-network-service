@@ -2,6 +2,7 @@ package cloud.fogbow.fns;
 
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.constants.Messages;
@@ -11,6 +12,8 @@ import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.model.FnsOperation;
+import cloud.fogbow.fns.core.serviceconnector.LocalDfnsServiceConnector;
+import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;

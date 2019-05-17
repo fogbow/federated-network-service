@@ -27,11 +27,12 @@ public class BashScriptRunner {
         }
     }
 
+    @Deprecated
     public Output run(String... command) throws UnexpectedException {
         return run(null, command);
     }
 
-    public Output run(File outputFile, String... command) throws UnexpectedException {
+    private Output run(File outputFile, String... command) throws UnexpectedException {
         ProcessBuilder pb = new ProcessBuilder(command);
 
         if (outputFile != null) {

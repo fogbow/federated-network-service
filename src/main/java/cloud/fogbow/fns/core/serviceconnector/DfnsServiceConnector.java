@@ -100,7 +100,20 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
      * Sends the script that creates a tunnel from the agent to the compute to the agent
      * @return
      */
-    public abstract boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException;
+    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+
+        String tunnelScriptCreationPath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
+
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+        String scpPath = sshCredentials + ":" + SCRIPT_TARGET_PATH;
+
+        BashScriptRunner.Output output = this.runner.runtimeRun("scp", "-i", permissionFilePath, tunnelScriptCreationPath, scpPath);
+
+        return output.getExitCode() == SUCCESS_EXIT_CODE;
+    }
 
     /**
      * Adds the provided <tt>publicKey</tt> to the .authorized_keys of the DFNS agent.

@@ -42,7 +42,6 @@ public class FederatedComputeUtil {
     public static final String VLAN_ID_KEY = "#VLAN_ID#";
     public static final String FEDERATED_IP_KEY = "#FEDERATED_IP#";
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
-    public static final String AGENT_PUBLIC_IP_KEY = "#AGENT_PUBLIC_IP#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
 
@@ -73,10 +72,10 @@ public class FederatedComputeUtil {
 
     @NotNull
     public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, PrivateKey accessKey) throws IOException, GeneralSecurityException {
-        // TODO DFNS
-        InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
+        String scriptKey = ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
+        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey);
+        InputStream inputStream = new FileInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
-
 
         Map<String, String> scriptTokenValues = new HashMap<>();
         scriptTokenValues.put(CIDR_KEY, configuration.getDefaultNetworkCidr());

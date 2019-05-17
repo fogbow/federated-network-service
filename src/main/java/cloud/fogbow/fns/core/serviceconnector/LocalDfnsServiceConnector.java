@@ -6,8 +6,11 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.BashScriptRunner;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,29 +22,18 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
             ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
 
-    public static final int SUCCESS_EXIT_CODE = 0;
     public static final String CREATE_TUNNELS_SCRIPT_PATH = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.CREATE_TUNNELS_SCRIPT_PATH);
+
+    public static final int SUCCESS_EXIT_CODE = 0;
+    public static final int AGENT_SSH_PORT = 22;
+
+    public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
 
     public LocalDfnsServiceConnector(BashScriptRunner runner) {
         super(runner);
     }
 
-    @Override
     public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
-        try {
-            Set<String> allProviders = order.getProviders().keySet();
-            Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
-
-            BashScriptRunner.Output output = this.runner.runtimeRun(getConfigureCommand(ipAddresses).toArray(new String[]{}));
-            return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
-        } catch (UnknownHostException e) {
-            LOGGER.error(e.getMessage(), e);
-            return MemberConfigurationState.FAILED;
-        }
-    }
-
-    // TODO Remove this
-    public MemberConfigurationState configureWithSsh(FederatedNetworkOrder order) throws UnexpectedException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
@@ -65,14 +57,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     @Override
     public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
         // TODO implement this
-        BashScriptRunner.Output output = this.runner.run("echo", "Hello");
+        BashScriptRunner.Output output = this.runner.runtimeRun("echo", "Hello");
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
     @Override
     public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
         // TODO implement this
-        BashScriptRunner.Output output = this.runner.run("echo", "Hello");
+        BashScriptRunner.Output output = this.runner.runtimeRun("echo", "Hello");
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
@@ -82,12 +74,34 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
-        String sshCredentials = agentUser + "@" + agentPublicIp;
-        List<String> command = new ArrayList<>();
-        BashScriptRunner.Output output = this.runner.run("echo", publicKey, "|", "ssh", sshCredentials, "-i",
-                permissionFilePath, "-T", "cat", ">>", "~/.ssh/authorized_keys");
+        SSHClient client = new SSHClient();
+        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
 
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
+        try {
+            try {
+                client.loadKnownHosts();
+
+                // connects to the DMZ host
+                client.connect(agentPublicIp, AGENT_SSH_PORT);
+
+                // authorizes using the DMZ private key
+                client.authPublickey(agentUser, permissionFilePath);
+
+                try (Session session = client.startSession()) {
+                    Session.Command c = session.exec(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey));
+
+                    // waits for the command to finish
+                    c.join();
+
+                    return c.getExitStatus() == SUCCESS_EXIT_CODE;
+                }
+            } finally {
+                client.disconnect();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new UnexpectedException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -110,14 +124,5 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private Collection<String> excludeLocalProvider(Collection<String> allProviders) {
         Stream<String> providersStream = allProviders.stream();
         return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
-        String createTunnelFromAgentToComputeScriptPath = PropertiesHolder.getInstance().getProperty(
-                ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
-
-        BashScriptRunner.Output output = this.runner.run("cp", createTunnelFromAgentToComputeScriptPath, SCRIPT_TARGET_PATH);
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 }

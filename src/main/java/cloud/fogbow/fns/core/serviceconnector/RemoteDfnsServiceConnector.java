@@ -76,17 +76,4 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
-
-    @Override
-    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String sshCredentials = agentUser + "@" + agentPublicIp;
-        String scpPath = sshCredentials + ":" + SCRIPT_TARGET_PATH;
-
-        BashScriptRunner.Output output = this.runner.run("scp", "-i", permissionFilePath, SCRIPT_TARGET_PATH, scpPath);
-
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
-    }
 }
