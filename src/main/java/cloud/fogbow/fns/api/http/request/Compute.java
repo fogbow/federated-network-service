@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.fns.api.http.response.ResourceId;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.ras.api.http.CommonKeys;
@@ -18,25 +19,25 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RestController
 @RequestMapping(value = Compute.COMPUTE_ENDPOINT)
-@Api(description = ApiDocumentation.Compute.API)
+@Api(description = cloud.fogbow.ras.constants.ApiDocumentation.Compute.API)
 public class Compute {
     public static final String COMPUTE_ENDPOINT = SystemConstants.SERVICE_BASE_ENDPOINT +
             cloud.fogbow.ras.api.http.request.Compute.COMPUTE_SUFFIX_ENDPOINT;
 
     private final Logger LOGGER = Logger.getLogger(Compute.class);
 
-    @ApiOperation(value = ApiDocumentation.Compute.CREATE_OPERATION)
+    @ApiOperation(value = cloud.fogbow.ras.constants.ApiDocumentation.Compute.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ResourceId> createCompute(
             @ApiParam(value = ApiDocumentation.Compute.CREATE_REQUEST_BODY)
-            @RequestBody cloud.fogbow.fns.api.parameters.Compute compute,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @RequestBody FederatedCompute federatedCompute,
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
         try {
-            LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE, compute));
-            String computeId = ApplicationFacade.getInstance().createCompute(compute, systemUserToken);
+            LOGGER.info(String.format(Messages.Info.CREATE_COMPUTE, federatedCompute));
+            String computeId = ApplicationFacade.getInstance().createCompute(federatedCompute, systemUserToken);
             return new ResponseEntity<ResourceId>(new ResourceId(computeId), HttpStatus.CREATED);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
@@ -44,12 +45,12 @@ public class Compute {
         }
     }
 
-    @ApiOperation(value = ApiDocumentation.Compute.DELETE_OPERATION)
+    @ApiOperation(value = cloud.fogbow.ras.constants.ApiDocumentation.Compute.DELETE_OPERATION)
     @RequestMapping(value = "/{computeId}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> deleteCompute(
-            @ApiParam(value = ApiDocumentation.Compute.ID)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -63,12 +64,12 @@ public class Compute {
         }
     }
 
-    @ApiOperation(value = ApiDocumentation.Compute.GET_BY_ID_OPERATION)
+    @ApiOperation(value = cloud.fogbow.ras.constants.ApiDocumentation.Compute.GET_BY_ID_OPERATION)
     @RequestMapping(value = "/{computeId}", method = RequestMethod.GET)
     public ResponseEntity<ComputeInstance> getCompute(
-            @ApiParam(value = ApiDocumentation.Compute.ID)
+            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 

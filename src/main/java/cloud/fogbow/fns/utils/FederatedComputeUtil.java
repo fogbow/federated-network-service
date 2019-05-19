@@ -1,10 +1,10 @@
 package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import cloud.fogbow.fns.api.parameters.Compute;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,8 +22,8 @@ public class FederatedComputeUtil {
     public static final String PRE_SHARED_KEY = "#PRE_SHARED_KEY#";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
-    public static void addUserData(Compute fnsCompute, String federatedComputeIp, String agentPublicIp,
-                                           String cidr, String preSharedKey) throws IOException {
+    public static void addUserData(FederatedCompute fnsFederatedCompute, String federatedComputeIp, String agentPublicIp,
+                                   String cidr, String preSharedKey) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
         String cloudInitScript = IOUtils.toString(inputStream);
         String newScript = replaceScriptValues(cloudInitScript, federatedComputeIp, agentPublicIp, cidr, preSharedKey);
@@ -33,7 +33,7 @@ public class FederatedComputeUtil {
 
         UserData newUserData = new UserData(encryptedScript,
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
-        cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsFederatedCompute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
         if (userDataList == null) {
             userDataList = new ArrayList<>();

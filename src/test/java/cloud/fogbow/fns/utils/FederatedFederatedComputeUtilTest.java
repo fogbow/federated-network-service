@@ -1,12 +1,12 @@
 package cloud.fogbow.fns.utils;
 
-import cloud.fogbow.fns.api.parameters.Compute;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
-public class FederatedComputeUtilTest {
+public class FederatedFederatedComputeUtilTest {
     private String federatedComputeIp = "fake-federatedComputeIp";
     private String agentPublicIp = "fake-agentPublicIp";
     private String cidr = "fake-cidr";
@@ -16,15 +16,15 @@ public class FederatedComputeUtilTest {
     @Test
     public void testAddUserData() throws IOException {
         //set up
-        Compute fnsCompute = new Compute();
+        FederatedCompute fnsFederatedCompute = new FederatedCompute();
         cloud.fogbow.ras.api.parameters.Compute rasCompute = new cloud.fogbow.ras.api.parameters.Compute();
-        fnsCompute.setCompute(rasCompute);
+        fnsFederatedCompute.setCompute(rasCompute);
         int userDataSize = rasCompute.getUserData() == null ? 0 : rasCompute.getUserData().size();
 
         //exercise
-        FederatedComputeUtil.addUserData(fnsCompute, federatedComputeIp, agentPublicIp, cidr, preSharedKey);
+        FederatedComputeUtil.addUserData(fnsFederatedCompute, federatedComputeIp, agentPublicIp, cidr, preSharedKey);
 
         //verify
-        Assert.assertEquals(userDataSize + 1, fnsCompute.getCompute().getUserData().size());
+        Assert.assertEquals(userDataSize + 1, fnsFederatedCompute.getCompute().getUserData().size());
     }
 }

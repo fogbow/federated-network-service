@@ -1,11 +1,18 @@
 package cloud.fogbow.fns.api.http.response;
 
+import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.core.model.InstanceState;
+import io.swagger.annotations.ApiModelProperty;
 
 public class InstanceStatus {
+    @ApiModelProperty(position = 0, example = ApiDocumentation.Model.INSTANCE_ID)
     private String instanceId;
+    @ApiModelProperty(position = 1, example = ApiDocumentation.Model.INSTANCE_NAME)
     private String instanceName;
+    @ApiModelProperty(position = 2, example = cloud.fogbow.ras.constants.ApiDocumentation.Model.PROVIDER,
+            notes = cloud.fogbow.ras.constants.ApiDocumentation.Model.PROVIDER_NOTE)
     private String provider;
+    @ApiModelProperty(position = 3, example = "READY")
     private InstanceState state;
 
     public InstanceStatus(String instanceId, String provider, InstanceState state) {

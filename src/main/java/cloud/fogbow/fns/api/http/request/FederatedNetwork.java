@@ -33,7 +33,7 @@ public class FederatedNetwork {
     public ResponseEntity<ResourceId> createFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.FederatedNetwork federatedNetwork,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -51,7 +51,7 @@ public class FederatedNetwork {
     @RequestMapping(value = "/status", method = RequestMethod.GET)
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.GET_OPERATION)
     public ResponseEntity<Collection<InstanceStatus>> getFederatedNetworksStatus(
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -71,7 +71,7 @@ public class FederatedNetwork {
     public ResponseEntity<FederatedNetworkInstance> getFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -93,7 +93,7 @@ public class FederatedNetwork {
     public ResponseEntity<String> deleteFederatedNetwork(
             @ApiParam(value = ApiDocumentation.FederatedNetwork.ID)
             @PathVariable String federatedNetworkId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 

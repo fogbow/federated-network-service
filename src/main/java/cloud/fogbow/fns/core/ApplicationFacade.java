@@ -8,6 +8,7 @@ import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.ResourceId;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.model.FnsOperation;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
@@ -115,18 +116,18 @@ public class ApplicationFacade {
         this.federatedNetworkOrderController.deleteFederatedNetwork(order);
     }
 
-    // compute requests that involve federated network need to be synchronized because there is no order object to
+    // federatedCompute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
-    public synchronized String createCompute(cloud.fogbow.fns.api.parameters.Compute compute, String systemUserToken)
+    public synchronized String createCompute(FederatedCompute federatedCompute, String systemUserToken)
             throws FogbowException, IOException, InvalidCidrException, SubnetAddressesCapacityReachedException,
             FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
-        String federatedNetworkId = compute.getFederatedNetworkId();
-        String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(compute, federatedNetworkId);
+        String federatedNetworkId = federatedCompute.getFederatedNetworkId();
+        String instanceIp = this.computeRequestsController.addScriptToSetupTunnelIfNeeded(federatedCompute, federatedNetworkId);
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
         try {
-            String body = gson.toJson(compute.getCompute());
+            String body = gson.toJson(federatedCompute.getCompute());
             responseEntity = RedirectToRasUtil.createAndSendRequestToRas("/" + Compute.COMPUTE_ENDPOINT, body,
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
@@ -141,7 +142,7 @@ public class ApplicationFacade {
             throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
-        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), compute.getFederatedNetworkId());
+        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
         return computeId.getId();
     }
 

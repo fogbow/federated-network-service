@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.core;
 
-import cloud.fogbow.fns.api.parameters.Compute;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
@@ -14,8 +14,8 @@ import java.io.IOException;
 
 public class ComputeRequestsController {
 
-    // Compute methods
-    public String addScriptToSetupTunnelIfNeeded(Compute compute, String federatedNetworkId)
+    // FederatedCompute methods
+    public String addScriptToSetupTunnelIfNeeded(FederatedCompute federatedCompute, String federatedNetworkId)
             throws FederatedNetworkNotFoundException, InvalidCidrException,
             SubnetAddressesCapacityReachedException, IOException, UnexpectedException {
         String instanceIp = null;
@@ -27,7 +27,7 @@ public class ComputeRequestsController {
             }
             instanceIp = federatedNetworkOrder.getFreeIp();
             String cidr = federatedNetworkOrder.getCidr();
-            FederatedComputeUtil.addUserData(compute, instanceIp,
+            FederatedComputeUtil.addUserData(federatedCompute, instanceIp,
                     PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
                     PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
         }

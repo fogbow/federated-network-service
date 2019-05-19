@@ -252,10 +252,10 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
 //        UserData fakeUserData = new UserData("", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
 //
-//        addUserData(Compute fnsCompute, String federatedComputeIp, String agentPublicIp,
+//        addUserData(FederatedCompute fnsCompute, String federatedComputeIp, String agentPublicIp,
 //                String cidr, String preSharedKey)
 //
-//        BDDMockito.given(FederatedComputeUtil.addUserData(any(Compute.class), anyString(), anyString(), anyString(), anyString(), anyString())).willReturn(incrementedComputeOrder);
+//        BDDMockito.given(FederatedComputeUtil.addUserData(any(FederatedCompute.class), anyString(), anyString(), anyString(), anyString(), anyString())).willReturn(incrementedComputeOrder);
 //
 //        //exercise
 //        federatedNetworkOrderController.addFederationUserTokenDataIfApplied(federatedCompute, user);

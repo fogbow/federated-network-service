@@ -1,9 +1,9 @@
 package cloud.fogbow.fns.api.http.request;
 
+import cloud.fogbow.common.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.ApplicationFacade;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.Messages;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

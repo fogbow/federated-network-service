@@ -1,6 +1,10 @@
 package cloud.fogbow.fns.api.http.response;
 
+import cloud.fogbow.fns.constants.ApiDocumentation;
+import io.swagger.annotations.ApiModelProperty;
+
 public class ResourceId {
+    @ApiModelProperty(example = ApiDocumentation.Model.INSTANCE_ID)
     private String id;
 
     public ResourceId() {}
