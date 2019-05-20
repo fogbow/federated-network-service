@@ -38,8 +38,8 @@ public class ApiDocumentation {
         public static final String REQUESTER = "requester.domain";
         public static final String PROVIDER = "provider.domain";
         public static final String COMPUTE_LIST = "{\n" +
-                "    \"64ee4355-4d7f-4170-80b4-5e8348af6a61\": \"\"10.10.0.2\",\n" +
-                "    \"0b0246e3-85ea-4642-93d5-f2c4fbd415d2\": \"\"10.10.0.3\"\n" +
+                "    \"64ee4355-4d7f-4170-80b4-5e8348af6a61\": \"10.10.0.2\",\n" +
+                "    \"0b0246e3-85ea-4642-93d5-f2c4fbd415d2\": \"10.10.0.3\"\n" +
                 "  }";
         public static final String CIDR = "10.10.0.0/16";
     }
