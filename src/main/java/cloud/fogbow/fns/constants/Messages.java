@@ -15,6 +15,7 @@ public class Messages {
         public static final String UNABLE_TO_LOAD_PUBLIC_KEY = "Unable to load FNS public key.";
         public static final String UNABLE_TO_REMOVE_FEDERATED_NETWORK = "Unable to remove federated network.";
         public static final String UNEXPECTED_EXCEPTION = "Unexpected exception.";
+        public static final String UNABLE_TO_DESERIALIZE_SYSTEM_USER = "Unable to deserialize system user.";
     }
 
     public static class Fatal {

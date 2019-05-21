@@ -3,6 +3,9 @@ package cloud.fogbow.fns.api.http.response;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class AssignedIp {
     @ApiModelProperty(position = 0, example = cloud.fogbow.ras.constants.ApiDocumentation.Model.COMPUTE_ID,
             notes = cloud.fogbow.ras.constants.ApiDocumentation.Model.COMPUTE_ID_NOTE)

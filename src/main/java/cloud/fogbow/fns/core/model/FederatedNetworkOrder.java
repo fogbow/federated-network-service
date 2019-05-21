@@ -2,19 +2,23 @@ package cloud.fogbow.fns.core.model;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.common.util.SerializedEntityHolder;
+import cloud.fogbow.common.util.SystemUserUtil;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
+import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
-import cloud.fogbow.fns.constants.Messages;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.*;
 
@@ -23,6 +27,7 @@ import java.util.*;
 public class FederatedNetworkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    public static final int FIELDS_MAX_SIZE = 255;
 
     @Column
     @Id
@@ -32,9 +37,20 @@ public class FederatedNetworkOrder implements Serializable {
     @Enumerated(EnumType.STRING)
     private OrderState orderState;
 
-    // TODO: check if this is correct; we need to save the systemUser.
     @Transient
     private SystemUser systemUser;
+
+    @Column
+    @Size(max = SystemUserUtil.SERIALIZED_SYSTEM_USER_MAX_SIZE)
+    private String serializedSystemUser;
+
+    @Column
+    @Size(max = FIELDS_MAX_SIZE)
+    private String userId;
+
+    @Column
+    @Size(max = FIELDS_MAX_SIZE)
+    private String identityProviderId;
 
     @Column
     private String requester;
@@ -48,8 +64,7 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
 
-//    @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Embedded
     private ArrayList<AssignedIp> assignedIps;
 
     @ElementCollection(targetClass = String.class)
@@ -120,24 +135,27 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
-        if (!containsKey(computeId)) {
+        int associatedIpIndex = containsKey(computeId);
+        if (associatedIpIndex == -1) {
             throw new IllegalArgumentException();
         }
-        this.assignedIps.remove(computeId);
+        this.assignedIps.remove(associatedIpIndex);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
         ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
     }
 
-    private boolean containsKey(String computeId) {
+    private int containsKey(String computeId) {
         Iterator<AssignedIp> iterator = this.assignedIps.iterator();
+        int associatedIpIndex = 0;
         while (iterator.hasNext()) {
             AssignedIp assignedIp = iterator.next();
             if (assignedIp.getComputeId().equals(computeId)) {
-                return true;
+                return associatedIpIndex;
             }
+            associatedIpIndex++;
         }
-        return false;
+        return -1;
     }
 
     public synchronized String getAssociatedIp(String computeId) {
@@ -293,6 +311,42 @@ public class FederatedNetworkOrder implements Serializable {
 
     public ResourceType getType() {
         return ResourceType.FEDERATED_NETWORK;
+    }
+
+    private String getSerializedSystemUser() {
+        return this.serializedSystemUser;
+    }
+
+    private void setSerializedSystemUser(String serializedSystemUser) {
+        this.serializedSystemUser = serializedSystemUser;
+    }
+
+    private void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    private void setIdentityProviderId(String identityProviderId) {
+        this.identityProviderId = identityProviderId;
+    }
+
+    // Cannot be called at @PrePersist because the transient field systemUser is set to null at this stage
+    // Instead, the systemUser is explicitly serialized before being save by RecoveryService.save().
+    public void serializeSystemUser() {
+        SerializedEntityHolder<SystemUser> serializedSystemUserHolder = new SerializedEntityHolder<>(this.getSystemUser());
+        this.setSerializedSystemUser(GsonHolder.getInstance().toJson(serializedSystemUserHolder));
+        this.setUserId(this.getSystemUser().getId());
+        this.setIdentityProviderId(this.getSystemUser().getIdentityProviderId());
+    }
+
+    @PostLoad
+    private void deserializeSystemUser() throws UnexpectedException {
+        try {
+            SerializedEntityHolder serializedSystemUserHolder = GsonHolder.getInstance().fromJson(
+                    this.getSerializedSystemUser(), SerializedEntityHolder.class);
+            this.setSystemUser((SystemUser) serializedSystemUserHolder.getSerializedEntity());
+        } catch(ClassNotFoundException exception) {
+            throw new UnexpectedException(Messages.Exception.UNABLE_TO_DESERIALIZE_SYSTEM_USER);
+        }
     }
 
     @Override
