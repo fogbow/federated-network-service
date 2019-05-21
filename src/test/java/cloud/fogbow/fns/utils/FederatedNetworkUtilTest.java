@@ -3,6 +3,7 @@ package cloud.fogbow.fns.utils;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -35,7 +36,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         SystemUser user = Mockito.mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         String cidr = "10.0.0.0/24";
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
                 "name", allowedMembers, freedIps, computesIp));
@@ -79,7 +80,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         SystemUser user = mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         int mask = getMaskForCacheSize();
 
         String cidr = "10.0.0.0/" + mask;
@@ -104,7 +105,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         SystemUser user = mock(SystemUser.class);
         Set<String> allowedMembers = new HashSet<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         int mask = getMaskForCacheSize();
 
         String cidr = "10.0.0.0/" + mask;

@@ -54,7 +54,7 @@ public class FederatedNetworkOrderController {
             throws NotEmptyFederatedNetworkException, UnexpectedException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
-        if (!federatedNetwork.getComputeIdsAndIps().isEmpty()) {
+        if (!federatedNetwork.getAssignedIps().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }
 

@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -34,8 +35,12 @@ public class FederatedNetworkUtil {
     }
 
     private synchronized static List<String> getUsedIps(FederatedNetworkOrder federatedNetworkOrder) {
-        Map<String, String> computeIdsAndIps = federatedNetworkOrder.getComputeIdsAndIps();
-        List<String> usedIps = new LinkedList<>(computeIdsAndIps.values());
+        List<AssignedIp> assignedIps = federatedNetworkOrder.getAssignedIps();
+        List<String> usedIps = new ArrayList<>();
+        Iterator<AssignedIp> iterator = assignedIps.iterator();
+        while (iterator.hasNext()) {
+            usedIps.add(iterator.next().getIp());
+        }
         return usedIps;
     }
 

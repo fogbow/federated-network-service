@@ -3,6 +3,7 @@ package cloud.fogbow.fns.core.datastore;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -88,7 +89,7 @@ public class RecoveryServiceTest {
         Set<String> allowedMembers = new HashSet<>();
         int ipsServed = 1;
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
                 "name", allowedMembers, freedIps, computesIp, OrderState.OPEN);
         federatedNetworkOrder.setOrderStateInTestMode(OrderState.FULFILLED);

@@ -4,7 +4,7 @@ import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.core.model.InstanceState;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class FederatedNetworkInstance {
@@ -21,12 +21,12 @@ public class FederatedNetworkInstance {
     @ApiModelProperty(position = 5, example = ApiDocumentation.Model.PROVIDERS)
     private Set<String> providers;
     @ApiModelProperty(position = 6, example = ApiDocumentation.Model.COMPUTE_LIST)
-    private Map<String, String> computeIdsAndIps;
+    private List<AssignedIp> assignedIps;
     @ApiModelProperty(position = 7)
     private InstanceState state;
 
     public FederatedNetworkInstance(String instanceId, String name, String requester, String provider,
-                                    String cidr, Set<String> providers, Map<String, String> computeIdsAndIps,
+                                    String cidr, Set<String> providers, List<AssignedIp> assignedIps,
                                     InstanceState state) {
         this.instanceId = instanceId;
         this.name = name;
@@ -34,7 +34,7 @@ public class FederatedNetworkInstance {
         this.provider = provider;
         this.cidr = cidr;
         this.providers = providers;
-        this.computeIdsAndIps = computeIdsAndIps;
+        this.assignedIps = assignedIps;
         this.state = state;
     }
 
@@ -86,12 +86,12 @@ public class FederatedNetworkInstance {
         this.providers = providers;
     }
 
-    public Map<String, String> getComputeIdsAndIps() {
-        return computeIdsAndIps;
+    public List<AssignedIp> getAssignedIps() {
+        return assignedIps;
     }
 
-    public void setComputeIdsAndIps(Map<String, String> computeIdsAndIps) {
-        this.computeIdsAndIps = computeIdsAndIps;
+    public void setAssignedIps(List<AssignedIp> assignedIps) {
+        this.assignedIps = assignedIps;
     }
 
     public InstanceState getState() {

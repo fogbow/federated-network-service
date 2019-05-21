@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core.model;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
@@ -36,10 +37,10 @@ public class FederatedNetworkOrder implements Serializable {
     private SystemUser systemUser;
 
     @Column
-    private String requestingMember;
+    private String requester;
 
     @Column
-    private String providingMember;
+    private String provider;
 
     @Column
     private String cidr;
@@ -47,15 +48,14 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
 
+//    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    private ArrayList<AssignedIp> assignedIps;
+
     @ElementCollection(targetClass = String.class)
     @CollectionTable(name = "federated_network_allowed_members")
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<String> providers;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn
-    @Column
-    private Map<String, String> computeIdsAndIps;
 
     @Transient
     private Queue<String> cacheOfFreeIps;
@@ -68,69 +68,87 @@ public class FederatedNetworkOrder implements Serializable {
         this.id = id;
         this.providers = new HashSet<>();
         this.cacheOfFreeIps = new LinkedList<>();
-        this.computeIdsAndIps = new HashMap<>();
+        this.assignedIps = new ArrayList<>();
     }
 
-    public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider) {
         this();
         this.id = String.valueOf(UUID.randomUUID());
         this.systemUser = systemUser;
-        this.requestingMember = requestingMember;
-        this.providingMember = providingMember;
+        this.requester = requester;
+        this.provider = provider;
     }
 
     /**
      * Creating Order with predefined Id.
      */
-    public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember, String providingMember) {
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester, String provider) {
         this(id);
         this.systemUser = systemUser;
-        this.requestingMember = requestingMember;
-        this.providingMember = providingMember;
+        this.requester = requester;
+        this.provider = provider;
     }
 
-    public FederatedNetworkOrder(String id, SystemUser systemUser, String requestingMember,
-                                 String providingMember, String cidr, String name, Set<String> providers,
-                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps, OrderState orderState) {
-        this(id, systemUser, requestingMember, providingMember);
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester,
+                                 String provider, String cidr, String name, Set<String> providers,
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState) {
+        this(id, systemUser, requester, provider);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
-        this.computeIdsAndIps = computeIdsAndIps;
+        this.assignedIps = assignedIps;
         this.orderState = orderState;
     }
 
-    public FederatedNetworkOrder(SystemUser systemUser, String requestingMember, String providingMember,
+    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider,
                                  String cidr, String name, Set<String> providers,
-                                 Queue<String> cacheOfFreeIps, Map<String, String> computeIdsAndIps) {
-        this(systemUser, requestingMember, providingMember);
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps) {
+        this(systemUser, requester, provider);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
-        this.computeIdsAndIps = computeIdsAndIps;
+        this.assignedIps = assignedIps;
     }
 
     public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws UnexpectedException {
-        this.computeIdsAndIps.put(computeId, ipToBeAttached);
+        this.assignedIps.add(new AssignedIp(computeId, ipToBeAttached));
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
         ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
     public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
-        if (!this.computeIdsAndIps.containsKey(computeId)) {
+        if (!containsKey(computeId)) {
             throw new IllegalArgumentException();
         }
-        this.computeIdsAndIps.remove(computeId);
+        this.assignedIps.remove(computeId);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
         ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
     }
 
+    private boolean containsKey(String computeId) {
+        Iterator<AssignedIp> iterator = this.assignedIps.iterator();
+        while (iterator.hasNext()) {
+            AssignedIp assignedIp = iterator.next();
+            if (assignedIp.getComputeId().equals(computeId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public synchronized String getAssociatedIp(String computeId) {
-        return this.computeIdsAndIps.get(computeId);
+        Iterator<AssignedIp> iterator = this.assignedIps.iterator();
+        while (iterator.hasNext()) {
+            AssignedIp assignedIp = iterator.next();
+            if (assignedIp.getComputeId().equals(computeId)) {
+                return assignedIp.getIp();
+            }
+        }
+        return null;
     }
 
     public synchronized String getFreeIp() throws InvalidCidrException, UnexpectedException,
@@ -196,8 +214,8 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkInstance getInstance() {
-        return new FederatedNetworkInstance(this.id, this.name, this.requestingMember, this.providingMember,
-                this.cidr, this.providers, this.getComputeIdsAndIps(),
+        return new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
+                this.cidr, this.providers, this.getAssignedIps(),
                 (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
     }
 
@@ -209,28 +227,28 @@ public class FederatedNetworkOrder implements Serializable {
         this.systemUser = systemUser;
     }
 
-    public String getRequestingMember() {
-        return this.requestingMember;
+    public String getRequester() {
+        return this.requester;
     }
 
-    public void setRequestingMember(String requestingMember) {
-        this.requestingMember = requestingMember;
+    public void setRequester(String requester) {
+        this.requester = requester;
     }
 
-    public String getProvidingMember() {
-        return this.providingMember;
+    public String getProvider() {
+        return this.provider;
     }
 
-    public void setProvidingMember(String providingMember) {
-        this.providingMember = providingMember;
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public boolean isProviderLocal(String localMemberId) {
-        return this.providingMember.equals(localMemberId);
+        return this.provider.equals(localMemberId);
     }
 
     public boolean isRequesterRemote(String localMemberId) {
-        return !this.requestingMember.equals(localMemberId);
+        return !this.requester.equals(localMemberId);
     }
 
     public String getCidr() {
@@ -265,12 +283,12 @@ public class FederatedNetworkOrder implements Serializable {
         this.cacheOfFreeIps = cacheOfFreeIps;
     }
 
-    public Map<String, String> getComputeIdsAndIps() {
-        return computeIdsAndIps;
+    public List<AssignedIp> getAssignedIps() {
+        return assignedIps;
     }
 
-    public void setComputeIdsAndIps(Map<String, String> computeIdsAndIps) {
-        this.computeIdsAndIps = computeIdsAndIps;
+    public void setAssignedIps(ArrayList<AssignedIp> assignedIps) {
+        this.assignedIps = assignedIps;
     }
 
     public ResourceType getType() {
@@ -292,7 +310,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     @Override
     public String toString() {
-        return "Order [id=" + this.id + ", orderState=" + this.orderState + ", requestingMember=" +
-                this.requestingMember + ", providingMember=" + this.providingMember + "]";
+        return "Order [id=" + this.id + ", orderState=" + this.orderState + ", requester=" +
+                this.requester + ", provider=" + this.provider + "]";
     }
 }
