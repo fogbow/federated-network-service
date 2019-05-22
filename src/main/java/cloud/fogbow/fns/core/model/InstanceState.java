@@ -3,7 +3,10 @@ package cloud.fogbow.fns.core.model;
 public enum InstanceState {
     READY("ready"),
     FAILED("failed"),
-    OPEN("open");
+    OPEN("open"),
+    PARTIALLY_FULFILLED("partiallyFulfilled"),
+    SPAWNING("spawning"),
+    CLOSED("closed");
 
     private String value;
 

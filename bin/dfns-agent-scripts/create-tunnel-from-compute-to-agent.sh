@@ -38,7 +38,4 @@ chmod 644 ~/.ssh/access-agent-key.pub
 chmod 600 ~/.ssh/access-agent-key
 
 #ssh to agent in order to execute the create tunnel from agent to compute script
-ssh $agent_user@$gateway_ip -i ~/.ssh/access-agent-key -T "bash /tmp/create_tunnel_from_agent_to_compute.sh $local_ip $vlan_id"
-
-#deleting the public key from the authorized keys
-sed -i '/'"$public_key"'/d' ~/.ssh/authorized_keys
+ssh -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $agent_user@$gateway_ip -i ~/.ssh/access-agent-key -T "bash /tmp/create-tunnel-from-agent-to-compute.sh $local_ip $vlan_id $public_key"

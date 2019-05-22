@@ -12,6 +12,7 @@ public class Messages {
         public static final String REQUESTER_DOES_NOT_OWN_REQUEST = "Requester does not own request.";
         public static final String THREAD_HAS_BEEN_INTERRUPTED = "Thread has been interrupted";
         public static final String UNABLE_TO_COMMUNICATE_WITH_AGENT = "Unable to communicate with agent.";
+        public static final String UNABLE_TO_COPY_SCRIPT_TO_AGENT = "Unable to copy createTunnelFromAgentToCompute script into agent.";
         public static final String UNABLE_TO_FIND_FEDERATED_NETWORK = "Unable to find federated network %s.";
         public static final String UNABLE_TO_FIND_LIST_FOR_REQUESTS = "Unable to find list for requests in state %s.";
         public static final String UNABLE_TO_LOAD_PUBLIC_KEY = "Unable to load FNS public key.";

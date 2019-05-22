@@ -40,7 +40,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String sshCredentials = agentUser + "@" + agentPublicIp;
 
         try {
-            String[] commandFirstPart = {"ssh", sshCredentials, "-i", permissionFilePath, "-T"};
+            String[] commandFirstPart = {"ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-T"};
             List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
             Set<String> allProviders = order.getProviders().keySet();
             Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));

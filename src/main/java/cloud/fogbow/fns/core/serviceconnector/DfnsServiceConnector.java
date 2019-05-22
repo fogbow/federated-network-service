@@ -10,6 +10,7 @@ import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.Compute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -82,7 +83,12 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+    public final UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+        boolean copiedScriptSuccessfully = copyScriptForTunnelFromAgentToComputeCreationIntoAgent();
+        if (!copiedScriptSuccessfully) {
+            throw new UnexpectedException(Messages.Exception.UNABLE_TO_COPY_SCRIPT_TO_AGENT);
+        }
+
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
 
@@ -97,8 +103,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     /**
-     * Sends the script that creates a tunnel from the agent to the compute to the agent
-     * @return
+     * Sends the script that creates a tunnel from the agent to the compute to the agent. It will be called
+     * by the newly created compute that has just created the opposite tunnel (compute -> agent).
      */
     public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
@@ -110,7 +116,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         String sshCredentials = agentUser + "@" + agentPublicIp;
         String scpPath = sshCredentials + ":" + SCRIPT_TARGET_PATH;
 
-        BashScriptRunner.Output output = this.runner.runtimeRun("scp", "-i", permissionFilePath, tunnelScriptCreationPath, scpPath);
+        BashScriptRunner.Output output = this.runner.runtimeRun("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFilePath, tunnelScriptCreationPath, scpPath);
 
         return output.getExitCode() == SUCCESS_EXIT_CODE;
     }

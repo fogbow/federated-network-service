@@ -186,6 +186,12 @@ public class FederatedNetworkOrder implements Serializable {
                 return InstanceState.FAILED;
             case FULFILLED:
                 return InstanceState.READY;
+            case PARTIALLY_FULFILLED:
+                return InstanceState.PARTIALLY_FULFILLED;
+            case SPAWNING:
+                return InstanceState.SPAWNING;
+            case CLOSED:
+                return InstanceState.CLOSED;
             default:
                 return null;
         }

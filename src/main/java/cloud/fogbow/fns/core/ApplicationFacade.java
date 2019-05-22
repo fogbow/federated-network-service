@@ -131,6 +131,7 @@ public class ApplicationFacade {
         ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
         String provider = compute.getCompute().getProvider();
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
+
         UserData userData = serviceConnector.getTunnelCreationInitScript(instanceIp, compute, federatedNetworkOrder);
         addUserDataToCompute(compute, userData);
 
