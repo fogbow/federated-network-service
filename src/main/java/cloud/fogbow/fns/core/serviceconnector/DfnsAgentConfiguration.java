@@ -5,10 +5,15 @@ public class DfnsAgentConfiguration {
     private String agentUser;
     private String publicKey;
 
-    public DfnsAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey) {
+    private String agentPrivateIpAddress;
+    private String publicIpAddress;
+
+    public DfnsAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String agentPrivateIpAddress, String publicIpAddress) {
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
         this.publicKey = publicKey;
+        this.agentPrivateIpAddress = agentPrivateIpAddress;
+        this.publicIpAddress = publicIpAddress;
     }
 
     public String getDefaultNetworkCidr() {
@@ -21,5 +26,13 @@ public class DfnsAgentConfiguration {
 
     public String getPublicKey() {
         return publicKey;
+    }
+
+    public String getAgentPrivateIpAddress() {
+        return agentPrivateIpAddress;
+    }
+
+    public String getPublicIpAddress() {
+        return publicIpAddress;
     }
 }
