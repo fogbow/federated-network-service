@@ -95,8 +95,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
             addKeyToAgentAuthorizedPublicKeys(serializePublicKey(keyPair.getPublic()));
 
             DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(CryptoUtil.savePublicKey(keyPair.getPublic()));
-            String agentIp = getIpAddress(compute.getCompute().getProvider());
-            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, agentIp, order.getVlanId(), keyPair.getPrivate());
+            String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
+            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keyPair.getPrivate());
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
