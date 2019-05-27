@@ -17,7 +17,6 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
-import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
@@ -37,7 +36,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     public static final int SUCCESS_EXIT_CODE = 0;
 
-    private Gson gson = new Gson();
     protected BashScriptRunner runner;
 
     public static final String SCRIPT_TARGET_PATH = "/tmp/";
@@ -60,10 +58,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
         HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
 
-        cloud.fogbow.vlanid.api.http.response.VlanId vlanId = gson.fromJson(response.getContent(),
-                cloud.fogbow.vlanid.api.http.response.VlanId.class);
-
-        return vlanId.getVlanId();
+        VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
+        return vlanId.vlanId;
     }
 
     @Override
@@ -72,7 +68,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
 
-        String jsonBody = GsonHolder.getInstance().toJson(new cloud.fogbow.vlanid.api.http.response.VlanId(vlanId));
+        String jsonBody = GsonHolder.getInstance().toJson(new VlanId(vlanId));
         HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
 
         String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
@@ -147,5 +143,14 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     protected String getIpAddress(String serverName) throws UnknownHostException {
         return InetAddress.getByName(serverName).getHostAddress();
+    }
+
+    private class VlanId {
+
+        private int vlanId;
+
+        public VlanId(int vlanId) {
+            this.vlanId = vlanId;
+        }
     }
 }
