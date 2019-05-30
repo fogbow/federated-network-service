@@ -46,7 +46,7 @@ public class FederatedNetworkOrder implements Serializable {
     private String name;
 
     @Column
-    private int vlanId;
+    private Integer vlanId;
 
     @Column
     @Enumerated(EnumType.STRING)
