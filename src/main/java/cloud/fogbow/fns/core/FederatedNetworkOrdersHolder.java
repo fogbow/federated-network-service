@@ -30,7 +30,7 @@ public class FederatedNetworkOrdersHolder {
         this.failedOrders = databaseManager.readActiveOrders(OrderState.FAILED);
         this.closedOrders = databaseManager.readActiveOrders(OrderState.CLOSED);
 
-        this.activeOrders = initializeActiveOrders(this.openOrders, this.fulfilledOrders, this.failedOrders, this.closedOrders);
+        this.activeOrders = initializeActiveOrders(this.openOrders, this.spawningOrders, this.fulfilledOrders, this.partiallyFulfilledOrders, this.failedOrders, this.closedOrders);
     }
 
     public static synchronized FederatedNetworkOrdersHolder getInstance() {
@@ -97,7 +97,7 @@ public class FederatedNetworkOrdersHolder {
 
         for (SynchronizedDoublyLinkedList<FederatedNetworkOrder> listToBeAdded : listsToBeAdded) {
             while ((order = listToBeAdded.getNext()) != null) {
-                activeOrders.put(order.getId(), order);
+                allOrders.put(order.getId(), order);
             }
             listToBeAdded.resetPointer();
         }
