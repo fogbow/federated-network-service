@@ -1,19 +1,17 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.api.parameters.Compute;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.ras.core.models.UserData;
-import cloud.fogbow.ras.core.models.orders.ComputeOrder;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
@@ -63,7 +61,7 @@ public class VanillaServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+    public UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             return FederatedComputeUtil.getVanillaUserData(federatedIp, order.getCidr());
         } catch (IOException e) {

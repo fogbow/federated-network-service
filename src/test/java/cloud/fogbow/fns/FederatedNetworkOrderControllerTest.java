@@ -5,20 +5,21 @@ import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
-import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
+import cloud.fogbow.fns.core.model.InstanceState;
+import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
-import cloud.fogbow.ras.api.http.response.InstanceState;
 import org.apache.commons.net.util.SubnetUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,9 +58,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     @Before
     public void setUp() {
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         this.systemUser = new SystemUser(USER_ID, USER_NAME, TOKEN_PROVIDER);
         this.federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
                 MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN);
@@ -105,7 +106,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        when(federatedNetwork.getComputeIdsAndIps()).thenReturn(new HashMap<>());
+        when(federatedNetwork.getAssignedIps()).thenReturn(new ArrayList<>());
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -126,9 +127,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
                 "requestingMember", "providingMember"));
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        HashMap<String, String> computeIdsAndIps = new HashMap<>();
-        computeIdsAndIps.put("someId", "someIp");
-        when(federatedNetwork.getComputeIdsAndIps()).thenReturn(computeIdsAndIps);
+        List<AssignedIp> computeIdsAndIps = new ArrayList<>();
+        computeIdsAndIps.add(new AssignedIp("someId", "someIp"));
+        when(federatedNetwork.getAssignedIps()).thenReturn(computeIdsAndIps);
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -236,9 +237,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockOnlyDatabase();
         String cidr = "10.10.10.0/24";
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
         federatedNetwork.setOrderState(OrderState.OPEN);
@@ -253,10 +254,10 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
 //        UserData fakeUserData = new UserData("", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
 //
-//        addUserData(Compute fnsCompute, String federatedComputeIp, String agentPublicIp,
+//        addUserData(FederatedCompute fnsCompute, String federatedComputeIp, String agentPublicIp,
 //                String cidr, String preSharedKey)
 //
-//        BDDMockito.given(FederatedComputeUtil.addUserData(any(Compute.class), anyString(), anyString(), anyString(), anyString(), anyString())).willReturn(incrementedComputeOrder);
+//        BDDMockito.given(FederatedComputeUtil.addUserData(any(FederatedCompute.class), anyString(), anyString(), anyString(), anyString(), anyString())).willReturn(incrementedComputeOrder);
 //
 //        //exercise
 //        federatedNetworkOrderController.addFederationUserTokenDataIfApplied(federatedCompute, user);
@@ -387,7 +388,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertNotNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
 //        assertTrue(federatedNetwork.getCacheOfFreeIps().isEmpty());
 //        assertEquals(2, federatedNetwork.getIpsServed());
-//        assertFalse(federatedNetwork.getComputeIdsAndIps().isEmpty());
+//        assertFalse(federatedNetwork.getAssignedIps().isEmpty());
 //        //exercise
 //        federatedNetworkOrderController.deleteCompute(FEDERATED_COMPUTE_ID, user);
 //        //verify
@@ -398,7 +399,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertNull(federatedComputes.get(FEDERATED_COMPUTE_ID));
 //        assertFalse(federatedNetwork.getCacheOfFreeIps().isEmpty());
 //        assertEquals(2, federatedNetwork.getIpsServed());
-//        assertTrue(federatedNetwork.getComputeIdsAndIps().isEmpty());
+//        assertTrue(federatedNetwork.getAssignedIps().isEmpty());
     }
 
     //test case: A delete in a nonexistent federated compute
@@ -451,14 +452,14 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        FederatedNetworkOrder federatedNetworkOrder = federatedNetworks.get(FEDERATED_NETWORK_ID);
 //
 //        //pre conditions
-//        assertFalse(federatedNetworkOrder.getComputeIdsAndIps().isEmpty());
+//        assertFalse(federatedNetworkOrder.getAssignedIps().isEmpty());
 //        assertEquals(2, federatedNetworkOrder.getIpsServed());
 //        assertTrue(federatedNetworkOrder.getCacheOfFreeIps().isEmpty());
 //        //exercise
 //        federatedNetworkOrderController.rollbackInFailedPost(federatedCompute);
 //        //verify
 //        verify(federatedNetworkOrder, times(1)).removeAssociatedIp(anyString());
-//        assertTrue(federatedNetworkOrder.getComputeIdsAndIps().isEmpty());
+//        assertTrue(federatedNetworkOrder.getAssignedIps().isEmpty());
 //        assertEquals(2, federatedNetworkOrder.getIpsServed());
 //        assertFalse(federatedNetworkOrder.getCacheOfFreeIps().isEmpty());
 //        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getCacheOfFreeIps().element());
@@ -529,9 +530,9 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     private void addNetworkIntoActiveOrdersMap() {
         String cidr = "10.10.10.0/24";
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
                 MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
         federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);

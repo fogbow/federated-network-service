@@ -4,7 +4,7 @@ import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.*;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.as.core.util.TokenProtector;
-import cloud.fogbow.fns.api.http.request.Redirection;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.FnsPublicKeysHolder;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
@@ -29,12 +29,12 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Enumeration;
 
-public class RedirectUtil {
+public class RedirectToRasUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(Redirection.class);
+    private static final Logger LOGGER = Logger.getLogger(RedirectToRasUtil.class);
 
-    public static <T> ResponseEntity<T> redirectRequest(String body, HttpMethod method, HttpServletRequest request,
-                                                        Class<T> responseType) throws FatalErrorException,
+    public static <T> ResponseEntity<T> redirectRequestToRas(String body, HttpMethod method, HttpServletRequest request,
+                                                             Class<T> responseType) throws FatalErrorException,
             FogbowException {
         String requestUrl = request.getRequestURI();
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
@@ -46,7 +46,7 @@ public class RedirectUtil {
         } catch (URISyntaxException e) {
             throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, rasUrl));
         }
-        uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(requestUrl)
+        uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(replaceServiceName(requestUrl))
                 .query(request.getQueryString()).build(true).toUri();
 
         HttpHeaders headers = new HttpHeaders();
@@ -84,8 +84,8 @@ public class RedirectUtil {
         }
     }
 
-    public static <T> ResponseEntity<T> createAndSendRequest(String path, String body, HttpMethod method,
-                 String systemUserToken, Class<T> responseType) throws FatalErrorException, FogbowException {
+    public static <T> ResponseEntity<T> createAndSendRequestToRas(String path, String body, HttpMethod method,
+                                                                  String systemUserToken, Class<T> responseType) throws FatalErrorException, FogbowException {
         String rasUrl = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_URL_KEY);
         int rasPort = Integer.parseInt(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.RAS_PORT_KEY));
 
@@ -123,6 +123,11 @@ public class RedirectUtil {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
             throw e;
         }
+    }
+
+    private static String replaceServiceName(String queryString) {
+        return queryString.replaceFirst(SystemConstants.SERVICE_BASE_ENDPOINT,
+                cloud.fogbow.ras.constants.SystemConstants.SERVICE_BASE_ENDPOINT);
     }
 
     private static class NoOpErrorHandler implements ResponseErrorHandler {

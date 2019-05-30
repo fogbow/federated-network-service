@@ -2,22 +2,23 @@ package cloud.fogbow.fns.core.datastore;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,7 @@ import java.util.*;
 
 @PowerMockIgnore({"javax.management.*", "org.apache.http.conn.ssl.*", "org.apache.http.conn.util.*",
         "javax.net.ssl.*" , "javax.crypto.*"})
-@PrepareForTest({DatabaseManager.class})
+@PrepareForTest(DatabaseManager.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @SpringBootTest
 public class RecoveryServiceTest {
@@ -52,6 +53,10 @@ public class RecoveryServiceTest {
     public void setUp() {
         user = new SystemUser(USER_ID, USER_NAME, MEMBER);
         databaseManager = Mockito.mock(DatabaseManager.class);
+        Mockito.when(databaseManager.readActiveOrders(OrderState.OPEN)).thenReturn(new SynchronizedDoublyLinkedList<>());
+        Mockito.when(databaseManager.readActiveOrders(OrderState.FULFILLED)).thenReturn(new SynchronizedDoublyLinkedList<>());
+        Mockito.when(databaseManager.readActiveOrders(OrderState.FAILED)).thenReturn(new SynchronizedDoublyLinkedList<>());
+        Mockito.when(databaseManager.readActiveOrders(OrderState.CLOSED)).thenReturn(new SynchronizedDoublyLinkedList<>());
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(databaseManager);
         federatedNetworkOrder = createFederatedNetwork();
@@ -82,10 +87,9 @@ public class RecoveryServiceTest {
 
     @NotNull
     private FederatedNetworkOrder createFederatedNetwork() {
-        Set<String> allowedMembers = new HashSet<>();
-        int ipsServed = 1;
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
-        Map<String, String> computesIp = new HashMap<>();
+        ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,
                 "name", allowedMembers, freedIps, computesIp, OrderState.OPEN);
         federatedNetworkOrder.setOrderStateInTestMode(OrderState.FULFILLED);

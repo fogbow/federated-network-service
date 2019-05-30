@@ -3,6 +3,7 @@ package cloud.fogbow.fns.core.model;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import org.junit.Assert;
@@ -25,38 +26,38 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     public void testAddAssociatedIp() throws UnexpectedException {
         // setup
         super.mockSingletons();
-        Map<String, String> fakeAssociatedIps;
-        fakeAssociatedIps = new HashMap<>();
+        ArrayList<AssignedIp> fakeAssociatedIps;
+        fakeAssociatedIps = new ArrayList<>();
 
         FederatedNetworkOrder fakeFederatedNetworkOrder = new FederatedNetworkOrder();
-        fakeFederatedNetworkOrder.setComputeIdsAndIps(fakeAssociatedIps);
+        fakeFederatedNetworkOrder.setAssignedIps(fakeAssociatedIps);
 
         // exercise
         fakeFederatedNetworkOrder.addAssociatedIp(FAKE_COMPUTE_ID, FAKE_IP);
 
         // verify
-        Map fednetAssociatedIps = fakeFederatedNetworkOrder.getComputeIdsAndIps();
+        List<AssignedIp> fednetAssociatedIps = fakeFederatedNetworkOrder.getAssignedIps();
         assertEquals(1, fednetAssociatedIps.size());
-        assertTrue(fednetAssociatedIps.containsKey(FAKE_COMPUTE_ID));
-        assertTrue(fednetAssociatedIps.containsValue(FAKE_IP));
+        assertTrue(fednetAssociatedIps.get(0).getComputeId().equals(FAKE_COMPUTE_ID));
+        assertTrue(fednetAssociatedIps.get(0).getIp().equals(FAKE_IP));
     }
 
     @Test
     public void testRemoveAssociatedIp() throws UnexpectedException {
         // setup
         super.mockSingletons();
-        Map<String, String> fakeAssociatedIps;
-        fakeAssociatedIps = new HashMap<>();
-        fakeAssociatedIps.put(FAKE_COMPUTE_ID, FAKE_IP);
+        ArrayList<AssignedIp> fakeAssociatedIps;
+        fakeAssociatedIps = new ArrayList<>();
+        fakeAssociatedIps.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
 
         FederatedNetworkOrder fakeFederatedNetworkOrder = new FederatedNetworkOrder();
-        fakeFederatedNetworkOrder.setComputeIdsAndIps(fakeAssociatedIps);
+        fakeFederatedNetworkOrder.setAssignedIps(fakeAssociatedIps);
 
         // exercise
         fakeFederatedNetworkOrder.removeAssociatedIp(FAKE_COMPUTE_ID);
 
         // verify
-        Map fednetAssociatedIps = fakeFederatedNetworkOrder.getComputeIdsAndIps();
+        List<AssignedIp> fednetAssociatedIps = fakeFederatedNetworkOrder.getAssignedIps();
         assertEquals(0, fednetAssociatedIps.size());
     }
 
@@ -64,11 +65,11 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     public void testRemoveAssociatedIpWithNoAssociatedIps() throws UnexpectedException {
         // setup
         super.mockSingletons();
-        Map<String, String> fakeAssociatedIps;
-        fakeAssociatedIps = new HashMap<>();
+        ArrayList<AssignedIp> fakeAssociatedIps;
+        fakeAssociatedIps = new ArrayList<>();
 
         FederatedNetworkOrder fakeFederatedNetworkOrder = new FederatedNetworkOrder();
-        fakeFederatedNetworkOrder.setComputeIdsAndIps(fakeAssociatedIps);
+        fakeFederatedNetworkOrder.setAssignedIps(fakeAssociatedIps);
 
         // exercise
         fakeFederatedNetworkOrder.removeAssociatedIp(FAKE_COMPUTE_ID);
@@ -125,9 +126,9 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     private FederatedNetworkOrder createFederatedNetworkOrder(String cidr) {
         SystemUser systemUser = Mockito.mock(SystemUser.class);
-        Set<String> providers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> providers = new HashMap<>();
         Queue<String> cacheOfFreeIps = new LinkedList<>();
-        Map<String, String> computeIdsAndIps = new HashMap<>();
+        ArrayList<AssignedIp> computeIdsAndIps = new ArrayList<>();
         return new FederatedNetworkOrder(systemUser, null, null, cidr,
                 null, providers, cacheOfFreeIps, computeIdsAndIps);
     }

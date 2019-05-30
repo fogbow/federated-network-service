@@ -70,7 +70,7 @@ public class SpawningProcessor implements Runnable {
 
     private void processVanillaOrder(FederatedNetworkOrder order) throws UnexpectedException {
         ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                ConfigurationMode.VANILLA, order.getRequestingMember());
+                ConfigurationMode.VANILLA, order.getRequester());
         MemberConfigurationState state = connector.configure(order);
 
         if (state == MemberConfigurationState.SUCCESS) {

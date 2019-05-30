@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.api.http.request;
 
 import cloud.fogbow.fns.api.http.response.ResourceId;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.ApplicationFacade;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.Messages;
@@ -25,7 +26,7 @@ import java.util.Collection;
 public class FederatedNetwork {
     private final Logger LOGGER = Logger.getLogger(FederatedNetwork.class);
 
-    public static final String FEDERATED_NETWORK_ENDPOINT = "federatedNetworks";
+    public static final String FEDERATED_NETWORK_ENDPOINT = SystemConstants.SERVICE_BASE_ENDPOINT + "federatedNetworks";
 
     @ApiOperation(value = ApiDocumentation.FederatedNetwork.CREATE_OPERATION)
     @RequestMapping(method = RequestMethod.POST)

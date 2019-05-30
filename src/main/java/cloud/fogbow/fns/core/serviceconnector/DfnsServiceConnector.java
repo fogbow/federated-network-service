@@ -8,7 +8,7 @@ import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
-import cloud.fogbow.fns.api.parameters.Compute;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
@@ -79,7 +79,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public final UserData getTunnelCreationInitScript(String federatedIp, Compute compute, FederatedNetworkOrder order) throws UnexpectedException {
+    public final UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
         boolean copiedScriptSuccessfully = copyScriptForTunnelFromAgentToComputeCreationIntoAgent();
         if (!copiedScriptSuccessfully) {
             throw new UnexpectedException(Messages.Exception.UNABLE_TO_COPY_SCRIPT_TO_AGENT);

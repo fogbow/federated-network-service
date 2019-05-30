@@ -1,7 +1,8 @@
 package cloud.fogbow.fns.api.http.request;
 
+import cloud.fogbow.common.constants.ApiDocumentation;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.ApplicationFacade;
-import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.constants.Messages;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(description = ApiDocumentation.Version.API)
 public class Version {
 
-    public static final String VERSION_ENDPOINT = "version";
+    public static final String VERSION_ENDPOINT = SystemConstants.SERVICE_BASE_ENDPOINT + "version";
 
     private final Logger LOGGER = Logger.getLogger(Version.class);
 

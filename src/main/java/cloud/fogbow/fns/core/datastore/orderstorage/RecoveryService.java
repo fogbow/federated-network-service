@@ -25,6 +25,7 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
     private static final Logger LOGGER = Logger.getLogger(RecoveryService.class);
 
     public void put(FederatedNetworkOrder order) throws UnexpectedException {
+        order.serializeSystemUser();
         safeSave(order, this.orderRepository);
     }
 

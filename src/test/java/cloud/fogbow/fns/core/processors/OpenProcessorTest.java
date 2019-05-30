@@ -23,8 +23,8 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
         mockOnlyDatabase();
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
-        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requestingMember",
-                "providingMember", "10.0.30.1/20", "name", new HashSet<>(), new LinkedList<>(), new HashMap<>(), null);
+        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
+                "provider", "10.0.30.1/20", "name", new HashMap<>(), new LinkedList<>(), new ArrayList<>(), null);
 
         orderController.activateOrder(order);
 
@@ -47,8 +47,8 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
         mockOnlyDatabase();
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
-        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requestingMember",
-                "providingMember", "10.0.30.1/20", "name", new HashSet<>(), new LinkedList<>(), new HashMap<>(), null);
+        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
+                "provider", "10.0.30.1/20", "name", new HashMap<>(), new LinkedList<>(), new ArrayList<>(), null);
 
         orderController.activateOrder(order);
 

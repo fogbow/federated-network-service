@@ -1,30 +1,40 @@
 package cloud.fogbow.fns.api.http.response;
 
+import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.fns.core.model.InstanceState;
+import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class FederatedNetworkInstance {
+    @ApiModelProperty(position = 0, example = ApiDocumentation.Model.INSTANCE_ID)
     private String instanceId;
+    @ApiModelProperty(position = 1, example = ApiDocumentation.Model.INSTANCE_NAME)
     private String name;
-    private String requestingMember;
-    private String providingMember;
+    @ApiModelProperty(position = 2, example = ApiDocumentation.Model.REQUESTER)
+    private String requester;
+    @ApiModelProperty(position = 3, example = ApiDocumentation.Model.PROVIDER)
+    private String provider;
+    @ApiModelProperty(position = 4, example = ApiDocumentation.Model.CIDR)
     private String cidr;
+    @ApiModelProperty(position = 5, example = ApiDocumentation.Model.PROVIDERS)
     private Set<String> providers;
-    private Map<String, String> computeIdsAndIps;
+    @ApiModelProperty(position = 6, example = ApiDocumentation.Model.COMPUTE_LIST)
+    private List<AssignedIp> assignedIps;
+    @ApiModelProperty(position = 7)
     private InstanceState state;
 
-    public FederatedNetworkInstance(String instanceId, String name, String requestingMember, String providingMember,
-                                    String cidr, Set<String> providers, Map<String, String> computeIdsAndIps,
+    public FederatedNetworkInstance(String instanceId, String name, String requester, String provider,
+                                    String cidr, Set<String> providers, List<AssignedIp> assignedIps,
                                     InstanceState state) {
         this.instanceId = instanceId;
         this.name = name;
-        this.requestingMember = requestingMember;
-        this.providingMember = providingMember;
+        this.requester = requester;
+        this.provider = provider;
         this.cidr = cidr;
         this.providers = providers;
-        this.computeIdsAndIps = computeIdsAndIps;
+        this.assignedIps = assignedIps;
         this.state = state;
     }
 
@@ -44,20 +54,20 @@ public class FederatedNetworkInstance {
         this.name = name;
     }
 
-    public String getRequestingMember() {
-        return requestingMember;
+    public String getRequester() {
+        return requester;
     }
 
-    public void setRequestingMember(String requestingMember) {
-        this.requestingMember = requestingMember;
+    public void setRequester(String requester) {
+        this.requester = requester;
     }
 
-    public String getProvidingMember() {
-        return providingMember;
+    public String getProvider() {
+        return provider;
     }
 
-    public void setProvidingMember(String providingMember) {
-        this.providingMember = providingMember;
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public String getCidr() {
@@ -76,12 +86,12 @@ public class FederatedNetworkInstance {
         this.providers = providers;
     }
 
-    public Map<String, String> getComputeIdsAndIps() {
-        return computeIdsAndIps;
+    public List<AssignedIp> getAssignedIps() {
+        return assignedIps;
     }
 
-    public void setComputeIdsAndIps(Map<String, String> computeIdsAndIps) {
-        this.computeIdsAndIps = computeIdsAndIps;
+    public void setAssignedIps(List<AssignedIp> assignedIps) {
+        this.assignedIps = assignedIps;
     }
 
     public InstanceState getState() {

@@ -8,14 +8,12 @@ import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import cloud.fogbow.fns.api.parameters.Compute;
 import org.jetbrains.annotations.NotNull;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -45,7 +43,7 @@ public class FederatedComputeUtil {
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
 
-    public static void addUserData(Compute fnsCompute, String federatedComputeIp,
+    public static void addUserData(FederatedCompute fnsCompute, String federatedComputeIp,
                                            String cidr) throws IOException {
         UserData newUserData = getVanillaUserData(federatedComputeIp, cidr);
         cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
