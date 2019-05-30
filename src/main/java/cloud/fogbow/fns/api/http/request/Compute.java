@@ -28,7 +28,7 @@ public class Compute {
     public ResponseEntity<ResourceId> createCompute(
             @ApiParam(value = ApiDocumentation.Compute.CREATE_REQUEST_BODY)
             @RequestBody cloud.fogbow.fns.api.parameters.Compute compute,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -47,7 +47,7 @@ public class Compute {
     public ResponseEntity<Boolean> deleteCompute(
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 
@@ -66,7 +66,7 @@ public class Compute {
     public ResponseEntity<ComputeInstance> getCompute(
             @ApiParam(value = ApiDocumentation.Compute.ID)
             @PathVariable String computeId,
-            @ApiParam(value = cloud.fogbow.ras.constants.ApiDocumentation.CommonParameters.SYSTEM_USER_TOKEN)
+            @ApiParam(value = cloud.fogbow.common.constants.ApiDocumentation.Token.SYSTEM_USER_TOKEN)
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws Exception {
 

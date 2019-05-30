@@ -25,9 +25,9 @@ public class Redirection {
 
     @RequestMapping(value = {   "/" + Attachment.ATTACHMENT_ENDPOINT + "/**",
                                 "/" + Cloud.CLOUD_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.STATUS_ENDPOINT,
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.QUOTA_ENDPOINT + "/**",
-                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.ALLOCATION_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.STATUS_SUFFIX_ENDPOINT,
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.QUOTA_SUFFIX_ENDPOINT + "/**",
+                                "/" + Compute.COMPUTE_ENDPOINT + "/" + cloud.fogbow.ras.api.http.request.Compute.ALLOCATION_SUFFIX_ENDPOINT + "/**",
                                 "/" + GenericRequest.GENERIC_REQUEST_ENDPOINT + "/**",
                                 "/" + Image.IMAGE_ENDPOINT + "/**",
                                 "/" + Network.NETWORK_ENDPOINT + "/**",
