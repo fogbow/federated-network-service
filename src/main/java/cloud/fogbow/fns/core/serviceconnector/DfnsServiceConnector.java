@@ -42,9 +42,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
 
-    public DfnsServiceConnector() {
-    }
-
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
     }

@@ -17,6 +17,7 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     private String memberToBeConfigured;
 
     public RemoteDfnsServiceConnector(String memberToBeConfigured) {
+        super(new BashScriptRunner());
         this.memberToBeConfigured = memberToBeConfigured;
     }
 
