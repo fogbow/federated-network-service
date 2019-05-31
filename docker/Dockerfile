@@ -40,7 +40,7 @@ RUN \
 # Installing Federated Network Service
 RUN \
   git clone https://github.com/fogbow/federated-network-service.git && \
-  (cd federated-network-service && git checkout $FNS_BRANCH)
+  (cd federated-network-service && git checkout $FNS_BRANCH && mvn install -Dmaven.test.skip=true)
 
 # Define working directory.
 WORKDIR /root/federated-network-service
