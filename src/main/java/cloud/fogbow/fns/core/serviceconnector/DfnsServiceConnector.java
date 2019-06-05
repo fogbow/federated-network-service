@@ -77,11 +77,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
     @Override
     public final UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
-        boolean copiedScriptSuccessfully = copyScriptForTunnelFromAgentToComputeCreationIntoAgent();
-        if (!copiedScriptSuccessfully) {
-            throw new UnexpectedException(Messages.Exception.UNABLE_TO_COPY_SCRIPT_TO_AGENT);
-        }
-
         try {
             KeyPair keyPair = CryptoUtil.generateKeyPair();
 
@@ -93,25 +88,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Sends the script that creates a tunnel from the agent to the compute to the agent. It will be called
-     * by the newly created compute that has just created the opposite tunnel (compute -> agent).
-     */
-    public boolean copyScriptForTunnelFromAgentToComputeCreationIntoAgent() throws UnexpectedException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-
-        String tunnelScriptCreationPath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH);
-
-        String sshCredentials = agentUser + "@" + agentPublicIp;
-        String scpPath = sshCredentials + ":" + SCRIPT_TARGET_PATH;
-
-        BashScriptRunner.Output output = this.runner.runtimeRun("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFilePath, tunnelScriptCreationPath, scpPath);
-
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
     }
 
     /**
