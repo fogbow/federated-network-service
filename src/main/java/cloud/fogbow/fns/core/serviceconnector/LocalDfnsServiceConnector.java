@@ -80,7 +80,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
         try {
             try {
-                client.loadKnownHosts();
+                //client.loadKnownHosts();
 
                 // connects to the DMZ host
                 client.connect(agentPublicIp, AGENT_SSH_PORT);
