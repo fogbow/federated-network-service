@@ -40,11 +40,12 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String sshCredentials = agentUser + "@" + agentPublicIp;
 
         try {
-            String[] commandFirstPart = {"ssh", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-T"};
+            String[] commandFirstPart = {"echo", CREATE_TUNNELS_SCRIPT_PATH, "|", "ssh", "-o", "UserKnownHostsFile=/dev/null",
+                    "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-T"};
             List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
             Set<String> allProviders = order.getProviders().keySet();
             Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
-            command.addAll(getConfigureCommand(ipAddresses));
+            //command.addAll(getConfigureCommand(ipAddresses));
 
             BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[]{}));
             return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
@@ -118,7 +119,6 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private List<String> getConfigureCommand(Collection<String> providersIps) {
         List<String> command = new ArrayList<>();
         command.add("bash");
-        command.add(CREATE_TUNNELS_SCRIPT_PATH);
         command.addAll(providersIps);
         return command;
     }
