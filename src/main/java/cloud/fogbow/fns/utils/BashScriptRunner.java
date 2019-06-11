@@ -21,7 +21,10 @@ public class BashScriptRunner {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     p.getInputStream()));
             Iterator<String> outputLines = reader.lines().iterator();
-            return new Output(exitCode, StringUtils.join(outputLines, LINE_BREAK));
+            BufferedReader reader2 = new BufferedReader(new InputStreamReader(
+                    p.getErrorStream()));
+            Iterator<String> outputLines2 = reader2.lines().iterator();
+            return new Output(exitCode, StringUtils.join(outputLines, LINE_BREAK), StringUtils.join(outputLines2, LINE_BREAK));
         } catch (InterruptedException|IOException e) {
             throw new UnexpectedException("", e);
         }
@@ -42,7 +45,7 @@ public class BashScriptRunner {
         try {
             Process p = pb.start();
             int exitCode = p.waitFor();
-            return new Output(exitCode, null);
+            return new Output(exitCode, null, null);
         } catch (IOException|InterruptedException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
@@ -51,10 +54,12 @@ public class BashScriptRunner {
     public class Output {
         private int exitCode;
         private String content;
+        private String error;
 
-        public Output(int exitCode, String content) {
+        public Output(int exitCode, String content, String error) {
             this.exitCode = exitCode;
             this.content = content;
+            this.error = error;
         }
 
         public int getExitCode() {
@@ -63,6 +68,10 @@ public class BashScriptRunner {
 
         public String getContent() {
             return content;
+        }
+
+        public String getError() {
+            return error;
         }
     }
 }

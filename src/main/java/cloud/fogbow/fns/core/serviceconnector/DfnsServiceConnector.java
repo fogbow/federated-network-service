@@ -16,6 +16,7 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
@@ -78,7 +79,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
             addKeyToAgentAuthorizedPublicKeys(keys[0]);
 
-            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(keys[0]);
+            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
+            dfnsAgentConfiguration.setPublicKey(keys[0]);
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
             return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keys[1]);
         } catch (IOException | GeneralSecurityException e) {
@@ -90,7 +92,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         BashScriptRunner runner = new BashScriptRunner();
         String keyName = String.valueOf(UUID.randomUUID());
 
-        String[] createCommand = {"ssh-keygen", "-t", "rsa", "-b", "4096", "-f", keyName, "-P", "''"};
+        String[] createCommand = {"ssh-keygen", "-t", "rsa", "-b", "1024", "-f", keyName, "-q", "-N", ""};
         BashScriptRunner.Output createCommandResult = runner.runtimeRun(createCommand);
         LOGGER.debug(createCommandResult.getExitCode());
 
@@ -98,6 +100,10 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         BashScriptRunner.Output catResult1 = runner.runtimeRun(catCommand1);
         String privateKey = catResult1.getContent();
         LOGGER.debug(catResult1.getExitCode());
+
+        String[] w = privateKey.split("\n");
+        String[] actualPrivateKey = Arrays.copyOfRange(w, 1, w.length - 1);
+        privateKey = StringUtils.join(actualPrivateKey, "");
 
         String[] catCommand2 = {"cat", keyName + ".pub"};
         BashScriptRunner.Output catResult2 = runner.runtimeRun(catCommand2);
@@ -121,7 +127,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
 
     // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
-    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException, UnexpectedException;
+    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException;
 
     protected Collection<String> getIpAddresses(Collection<String> serverNames) throws UnknownHostException {
         Set<String> ipAddresses = new HashSet<>();

@@ -69,7 +69,7 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, PrivateKey accessKey) throws IOException, GeneralSecurityException {
+    public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
         String scriptKey = ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
         String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
@@ -81,10 +81,11 @@ public class FederatedComputeUtil {
         scriptTokenValues.put(VLAN_ID_KEY, String.valueOf(vlanId));
         scriptTokenValues.put(FEDERATED_IP_KEY, federatedIp);
         scriptTokenValues.put(AGENT_USER_KEY, configuration.getAgentUser());
-        scriptTokenValues.put(PRIVATE_KEY_KEY, CryptoUtil.savePrivateKey(accessKey));
+        scriptTokenValues.put(PRIVATE_KEY_KEY, accessKey);
         scriptTokenValues.put(PUBLIC_KEY_KEY, configuration.getPublicKey());
 
         String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
+        System.out.printf("here's the cloudinit script to run on compute ++++ " + cloudInitScript);
 
         byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);

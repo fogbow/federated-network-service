@@ -106,14 +106,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException {
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
-        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, publicKey, agentPrivateIpAddress, publicIpAddress);
+        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
 
     private List<String> getConfigureCommand(Collection<String> providersIps) {
@@ -126,5 +126,13 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     private Collection<String> excludeLocalProvider(Collection<String> allProviders) {
         Stream<String> providersStream = allProviders.stream();
         return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) throws UnexpectedException {
+        LocalDfnsServiceConnector serviceConnector = new LocalDfnsServiceConnector(new BashScriptRunner());
+        String[] keys = serviceConnector.generateSshKeyPair();
+
+        System.out.println(keys[0]);
+        System.out.println(keys[1]);
     }
 }

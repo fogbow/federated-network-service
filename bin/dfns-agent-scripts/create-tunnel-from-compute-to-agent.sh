@@ -20,11 +20,6 @@ ifconfig | awk -F "[: ]+" '/inet addr:/ { if ($4 != "127.0.0.1") print $4 }' >> 
 local_ip=$(grepcidr $cidr .iplog | head -n1)
 rm .iplog
 
-if [ -z\ "$local_ip" ]; then
-    echo "Unable to retrieve local IP"
-    return 1
-fi
-
 # get interface name given the local ip
 if=$(ifconfig | grep -B1 $local_ip | grep -o "^\w*")
 sudo ip link add tun$vlanID type gretap local $local_ip remote $gateway_ip key $vlanID dev $if
@@ -33,7 +28,11 @@ sudo ip link set tun$vlanID up
 
 #create key files
 echo $public_key >> ~/.ssh/access-agent-key.pub
+
+echo '-----BEGIN RSA PRIVATE KEY-----' > ~/.ssh/access-agent-key
 echo $private_key >> ~/.ssh/access-agent-key
+echo '-----END RSA PRIVATE KEY-----' > ~/.ssh/access-agent-key
+
 chmod 644 ~/.ssh/access-agent-key.pub
 chmod 600 ~/.ssh/access-agent-key
 
