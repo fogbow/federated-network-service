@@ -1,15 +1,11 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
-
-import java.net.UnknownHostException;
 
 public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(RemoteDfnsServiceConnector.class);
@@ -67,11 +63,12 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnexpectedException {
-        RemoteGetDfnsAgentConfigurationRequest request = new RemoteGetDfnsAgentConfigurationRequest(this.memberToBeConfigured, serializedPublicKey);
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnexpectedException {
+        RemoteGetDfnsAgentConfigurationRequest request = new RemoteGetDfnsAgentConfigurationRequest(this.memberToBeConfigured);
 
         try {
             DfnsAgentConfiguration dfnsAgentConfiguration = request.send();
+            dfnsAgentConfiguration.setPublicKey(publicKey);
             return dfnsAgentConfiguration;
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);

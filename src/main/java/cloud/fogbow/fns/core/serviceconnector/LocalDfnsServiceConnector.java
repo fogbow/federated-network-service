@@ -106,14 +106,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException {
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
-        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, serializedPublicKey, agentPrivateIpAddress, publicIpAddress);
+        return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, publicKey, agentPrivateIpAddress, publicIpAddress);
     }
 
     private List<String> getConfigureCommand(Collection<String> providersIps) {

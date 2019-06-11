@@ -10,7 +10,6 @@ import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -26,10 +25,7 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
@@ -78,16 +74,41 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     @Override
     public final UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
-            KeyPair keyPair = CryptoUtil.generateKeyPair();
+            String[] keys = generateSshKeyPair();
 
-            addKeyToAgentAuthorizedPublicKeys(serializePublicKey(keyPair.getPublic()));
+            addKeyToAgentAuthorizedPublicKeys(keys[0]);
 
-            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(CryptoUtil.savePublicKey(keyPair.getPublic()));
+            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration(keys[0]);
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
-            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keyPair.getPrivate());
+            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keys[1]);
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
+    }
+
+    public String[] generateSshKeyPair() throws UnexpectedException {
+        BashScriptRunner runner = new BashScriptRunner();
+        String keyName = String.valueOf(UUID.randomUUID());
+
+        String[] createCommand = {"ssh-keygen", "-t", "rsa", "-b", "4096", "-f", keyName, "-P", "''"};
+        BashScriptRunner.Output createCommandResult = runner.runtimeRun(createCommand);
+        LOGGER.debug(createCommandResult.getExitCode());
+
+        String[] catCommand1 = {"cat", keyName};
+        BashScriptRunner.Output catResult1 = runner.runtimeRun(catCommand1);
+        String privateKey = catResult1.getContent();
+        LOGGER.debug(catResult1.getExitCode());
+
+        String[] catCommand2 = {"cat", keyName + ".pub"};
+        BashScriptRunner.Output catResult2 = runner.runtimeRun(catCommand2);
+        LOGGER.debug(catResult2.getExitCode());
+        String publicKey = catResult2.getContent();
+
+        String[] removeKeysCommand = {"rm", keyName, keyName + ".pub"};
+        BashScriptRunner.Output removeKeysCommandResult = runner.runtimeRun(removeKeysCommand);
+        LOGGER.debug(removeKeysCommandResult.getExitCode());
+
+        return new String[]{publicKey, privateKey};
     }
 
     /**
@@ -100,11 +121,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
 
     // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
-    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration(String serializedPublicKey) throws UnknownHostException, UnexpectedException;
-
-    private String serializePublicKey(PublicKey publicKey) throws GeneralSecurityException {
-        return String.format("ssh-rsa %s", CryptoUtil.savePublicKey(publicKey));
-    }
+    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException, UnexpectedException;
 
     protected Collection<String> getIpAddresses(Collection<String> serverNames) throws UnknownHostException {
         Set<String> ipAddresses = new HashSet<>();

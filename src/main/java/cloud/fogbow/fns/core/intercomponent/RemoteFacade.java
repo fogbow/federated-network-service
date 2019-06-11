@@ -1,7 +1,6 @@
 package cloud.fogbow.fns.core.intercomponent;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
@@ -54,9 +53,9 @@ public class RemoteFacade {
         return serviceConnector.addKeyToAgentAuthorizedPublicKeys(publicKey);
     }
 
-    public DfnsAgentConfiguration getDfnsAgentConfiguration(String publicKey) throws UnknownHostException, UnexpectedException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
-        return serviceConnector.getDfnsAgentConfiguration(publicKey);
+        return serviceConnector.getDfnsAgentConfiguration();
     }
 }

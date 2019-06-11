@@ -16,6 +16,13 @@ public class DfnsAgentConfiguration {
         this.publicIpAddress = publicIpAddress;
     }
 
+    public DfnsAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress) {
+        this.defaultNetworkCidr = defaultNetworkCidr;
+        this.agentUser = agentUser;
+        this.privateIpAddress = privateIpAddress;
+        this.publicIpAddress = publicIpAddress;
+    }
+
     public String getDefaultNetworkCidr() {
         return defaultNetworkCidr;
     }
@@ -26,6 +33,10 @@ public class DfnsAgentConfiguration {
 
     public String getPublicKey() {
         return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
     }
 
     public String getPrivateIpAddress() {

@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.handlers;
 
+import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
@@ -19,11 +20,10 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
 
     @Override
     public IQ handle(IQ iq) {
-        String publicKey = unmarshalPublicKey(iq);
         IQ response = IQ.createResultIQ(iq);
 
         try {
-            DfnsAgentConfiguration dfnsAgentConfiguration = RemoteFacade.getInstance().getDfnsAgentConfiguration(publicKey);
+            DfnsAgentConfiguration dfnsAgentConfiguration = RemoteFacade.getInstance().getDfnsAgentConfiguration();
             updateResponse(response, dfnsAgentConfiguration);
         } catch (Exception e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
@@ -45,8 +45,10 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
         Element federationUserElement =
                 iq.getElement().element(IqElement.INSTANCE_PUBLIC_KEY.toString());
 
-        String systemUser = new Gson().fromJson(federationUserElement.getText(), String.class);
+        System.out.println("xmpp element text +++++++++++ " + federationUserElement.getText());
+        String publicKey = GsonHolder.getInstance().fromJson(federationUserElement.getText(), String.class);
+        System.out.println("heres public key +++++++++++ " + publicKey);
 
-        return systemUser;
+        return publicKey;
     }
 }

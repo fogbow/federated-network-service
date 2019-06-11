@@ -15,7 +15,7 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Dfn
     private String provider;
     private String publicKey;
 
-    public RemoteGetDfnsAgentConfigurationRequest(String provider, String publicKey) {
+    public RemoteGetDfnsAgentConfigurationRequest(String provider) {
         this.provider = provider;
         this.publicKey = publicKey;
     }
