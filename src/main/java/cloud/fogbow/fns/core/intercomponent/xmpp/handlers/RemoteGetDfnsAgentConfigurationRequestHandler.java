@@ -40,15 +40,4 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
         dfnsAgentConfigurationClassElement.setText(dfnsAgentConfiguration.getClass().getName());
         dfnsAgentConfigurationElement.setText(new Gson().toJson(dfnsAgentConfiguration));
     }
-
-    private String unmarshalPublicKey(IQ iq) {
-        Element federationUserElement =
-                iq.getElement().element(IqElement.INSTANCE_PUBLIC_KEY.toString());
-
-        System.out.println("xmpp element text +++++++++++ " + federationUserElement.getText());
-        String publicKey = GsonHolder.getInstance().fromJson(federationUserElement.getText(), String.class);
-        System.out.println("heres public key +++++++++++ " + publicKey);
-
-        return publicKey;
-    }
 }

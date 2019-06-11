@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteGetDfnsAgentConfigurationRequestHandler;
 import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
@@ -13,16 +14,14 @@ import org.xmpp.packet.IQ;
 
 public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<DfnsAgentConfiguration> {
     private String provider;
-    private String publicKey;
 
     public RemoteGetDfnsAgentConfigurationRequest(String provider) {
         this.provider = provider;
-        this.publicKey = publicKey;
     }
 
     @Override
     public DfnsAgentConfiguration send() throws Exception {
-        IQ iq = marshal(this.provider, this.publicKey);
+        IQ iq = marshal(this.provider);
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
@@ -31,16 +30,9 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Dfn
         return dfnsAgentConfiguration;
     }
 
-    public static IQ marshal(String provider, String publicKey) {
+    public static IQ marshal(String provider) {
         IQ iq = new IQ(IQ.Type.get);
         iq.setTo(provider);
-
-        Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(),
-                RemoteMethod.REMOTE_GET_DFNS_AGENT_CONFIGURATION.toString());
-
-        Element dfnsAgentConfigurationElement = queryElement.addElement(IqElement.INSTANCE_PUBLIC_KEY.toString());
-        dfnsAgentConfigurationElement.setText(publicKey);
-
         return iq;
     }
 
