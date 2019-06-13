@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.RemoteGetDfnsAgentConfigurationRequestHandler;
 import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
@@ -45,7 +46,7 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Dfn
 
         DfnsAgentConfiguration dfnsAgentConfiguration = null;
         try {
-            dfnsAgentConfiguration = (DfnsAgentConfiguration) new Gson().fromJson(instanceStr, Class.forName(instanceClassName));
+            dfnsAgentConfiguration = (DfnsAgentConfiguration) GsonHolder.getInstance().fromJson(instanceStr, Class.forName(instanceClassName));
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage());
         }

@@ -77,6 +77,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
+        System.out.println("key on local dfns connector +++++++++++++++" + publicKey);
 
         try {
             try {

@@ -19,10 +19,12 @@ public class RemoteAllowAccessFromComputeToAgentRequestHandler extends AbstractQ
     @Override
     public IQ handle(IQ iq) {
         String publicKey = unmarshalPublicKey(iq);
+        System.out.println("received key is ++++++++++ " + publicKey);
         IQ response = iq.createResultIQ(iq);
 
         try {
-            RemoteFacade.getInstance().addInstancePublicKey(publicKey);
+            boolean result = RemoteFacade.getInstance().addInstancePublicKey(publicKey);
+            System.out.println("added key successfully ++++++++++ " + result);
         } catch (UnexpectedException e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
