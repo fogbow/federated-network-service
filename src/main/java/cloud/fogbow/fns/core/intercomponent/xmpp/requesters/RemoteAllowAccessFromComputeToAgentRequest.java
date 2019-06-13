@@ -36,7 +36,8 @@ public class RemoteAllowAccessFromComputeToAgentRequest implements RemoteRequest
         iq.setTo(this.provider);
 
         Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_ADD_INSTANCE_PUBLIC_KEY.toString());
-        queryElement.addElement(IqElement.INSTANCE_PUBLIC_KEY.toString(), instancePublicKey);
+        Element instancePublicKeyElement = queryElement.addElement(IqElement.INSTANCE_PUBLIC_KEY.toString());
+        instancePublicKeyElement.setText(instancePublicKey);
 
         return iq;
     }
