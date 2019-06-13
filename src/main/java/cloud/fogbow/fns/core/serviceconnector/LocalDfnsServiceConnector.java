@@ -41,7 +41,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
         try {
             String[] commandFirstPart = {"echo", CREATE_TUNNELS_SCRIPT_PATH, "|", "ssh", "-o", "UserKnownHostsFile=/dev/null",
-                    "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-T"};
+                    "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-t", "-t"};
             List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
             Set<String> allProviders = order.getProviders().keySet();
             Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));

@@ -23,6 +23,7 @@ public class RemoteAllowAccessFromComputeToAgentRequest implements RemoteRequest
     @Override
     public Void send() throws Exception {
         IQ iq = marshal(this.instancePublicKey);
+        System.out.println(iq.toXML());
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
