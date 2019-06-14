@@ -128,12 +128,4 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         Stream<String> providersStream = allProviders.stream();
         return providersStream.filter(provider -> !provider.equals(LOCAL_MEMBER_NAME)).collect(Collectors.toList());
     }
-
-    public static void main(String[] args) throws UnexpectedException {
-        LocalDfnsServiceConnector serviceConnector = new LocalDfnsServiceConnector(new BashScriptRunner());
-        String[] keys = serviceConnector.generateSshKeyPair();
-
-        System.out.println(keys[0]);
-        System.out.println(keys[1]);
-    }
 }

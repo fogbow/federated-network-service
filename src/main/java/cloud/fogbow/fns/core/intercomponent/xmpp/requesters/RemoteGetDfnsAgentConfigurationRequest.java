@@ -23,10 +23,12 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Dfn
     @Override
     public DfnsAgentConfiguration send() throws Exception {
         IQ iq = marshal(this.provider);
+        System.out.println("sending remote get dfns configuration ++++" + iq.toXML());
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
         DfnsAgentConfiguration dfnsAgentConfiguration = unmarshalInstance(response);
+        System.out.println("received response +++++" + dfnsAgentConfiguration.toString());
 
         return dfnsAgentConfiguration;
     }
@@ -34,11 +36,15 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Dfn
     public static IQ marshal(String provider) {
         IQ iq = new IQ(IQ.Type.get);
         iq.setTo(provider);
+
+        //order
+        Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(),
+                RemoteMethod.REMOTE_GET_DFNS_AGENT_CONFIGURATION.toString());
+
         return iq;
     }
 
     private DfnsAgentConfiguration unmarshalInstance(IQ response) throws UnexpectedException {
-
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
         String instanceStr = queryElement.element(IqElement.DFNS_AGENT_CONFIGURATION.toString()).getText();
 

@@ -21,22 +21,13 @@ public class FederatedNetworkUtil {
             SubnetAddressesCapacityReachedException {
         int index = 1;
         String freeIp = null;
-        List<AssignedIp> assignedIps = federatedNetwork.getAssignedIps();
-        List<String> usedIps = new ArrayList<>();
-        //Iterator<AssignedIp> iterator = assignedIps.iterator();
-        //while (iterator.hasNext()) {
-        //    usedIps.add(iterator.next().getIp());
-        //}
-        for (AssignedIp assignedIp : assignedIps) {
-            usedIps.add(assignedIp.getIp());
-        }
+        List<String> usedIPs = getUsedIps(federatedNetwork);
         SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
         Queue<String> cache = federatedNetwork.getCacheOfFreeIps();
-
         while (subnetInfo.isInRange(lowAddress + index) && cache.size() < FREE_IP_CACHE_MAX_SIZE) {
             freeIp = toIpAddress(lowAddress + index);
-            if (!usedIps.contains(freeIp)) {
+            if (!usedIPs.contains(freeIp)) {
                 federatedNetwork.getCacheOfFreeIps().add(freeIp);
             }
             index++;
@@ -47,12 +38,9 @@ public class FederatedNetworkUtil {
     private synchronized static List<String> getUsedIps(FederatedNetworkOrder federatedNetworkOrder) {
         List<AssignedIp> assignedIps = federatedNetworkOrder.getAssignedIps();
         List<String> usedIps = new ArrayList<>();
-        //Iterator<AssignedIp> iterator = assignedIps.iterator();
-        //while (iterator.hasNext()) {
-        //    usedIps.add(iterator.next().getIp());
-        //}
-        for (AssignedIp assignedIp : assignedIps) {
-            usedIps.add(assignedIp.getIp());
+        Iterator<AssignedIp> iterator = assignedIps.iterator();
+        while (iterator.hasNext()) {
+            usedIps.add(iterator.next().getIp());
         }
         return usedIps;
     }

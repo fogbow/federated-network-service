@@ -80,7 +80,9 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
             System.out.println("this is the public key" + keys[0]);
             addKeyToAgentAuthorizedPublicKeys(keys[0]);
 
+            System.out.println("getting dfns agent config");
             DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
+            System.out.println("received dfns agent config");
             dfnsAgentConfiguration.setPublicKey(keys[0]);
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
             return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keys[1]);
