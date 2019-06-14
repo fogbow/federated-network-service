@@ -21,13 +21,22 @@ public class FederatedNetworkUtil {
             SubnetAddressesCapacityReachedException {
         int index = 1;
         String freeIp = null;
-        List<String> usedIPs = getUsedIps(federatedNetwork);
+        List<AssignedIp> assignedIps = federatedNetwork.getAssignedIps();
+        List<String> usedIps = new ArrayList<>();
+        //Iterator<AssignedIp> iterator = assignedIps.iterator();
+        //while (iterator.hasNext()) {
+        //    usedIps.add(iterator.next().getIp());
+        //}
+        for (AssignedIp assignedIp : assignedIps) {
+            usedIps.add(assignedIp.getIp());
+        }
         SubnetUtils.SubnetInfo subnetInfo = getSubnetInfo(federatedNetwork.getCidr());
         int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
         Queue<String> cache = federatedNetwork.getCacheOfFreeIps();
+
         while (subnetInfo.isInRange(lowAddress + index) && cache.size() < FREE_IP_CACHE_MAX_SIZE) {
             freeIp = toIpAddress(lowAddress + index);
-            if (!usedIPs.contains(freeIp)) {
+            if (!usedIps.contains(freeIp)) {
                 federatedNetwork.getCacheOfFreeIps().add(freeIp);
             }
             index++;
