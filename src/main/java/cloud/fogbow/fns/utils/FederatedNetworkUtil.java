@@ -38,7 +38,7 @@ public class FederatedNetworkUtil {
     private synchronized static List<String> getUsedIps(FederatedNetworkOrder federatedNetworkOrder) {
         List<AssignedIp> assignedIps = federatedNetworkOrder.getAssignedIps();
         List<String> usedIps = new ArrayList<>();
-        Iterator<AssignedIp> iterator = assignedIps.iterator();
+        //Iterator<AssignedIp> iterator = assignedIps.iterator();
         //while (iterator.hasNext()) {
         //    usedIps.add(iterator.next().getIp());
         //}
