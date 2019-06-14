@@ -39,8 +39,11 @@ public class FederatedNetworkUtil {
         List<AssignedIp> assignedIps = federatedNetworkOrder.getAssignedIps();
         List<String> usedIps = new ArrayList<>();
         Iterator<AssignedIp> iterator = assignedIps.iterator();
-        while (iterator.hasNext()) {
-            usedIps.add(iterator.next().getIp());
+        //while (iterator.hasNext()) {
+        //    usedIps.add(iterator.next().getIp());
+        //}
+        for (AssignedIp assignedIp : assignedIps) {
+            usedIps.add(assignedIp.getIp());
         }
         return usedIps;
     }

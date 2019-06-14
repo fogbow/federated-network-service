@@ -9,7 +9,7 @@ keyToBeRemoved=$3
 
 prefix="gre-vm"
 #get progressive index
-index=$(sudo python ../utils/get_progressive_index.py $prefix)
+index=$(sudo python /home/ubuntu/fogbow-components/federated-network-agent/dfns-agent-scripts/get_progressive_index.py $prefix)
 #add the gre tunnel
 sudo ovs-vsctl add-port br-dc $prefix$index -- set interface $prefix$index \
 type=gre options:remote_ip=$host_ip options:key=$vlanID
