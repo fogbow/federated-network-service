@@ -4,7 +4,6 @@ import cloud.fogbow.common.constants.HttpConstants;
 import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
@@ -24,8 +23,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.*;
 
 public abstract class DfnsServiceConnector implements ServiceConnector {
@@ -38,6 +35,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String SCRIPT_TARGET_PATH = "/tmp/";
     public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
+    public static final int PUBLIC_KEY_INDEX = 0;
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
@@ -76,14 +74,11 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public final UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             String[] keys = generateSshKeyPair();
+            addKeyToAgentAuthorizedPublicKeys(keys[PUBLIC_KEY_INDEX]);
 
-            System.out.println("this is the public key" + keys[0]);
-            addKeyToAgentAuthorizedPublicKeys(keys[0]);
-
-            System.out.println("getting dfns agent config");
             DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
-            System.out.println("received dfns agent config");
-            dfnsAgentConfiguration.setPublicKey(keys[0]);
+            dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
+
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
             return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keys[1]);
         } catch (IOException | GeneralSecurityException e) {
@@ -97,12 +92,10 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
         String[] createCommand = {"ssh-keygen", "-t", "rsa", "-b", "1024", "-f", keyName, "-q", "-N", ""};
         BashScriptRunner.Output createCommandResult = runner.runtimeRun(createCommand);
-        LOGGER.info(createCommandResult.getExitCode());
 
         String[] catCommand1 = {"cat", keyName};
         BashScriptRunner.Output catResult1 = runner.runtimeRun(catCommand1);
         String privateKey = catResult1.getContent();
-        LOGGER.info(catResult1.getExitCode());
 
         String[] w = privateKey.split("\n");
         String[] actualPrivateKey = Arrays.copyOfRange(w, 1, w.length - 1);
@@ -110,12 +103,10 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
 
         String[] catCommand2 = {"cat", keyName + ".pub"};
         BashScriptRunner.Output catResult2 = runner.runtimeRun(catCommand2);
-        LOGGER.info(catResult2.getExitCode());
         String publicKey = catResult2.getContent();
 
         String[] removeKeysCommand = {"rm", keyName, keyName + ".pub"};
         BashScriptRunner.Output removeKeysCommandResult = runner.runtimeRun(removeKeysCommand);
-        LOGGER.info(removeKeysCommandResult.getExitCode());
 
         return new String[]{publicKey, privateKey};
     }

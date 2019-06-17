@@ -58,8 +58,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     @Override
     public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
         // TODO implement this
-        BashScriptRunner.Output output = this.runner.runtimeRun("echo", "Hello");
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
+        return true;
     }
 
     @Override
@@ -77,12 +76,9 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
-        System.out.println("key on local dfns connector +++++++++++++++" + publicKey);
 
         try {
             try {
-                //client.loadKnownHosts();
-
                 // connects to the DMZ host
                 client.connect(agentPublicIp, AGENT_SSH_PORT);
 

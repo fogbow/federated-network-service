@@ -20,7 +20,6 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
     @Override
     public IQ handle(IQ iq) {
         IQ response = IQ.createResultIQ(iq);
-        System.out.println("received remote message get dfns configuration ++++++++" + iq.toXML());
 
         try {
             DfnsAgentConfiguration dfnsAgentConfiguration = RemoteFacade.getInstance().getDfnsAgentConfiguration();
@@ -28,8 +27,6 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
         } catch (Exception e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
-
-        System.out.println("sending response get dfns configuration ++++++++" + response.toXML());
 
         return response;
     }
