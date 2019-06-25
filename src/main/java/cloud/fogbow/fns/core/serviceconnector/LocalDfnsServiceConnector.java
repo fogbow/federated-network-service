@@ -44,6 +44,9 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
                     "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-t", "-t"};
             List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
             Set<String> allProviders = order.getProviders().keySet();
+
+            // FIXME(pauloewerton): we decided not to run any scripts when creating a new fednet; we should decide what
+            // to do with this code later on.
             Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
             //command.addAll(getConfigureCommand(ipAddresses));
 
@@ -64,8 +67,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     @Override
     public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
         // TODO implement this
-        BashScriptRunner.Output output = this.runner.runtimeRun("echo", "Hello");
-        return output.getExitCode() == SUCCESS_EXIT_CODE;
+        return true;
     }
 
     @Override

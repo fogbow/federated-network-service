@@ -85,7 +85,6 @@ public class FederatedComputeUtil {
         scriptTokenValues.put(PUBLIC_KEY_KEY, configuration.getPublicKey());
 
         String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
-        System.out.printf("here's the cloudinit script to run on compute ++++ " + cloudInitScript);
 
         byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
