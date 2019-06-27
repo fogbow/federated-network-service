@@ -1,11 +1,21 @@
 #!/bin/bash
 
 if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <git branch> <docker tag>"
+  echo "Usage: $0 <git fns_branch> <docker_tag>"
   exit 1
 fi
 
-branch=$1
-tag=$2
-sudo docker build --build-arg BRANCH=$branch --no-cache -t fogbow/federated-network-service:$tag .
+dependecies_properties_path=../src/main/resources/dependencies.properties
+common_pattern="common.git\="
+as_pattern="authentication-service.git\="
+ras_pattern="resource-allocation-service.git\="
+
+fns_branch=$1
+docker_tag=$2
+common_branch=$(grep $common_pattern $dependecies_properties_path | awk '{split($0,a,"$common_pattern"); print a[2]}')
+as_branch=$(grep $as_pattern $dependecies_properties_path | awk '{split($0,a,"$as_pattern"); print a[2]}')
+ras_branch=$(grep $as_pattern $dependecies_properties_path | awk '{split($0,a,"$as_pattern"); print a[2]}')
+
+sudo docker build --build-arg FNS_BRANCH=$fns_branch --build-arg RAS_BRANCH=$ras_branch --build-arg AS_BRANCH=$as_branch \
+ --build-arg COMMON_BRANCH=$common_branch --no-cache -t fogbow/federated-network-service:$docker_tag .
 

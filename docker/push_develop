@@ -1,4 +1,0 @@
-#!/bin/bash
-
-./push fogbow/federated-network-service:develop
-
