@@ -249,8 +249,14 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkInstance getInstance() {
         InstanceState instanceState = this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED;
-        return new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
+        System.out.println("assgined ips size: +++++" + this.getAssignedIps().size());
+        System.out.println("assgined ips content +++++++++++++" + this.getAssignedIps().toString());
+        FederatedNetworkInstance instance = new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
                 this.cidr, this.providers.keySet(), this.getAssignedIps(), instanceState);
+        System.out.println("instance is +++++++++++++++++++++" + instance.toString());
+        instance.setAssignedIps(null);
+        System.out.println("setting assinged ips to null before sending +++++++++++++++++++++" + instance.toString());
+        return instance;
     }
 
     public SystemUser getSystemUser() {
