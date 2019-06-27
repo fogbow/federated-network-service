@@ -191,7 +191,7 @@ public class ApplicationFacade {
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
         // TODO
-        removeAgentToComputeTunnel(null, null, null, -1);
+        //removeAgentToComputeTunnel(null, null, null, -1);
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)

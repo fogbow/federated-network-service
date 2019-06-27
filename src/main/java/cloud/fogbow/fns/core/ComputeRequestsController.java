@@ -1,8 +1,11 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
+
+import java.util.List;
 
 public class ComputeRequestsController {
 
