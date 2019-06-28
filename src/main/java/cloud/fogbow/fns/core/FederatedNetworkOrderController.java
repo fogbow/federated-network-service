@@ -55,8 +55,6 @@ public class FederatedNetworkOrderController {
             throws NotEmptyFederatedNetworkException, FogbowException {
         LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
-        System.out.println("on delete, heres the instance ++++++++++" + federatedNetwork.toString());
-        System.out.println("on delete, heres the assinged ips ++++++++++" + federatedNetwork.getAssignedIps().toString());
         if (!federatedNetwork.getAssignedIps().isEmpty()) {
             throw new NotEmptyFederatedNetworkException();
         }

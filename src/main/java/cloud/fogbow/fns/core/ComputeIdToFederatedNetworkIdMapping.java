@@ -19,15 +19,15 @@ public class ComputeIdToFederatedNetworkIdMapping {
         return instance;
     }
 
-    public String put(String computeId, String federatedNetworkId) {
+    public synchronized String put(String computeId, String federatedNetworkId) {
         return computeIdToFederatedNetworkIdMap.put(computeId, federatedNetworkId);
     }
 
-    public String get(String computeId) {
+    public synchronized String get(String computeId) {
         return computeIdToFederatedNetworkIdMap.get(computeId);
     }
 
-    public String remove(String computeId) {
+    public synchronized String remove(String computeId) {
         return computeIdToFederatedNetworkIdMap.remove(computeId);
     }
 }

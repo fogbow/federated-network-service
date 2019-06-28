@@ -125,7 +125,7 @@ public class ApplicationFacade {
     // federatedCompute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
     public synchronized String createCompute(FederatedCompute federatedCompute, String systemUserToken)
-            throws FogbowException, IOException, InvalidCidrException, SubnetAddressesCapacityReachedException,
+            throws FogbowException, InvalidCidrException, SubnetAddressesCapacityReachedException,
             FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
         FederatedNetworkOrder federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedCompute.getFederatedNetworkId());
