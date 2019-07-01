@@ -9,30 +9,6 @@ import java.util.List;
 
 public class ComputeRequestsController {
 
-    // FIXME ARNETT
-//<<<<<<< HEAD
-//=======
-//    // FederatedCompute methods
-//    public String addScriptToSetupTunnelIfNeeded(FederatedCompute federatedCompute, String federatedNetworkId)
-//            throws FederatedNetworkNotFoundException, InvalidCidrException,
-//            SubnetAddressesCapacityReachedException, IOException, UnexpectedException {
-//        String instanceIp = null;
-//        if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-//            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
-//                    getFederatedNetworkOrder(federatedNetworkId);
-//            if (federatedNetworkOrder == null) {
-//                throw new FederatedNetworkNotFoundException(federatedNetworkId);
-//            }
-//            instanceIp = federatedNetworkOrder.getFreeIp();
-//            String cidr = federatedNetworkOrder.getCidr();
-//            FederatedComputeUtil.addUserData(federatedCompute, instanceIp,
-//                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY), cidr,
-//                    PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
-//        }
-//        return instanceIp;
-//    }
-//
-//>>>>>>> origin/develop
     public void addIpToComputeAllocation(String instanceIp, String computeId, String federatedNetworkId)
             throws UnexpectedException {
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {

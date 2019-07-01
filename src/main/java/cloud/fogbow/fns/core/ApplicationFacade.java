@@ -12,6 +12,7 @@ import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
+import cloud.fogbow.fns.api.parameters.FederatedNetwork;
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
@@ -128,15 +129,23 @@ public class ApplicationFacade {
             throws FogbowException, InvalidCidrException, SubnetAddressesCapacityReachedException,
             FederatedNetworkNotFoundException {
         // Authentication and authorization is performed by the RAS.
-        FederatedNetworkOrder federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedCompute.getFederatedNetworkId());
-        String instanceIp = federatedNetworkOrder.getFreeIp();
+        String federatedNetworkId = federatedCompute.getFederatedNetworkId();
+        FederatedNetworkOrder federatedNetworkOrder = null;
+        String instanceIp = null;
 
-        ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
-        String provider = federatedCompute.getCompute().getProvider();
-        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
+        if (federatedNetworkId != null) {
+            federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
+            instanceIp = federatedNetworkOrder.getFreeIp();
+        }
 
-        UserData userData = serviceConnector.getTunnelCreationInitScript(instanceIp, federatedCompute, federatedNetworkOrder);
-        addUserDataToCompute(federatedCompute, userData);
+        if (federatedNetworkOrder != null && instanceIp != null) {
+            ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
+            String provider = federatedCompute.getCompute().getProvider();
+            ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
+
+            UserData userData = serviceConnector.getTunnelCreationInitScript(instanceIp, federatedCompute, federatedNetworkOrder);
+            addUserDataToCompute(federatedCompute, userData);
+        }
 
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -163,10 +172,12 @@ public class ApplicationFacade {
     private void addUserDataToCompute(cloud.fogbow.fns.api.parameters.FederatedCompute compute, UserData userData) {
         cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
+
         if (userDataList == null) {
             userDataList = new ArrayList<>();
             rasCompute.setUserData((ArrayList<UserData>) userDataList);
         }
+
         userDataList.add(userData);
     }
 

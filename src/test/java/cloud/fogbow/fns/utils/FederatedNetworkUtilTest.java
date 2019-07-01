@@ -91,7 +91,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         //exercise
         fillInFederatedNetwork(federatedNetwork, mask);
         try {
-            FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+            federatedNetwork.fillCacheOfFreeIps();
             //verify()
             fail();
         } catch (SubnetAddressesCapacityReachedException e) {
@@ -113,7 +113,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
                 "name", allowedMembers, freedIps, computesIp);
         //exercise
-        FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+        federatedNetwork.fillCacheOfFreeIps();
         //verify
         Assert.assertEquals(FederatedNetworkUtil.FREE_IP_CACHE_MAX_SIZE, federatedNetwork.getCacheOfFreeIps().size());
     }

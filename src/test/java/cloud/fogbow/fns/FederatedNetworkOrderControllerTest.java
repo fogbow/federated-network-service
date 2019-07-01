@@ -11,11 +11,8 @@ import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
-import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.core.model.InstanceState;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -101,6 +98,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember"));
+        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
         Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
@@ -465,7 +463,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getCacheOfFreeIps().element());
     }
 
-    @Test(expected = InstanceNotFoundException.class)
+    @Test(expected = FederatedNetworkNotFoundException.class)
     public void testGetNonExistentFederatedNetwork() throws FederatedNetworkNotFoundException {
         // set up
         mockDatabase(new HashMap<>());

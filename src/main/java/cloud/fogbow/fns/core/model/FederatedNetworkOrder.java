@@ -16,6 +16,7 @@ import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.constants.Messages;
+import org.apache.commons.net.util.SubnetUtils;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -30,6 +31,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
     public static final int FIELDS_MAX_SIZE = 255;
+    public static final int FREE_IP_CACHE_MAX_SIZE = 16;
 
     @Column
     @Id
@@ -185,7 +187,7 @@ public class FederatedNetworkOrder implements Serializable {
         try {
             ip = this.cacheOfFreeIps.remove();
         } catch (NoSuchElementException e1) {
-            fillCacheOfFreeIps();
+            this.fillCacheOfFreeIps();
             try {
                 ip = this.cacheOfFreeIps.remove();
             } catch (NoSuchElementException e2) {
@@ -215,10 +217,6 @@ public class FederatedNetworkOrder implements Serializable {
             default:
                 return null;
         }
-    }
-
-    private void fillCacheOfFreeIps() throws InvalidCidrException, SubnetAddressesCapacityReachedException {
-        FederatedNetworkUtil.fillCacheOfFreeIps(this);
     }
 
     public String getId() {
@@ -335,7 +333,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public int getVlanId() {
-        return vlanId;
+        return this.configurationMode == ConfigurationMode.DFNS ? this.vlanId : -1;
     }
 
     public void setVlanId(int vlanId) {
@@ -376,6 +374,38 @@ public class FederatedNetworkOrder implements Serializable {
         } catch(ClassNotFoundException exception) {
             throw new UnexpectedException(Messages.Exception.UNABLE_TO_DESERIALIZE_SYSTEM_USER);
         }
+    }
+
+    public synchronized void fillCacheOfFreeIps() throws InvalidCidrException,
+            SubnetAddressesCapacityReachedException {
+        int index = 1;
+        String freeIp = null;
+        List<String> usedIPs = this.getUsedIps();
+        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(this.getCidr());
+        int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+        Queue<String> cache = this.getCacheOfFreeIps();
+
+        while (subnetInfo.isInRange(lowAddress + index) && cache.size() < FREE_IP_CACHE_MAX_SIZE) {
+            freeIp = FederatedNetworkUtil.toIpAddress(lowAddress + index);
+            if (!usedIPs.contains(freeIp)) {
+                this.getCacheOfFreeIps().add(freeIp);
+            }
+            index++;
+        }
+
+        if (cache.isEmpty()) throw new SubnetAddressesCapacityReachedException(this.getCidr());
+    }
+
+    private synchronized List<String> getUsedIps() {
+        List<AssignedIp> assignedIps = this.getAssignedIps();
+        List<String> usedIps = new ArrayList<>();
+        Iterator<AssignedIp> iterator = assignedIps.iterator();
+
+        while (iterator.hasNext()) {
+            usedIps.add(iterator.next().getIp());
+        }
+
+        return usedIps;
     }
 
     @Override
