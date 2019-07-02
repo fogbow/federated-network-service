@@ -248,7 +248,7 @@ public class FederatedNetworkOrder implements Serializable {
     public FederatedNetworkInstance getInstance() {
         InstanceState instanceState = this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED;
         FederatedNetworkInstance instance = new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
-                this.cidr, this.providers.keySet(), this.getAssignedIps(), instanceState);
+                this.cidr, this.providers.keySet(), this.assignedIps, instanceState);
         return instance;
     }
 
@@ -316,7 +316,8 @@ public class FederatedNetworkOrder implements Serializable {
         this.cacheOfFreeIps = cacheOfFreeIps;
     }
 
-    public List<AssignedIp> getAssignedIps() {
+    // NOTE(pauloewerton): Used for tests only
+    protected List<AssignedIp> getAssignedIps() {
         return assignedIps;
     }
 
@@ -354,6 +355,10 @@ public class FederatedNetworkOrder implements Serializable {
 
     private void setIdentityProviderId(String identityProviderId) {
         this.identityProviderId = identityProviderId;
+    }
+
+    public synchronized boolean isAssignedIpsEmpty() {
+        return this.assignedIps.isEmpty();
     }
 
     // Cannot be called at @PrePersist because the transient field systemUser is set to null at this stage
@@ -397,7 +402,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     private synchronized List<String> getUsedIps() {
-        List<AssignedIp> assignedIps = this.getAssignedIps();
+        List<AssignedIp> assignedIps = this.assignedIps;
         List<String> usedIps = new ArrayList<>();
         Iterator<AssignedIp> iterator = assignedIps.iterator();
 

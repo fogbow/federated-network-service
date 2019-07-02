@@ -104,7 +104,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        when(federatedNetwork.getAssignedIps()).thenReturn(new ArrayList<>());
+        when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(true);
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -123,11 +123,10 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember"));
+        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        List<AssignedIp> computeIdsAndIps = new ArrayList<>();
-        computeIdsAndIps.add(new AssignedIp("someId", "someIp"));
-        when(federatedNetwork.getAssignedIps()).thenReturn(computeIdsAndIps);
+        when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(false);
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
