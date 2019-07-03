@@ -14,11 +14,7 @@ import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
-import cloud.fogbow.fns.constants.Messages;
 import org.apache.commons.net.util.SubnetUtils;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;

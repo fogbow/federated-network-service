@@ -40,15 +40,14 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String sshCredentials = agentUser + "@" + agentPublicIp;
 
         try {
+            // FIXME(pauloewerton): we decided not to run any scripts when creating a new fednet; we should decide what
+            // to do with this code later on; by now, it runs a shallow script at the agent.
             String[] commandFirstPart = {"echo", CREATE_TUNNELS_SCRIPT_PATH, "|", "ssh", "-o", "UserKnownHostsFile=/dev/null",
                     "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-t", "-t"};
             List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
             Set<String> allProviders = order.getProviders().keySet();
 
-            // FIXME(pauloewerton): we decided not to run any scripts when creating a new fednet; we should decide what
-            // to do with this code later on.
             Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
-            //command.addAll(getConfigureCommand(ipAddresses));
 
             BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[]{}));
             return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
@@ -60,7 +59,9 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
 
     @Override
     public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
-        // TODO implement this
+        // NOTE(pauloewerton): the current logic creates the tunnels among sites at deployment time, so no need to implement
+        // nothing by now, we just transition the order to closed and then deactivated; maybe, in the future,
+        // we should call the "remove tunnels among sites" script in here.
         return true;
     }
 
