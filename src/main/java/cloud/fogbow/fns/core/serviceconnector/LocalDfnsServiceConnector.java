@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,6 +29,8 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     public static final int AGENT_SSH_PORT = 22;
 
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
+    public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
+    public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
 
     public LocalDfnsServiceConnector(BashScriptRunner runner) {
         super(runner);
@@ -60,15 +63,46 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     @Override
     public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
         // NOTE(pauloewerton): the current logic creates the tunnels among sites at deployment time, so no need to implement
-        // nothing by now, we just transition the order to closed and then deactivated; maybe, in the future,
+        // remove by now, we just transition the order to closed and then deactivated; maybe, in the future,
         // we should call the "remove tunnels among sites" script in here.
         return true;
     }
 
     @Override
     public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
-        // TODO implement this
-        return true;
+        String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
+                (String.format(PORT_TO_REMOVE_FORMAT, hostIp, vlanId)));
+
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+
+        SSHClient client = new SSHClient();
+        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
+
+        try {
+            try {
+                // connects to the DMZ host
+                client.connect(agentPublicIp, AGENT_SSH_PORT);
+
+                // authorizes using the DMZ private key
+                client.authPublickey(agentUser, permissionFilePath);
+
+                try (Session session = client.startSession()) {
+                    Session.Command c = session.exec(removeTunnelCommand);
+
+                    // waits for the command to finish
+                    c.join();
+
+                    return c.getExitStatus() == SUCCESS_EXIT_CODE;
+                }
+            } finally {
+                client.disconnect();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new UnexpectedException(e.getMessage(), e);
+        }
     }
 
     @Override

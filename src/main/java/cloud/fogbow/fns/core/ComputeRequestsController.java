@@ -41,4 +41,17 @@ public class ComputeRequestsController {
             }
         }
     }
+
+    public FederatedNetworkOrder getFederatedNetworkOrderAssociatedToCompute(String computeId) {
+        String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
+
+        if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
+            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
+                    getFederatedNetworkOrder(federatedNetworkId);
+
+            return federatedNetworkOrder;
+        }
+
+        return null;
+    }
 }

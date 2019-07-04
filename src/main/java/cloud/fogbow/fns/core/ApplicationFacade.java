@@ -24,12 +24,14 @@ import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
+import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -181,7 +183,12 @@ public class ApplicationFacade {
         userDataList.add(userData);
     }
 
-    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException {
+    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException,
+            URISyntaxException, InvalidCidrException {
+        // NOTE(pauloewerton): since FNS has no cache of the created computes, we need to get the instance data from RAS in case
+        // it was associated to a DFNS network.
+        ComputeInstance computeInstance = this.getComputeById(computeId, systemUserToken);
+
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -199,10 +206,16 @@ public class ApplicationFacade {
             ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
             throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
+
+        FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
-        // TODO
-        //removeAgentToComputeTunnel(null, null, null, -1);
+        if (federatedNetworkOrder != null) {
+            String hostIp = this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses());
+
+            this.removeAgentToComputeTunnel(federatedNetworkOrder.getConfigurationMode(), federatedNetworkOrder.getProvider(),
+                    hostIp, federatedNetworkOrder.getVlanId());
+        }
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
@@ -266,8 +279,27 @@ public class ApplicationFacade {
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 
-    private void removeAgentToComputeTunnel(ConfigurationMode fedNetConfigurationMode, String provider, String hostIp, int vlanId) throws UnexpectedException {
+    private void removeAgentToComputeTunnel(ConfigurationMode fedNetConfigurationMode, String provider, String hostIp, int vlanId)
+            throws UnexpectedException {
         ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(fedNetConfigurationMode, provider);
-        serviceConnector.removeAgentToComputeTunnel(hostIp, vlanId);
+        boolean isAgentToComputeTunnelRemoved = serviceConnector.removeAgentToComputeTunnel(hostIp, vlanId);
+
+        if (!isAgentToComputeTunnelRemoved) {
+            // FIXME message is wrong
+            LOGGER.warn(Messages.Error.UNABLE_TO_DELETE_AGENT);
+        }
+    }
+
+    private String getComputeIpFromDefaultNetwork(List<String> computeIps) throws InvalidCidrException {
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
+
+        for (String ip : computeIps) {
+            if (subnetInfo.isInRange(ip)) {
+                return ip;
+            }
+        }
+
+        return null;
     }
 }
