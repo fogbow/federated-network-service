@@ -208,14 +208,16 @@ public class ApplicationFacade {
         }
 
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
-        this.computeRequestsController.removeIpToComputeAllocation(computeId);
-
+        System.out.println("fednet conf mode ++++++++++");
+        System.out.println(federatedNetworkOrder.getConfigurationMode());
         if (federatedNetworkOrder != null) {
             String hostIp = this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses());
 
             this.removeAgentToComputeTunnel(federatedNetworkOrder.getConfigurationMode(), federatedNetworkOrder.getProvider(),
                     hostIp, federatedNetworkOrder.getVlanId());
         }
+
+        this.computeRequestsController.removeIpToComputeAllocation(computeId);
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
