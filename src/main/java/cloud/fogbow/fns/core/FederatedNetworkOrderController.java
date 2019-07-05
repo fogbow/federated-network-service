@@ -53,13 +53,13 @@ public class FederatedNetworkOrderController {
 
     public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
             throws NotEmptyFederatedNetworkException, FogbowException {
-        LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
-
-        if (!federatedNetwork.isAssignedIpsEmpty()) {
-            throw new NotEmptyFederatedNetworkException();
-        }
-
         synchronized (federatedNetwork) {
+            LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
+
+            if (!federatedNetwork.isAssignedIpsEmpty()) {
+                throw new NotEmptyFederatedNetworkException();
+            }
+
             LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
 
             if (federatedNetwork.getOrderState() != OrderState.FAILED) {

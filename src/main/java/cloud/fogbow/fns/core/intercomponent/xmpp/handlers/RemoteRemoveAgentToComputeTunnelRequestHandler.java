@@ -17,12 +17,12 @@ public class RemoteRemoveAgentToComputeTunnelRequestHandler extends AbstractQuer
 
     @Override
     public IQ handle(IQ iq) {
+        FederatedNetworkOrder order = unmarshalOrder(iq);
         String hostIp = unmarshalHostIp(iq);
-        int vlanId = unmarshalVlanId(iq);
         IQ response = iq.createResultIQ(iq);
 
         try {
-            RemoteFacade.getInstance().removeAgentToComputeTunnel(hostIp, vlanId);
+            RemoteFacade.getInstance().removeAgentToComputeTunnel(order, hostIp);
         } catch (Throwable e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
@@ -30,15 +30,16 @@ public class RemoteRemoveAgentToComputeTunnelRequestHandler extends AbstractQuer
         return response;
     }
 
+    private FederatedNetworkOrder unmarshalOrder(IQ iq) {
+        Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
+        Element fedNetOrderElement = queryElement.element(IqElement.FEDERATED_NETWORK_ORDER.toString());
+        String fedNetOrderElementText = fedNetOrderElement.getText();
+        return GsonHolder.getInstance().fromJson(fedNetOrderElementText, FederatedNetworkOrder.class);
+    }
+
     private String unmarshalHostIp(IQ iq) {
         Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
         Element hostIpElement = queryElement.element(IqElement.HOST_IP.toString());
         return hostIpElement.getText();
-    }
-
-    private int unmarshalVlanId(IQ iq) {
-        Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
-        Element vlanIdElement = queryElement.element(IqElement.VLAN_ID.toString());
-        return Integer.valueOf(vlanIdElement.getText());
     }
 }

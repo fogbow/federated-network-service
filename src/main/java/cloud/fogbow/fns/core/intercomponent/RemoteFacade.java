@@ -43,8 +43,10 @@ public class RemoteFacade {
         serviceConnector.remove(order);
     }
 
-    public void removeAgentToComputeTunnel(String hostIp, int vlanId) {
-        // TODO remove the tunnel created for this hostIp via this vlanId
+    public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
+        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                order.getConfigurationMode(), LOCAL_MEMBER_NAME);
+        serviceConnector.removeAgentToComputeTunnel(order, hostIp);
     }
 
     public boolean addInstancePublicKey(String publicKey) throws UnexpectedException {

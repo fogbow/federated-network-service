@@ -208,16 +208,13 @@ public class ApplicationFacade {
         }
 
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
-        System.out.println("fednet conf mode ++++++++++");
-        System.out.println(federatedNetworkOrder.getConfigurationMode());
+        this.computeRequestsController.removeIpToComputeAllocation(computeId);
+
         if (federatedNetworkOrder != null) {
             String hostIp = this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses());
 
-            this.removeAgentToComputeTunnel(federatedNetworkOrder.getConfigurationMode(), computeInstance.getProvider(),
-                    hostIp, federatedNetworkOrder.getVlanId());
+            this.removeAgentToComputeTunnel(federatedNetworkOrder, computeInstance.getProvider(), hostIp);
         }
-
-        this.computeRequestsController.removeIpToComputeAllocation(computeId);
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
@@ -281,18 +278,10 @@ public class ApplicationFacade {
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 
-    private void removeAgentToComputeTunnel(ConfigurationMode fedNetConfigurationMode, String provider, String hostIp, int vlanId)
+    private void removeAgentToComputeTunnel(FederatedNetworkOrder order, String provider, String hostIp)
             throws UnexpectedException {
-        System.out.println("mode at remove tunnel +++++++");
-        System.out.println(fedNetConfigurationMode);
-        System.out.println("provider at remove tunnel +++++++");
-        System.out.println(provider);
-        System.out.println("hostIp at remove tunnel +++++++");
-        System.out.println(hostIp);
-        System.out.println("vlanId at remove tunnel +++++++");
-        System.out.println(vlanId);
-        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(fedNetConfigurationMode, provider);
-        boolean isAgentToComputeTunnelRemoved = serviceConnector.removeAgentToComputeTunnel(hostIp, vlanId);
+        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(order.getConfigurationMode(), provider);
+        boolean isAgentToComputeTunnelRemoved = serviceConnector.removeAgentToComputeTunnel(order, hostIp);
 
         if (!isAgentToComputeTunnelRemoved) {
             // FIXME message is wrong

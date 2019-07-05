@@ -69,9 +69,9 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
+    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
-                (String.format(PORT_TO_REMOVE_FORMAT, hostIp, vlanId)));
+                (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);

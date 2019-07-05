@@ -19,7 +19,7 @@ public interface ServiceConnector {
 
     boolean remove(FederatedNetworkOrder order) throws UnexpectedException;
 
-    boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException;
+    boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException;
 
     UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException;
 }

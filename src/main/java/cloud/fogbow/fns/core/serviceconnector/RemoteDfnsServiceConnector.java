@@ -41,8 +41,9 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
-        RemoteRemoveAgentToComputeTunnelRequest request = new RemoteRemoveAgentToComputeTunnelRequest(this.memberToBeConfigured, hostIp, vlanId);
+    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
+        RemoteRemoveAgentToComputeTunnelRequest request = new RemoteRemoveAgentToComputeTunnelRequest(
+                this.memberToBeConfigured, order, hostIp);
         try {
             request.send();
             return true;
