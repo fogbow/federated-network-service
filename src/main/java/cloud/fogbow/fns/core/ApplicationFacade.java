@@ -213,7 +213,7 @@ public class ApplicationFacade {
         if (federatedNetworkOrder != null) {
             String hostIp = this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses());
 
-            this.removeAgentToComputeTunnel(federatedNetworkOrder.getConfigurationMode(), federatedNetworkOrder.getProvider(),
+            this.removeAgentToComputeTunnel(federatedNetworkOrder.getConfigurationMode(), computeInstance.getProvider(),
                     hostIp, federatedNetworkOrder.getVlanId());
         }
 
