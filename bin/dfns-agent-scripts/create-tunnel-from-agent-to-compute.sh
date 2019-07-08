@@ -7,9 +7,9 @@ vlanID=$2
 #publicKey to be removed from the authorized keys
 keyToBeRemoved=$3
 
-prefix="gre-vm"
+prefix="gre-vm-"
 #get progressive index
-index=$(sudo python /home/ubuntu/fogbow-components/federated-network-agent/dfns-agent-scripts/get_progressive_index.py $prefix)
+index="${host_ip}-vlan-${vlanID}"
 #add the gre tunnel
 sudo ovs-vsctl add-port br-dc $prefix$index -- set interface $prefix$index \
 type=gre options:remote_ip=$host_ip options:key=$vlanID
