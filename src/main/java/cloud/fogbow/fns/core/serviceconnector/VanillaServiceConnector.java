@@ -55,7 +55,7 @@ public class VanillaServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public boolean removeAgentToComputeTunnel(String hostIp, int vlanId) throws UnexpectedException {
+    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
         // not needed for vanilla
         return true;
     }
