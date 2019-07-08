@@ -40,7 +40,8 @@ public class RemoteRemoveAgentToComputeTunnelRequest implements RemoteRequest<Vo
 
         Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL.toString());
         Element orderElement = queryElement.addElement(IqElement.FEDERATED_NETWORK_ORDER.toString());
-        queryElement.addElement(IqElement.HOST_IP.toString(), hostIp);
+        Element hostIpElement = queryElement.addElement(IqElement.HOST_IP.toString());
+        hostIpElement.setText(hostIp);
 
         String orderJson = GsonHolder.getInstance().toJson(order);
         orderElement.setText(orderJson);
