@@ -19,7 +19,7 @@ public class PacketSenderHolder {
             String xmppPassword = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_PASSWORD_KEY);
             String xmppServerIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_SERVER_IP_KEY);
             int xmppServerPort = Integer.parseInt(PropertiesHolder.getInstance().
-                    getProperty(ConfigurationPropertyKeys.XMPP_C2C_PORT_KEY));
+                    getProperty(ConfigurationPropertyKeys.XMPP_C2C_PORT_KEY, ConfigurationPropertyDefaults.XMPP_CSC_PORT));
             long xmppTimeout = Long.parseLong(PropertiesHolder.getInstance()
                     .getProperty(ConfigurationPropertyKeys.XMPP_TIMEOUT_KEY, ConfigurationPropertyDefaults.XMPP_TIMEOUT));
             XmppComponentManager xmppComponentManager = new XmppComponentManager(xmppJid, xmppPassword,
