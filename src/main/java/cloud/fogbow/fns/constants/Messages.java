@@ -25,6 +25,7 @@ public class Messages {
     }
 
     public static class Warn {
+        public static final String UNABLE_TO_RELEASE_VLAN_ID = "VLAN ID %s is not on allocated list, so unable to release it.";
     }
 
     public static class Info {

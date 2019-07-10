@@ -9,6 +9,7 @@ import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -42,13 +43,17 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     }
 
     @Override
-    public int acquireVlanId() throws NoVlanIdsLeftException, FogbowException {
+    public int acquireVlanId() throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         String acquireVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
 
         HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
+
+        if (response.getHttpCode() == HttpStatus.NOT_ACCEPTABLE.value()) {
+            throw new NoVlanIdsLeftException();
+        }
 
         VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
         return vlanId.vlanId;
@@ -66,6 +71,11 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
 
         HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.POST, releaseVlanIdEndpoint, headers, body);
+
+        if (response.getHttpCode() == HttpStatus.NOT_FOUND.value()) {
+            LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
+            return true;
+        }
 
         return response.getHttpCode() == HttpStatus.OK.value();
     }
