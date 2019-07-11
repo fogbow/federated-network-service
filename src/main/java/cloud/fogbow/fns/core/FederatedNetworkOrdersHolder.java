@@ -105,7 +105,7 @@ public class FederatedNetworkOrdersHolder {
 
         for (SynchronizedDoublyLinkedList<FederatedNetworkOrder> listToBeAdded : listsToBeAdded) {
             while ((order = listToBeAdded.getNext()) != null) {
-                activeOrders.put(order.getId(), order);
+                allOrders.put(order.getId(), order);
             }
             listToBeAdded.resetPointer();
         }
