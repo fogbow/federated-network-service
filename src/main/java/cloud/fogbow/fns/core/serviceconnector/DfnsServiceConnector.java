@@ -37,6 +37,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final int PUBLIC_KEY_INDEX = 0;
+    public static final int PRIVATE_KEY_INDEX = 1;
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
@@ -90,13 +91,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
             dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
 
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
-            System.out.println("at getTunnelCreationInitScript +++++++++++");
-            System.out.println("config ++++++++++++ " + dfnsAgentConfiguration.toString());
-            System.out.println("federated ip ++++++++++++ " + federatedIp);
-            System.out.println("private ip ++++++++++++ " + privateIpAddress);
-            System.out.println("vlan id ++++++++++++ " + order.getVlanId());
-            System.out.println("private key ++++++++++++ " + keys[1].length());
-            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress, order.getVlanId(), keys[1]);
+            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, federatedIp, privateIpAddress,
+                   order.getVlanId(), keys[PRIVATE_KEY_INDEX]);
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
