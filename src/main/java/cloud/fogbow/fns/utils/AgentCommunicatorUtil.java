@@ -29,7 +29,7 @@ public class AgentCommunicatorUtil {
             LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_OUTPUT, cidrNotation,
                     ProcessUtil.getOutput(process)));
             LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_ERROR, cidrNotation, ProcessUtil.getError(process)));
-            resultCode = process.waitfor ();
+            resultCode = process.waitFor();
             if (resultCode == 0) {
                 return true;
             }
@@ -57,7 +57,7 @@ public class AgentCommunicatorUtil {
             LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_OUTPUT, cidr,
                     ProcessUtil.getOutput(process)));
             LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_ERROR, cidr, ProcessUtil.getError(process)));
-            resultCode = process.waitfor ();
+            resultCode = process.waitFor();
             if (resultCode == 0) {
                 return true;
             }
