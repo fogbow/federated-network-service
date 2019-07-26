@@ -26,6 +26,7 @@ public class Messages {
 
     public static class Warn {
         public static final String UNABLE_TO_RELEASE_VLAN_ID = "VLAN ID %s is not on allocated list, so unable to release it.";
+        public static final String UNABLE_TO_DELETE_TUNNEL = "Unable to delete tunnel from agent to compute. Host IP: %s. VLAN ID: %s.";
     }
 
     public static class Info {

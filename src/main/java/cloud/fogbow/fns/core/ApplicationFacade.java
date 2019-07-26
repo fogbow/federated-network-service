@@ -284,8 +284,7 @@ public class ApplicationFacade {
         boolean isAgentToComputeTunnelRemoved = serviceConnector.removeAgentToComputeTunnel(order, hostIp);
 
         if (!isAgentToComputeTunnelRemoved) {
-            // FIXME message is wrong
-            LOGGER.warn(Messages.Error.UNABLE_TO_DELETE_AGENT);
+            LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_DELETE_TUNNEL, hostIp, order.getVlanId()));
         }
     }
 
