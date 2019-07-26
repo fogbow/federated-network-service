@@ -4,7 +4,7 @@ import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.SerializedEntityHolder;
-import cloud.fogbow.common.util.SystemUserUtil;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.constants.Messages;
@@ -41,7 +41,7 @@ public class FederatedNetworkOrder implements Serializable {
     private SystemUser systemUser;
 
     @Column
-    @Size(max = SystemUserUtil.SERIALIZED_SYSTEM_USER_MAX_SIZE)
+    @Size(max = SystemUser.SERIALIZED_SYSTEM_USER_MAX_SIZE)
     private String serializedSystemUser;
 
     @Column
