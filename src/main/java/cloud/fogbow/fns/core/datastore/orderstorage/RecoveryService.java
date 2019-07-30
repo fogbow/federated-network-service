@@ -38,7 +38,7 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
         for (FederatedNetworkOrder order: orderRepository.findAll()) {
             if (!(order.getOrderState().equals(OrderState.DEACTIVATED))) {
                 try {
-                    FederatedNetworkUtil.fillCacheOfFreeIps(order);
+                    order.fillCacheOfFreeIps();
                 } catch (SubnetAddressesCapacityReachedException e) {
                     LOGGER.info(Messages.Exception.NO_MORE_IPS_AVAILABLE);
                 } catch (InvalidCidrException e) {

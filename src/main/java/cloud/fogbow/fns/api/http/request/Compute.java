@@ -40,7 +40,7 @@ public class Compute {
             String computeId = ApplicationFacade.getInstance().createCompute(federatedCompute, systemUserToken);
             return new ResponseEntity<ResourceId>(new ResourceId(computeId), HttpStatus.CREATED);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.error(e.getMessage(), e);
             throw e;
         }
     }
@@ -59,7 +59,7 @@ public class Compute {
             ApplicationFacade.getInstance().deleteCompute(computeId, systemUserToken);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.error(e.getMessage(), e);
             throw e;
         }
     }
@@ -78,7 +78,7 @@ public class Compute {
             ComputeInstance compute = ApplicationFacade.getInstance().getComputeById(computeId, systemUserToken);
             return new ResponseEntity<ComputeInstance>(compute, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.error(e.getMessage(), e);
             throw e;
         }
     }

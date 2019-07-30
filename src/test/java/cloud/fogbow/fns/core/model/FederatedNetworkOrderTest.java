@@ -126,7 +126,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     private FederatedNetworkOrder createFederatedNetworkOrder(String cidr) {
         SystemUser systemUser = Mockito.mock(SystemUser.class);
-        Set<String> providers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> providers = new HashMap<>();
         Queue<String> cacheOfFreeIps = new LinkedList<>();
         ArrayList<AssignedIp> computeIdsAndIps = new ArrayList<>();
         return new FederatedNetworkOrder(systemUser, null, null, cidr,

@@ -14,8 +14,7 @@ import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import org.apache.commons.net.util.SubnetUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
@@ -28,6 +27,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     private static final long serialVersionUID = 1L;
     public static final int FIELDS_MAX_SIZE = 255;
+    public static final int FREE_IP_CACHE_MAX_SIZE = 16;
 
     @Column
     @Id
@@ -64,13 +64,21 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String name;
 
+    @Column
+    private Integer vlanId;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private ConfigurationMode configurationMode;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @MapKeyColumn
+    @Column
+    @CollectionTable
+    private Map<String, MemberConfigurationState> providers;
+
     @Embedded
     private ArrayList<AssignedIp> assignedIps;
-
-    @ElementCollection(targetClass = String.class)
-    @CollectionTable(name = "federated_network_allowed_members")
-    @LazyCollection(LazyCollectionOption.FALSE)
-    private Set<String> providers;
 
     @Transient
     private Queue<String> cacheOfFreeIps;
@@ -81,7 +89,7 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkOrder(String id) {
         this.id = id;
-        this.providers = new HashSet<>();
+        this.providers = new HashMap<>();
         this.cacheOfFreeIps = new LinkedList<>();
         this.assignedIps = new ArrayList<>();
     }
@@ -105,7 +113,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requester,
-                                 String provider, String cidr, String name, Set<String> providers,
+                                 String provider, String cidr, String name, HashMap<String, MemberConfigurationState> providers,
                                  Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState) {
         this(id, systemUser, requester, provider);
         this.cidr = cidr;
@@ -117,7 +125,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider,
-                                 String cidr, String name, Set<String> providers,
+                                 String cidr, String name, HashMap<String, MemberConfigurationState> providers,
                                  Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps) {
         this(systemUser, requester, provider);
         this.cidr = cidr;
@@ -175,7 +183,7 @@ public class FederatedNetworkOrder implements Serializable {
         try {
             ip = this.cacheOfFreeIps.remove();
         } catch (NoSuchElementException e1) {
-            fillCacheOfFreeIps();
+            this.fillCacheOfFreeIps();
             try {
                 ip = this.cacheOfFreeIps.remove();
             } catch (NoSuchElementException e2) {
@@ -196,13 +204,15 @@ public class FederatedNetworkOrder implements Serializable {
                 return InstanceState.FAILED;
             case FULFILLED:
                 return InstanceState.READY;
+            case PARTIALLY_FULFILLED:
+                return InstanceState.PARTIALLY_FULFILLED;
+            case SPAWNING:
+                return InstanceState.SPAWNING;
+            case CLOSED:
+                return InstanceState.CLOSED;
             default:
                 return null;
         }
-    }
-
-    private void fillCacheOfFreeIps() throws InvalidCidrException, SubnetAddressesCapacityReachedException {
-        FederatedNetworkUtil.fillCacheOfFreeIps(this);
     }
 
     public String getId() {
@@ -232,9 +242,10 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkInstance getInstance() {
-        return new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
-                this.cidr, this.providers, this.getAssignedIps(),
-                (this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED));
+        InstanceState instanceState = this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED;
+        FederatedNetworkInstance instance = new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
+                this.cidr, this.providers.keySet(), this.assignedIps, instanceState);
+        return instance;
     }
 
     public SystemUser getSystemUser() {
@@ -285,11 +296,11 @@ public class FederatedNetworkOrder implements Serializable {
         this.name = name;
     }
 
-    public Set<String> getProviders() {
+    public Map<String, MemberConfigurationState> getProviders() {
         return providers;
     }
 
-    public void setProviders(Set<String> providers) {
+    public void setProviders(Map<String, MemberConfigurationState> providers) {
         this.providers = providers;
     }
 
@@ -301,7 +312,8 @@ public class FederatedNetworkOrder implements Serializable {
         this.cacheOfFreeIps = cacheOfFreeIps;
     }
 
-    public List<AssignedIp> getAssignedIps() {
+    // NOTE(pauloewerton): Used for tests only
+    protected List<AssignedIp> getAssignedIps() {
         return assignedIps;
     }
 
@@ -309,8 +321,20 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps = assignedIps;
     }
 
-    public ResourceType getType() {
-        return ResourceType.FEDERATED_NETWORK;
+    public ConfigurationMode getConfigurationMode() {
+        return configurationMode;
+    }
+
+    public void setConfigurationMode(ConfigurationMode configurationMode) {
+        this.configurationMode = configurationMode;
+    }
+
+    public int getVlanId() {
+        return this.configurationMode == ConfigurationMode.DFNS ? this.vlanId : -1;
+    }
+
+    public void setVlanId(int vlanId) {
+        this.vlanId = vlanId;
     }
 
     private String getSerializedSystemUser() {
@@ -327,6 +351,10 @@ public class FederatedNetworkOrder implements Serializable {
 
     private void setIdentityProviderId(String identityProviderId) {
         this.identityProviderId = identityProviderId;
+    }
+
+    public synchronized boolean isAssignedIpsEmpty() {
+        return this.assignedIps.isEmpty();
     }
 
     // Cannot be called at @PrePersist because the transient field systemUser is set to null at this stage
@@ -347,6 +375,38 @@ public class FederatedNetworkOrder implements Serializable {
         } catch(ClassNotFoundException exception) {
             throw new UnexpectedException(Messages.Exception.UNABLE_TO_DESERIALIZE_SYSTEM_USER);
         }
+    }
+
+    public synchronized void fillCacheOfFreeIps() throws InvalidCidrException,
+            SubnetAddressesCapacityReachedException {
+        int index = 1;
+        String freeIp = null;
+        List<String> usedIPs = this.getUsedIps();
+        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(this.getCidr());
+        int lowAddress = subnetInfo.asInteger(subnetInfo.getLowAddress());
+        Queue<String> cache = this.getCacheOfFreeIps();
+
+        while (subnetInfo.isInRange(lowAddress + index) && cache.size() < FREE_IP_CACHE_MAX_SIZE) {
+            freeIp = FederatedNetworkUtil.toIpAddress(lowAddress + index);
+            if (!usedIPs.contains(freeIp)) {
+                this.getCacheOfFreeIps().add(freeIp);
+            }
+            index++;
+        }
+
+        if (cache.isEmpty()) throw new SubnetAddressesCapacityReachedException(this.getCidr());
+    }
+
+    private synchronized List<String> getUsedIps() {
+        List<AssignedIp> assignedIps = this.assignedIps;
+        List<String> usedIps = new ArrayList<>();
+        Iterator<AssignedIp> iterator = assignedIps.iterator();
+
+        while (iterator.hasNext()) {
+            usedIps.add(iterator.next().getIp());
+        }
+
+        return usedIps;
     }
 
     @Override

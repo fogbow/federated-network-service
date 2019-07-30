@@ -7,6 +7,7 @@ import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import org.apache.commons.net.util.SubnetUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
         //set up
         SystemUser user = Mockito.mock(SystemUser.class);
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         String cidr = "10.0.0.0/24";
@@ -78,7 +79,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         //set up
         mockOnlyDatabase();
         SystemUser user = mock(SystemUser.class);
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         int mask = getMaskForCacheSize();
@@ -90,7 +91,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         //exercise
         fillInFederatedNetwork(federatedNetwork, mask);
         try {
-            FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+            federatedNetwork.fillCacheOfFreeIps();
             //verify()
             fail();
         } catch (SubnetAddressesCapacityReachedException e) {
@@ -103,7 +104,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         //set up
         mockOnlyDatabase();
         SystemUser user = mock(SystemUser.class);
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         int mask = getMaskForCacheSize();
@@ -112,7 +113,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
                 "name", allowedMembers, freedIps, computesIp);
         //exercise
-        FederatedNetworkUtil.fillCacheOfFreeIps(federatedNetwork);
+        federatedNetwork.fillCacheOfFreeIps();
         //verify
         Assert.assertEquals(FederatedNetworkUtil.FREE_IP_CACHE_MAX_SIZE, federatedNetwork.getCacheOfFreeIps().size());
     }

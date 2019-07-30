@@ -1,7 +1,9 @@
 package cloud.fogbow.fns.api.parameters;
 
-import cloud.fogbow.fns.constants.ApiDocumentation;
+import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.utils.FederatedNetworkUtil;
+import cloud.fogbow.fns.constants.ApiDocumentation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -15,25 +17,32 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
     private String cidr;
     @ApiModelProperty(position = 2, example = ApiDocumentation.Model.PROVIDERS)
     private Set<String> providers;
+    @ApiModelProperty(position = 3, example = ApiDocumentation.Model.DFNS_EXAMPLE)
+    private ConfigurationMode mode;
 
     @Override
     public FederatedNetworkOrder getOrder() {
         FederatedNetworkOrder order = new FederatedNetworkOrder();
         order.setCidr(this.cidr);
         order.setName(this.name);
-        order.setProviders(this.providers);
+        order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
+        order.setConfigurationMode(this.mode);
         return order;
     }
 
-    public Set<String> getProviders() {
-        return providers;
+    public String getCidr() {
+        return cidr;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getCidr() {
-        return cidr;
+    public Set<String> getProviders() {
+        return providers;
+    }
+
+    public ConfigurationMode getMode() {
+        return mode;
     }
 }

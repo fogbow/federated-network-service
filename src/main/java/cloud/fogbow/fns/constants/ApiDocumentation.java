@@ -44,5 +44,6 @@ public class ApiDocumentation {
         public static final String CIDR = "10.10.0.0/16";
         public static final String IP = "188.140.0.5";
         public static final String IP_NOTE = "(the IPs assigned to the compute)";
+        public static final String DFNS_EXAMPLE = "dfns";
     }
 }

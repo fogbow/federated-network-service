@@ -7,6 +7,7 @@ import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
@@ -86,8 +87,7 @@ public class RecoveryServiceTest {
 
     @NotNull
     private FederatedNetworkOrder createFederatedNetwork() {
-        Set<String> allowedMembers = new HashSet<>();
-        int ipsServed = 1;
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, user, MEMBER, MEMBER, CIDR,

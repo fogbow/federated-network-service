@@ -1,5 +1,6 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
@@ -10,9 +11,8 @@ import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
-import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -55,7 +55,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     @Before
     public void setUp() {
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         this.systemUser = new SystemUser(USER_ID, USER_NAME, TOKEN_PROVIDER);
@@ -93,17 +93,18 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
     public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException, InstanceNotFoundException {
+            SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember"));
+        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         PowerMockito.mockStatic(AgentCommunicatorUtil.class);
         Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        when(federatedNetwork.getAssignedIps()).thenReturn(new ArrayList<>());
+        when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(true);
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -117,16 +118,15 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test(expected = NotEmptyFederatedNetworkException.class)
     public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
-            SQLException, UnauthorizedRequestException, UnexpectedException, NotEmptyFederatedNetworkException {
+            SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember"));
+        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
-        List<AssignedIp> computeIdsAndIps = new ArrayList<>();
-        computeIdsAndIps.add(new AssignedIp("someId", "someIp"));
-        when(federatedNetwork.getAssignedIps()).thenReturn(computeIdsAndIps);
+        when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(false);
 
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -136,7 +136,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests that can retrieve a federated network stored into activeFederatedNetwork.
     @Test
-    public void testGetFederatedNetwork() throws InstanceNotFoundException {
+    public void testGetFederatedNetwork() throws FederatedNetworkNotFoundException {
         //set up
         mockSingletons();
         FederatedNetworkOrder federatedNetwork = mock(FederatedNetworkOrder.class);
@@ -157,7 +157,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
             //exercise
             federatedNetworkOrderController.getFederatedNetwork(FEDERATED_NETWORK_ID);
             fail();
-        } catch (InstanceNotFoundException e) {
+        } catch (FederatedNetworkNotFoundException e) {
             //verify
         }
     }
@@ -234,7 +234,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockOnlyDatabase();
         String cidr = "10.10.10.0/24";
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
@@ -317,7 +317,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         addComputeIntoActiveOrdersMap();
         List<String> ipAddresses = new ArrayList<>();
         ipAddresses.add("192.168.0.2");
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, "fake-cloud-state", "host",
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY.toString(), "host",
                 2, 8, 20, ipAddresses);
         //exercise
 //        ComputeInstance federatedComputeInstance = federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
@@ -354,7 +354,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockSingletons();
         List<String> ipAddresses = new ArrayList<>();
         ipAddresses.add("192.168.0.2");
-        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, "fake-cloud-state", "host",
+        ComputeInstance computeInstance = new ComputeInstance(FEDERATED_COMPUTE_ID, InstanceState.READY.toString(), "host",
                 2, 8, 20, ipAddresses);
         //exercise
 //        ComputeInstance federatedComputeInstance = federatedNetworkOrderController.addFederatedIpInGetInstanceIfApplied(computeInstance, user);
@@ -462,8 +462,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        assertEquals(federatedCompute.getFederatedIp(), federatedNetworkOrder.getCacheOfFreeIps().element());
     }
 
-    @Test(expected = InstanceNotFoundException.class)
-    public void testGetNonExistentFederatedNetwork() throws InstanceNotFoundException {
+    @Test(expected = FederatedNetworkNotFoundException.class)
+    public void testGetNonExistentFederatedNetwork() throws FederatedNetworkNotFoundException {
         // set up
         mockDatabase(new HashMap<>());
         FederatedNetworkOrderController controller = new FederatedNetworkOrderController();
@@ -527,7 +527,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     private void addNetworkIntoActiveOrdersMap() {
         String cidr = "10.10.10.0/24";
-        Set<String> allowedMembers = new HashSet<>();
+        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
