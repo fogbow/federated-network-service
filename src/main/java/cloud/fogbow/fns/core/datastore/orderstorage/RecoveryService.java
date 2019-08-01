@@ -2,7 +2,9 @@ package cloud.fogbow.fns.core.datastore.orderstorage;
 
 import cloud.fogbow.common.datastore.FogbowDatabaseService;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -38,6 +40,10 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
         for (FederatedNetworkOrder order: orderRepository.findAll()) {
             if (!(order.getOrderState().equals(OrderState.DEACTIVATED))) {
                 try {
+                    ComputeIdToFederatedNetworkIdMapping mapper = ComputeIdToFederatedNetworkIdMapping.getInstance();
+                    for(AssignedIp ip : order.getAssignedIps()) {
+                        mapper.put(ip.getComputeId(), order.getId());
+                    }
                     order.fillCacheOfFreeIps();
                 } catch (SubnetAddressesCapacityReachedException e) {
                     LOGGER.info(Messages.Exception.NO_MORE_IPS_AVAILABLE);
