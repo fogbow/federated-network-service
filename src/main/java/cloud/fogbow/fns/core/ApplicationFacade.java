@@ -118,7 +118,7 @@ public class ApplicationFacade {
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException, NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(this.asPublicKey, systemUserToken);
+        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
         this.federatedNetworkOrderController.deleteFederatedNetwork(order);
