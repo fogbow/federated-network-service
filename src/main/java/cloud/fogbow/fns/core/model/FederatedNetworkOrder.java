@@ -85,9 +85,6 @@ public class FederatedNetworkOrder implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<AssignedIp> assignedIps;
 
-    @Column
-    private String tst;
-
     @Transient
     private Queue<String> cacheOfFreeIps;
 
