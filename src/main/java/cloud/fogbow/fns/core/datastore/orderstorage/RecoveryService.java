@@ -32,12 +32,8 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
     }
 
     public List<FederatedNetworkOrder> readActiveOrdersByState(OrderState orderState) {
-        return orderRepository.findByOrderState(orderState);
-    }
-
-    public Map<String, FederatedNetworkOrder> readActiveOrders() {
-        Map<String, FederatedNetworkOrder> activeOrdersMap = new ConcurrentHashMap<>();
-        for (FederatedNetworkOrder order: orderRepository.findAll()) {
+        List<FederatedNetworkOrder> orders = orderRepository.findByOrderState(orderState);
+        for (FederatedNetworkOrder order: orders) {
             if (!(order.getOrderState().equals(OrderState.DEACTIVATED))) {
                 try {
                     ComputeIdToFederatedNetworkIdMapping mapper = ComputeIdToFederatedNetworkIdMapping.getInstance();
@@ -50,9 +46,8 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
                 } catch (InvalidCidrException e) {
                     LOGGER.error(Messages.Error.INVALID_CIDR);
                 }
-                activeOrdersMap.put(order.getId(), order);
             }
         }
-        return activeOrdersMap;
+        return orderRepository.findByOrderState(orderState);
     }
 }

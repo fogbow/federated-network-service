@@ -30,7 +30,7 @@ public class ConfigurationPropertyKeys {
 
     // DFNS configuration
     public static final String VLAN_ID_SERVICE_URL = "vlan_id_service_url";
-    public static final String DEFAULT_NETWORK_CIDR_KEY = "default_network_cidr";
+    public static final String DEFAULT_NETWORK_CIDR_KEY = "default_network_cidr_key";
     public static final String LOCAL_MEMBER_NAME = "local_member_name";
 
     // Vanilla service scripts

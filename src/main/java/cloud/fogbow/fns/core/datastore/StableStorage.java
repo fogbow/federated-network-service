@@ -1,11 +1,9 @@
 package cloud.fogbow.fns.core.datastore;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
+import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-
-import java.util.Map;
+import cloud.fogbow.fns.core.model.OrderState;
 
 public interface StableStorage {
 
@@ -16,8 +14,8 @@ public interface StableStorage {
     public void put(FederatedNetworkOrder order) throws UnexpectedException;
 
     /**
-     * Retrieve all federated networks that have not been deactivated.
-     * @return A map of order id and the corresponding {@link FederatedNetworkOrder}
+     * Retrieve all federated networks whose state is orderState.
+     * @return A list of {@link FederatedNetworkOrder}
      */
-    public Map<String, FederatedNetworkOrder> retrieveActiveFederatedOrders() throws SubnetAddressesCapacityReachedException, InvalidCidrException;
+    public SynchronizedDoublyLinkedList<FederatedNetworkOrder> readActiveOrders(OrderState orderState);
 }

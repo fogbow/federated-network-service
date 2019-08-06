@@ -76,7 +76,6 @@ public class Main implements ApplicationRunner {
                     }
                 }
             }
-            DatabaseManager.getInstance().retrieveActiveFederatedOrders();
         } catch (FatalErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();
