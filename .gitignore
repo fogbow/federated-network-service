@@ -32,6 +32,7 @@ federated-network-service/
 
 ### Configuration files ###
 src/main/resources/private
+src/test/resources/private
 
 ### Permission files ###
 *.pem
