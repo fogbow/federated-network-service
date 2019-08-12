@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.model;
 
+import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
@@ -79,7 +80,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testGetIpForNetworkWithNoFreeIps() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
         //set up
-        mockDatabase(new HashMap<>());
+        mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
 
         // use the whole network
@@ -103,7 +104,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     @Test
     public void testAddingAndRemovingAssociatedIps() throws UnexpectedException {
         // set up
-        mockDatabase(new HashMap<>());
+        mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
 
         String fakeComputeId = "fake-compute-id";

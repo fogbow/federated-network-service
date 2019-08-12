@@ -5,6 +5,7 @@ import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
@@ -465,7 +466,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
     @Test(expected = FederatedNetworkNotFoundException.class)
     public void testGetNonExistentFederatedNetwork() throws FederatedNetworkNotFoundException {
         // set up
-        mockDatabase(new HashMap<>());
+        mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrderController controller = new FederatedNetworkOrderController();
 
         // verify
