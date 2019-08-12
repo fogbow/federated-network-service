@@ -10,6 +10,7 @@ import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -22,21 +23,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.File;
 import java.util.*;
 
-@Ignore
-@PowerMockIgnore({"javax.management.*"})
-@PrepareForTest({ComputeIdToFederatedNetworkIdMapping.class, OrderRepository.class})
-@PowerMockRunnerDelegate(SpringRunner.class)
-@RunWith(PowerMockRunner.class)
-@SpringBootTest
 public class BaseUnitTest {
     public static final String TEST_DATABASE_FILE_PATH = "federated-networks-test.db";
-    protected static final String CIDR = "10.150.0.0/28";
-    protected final String FAKE_COMPUTE_ID = "fake-compute-id";
-    protected final String FAKE_IP = "192.168.1.0";
-    protected final String MEMBER = "member";
-    protected final String USER_ID = "user-id";
-    protected final String USER_NAME = "user-name";
-    protected SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    protected TestUtils testUtils;
 
     public Properties setProperties() {
         Properties p = new Properties();
@@ -50,15 +39,9 @@ public class BaseUnitTest {
         return p;
     }
 
-    @NotNull
-    protected FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {
-        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
-        Queue<String> freedIps = new LinkedList<>();
-        ArrayList<AssignedIp> computesIp = new ArrayList<>();
-        computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
-        FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp, state);
-        return federatedNetworkOrder;
+    @Before
+    public void setup() {
+        this.testUtils = new TestUtils();
     }
 
     @After

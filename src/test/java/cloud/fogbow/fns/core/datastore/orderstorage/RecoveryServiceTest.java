@@ -25,6 +25,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.annotation.Resource;
 import java.util.*;
 
+@PowerMockIgnore({"javax.management.*"})
+@PrepareForTest({ComputeIdToFederatedNetworkIdMapping.class, OrderRepository.class})
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
+@SpringBootTest
 public class RecoveryServiceTest extends BaseUnitTest {
 
     private static final String FEDERATED_NETWORK_ID = "fake-network-id";
@@ -56,7 +61,7 @@ public class RecoveryServiceTest extends BaseUnitTest {
         List<FederatedNetworkOrder> expectedOrders = new ArrayList<>();
 
         for(int i = 0; i < 3; i++) {
-            FederatedNetworkOrder order = createFederatedNetwork(FEDERATED_NETWORK_ID + i, OrderState.FULFILLED);
+            FederatedNetworkOrder order = testUtils.createFederatedNetwork(FEDERATED_NETWORK_ID + i, OrderState.FULFILLED);
             expectedOrders.add(order);
             //exercise
             recoveryService.put(order);
@@ -72,9 +77,9 @@ public class RecoveryServiceTest extends BaseUnitTest {
     public void testRestoreOperation() throws UnexpectedException{
         //setup
         OrderState currentTestSate = OrderState.OPEN;
-        FederatedNetworkOrder fedNetOne = createFederatedNetwork(FED_NET_ONE, currentTestSate);
-        FederatedNetworkOrder fedNetTwo = createFederatedNetwork(FED_NET_TWO, currentTestSate);
-        FederatedNetworkOrder fedNetThree = createFederatedNetwork(FED_NET_THREE, currentTestSate);
+        FederatedNetworkOrder fedNetOne = testUtils.createFederatedNetwork(FED_NET_ONE, currentTestSate);
+        FederatedNetworkOrder fedNetTwo = testUtils.createFederatedNetwork(FED_NET_TWO, currentTestSate);
+        FederatedNetworkOrder fedNetThree = testUtils.createFederatedNetwork(FED_NET_THREE, currentTestSate);
 
         recoveryService.put(fedNetOne);
         recoveryService.put(fedNetTwo);
@@ -97,9 +102,9 @@ public class RecoveryServiceTest extends BaseUnitTest {
         BDDMockito.given(ComputeIdToFederatedNetworkIdMapping.getInstance()).willReturn(mapper);
 
         OrderState currentTestSate = OrderState.OPEN;
-        FederatedNetworkOrder fedNetOne = Mockito.spy(createFederatedNetwork(FED_NET_ONE, currentTestSate));
-        FederatedNetworkOrder fedNetTwo = Mockito.spy(createFederatedNetwork(FED_NET_TWO, currentTestSate));
-        FederatedNetworkOrder fedNetThree = Mockito.spy(createFederatedNetwork(FED_NET_THREE, currentTestSate));
+        FederatedNetworkOrder fedNetOne = Mockito.spy(testUtils.createFederatedNetwork(FED_NET_ONE, currentTestSate));
+        FederatedNetworkOrder fedNetTwo = Mockito.spy(testUtils.createFederatedNetwork(FED_NET_TWO, currentTestSate));
+        FederatedNetworkOrder fedNetThree = Mockito.spy(testUtils.createFederatedNetwork(FED_NET_THREE, currentTestSate));
 
         Mockito.doNothing().when(fedNetOne).fillCacheOfFreeIps();
         Mockito.doNothing().when(fedNetTwo).fillCacheOfFreeIps();
