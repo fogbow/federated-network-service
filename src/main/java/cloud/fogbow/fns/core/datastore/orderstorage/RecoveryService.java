@@ -39,7 +39,7 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
             if (!(order.getOrderState().equals(OrderState.DEACTIVATED))) {
                 try {
                     ComputeIdToFederatedNetworkIdMapping mapper = ComputeIdToFederatedNetworkIdMapping.getInstance();
-                    for(AssignedIp ip : order.getAssignedIps()) {
+                    for (AssignedIp ip : order.getAssignedIps()) {
                         mapper.put(ip.getComputeId(), order.getId());
                     }
                     order.fillCacheOfFreeIps();
@@ -50,6 +50,6 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
                 }
             }
         }
-        return orderRepository.findByOrderState(orderState);
+        return orders;
     }
 }
