@@ -13,6 +13,8 @@ public class AssignedIp {
     @ApiModelProperty(position = 1, example = ApiDocumentation.Model.IP, notes = ApiDocumentation.Model.IP_NOTE)
     private String ip;
 
+    public AssignedIp() { }
+
     public AssignedIp(String computeId, String ip) {
         this.computeId = computeId;
         this.ip = ip;

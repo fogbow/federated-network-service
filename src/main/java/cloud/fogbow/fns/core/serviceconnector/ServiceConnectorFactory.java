@@ -9,7 +9,7 @@ import cloud.fogbow.fns.utils.BashScriptRunner;
 
 public class ServiceConnectorFactory {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
+            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
 
     private static ServiceConnectorFactory instance = null;
 

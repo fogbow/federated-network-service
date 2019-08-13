@@ -38,10 +38,6 @@ public class DatabaseManager implements StableStorage {
     }
 
     @Override
-    public Map<String, FederatedNetworkOrder> retrieveActiveFederatedOrders() {
-        return recoveryService.readActiveOrders();
-    }
-
     public SynchronizedDoublyLinkedList<FederatedNetworkOrder> readActiveOrders(OrderState orderState) {
         SynchronizedDoublyLinkedList<FederatedNetworkOrder> synchronizedDoublyLinkedList = new SynchronizedDoublyLinkedList<>();
 

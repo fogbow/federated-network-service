@@ -15,7 +15,7 @@ import java.net.UnknownHostException;
 
 public class RemoteFacade {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME);
+            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
 
     private static RemoteFacade instance;
 

@@ -62,7 +62,7 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
         try {
-            when(database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
+//            when(database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
         } catch (Exception e) {
             fail();
         }
@@ -74,7 +74,7 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
         this.database = mockDatabaseManager();
         PowerMockito.mockStatic(DatabaseManager.class);
         BDDMockito.given(DatabaseManager.getInstance()).willReturn(database);
-        when(this.database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
+//        when(this.database.retrieveActiveFederatedOrders()).thenReturn(activeOrdersMap);
 
         federatedNetworkOrdersHolder = FederatedNetworkOrdersHolder.getInstance();
         federatedNetworkOrderController = new FederatedNetworkOrderController();

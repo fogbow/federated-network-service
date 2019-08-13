@@ -78,7 +78,12 @@ public class FederatedNetworkOrder implements Serializable {
     private Map<String, MemberConfigurationState> providers;
 
     @Embedded
-    private ArrayList<AssignedIp> assignedIps;
+    @AttributeOverrides(value = {
+        @AttributeOverride(name = "compute_id", column = @Column(name = "compute_id")),
+        @AttributeOverride(name = "ip", column = @Column(name = "ip"))
+    })
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<AssignedIp> assignedIps;
 
     @Transient
     private Queue<String> cacheOfFreeIps;
@@ -311,9 +316,8 @@ public class FederatedNetworkOrder implements Serializable {
     public void setCacheOfFreeIps(Queue<String> cacheOfFreeIps) {
         this.cacheOfFreeIps = cacheOfFreeIps;
     }
-
-    // NOTE(pauloewerton): Used for tests only
-    protected List<AssignedIp> getAssignedIps() {
+    
+    public List<AssignedIp> getAssignedIps() {
         return assignedIps;
     }
 
