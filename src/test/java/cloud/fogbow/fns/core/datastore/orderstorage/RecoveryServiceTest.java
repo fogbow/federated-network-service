@@ -76,28 +76,6 @@ public class RecoveryServiceTest extends BaseUnitTest {
         Assert.assertEquals(expectedSpawningOrders, recoveryService.readActiveOrdersByState(OrderState.SPAWNING));
     }
 
-    //test case: test if the restore operation works as expected by checking if the list returned by the db contains the objects
-    // that were supposed to be there.
-    @Test
-    public void testRestoreOperation() throws UnexpectedException{
-        //setup
-        OrderState currentTestSate = OrderState.OPEN;
-        FederatedNetworkOrder fedNetOne = testUtils.createFederatedNetwork(FED_NET_ONE, currentTestSate);
-        FederatedNetworkOrder fedNetTwo = testUtils.createFederatedNetwork(FED_NET_TWO, currentTestSate);
-        FederatedNetworkOrder fedNetThree = testUtils.createFederatedNetwork(FED_NET_THREE, currentTestSate);
-
-        recoveryService.put(fedNetOne);
-        recoveryService.put(fedNetTwo);
-        recoveryService.put(fedNetThree);
-
-        //exercise
-        List<FederatedNetworkOrder> recoveredOrders = recoveryService.readActiveOrdersByState(currentTestSate);
-        //verify
-        Assert.assertTrue(recoveredOrders.contains(fedNetOne));
-        Assert.assertTrue(recoveredOrders.contains(fedNetTwo));
-        Assert.assertTrue(recoveredOrders.contains(fedNetThree));
-    }
-
     // test case: testing readActiveOrdersByState operations by verifying if the right calls are made.
     @Test
     public void testServiceRestoreCoreOperations() throws Exception {
