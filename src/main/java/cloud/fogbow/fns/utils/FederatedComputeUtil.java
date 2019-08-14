@@ -70,7 +70,7 @@ public class FederatedComputeUtil {
 
     @NotNull
     public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
-        String scriptKey = ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
+        String scriptKey = ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
         String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);

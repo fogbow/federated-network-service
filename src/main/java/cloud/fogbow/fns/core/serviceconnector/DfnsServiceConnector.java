@@ -34,7 +34,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     protected BashScriptRunner runner;
 
     public static final String SCRIPT_TARGET_PATH = "/tmp/";
-    public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL);
+    public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final int PUBLIC_KEY_INDEX = 0;
     public static final int PRIVATE_KEY_INDEX = 1;

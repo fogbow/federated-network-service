@@ -316,8 +316,7 @@ public class FederatedNetworkOrder implements Serializable {
     public void setCacheOfFreeIps(Queue<String> cacheOfFreeIps) {
         this.cacheOfFreeIps = cacheOfFreeIps;
     }
-
-    // NOTE(pauloewerton): Used for tests only
+    
     public List<AssignedIp> getAssignedIps() {
         return assignedIps;
     }
