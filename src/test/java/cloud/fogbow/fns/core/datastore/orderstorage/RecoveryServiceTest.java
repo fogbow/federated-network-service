@@ -39,7 +39,7 @@ public class RecoveryServiceTest extends BaseUnitTest {
     private final String FED_NET_THREE = "fedNetThree";
     private final Integer THREE_TIMES_CALL = 3;
     private final Integer ONE_TIME_CALL = 1;
-
+    private final Integer ORDERS_AMOUNT = 3;
 
     @Resource
     private RecoveryService recoveryService;
@@ -58,13 +58,13 @@ public class RecoveryServiceTest extends BaseUnitTest {
     @Test
     public void testSaveOperation() throws UnexpectedException{
         // setup //exercise
-        List<FederatedNetworkOrder> expectedFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.FULFILLED, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedOpenedOrders = testUtils.populateFedNetDbWithState(OrderState.OPEN, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedClosedOrders = testUtils.populateFedNetDbWithState(OrderState.CLOSED, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedDeactivatedOrders = testUtils.populateFedNetDbWithState(OrderState.DEACTIVATED, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedPartiallyFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.PARTIALLY_FULFILLED, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedFailedOrders = testUtils.populateFedNetDbWithState(OrderState.FAILED, 3, recoveryService);
-        List<FederatedNetworkOrder> expectedSpawningOrders = testUtils.populateFedNetDbWithState(OrderState.SPAWNING, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.FULFILLED, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedOpenedOrders = testUtils.populateFedNetDbWithState(OrderState.OPEN, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedClosedOrders = testUtils.populateFedNetDbWithState(OrderState.CLOSED, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedDeactivatedOrders = testUtils.populateFedNetDbWithState(OrderState.DEACTIVATED, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedPartiallyFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.PARTIALLY_FULFILLED, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedFailedOrders = testUtils.populateFedNetDbWithState(OrderState.FAILED, ORDERS_AMOUNT, recoveryService);
+        List<FederatedNetworkOrder> expectedSpawningOrders = testUtils.populateFedNetDbWithState(OrderState.SPAWNING, ORDERS_AMOUNT, recoveryService);
 
         //verify
         Assert.assertEquals(expectedFulfilledOrders, recoveryService.readActiveOrdersByState(OrderState.FULFILLED));
