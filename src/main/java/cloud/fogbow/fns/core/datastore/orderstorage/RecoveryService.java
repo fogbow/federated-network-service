@@ -11,6 +11,7 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.log4j.Logger;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,5 +52,9 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
             }
         }
         return orders;
+    }
+
+    protected void setOrderRepository(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 }
