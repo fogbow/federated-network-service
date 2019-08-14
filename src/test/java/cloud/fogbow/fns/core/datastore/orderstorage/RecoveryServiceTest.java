@@ -54,21 +54,26 @@ public class RecoveryServiceTest extends BaseUnitTest {
         super.tearDown();
     }
 
-    //test case: test if the save operation works as expected by saving some objects an comparing the list returned by db.
+    //test case: test if the save operation works as expected by saving some objects and comparing the list returned by db.
     @Test
     public void testSaveOperation() throws UnexpectedException{
-        // setup
-        List<FederatedNetworkOrder> expectedOrders = new ArrayList<>();
-
-        for(int i = 0; i < 3; i++) {
-            FederatedNetworkOrder order = testUtils.createFederatedNetwork(FEDERATED_NETWORK_ID + i, OrderState.FULFILLED);
-            expectedOrders.add(order);
-            //exercise
-            recoveryService.put(order);
-        }
+        // setup //exercise
+        List<FederatedNetworkOrder> expectedFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.FULFILLED, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedOpenedOrders = testUtils.populateFedNetDbWithState(OrderState.OPEN, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedClosedOrders = testUtils.populateFedNetDbWithState(OrderState.CLOSED, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedDeactivatedOrders = testUtils.populateFedNetDbWithState(OrderState.DEACTIVATED, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedPartiallyFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.PARTIALLY_FULFILLED, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedFailedOrders = testUtils.populateFedNetDbWithState(OrderState.FAILED, 3, recoveryService);
+        List<FederatedNetworkOrder> expectedSpawningOrders = testUtils.populateFedNetDbWithState(OrderState.SPAWNING, 3, recoveryService);
 
         //verify
-        Assert.assertEquals(expectedOrders, recoveryService.readActiveOrdersByState(OrderState.FULFILLED));
+        Assert.assertEquals(expectedFulfilledOrders, recoveryService.readActiveOrdersByState(OrderState.FULFILLED));
+        Assert.assertEquals(expectedOpenedOrders, recoveryService.readActiveOrdersByState(OrderState.OPEN));
+        Assert.assertEquals(expectedClosedOrders, recoveryService.readActiveOrdersByState(OrderState.CLOSED));
+        Assert.assertEquals(expectedDeactivatedOrders, recoveryService.readActiveOrdersByState(OrderState.DEACTIVATED));
+        Assert.assertEquals(expectedPartiallyFulfilledOrders, recoveryService.readActiveOrdersByState(OrderState.PARTIALLY_FULFILLED));
+        Assert.assertEquals(expectedFailedOrders, recoveryService.readActiveOrdersByState(OrderState.FAILED));
+        Assert.assertEquals(expectedSpawningOrders, recoveryService.readActiveOrdersByState(OrderState.SPAWNING));
     }
 
     //test case: test if the restore operation works as expected by checking if the list returned by the db contains the objects

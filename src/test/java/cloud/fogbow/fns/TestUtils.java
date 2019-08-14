@@ -1,16 +1,15 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
+import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class TestUtils {
     public static final String CIDR = "10.150.0.0/28";
@@ -30,5 +29,15 @@ public class TestUtils {
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
                 "name", allowedMembers, freedIps, computesIp, state);
         return federatedNetworkOrder;
+    }
+
+    public List<FederatedNetworkOrder> populateFedNetDbWithState(OrderState state, int size, RecoveryService service) throws UnexpectedException {
+        List<FederatedNetworkOrder> orders = new ArrayList<>();
+        for(int i = 0; i < size; i++) {
+            FederatedNetworkOrder order = createFederatedNetwork(String.valueOf(UUID.randomUUID()), state);
+            orders.add(order);
+            service.put(order);
+        }
+        return orders;
     }
 }
