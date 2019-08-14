@@ -15,8 +15,9 @@ public class ApiDocumentation {
         public static final String API = "Creates a federated network spanning multiple cloud providers.";
         public static final String CREATE_OPERATION = "Creates a federated network instance.";
         public static final String CREATE_REQUEST_BODY = "The parameters for the creation of a federated network are " +
-                "the list of IDs of the providers that will be connected, the CIDR of the network, and the name " +
-                "that will be given to the federated network.";
+                "the list of IDs of the providers that will be connected, the CIDR of the network, the name " +
+                "that will be given to the federated network, and the service mode. Currently, there are two " +
+                "options available: vanilla (the default), and dfns.";
         public static final String GET_OPERATION = "Lists all federated networks created by the user.";
         public static final String GET_BY_ID_OPERATION = "Lists a specific federated network.";
         public static final String ID = "The ID of the specific federated network.";

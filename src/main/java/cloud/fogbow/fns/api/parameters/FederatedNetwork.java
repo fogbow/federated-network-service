@@ -26,7 +26,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         order.setCidr(this.cidr);
         order.setName(this.name);
         order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
-        order.setConfigurationMode(this.mode);
+        order.setConfigurationMode((this.mode == null ? ConfigurationMode.VANILLA : this.mode));
         return order;
     }
 
