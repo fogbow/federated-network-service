@@ -1,6 +1,5 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
@@ -10,7 +9,6 @@ import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import org.apache.commons.collections.list.SynchronizedList;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
@@ -19,13 +17,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /*
