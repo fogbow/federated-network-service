@@ -35,7 +35,7 @@ public class ApiDocumentation {
     public static class Model {
         public static final String INSTANCE_ID = "9632af26-72ee-461a-99a9-1e5d59076a98";
         public static final String INSTANCE_NAME = "instance name";
-        public static final String PROVIDERS = "provider1.domain1, provider2.domain2";
+        public static final String PROVIDERS = "[\"provider1.domain1\", \"provider2.domain2\"]";
         public static final String REQUESTER = "requester.domain";
         public static final String PROVIDER = "provider.domain";
         public static final String COMPUTE_LIST = "[\n" +

@@ -210,7 +210,8 @@ public class ApplicationFacade {
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
         if (federatedNetworkOrder != null) {
-            String hostIp = this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses());
+            String hostIp = federatedNetworkOrder.getConfigurationMode().equals(ConfigurationMode.DFNS) ?
+                    this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses()) : null;
 
             this.removeAgentToComputeTunnel(federatedNetworkOrder, computeInstance.getProvider(), hostIp);
         }
