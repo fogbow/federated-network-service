@@ -3,11 +3,15 @@ package cloud.fogbow.fns;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
+import cloud.fogbow.ras.api.parameters.Compute;
+import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -18,7 +22,11 @@ public class TestUtils {
     public final String MEMBER = "member";
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
+    public static final String FAKE_TOKEN = "fake-token";
+    public static final int RUN_ONCE = 1;
+    public static final String EMPTY_STRING = "";
     public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    public Gson gson = new Gson();
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {
@@ -26,8 +34,8 @@ public class TestUtils {
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
-        FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp, state);
+        FederatedNetworkOrder federatedNetworkOrder = Mockito.spy(new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
+                "name", allowedMembers, freedIps, computesIp, state));
         return federatedNetworkOrder;
     }
 
@@ -39,5 +47,13 @@ public class TestUtils {
             service.put(order);
         }
         return orders;
+    }
+
+    public FederatedCompute createFederatedCompute(String fedNetId) {
+        Compute compute = new Compute();
+        FederatedCompute federatedCompute = new FederatedCompute();
+        federatedCompute.setCompute(compute);
+        federatedCompute.setFederatedNetworkId(fedNetId);
+        return federatedCompute;
     }
 }

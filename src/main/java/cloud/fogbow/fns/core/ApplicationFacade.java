@@ -156,7 +156,7 @@ public class ApplicationFacade {
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
+                    body("{\"message\":\"" + Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND + "\"}");
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -170,7 +170,7 @@ public class ApplicationFacade {
         return computeId.getId();
     }
 
-    private void addUserDataToCompute(cloud.fogbow.fns.api.parameters.FederatedCompute compute, UserData userData) {
+    protected void addUserDataToCompute(cloud.fogbow.fns.api.parameters.FederatedCompute compute, UserData userData) {
         cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
 
