@@ -17,11 +17,11 @@ import java.util.*;
 
 public class TestUtils {
     public static final String CIDR = "10.150.0.0/28";
-    public final String FAKE_COMPUTE_ID = "fake-compute-id";
-    public final String FAKE_IP = "192.168.1.0";
-    public final String MEMBER = "member";
-    public final String USER_ID = "user-id";
-    public final String USER_NAME = "user-name";
+    public static final String FAKE_COMPUTE_ID = "fake-compute-id";
+    public static final String FAKE_IP = "192.168.1.0";
+    public static final String MEMBER = "member";
+    public static final String USER_ID = "user-id";
+    public static final String USER_NAME = "user-name";
     public static final String FAKE_TOKEN = "fake-token";
     public static final int RUN_ONCE = 1;
     public static final String EMPTY_STRING = "";
