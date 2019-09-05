@@ -1,35 +1,53 @@
 #!/bin/sh
+myIP=`ifconfig | grep 'inet addr:' | grep -v '127.0.0.1' | grep -v 'P-t-P' | cut -d: -f2 | awk '{ print $1}' | sed ':a;N;$!ba;s/\n/, /g'`
+fednetSize=`echo #RIGHT_SUBNET# | cut -d "/" -f2`
+
+
 config_setup="config setup
- charondebug=all
- uniqueids=yes
- strictcrlpolicy=no
+
 conn %default
-conn tunnel"
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    mobike=no
+    keyexchange=ikev2\n"
 
-myIP=`ifconfig | grep 'inet addr:' | grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}' | sed ':a;N;$!ba;s/\n/, /g'`
+ipsec_param_configs="conn $myIP
+    mark=1
+    left=$myIP
+    leftsubnet=#LEFT_SOURCE_IP#/32
+    leftid=$myIP
+    leftfirewall=yes
+    right=#RIGHT_IP#
+    rightsubnet=#RIGHT_SUBNET#
+    rightid=#RIGHT_IP#"
 
-ipsec_param_configs=" left=$myIP
- leftsourceip=#LEFT_SOURCE_IP#
- right=#RIGHT_IP#
- rightsubnet=#RIGHT_SUBNET#"
-
-other_ipsec_configs=" ike=aes256-sha2_256-modp1024!
- esp=aes256-sha2_256!
- keyingtries=0
- ikelifetime=1h
- lifetime=8h
- dpddelay=30
- dpdtimeout=120
- dpdaction=restart
- authby=secret
- auto=start
- keyexchange=ikev2
- type=tunnel
- closeaction=restart"
+other_ipsec_configs="    ike=aes256-sha2_256-modp1024!
+    esp=aes256-sha2_256!
+    lifetime=8h
+    dpddelay=30
+    dpdtimeout=120
+    dpdaction=restart
+    type=tunnel
+    auto=start
+    closeaction=restart"
 
 tmp_var="$config_setup
 $ipsec_param_configs
 $other_ipsec_configs"
+
+tunnel_interface="\n\n
+auto tun
+iface tun inet static
+address #LEFT_SOURCE_IP#/$fednetSize
+pre-up ip tunnel add tun local $myIP remote #RIGHT_IP# mode vti key 1
+post-down ip tunnel del tun"
+
+charon="charon {
+    install_routes = no
+}"
 
 cat > /bin/fogbow-config-client-federated << EOL
 #!/bin/sh
@@ -45,6 +63,9 @@ if [ "true" = "#IS_FEDERATED_VM#" ]; then
     echo "$tmp_var" > /etc/ipsec.conf
 
     echo ": PSK '#PRE_SHARED_KEY#'" > /etc/ipsec.secrets
+    echo "$charon" > /etc/strongswan.d/charon.conf
+    echo "$tunnel_interface" >> /etc/network/interfaces.d/50-cloud-init.cfg
+    service networking restart
     ipsec rereadsecrets
     ipsec restart
 fi

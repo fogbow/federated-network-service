@@ -14,13 +14,38 @@ firstNetwork() {
 left=$1
 leftid=$2
 leftsubnet=$3
-virtualAddress=$4
+
 if [ "$( firstNetwork )" = "true" ]; then
-    config_setup="config setup\n charondebug="all"\n uniqueids=yes\n strictcrlpolicy=no\nconn %default\nconn tunnel"
-    tunnel_param_configs=" left="$left"\n leftid"=$leftid"\n leftfirewall=yes\n leftsubnet="$leftsubnet"\n right=%any\n rightsourceip=%config"
-    other_tunnel_configs=" ike=aes256-sha2_256-modp1024!\n esp=aes256-sha2_256!\n keyingtries=0\n ikelifetime=1h\n lifetime=8h\n dpddelay=30\n dpdtimeout=120\n dpdaction=restart\n authby=secret\n auto=start\n keyexchange=ikev2\n type=tunnel"
+    config_setup="config setup"
+
+    config_default="\nconn %default
+    ikelifetime=60m
+    keylife=20m
+    rekeymargin=3m
+    keyingtries=1
+    authby=secret
+    mobike=no
+    keyexchange=ikev2\n"
+
+    tunnel_param_configs="\nconn tunnel
+    right=%any
+    rightsubnet="$leftsubnet"
+    leftfirewall=yes
+    left="$left"
+    leftsubnet="$leftsubnet"
+    leftid="$leftid"
+    type=tunnel
+    auto=start"
+
+    other_tunnel_configs="ike=aes256-sha2_256-modp1024!
+    esp=aes256-sha2_256!
+    lifetime=8h
+    dpddelay=30
+    dpdtimeout=120
+    dpdaction=restart"
 
     echo -e "$config_setup
+    $config_default
     $tunnel_param_configs
     $other_tunnel_configs" > $absoluteIpsecConfPath
 else
@@ -33,10 +58,6 @@ fi
 
 sysctl net.ipv4.ip_forward=1
 sysctl net.ipv6.conf.all.forwarding=1
-veth_size=`ip link show | grep veth | wc -l`
-peer_veth=`expr "$veth_size" + "1"`
-ip l add dev veth$veth_size type veth peer name veth$peer_veth
-ip addr add $virtualAddress dev veth$veth_size
-ifconfig veth$veth_size up
 
-ipsec restart
+sudo ipsec rereadsecrets
+sudo ipsec restart
