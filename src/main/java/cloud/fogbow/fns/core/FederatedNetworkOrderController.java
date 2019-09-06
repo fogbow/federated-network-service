@@ -9,13 +9,10 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
-import cloud.fogbow.fns.utils.FederatedNetworkUtil;
-import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -36,17 +33,10 @@ public class FederatedNetworkOrderController {
         return requestedOrder;
     }
 
-    public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
-            throws InvalidCidrException, UnexpectedException {
-        synchronized (federatedNetwork) {
-            SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
-
-            if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
-                LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
-                throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, federatedNetwork.getCidr()));
-            }
-
-            this.activateOrder(federatedNetwork);
+    public void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        synchronized (order) {
+            order.setOrderState(OrderState.OPEN);
+            FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
         }
     }
 
@@ -125,13 +115,6 @@ public class FederatedNetworkOrderController {
             InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), LOCAL_MEMBER_NAME, status);
             return instanceStatus;
         };
-    }
-
-    public void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        synchronized (order) {
-            order.setOrderState(OrderState.OPEN);
-            FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
-        }
     }
 
     public void deactivateOrder(FederatedNetworkOrder order) throws UnexpectedException {

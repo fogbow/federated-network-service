@@ -28,7 +28,6 @@ import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
-import cloud.fogbow.ras.api.http.response.InstanceState;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
 import org.apache.commons.net.util.SubnetUtils;
@@ -90,15 +89,22 @@ public class ApplicationFacade {
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder order, String systemUserToken)
-            throws FogbowException,
-            InvalidCidrException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+            throws FogbowException, InvalidCidrException {
 
-        // setting the user who is creating the federated network
-        order.setSystemUser(systemUser);
-
-        this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.CREATE, ResourceType.FEDERATED_NETWORK, order));
-        this.federatedNetworkOrderController.addFederatedNetwork(order, systemUser);
+        // Check order consistency
+        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
+        if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
+            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
+            throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
+        }
+        // Check if the user is authentic
+        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        // Set requester field in the order
+        order.setSystemUser(requester);
+        // Check if the authenticated user is authorized to perform the requested operation
+        this.authorizationPlugin.isAuthorized(requester, new FnsOperation(Operation.CREATE, ResourceType.FEDERATED_NETWORK, order));
+        // Add order to the poll of active orders and to the OPEN linked list
+        this.federatedNetworkOrderController.activateOrder(order);
         return order.getId();
     }
 

@@ -1,8 +1,6 @@
 package cloud.fogbow.fns;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.common.exceptions.InstanceNotFoundException;
-import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
@@ -85,7 +83,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         BDDMockito.given(FederatedNetworkUtil.isSubnetValid(any(SubnetUtils.SubnetInfo.class))).willReturn(true);
 
         // exercise
-        federatedNetworkOrderController.addFederatedNetwork(federatedNetworkOrder, user);
+        federatedNetworkOrderController.activateOrder(federatedNetworkOrder);
 
         //verify
         assertEquals(FEDERATED_NETWORK_ID, federatedNetworkOrder.getId());
