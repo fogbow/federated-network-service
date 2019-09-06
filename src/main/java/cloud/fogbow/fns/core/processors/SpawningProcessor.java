@@ -12,6 +12,7 @@ import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.fns.core.serviceconnector.VanillaServiceConnector;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -69,8 +70,7 @@ public class SpawningProcessor implements Runnable {
     }
 
     private void processVanillaOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                ConfigurationMode.VANILLA, order.getRequester());
+        VanillaServiceConnector connector = new VanillaServiceConnector();
         MemberConfigurationState state = connector.configure(order);
 
         if (state == MemberConfigurationState.SUCCESS) {

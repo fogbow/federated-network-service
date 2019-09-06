@@ -46,6 +46,8 @@ public class ClosedProcessor implements Runnable {
 
     protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {
+            // No need to check the state of the order because no other thread will attempt to change the
+            // state of an order that is in the CLOSED state.
             this.orderController.deactivateOrder(order);
         }
     }

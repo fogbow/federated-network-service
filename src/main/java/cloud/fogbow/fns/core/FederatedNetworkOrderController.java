@@ -38,8 +38,6 @@ public class FederatedNetworkOrderController {
     public void addFederatedNetwork(FederatedNetworkOrder federatedNetwork, SystemUser systemUser)
             throws InvalidCidrException, UnexpectedException {
         synchronized (federatedNetwork) {
-            federatedNetwork.setSystemUser(systemUser);
-
             SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(federatedNetwork.getCidr());
 
             if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {

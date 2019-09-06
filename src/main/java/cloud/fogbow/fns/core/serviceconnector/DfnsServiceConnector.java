@@ -29,11 +29,8 @@ import java.util.*;
 public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
 
-    public static final int SUCCESS_EXIT_CODE = 0;
-
     protected BashScriptRunner runner;
 
-    public static final String SCRIPT_TARGET_PATH = "/tmp/";
     public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final int PUBLIC_KEY_INDEX = 0;
