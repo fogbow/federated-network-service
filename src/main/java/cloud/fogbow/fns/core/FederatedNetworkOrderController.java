@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
@@ -52,41 +53,47 @@ public class FederatedNetworkOrderController {
     public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
             throws NotEmptyFederatedNetworkException, FogbowException {
         synchronized (federatedNetwork) {
-            LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
+            if (!(federatedNetwork.getOrderState().equals(OrderState.CLOSED) ||
+                    federatedNetwork.getOrderState().equals(OrderState.DEACTIVATED))) {
+                LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, federatedNetwork.getId()));
 
-            if (!federatedNetwork.isAssignedIpsEmpty()) {
-                throw new NotEmptyFederatedNetworkException();
-            }
+                if (!federatedNetwork.isAssignedIpsEmpty()) {
+                    throw new NotEmptyFederatedNetworkException();
+                }
 
-            LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
+                LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
 
-            if (federatedNetwork.getOrderState() != OrderState.FAILED) {
-                for (String provider : federatedNetwork.getProviders().keySet()) {
-                    ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                            federatedNetwork.getConfigurationMode(), provider);
-                    if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-                        if (connector.remove(federatedNetwork)) {
-                            federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
+                if (federatedNetwork.getOrderState() != OrderState.FAILED) {
+                    for (String provider : federatedNetwork.getProviders().keySet()) {
+                        ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                                federatedNetwork.getConfigurationMode(), provider);
+                        if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
+                            if (connector.remove(federatedNetwork)) {
+                                federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
+                            }
                         }
                     }
+
+                    boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
+                    if (!providersRemovedTheConfiguration) {
+                        LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
+                        throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
+                    }
+
+                    ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
+                            federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
+                    connector.releaseVlanId(federatedNetwork.getVlanId());
+                    federatedNetwork.setVlanId(-1);
                 }
 
-                boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
-                if (!providersRemovedTheConfiguration) {
-                    LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                    throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
-                }
-
-                ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                        federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
-                connector.releaseVlanId(federatedNetwork.getVlanId());
-                federatedNetwork.setVlanId(-1);
+                // If the state of the order is still FAILED, this is because in the creation, it was not possible to
+                // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
+                // need to be thrown.
+                OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
+            } else {
+                String message = String.format(Messages.Error.REQUEST_ALREADY_CLOSED, federatedNetwork.getId());
+                throw new InstanceNotFoundException(message);
             }
-
-            // If the state of the order is still FAILED, this is because in the creation, it was not possible to
-            // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
-            // need to be thrown.
-            OrderStateTransitioner.transition(federatedNetwork, OrderState.CLOSED);
         }
     }
 
@@ -102,10 +109,11 @@ public class FederatedNetworkOrderController {
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {
         Collection<FederatedNetworkOrder> orders = FederatedNetworkOrdersHolder.getInstance().getActiveOrders().values();
 
-        // Filter all orders of resourceType from systemUser that are not closed (closed orders have been deleted by
-        // the user and should not be seen; they will disappear from the system).
+        // Filter all orders from systemUser that are not closed (closed orders have been deleted by
+        // the user and should not be seen; they will disappear from the system) or deactivated.
         return orders.stream()
                 .filter(order -> order.getSystemUser().equals(systemUser))
+                .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
                 .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
                 .map(orderToInstanceStatus())
                 .collect(Collectors.toList());

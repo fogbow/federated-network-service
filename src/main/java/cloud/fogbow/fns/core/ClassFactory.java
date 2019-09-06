@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.FatalErrorException;
-import cloud.fogbow.ras.constants.Messages;
+import cloud.fogbow.fns.constants.Messages;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Constructor;
