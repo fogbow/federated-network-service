@@ -28,6 +28,7 @@ import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
+import cloud.fogbow.ras.api.http.response.InstanceState;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
 import org.apache.commons.net.util.SubnetUtils;
@@ -292,9 +293,11 @@ public class ApplicationFacade {
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
 
-        for (String ip : computeIps) {
-            if (subnetInfo.isInRange(ip)) {
-                return ip;
+        if (computeIps != null) {
+            for (String ip : computeIps) {
+                if (subnetInfo.isInRange(ip)) {
+                    return ip;
+                }
             }
         }
 

@@ -36,7 +36,7 @@ public class ComputeRequestsController {
             FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
                     getFederatedNetworkOrder(federatedNetworkId);
             String instanceIp = federatedNetworkOrder.getAssociatedIp(computeId);
-            if (instanceIp != null) {
+            if (instanceIp != null && computeInstance.getIpAddresses() != null) {
                 computeInstance.getIpAddresses().add(instanceIp);
             }
         }
