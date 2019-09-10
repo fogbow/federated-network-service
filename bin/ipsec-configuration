@@ -43,6 +43,7 @@ auto tun
 iface tun inet static
 address #LEFT_SOURCE_IP#/$fednetSize
 pre-up ip tunnel add tun local $myIP remote #RIGHT_IP# mode vti key 1
+pre-up ip link set dev tun mtu 1200
 post-down ip tunnel del tun"
 
 charon="charon {
