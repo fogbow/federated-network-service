@@ -1,11 +1,11 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.common.util.BashScriptRunner;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.XmppComponentManager;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
-import cloud.fogbow.fns.utils.BashScriptRunner;
 
 public class ServiceConnectorFactory {
     private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(

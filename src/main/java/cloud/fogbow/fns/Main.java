@@ -12,8 +12,6 @@ import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.model.FnsOperation;
-import cloud.fogbow.fns.core.serviceconnector.LocalDfnsServiceConnector;
-import cloud.fogbow.fns.utils.BashScriptRunner;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
