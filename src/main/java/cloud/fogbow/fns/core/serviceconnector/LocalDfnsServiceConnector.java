@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -140,7 +139,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration() {
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
@@ -148,13 +147,6 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
         return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
-    }
-
-    private List<String> getConfigureCommand(Collection<String> providersIps) {
-        List<String> command = new ArrayList<>();
-        command.add("bash");
-        command.addAll(providersIps);
-        return command;
     }
 
     private Collection<String> excludeLocalProvider(Collection<String> allProviders) {
