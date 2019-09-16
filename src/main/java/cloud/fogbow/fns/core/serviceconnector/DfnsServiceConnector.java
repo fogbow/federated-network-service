@@ -4,6 +4,7 @@ import cloud.fogbow.common.constants.HttpConstants;
 import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.BashScriptRunner;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
@@ -13,16 +14,15 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.utils.BashScriptRunner;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
@@ -35,6 +35,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final int PUBLIC_KEY_INDEX = 0;
     public static final int PRIVATE_KEY_INDEX = 1;
+    private final String GEN_KEY_PAIR_SCRIPT_PATH = Paths.get("").toAbsolutePath().toString() + "/bin/agent-scripts/generateSshKeyPair";
+    private final String KEY_PAIR_SEPARATOR = "KEY SEPARATOR";
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
@@ -95,29 +97,14 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         }
     }
 
-    public String[] generateSshKeyPair() throws UnexpectedException {
+    protected String[] generateSshKeyPair() throws UnexpectedException {
         BashScriptRunner runner = new BashScriptRunner();
         String keyName = String.valueOf(UUID.randomUUID());
 
-        String[] createCommand = {"ssh-keygen", "-t", "rsa", "-b", "1024", "-f", keyName, "-q", "-N", ""};
-        BashScriptRunner.Output createCommandResult = runner.runtimeRun(createCommand);
+        String[] genCommand = {"bash", GEN_KEY_PAIR_SCRIPT_PATH, keyName};
+        BashScriptRunner.Output createCommandResult = runner.runtimeRun(genCommand);
 
-        String[] catCommand1 = {"cat", keyName};
-        BashScriptRunner.Output catResult1 = runner.runtimeRun(catCommand1);
-        String privateKey = catResult1.getContent();
-
-        String[] w = privateKey.split("\n");
-        String[] actualPrivateKey = Arrays.copyOfRange(w, 1, w.length - 1);
-        privateKey = StringUtils.join(actualPrivateKey, "");
-
-        String[] catCommand2 = {"cat", keyName + ".pub"};
-        BashScriptRunner.Output catResult2 = runner.runtimeRun(catCommand2);
-        String publicKey = catResult2.getContent();
-
-        String[] removeKeysCommand = {"rm", keyName, keyName + ".pub"};
-        BashScriptRunner.Output removeKeysCommandResult = runner.runtimeRun(removeKeysCommand);
-
-        return new String[]{publicKey, privateKey};
+        return new String[]{createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[0], createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[1]};
     }
 
     /**
