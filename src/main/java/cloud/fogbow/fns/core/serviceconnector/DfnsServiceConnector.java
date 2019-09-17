@@ -35,8 +35,9 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final int PUBLIC_KEY_INDEX = 0;
     public static final int PRIVATE_KEY_INDEX = 1;
-    private final String GEN_KEY_PAIR_SCRIPT_PATH = Paths.get("").toAbsolutePath().toString() + "/bin/agent-scripts/generateSshKeyPair";
+    private final String GEN_KEY_PAIR_SCRIPT_PATH = Paths.get("").toAbsolutePath().toString() + "/bin/agent-scripts/dfns/generateSshKeyPair";
     private final String KEY_PAIR_SEPARATOR = "KEY SEPARATOR";
+    private final String KEY_SIZE = "1024";
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
@@ -101,7 +102,8 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         BashScriptRunner runner = new BashScriptRunner();
         String keyName = String.valueOf(UUID.randomUUID());
 
-        String[] genCommand = {"bash", GEN_KEY_PAIR_SCRIPT_PATH, keyName};
+        // The key's size is passed as parameter and set to 1024 to keep the key small.
+        String[] genCommand = {"bash", GEN_KEY_PAIR_SCRIPT_PATH, keyName, KEY_SIZE};
         BashScriptRunner.Output createCommandResult = runner.runtimeRun(genCommand);
 
         return new String[]{createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[0], createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[1]};
