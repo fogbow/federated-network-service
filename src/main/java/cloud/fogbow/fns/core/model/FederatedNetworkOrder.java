@@ -4,11 +4,9 @@ import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.SerializedEntityHolder;
-import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
@@ -144,7 +142,6 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps.add(new AssignedIp(computeId, ipToBeAttached));
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
-        ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
     public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
@@ -155,7 +152,6 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps.remove(associatedIpIndex);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
-        ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
     }
 
     private int containsKey(String computeId) {

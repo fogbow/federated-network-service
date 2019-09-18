@@ -1,15 +1,11 @@
 package cloud.fogbow.fns.core.drivers;
 
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
 import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 
 public class ServiceDriverFactory {
-    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
-
     private static ServiceDriverFactory instance = null;
 
     private ServiceDriverFactory() {

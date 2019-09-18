@@ -7,6 +7,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
+import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -42,7 +43,7 @@ public class SpawningProcessor implements Runnable {
                     this.orders.resetPointer();
                     Thread.sleep(this.sleepTime);
                 }
-            } catch (UnexpectedException e) {
+            } catch (FogbowException e) {
                 LOGGER.error("", e);
             } catch (InterruptedException e) {
                 LOGGER.error(Messages.Exception.THREAD_HAS_BEEN_INTERRUPTED, e);
@@ -51,47 +52,21 @@ public class SpawningProcessor implements Runnable {
         }
     }
 
-    protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
+    protected void processOrder(FederatedNetworkOrder order) throws FogbowException {
         synchronized (order) {
             // Check if the order is still SPAWNING (its state may have been changed by another thread)
-            if (order.getOrderState().equals(OrderState.SPAWNING)) {
-                ConfigurationMode configurationMode = order.getConfigurationMode();
+            if(!order.getOrderState().equals(OrderState.SPAWNING)) return;
 
-                switch(configurationMode) {
-                    case VANILLA:
-                        this.processVanillaOrder(order);
-                        break;
-                    case DFNS:
-                        this.processDfnsOrder(order);
-                        break;
-                    default:
-                        throw new RuntimeException(Messages.Exception.CONFIGURATION_MODE_NOT_IMPLEMENTED);
-                }
+            ConfigurationMode configurationMode = order.getConfigurationMode();
+            try {
+                ServiceDriverFactory.getInstance().getServiceDriver(configurationMode).processSpawningOrder(order);
+                OrderStateTransitioner.transition(order,
+                    configurationMode.equals(ConfigurationMode.DFNS) ? getNextOrderState(order.getProviders().values()) : OrderState.FULFILLED);
+            } catch (FogbowException ex) {
+                OrderStateTransitioner.transition(order, OrderState.FAILED);
             }
+
         }
-    }
-
-    private void processVanillaOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        VanillaServiceDriver driver = new VanillaServiceDriver();
-        try {
-            driver.processSpawningOrder(order);
-            OrderStateTransitioner.transition(order, OrderState.FULFILLED);
-        } catch (FogbowException ex) {
-            OrderStateTransitioner.transition(order, OrderState.FAILED);
-        }
-    }
-
-
-    private void processDfnsOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        for (String provider : order.getProviders().keySet()) {
-            ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                    ConfigurationMode.DFNS, provider);
-            MemberConfigurationState memberState = connector.configure(order);
-            order.getProviders().put(provider, memberState);
-        }
-
-        OrderState nextOrderState = getNextOrderState(order.getProviders().values());
-        OrderStateTransitioner.transition(order, nextOrderState);
     }
 
     private OrderState getNextOrderState(Collection<MemberConfigurationState> memberConfigurationStates) {

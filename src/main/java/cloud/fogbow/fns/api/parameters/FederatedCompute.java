@@ -2,8 +2,12 @@ package cloud.fogbow.fns.api.parameters;
 
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import cloud.fogbow.ras.api.parameters.Compute;
+import cloud.fogbow.ras.core.models.UserData;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @ApiModel
 public class FederatedCompute {
@@ -28,5 +32,17 @@ public class FederatedCompute {
 
     public void setFederatedNetworkId(String federatedNetworkId) {
         this.federatedNetworkId = federatedNetworkId;
+    }
+
+    public void addUserData(UserData userData) {
+        Compute rasCompute = this.getCompute();
+        List<UserData> userDataList = rasCompute.getUserData();
+
+        if (userDataList == null) {
+            userDataList = new ArrayList<>();
+            rasCompute.setUserData((ArrayList<UserData>) userDataList);
+        }
+
+        userDataList.add(userData);
     }
 }

@@ -42,7 +42,7 @@ public class FederatedNetworkOrderController {
     }
 
     public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
-            throws NotEmptyFederatedNetworkException, FogbowException {
+            throws FogbowException {
         synchronized (federatedNetwork) {
             if (!(federatedNetwork.getOrderState().equals(OrderState.CLOSED) ||
                     federatedNetwork.getOrderState().equals(OrderState.DEACTIVATED))) {
@@ -65,15 +65,6 @@ public class FederatedNetworkOrderController {
                 throw new InstanceNotFoundException(message);
             }
         }
-    }
-
-    private boolean allProvidersRemovedTheConfiguration(Collection<MemberConfigurationState> values) {
-        for (MemberConfigurationState state : values) {
-            if (!state.equals(MemberConfigurationState.REMOVED)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {

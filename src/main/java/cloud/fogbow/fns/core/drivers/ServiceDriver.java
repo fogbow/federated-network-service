@@ -11,7 +11,7 @@ public interface ServiceDriver {
 
     void processClosingOrder(FederatedNetworkOrder order) throws FogbowException;
 
-    void setupCompute(FederatedCompute compute, FederatedNetworkOrder order) throws FogbowException;
+    void setupCompute(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException;
 
-    void terminateCompute(FederatedCompute compute, FederatedNetworkOrder order) throws FogbowException;
+    void terminateCompute(FederatedNetworkOrder order, String hostIp) throws FogbowException;
 }

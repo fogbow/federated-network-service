@@ -8,6 +8,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -18,8 +19,6 @@ import org.apache.log4j.Logger;
 
 public class OpenProcessor implements Runnable {
     private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.OpenProcessor.class);
-
-    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
 
     private Long sleepTime;
 
@@ -61,11 +60,8 @@ public class OpenProcessor implements Runnable {
                 return;
             }
 
-            ConfigurationMode mode = order.getConfigurationMode();
-            ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, LOCAL_MEMBER_NAME);
             try {
-                int acquiredVlanId = serviceConnector.acquireVlanId();
-                order.setVlanId(acquiredVlanId);
+                ServiceDriverFactory.getInstance().getServiceDriver(order.getConfigurationMode()).processOpen(order);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
             } catch (FogbowException e) {
                 LOGGER.error(e.getMessage(), e);
