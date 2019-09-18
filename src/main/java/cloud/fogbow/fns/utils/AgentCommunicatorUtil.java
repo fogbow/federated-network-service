@@ -1,5 +1,7 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.common.util.ProcessUtil;
@@ -11,7 +13,7 @@ public class AgentCommunicatorUtil {
 
     private static final Logger LOGGER = Logger.getLogger(AgentCommunicatorUtil.class);
 
-    public static boolean createFederatedNetwork(String cidrNotation, String virtualIpAddress) {
+    public static void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
@@ -30,17 +32,16 @@ public class AgentCommunicatorUtil {
                     ProcessUtil.getOutput(process)));
             LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_ERROR, cidrNotation, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
-            if (resultCode == 0) {
-                return true;
-            }
         } catch (Exception e) {
             LOGGER.error("", e);
         }
         LOGGER.error(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
-        return false;
+        if(resultCode != 0) {
+            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
+        }
     }
 
-    public static boolean deleteFederatedNetwork(String cidr) {
+    public static void deleteFederatedNetwork(String cidr) throws FogbowException{
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
@@ -58,13 +59,12 @@ public class AgentCommunicatorUtil {
                     ProcessUtil.getOutput(process)));
             LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_ERROR, cidr, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
-            if (resultCode == 0) {
-                return true;
-            }
         } catch (Exception e) {
             LOGGER.error("", e);
         }
         LOGGER.error(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
-        return false;
+        if(resultCode != 0) {
+            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
+        }
     }
 }

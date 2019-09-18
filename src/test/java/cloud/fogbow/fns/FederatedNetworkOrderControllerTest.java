@@ -6,7 +6,7 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
-import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
@@ -91,7 +91,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
-    public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+    public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommunicationException,
             SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
@@ -116,7 +116,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test(expected = NotEmptyFederatedNetworkException.class)
-    public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+    public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommunicationException,
             SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();

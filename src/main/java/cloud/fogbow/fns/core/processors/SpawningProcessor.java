@@ -1,11 +1,13 @@
 package cloud.fogbow.fns.core.processors;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
+import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -70,12 +72,11 @@ public class SpawningProcessor implements Runnable {
     }
 
     private void processVanillaOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        VanillaServiceConnector connector = new VanillaServiceConnector();
-        MemberConfigurationState state = connector.configure(order);
-
-        if (state == MemberConfigurationState.SUCCESS) {
+        VanillaServiceDriver driver = new VanillaServiceDriver();
+        try {
+            driver.processSpawningOrder(order);
             OrderStateTransitioner.transition(order, OrderState.FULFILLED);
-        } else {
+        } catch (FogbowException ex) {
             OrderStateTransitioner.transition(order, OrderState.FAILED);
         }
     }

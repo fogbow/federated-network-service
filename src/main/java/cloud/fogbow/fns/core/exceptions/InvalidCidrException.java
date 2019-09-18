@@ -1,8 +1,9 @@
 package cloud.fogbow.fns.core.exceptions;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.constants.Messages;
 
-public class InvalidCidrException extends Exception {
+public class InvalidCidrException extends FogbowException {
     private static final long serialVersionUID = 1L;
 
     public InvalidCidrException(String cidr) {
