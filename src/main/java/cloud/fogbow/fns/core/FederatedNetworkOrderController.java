@@ -7,6 +7,7 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
@@ -53,28 +54,7 @@ public class FederatedNetworkOrderController {
 
                 LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
 
-                if (federatedNetwork.getOrderState() != OrderState.FAILED) {
-                    for (String provider : federatedNetwork.getProviders().keySet()) {
-                        ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                                federatedNetwork.getConfigurationMode(), provider);
-                        if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-                            if (connector.remove(federatedNetwork)) {
-                                federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
-                            }
-                        }
-                    }
-
-                    boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
-                    if (!providersRemovedTheConfiguration) {
-                        LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                        throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommunicationException());
-                    }
-
-                    ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                            federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
-                    connector.releaseVlanId(federatedNetwork.getVlanId());
-                    federatedNetwork.setVlanId(-1);
-                }
+                ServiceDriverFactory.getInstance().getServiceDriver(federatedNetwork.getConfigurationMode()).processClosingOrder(federatedNetwork);
 
                 // If the state of the order is still FAILED, this is because in the creation, it was not possible to
                 // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not

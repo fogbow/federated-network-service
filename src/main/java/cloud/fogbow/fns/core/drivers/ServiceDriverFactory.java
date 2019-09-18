@@ -22,10 +22,10 @@ public class ServiceDriverFactory {
         return instance;
     }
 
-    public ServiceDriver getServiceDriver(ConfigurationMode configurationMode, String memberName) {
+    public ServiceDriver getServiceDriver(ConfigurationMode configurationMode) {
         switch (configurationMode) {
             case DFNS:
-                return new DfnsServiceDriver(memberName);
+                return new DfnsServiceDriver();
             case VANILLA:
                 return new VanillaServiceDriver();
             default:
