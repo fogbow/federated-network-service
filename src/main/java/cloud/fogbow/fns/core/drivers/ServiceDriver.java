@@ -3,15 +3,16 @@ package cloud.fogbow.fns.core.drivers;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
+import cloud.fogbow.ras.core.models.UserData;
 
 public interface ServiceDriver {
     void processOpen(FederatedNetworkOrder order) throws FogbowException;
 
-    void processSpawningOrder(FederatedNetworkOrder order) throws FogbowException;
+    void processSpawning(FederatedNetworkOrder order) throws FogbowException;
 
-    void processClosingOrder(FederatedNetworkOrder order) throws FogbowException;
+    void processClosed(FederatedNetworkOrder order) throws FogbowException;
 
-    void setupCompute(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException;
+    UserData getComputeUserData(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException;
 
-    void terminateCompute(FederatedNetworkOrder order, String hostIp) throws FogbowException;
+    void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException;
 }

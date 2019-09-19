@@ -28,7 +28,6 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
-    @Override
     public boolean remove(FederatedNetworkOrder order) {
         RemoteRemoveFedNetRequest remoteRemoveFedNetRequest = new RemoteRemoveFedNetRequest(memberToBeConfigured, order);
         try {
@@ -40,7 +39,6 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
-    @Override
     public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
         RemoteRemoveAgentToComputeTunnelRequest request = new RemoteRemoveAgentToComputeTunnelRequest(
                 this.memberToBeConfigured, order, hostIp);

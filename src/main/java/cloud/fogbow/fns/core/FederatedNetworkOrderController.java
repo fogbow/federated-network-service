@@ -8,12 +8,9 @@ import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
-import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -53,8 +50,6 @@ public class FederatedNetworkOrderController {
                 }
 
                 LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
-
-                ServiceDriverFactory.getInstance().getServiceDriver(federatedNetwork.getConfigurationMode()).processClosingOrder(federatedNetwork);
 
                 // If the state of the order is still FAILED, this is because in the creation, it was not possible to
                 // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not

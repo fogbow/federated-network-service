@@ -33,16 +33,4 @@ public class FederatedCompute {
     public void setFederatedNetworkId(String federatedNetworkId) {
         this.federatedNetworkId = federatedNetworkId;
     }
-
-    public void addUserData(UserData userData) {
-        Compute rasCompute = this.getCompute();
-        List<UserData> userDataList = rasCompute.getUserData();
-
-        if (userDataList == null) {
-            userDataList = new ArrayList<>();
-            rasCompute.setUserData((ArrayList<UserData>) userDataList);
-        }
-
-        userDataList.add(userData);
-    }
 }

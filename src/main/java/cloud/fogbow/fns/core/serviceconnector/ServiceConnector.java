@@ -13,13 +13,7 @@ import java.io.IOException;
 public interface ServiceConnector {
     int acquireVlanId() throws FogbowException;
 
-    boolean releaseVlanId(int vlanId) throws FogbowException;
+    void releaseVlanId(int vlanId) throws FogbowException;
 
     MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException;
-
-    boolean remove(FederatedNetworkOrder order) throws UnexpectedException;
-
-    boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException;
-
-    UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException;
 }

@@ -1,21 +1,15 @@
 package cloud.fogbow.fns.core.processors;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
-import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
-import cloud.fogbow.fns.core.serviceconnector.VanillaServiceConnector;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -59,7 +53,7 @@ public class SpawningProcessor implements Runnable {
 
             ConfigurationMode configurationMode = order.getConfigurationMode();
             try {
-                ServiceDriverFactory.getInstance().getServiceDriver(configurationMode).processSpawningOrder(order);
+                ServiceDriverFactory.getInstance().getServiceDriver(configurationMode).processSpawning(order);
                 OrderStateTransitioner.transition(order,
                     configurationMode.equals(ConfigurationMode.DFNS) ? getNextOrderState(order.getProviders().values()) : OrderState.FULFILLED);
             } catch (FogbowException ex) {

@@ -17,7 +17,6 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -25,6 +24,7 @@ import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
+import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -139,9 +140,10 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             instanceIp = federatedNetworkOrder.getFreeIp();
+            UserData userData = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode())
+                .getComputeUserData(federatedCompute, federatedNetworkOrder, instanceIp);
+            addUserData(federatedCompute, userData);
         }
-
-        ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode()).setupCompute(federatedCompute, federatedNetworkOrder, instanceIp);
 
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -194,10 +196,13 @@ public class ApplicationFacade {
 
         ConfigurationMode currentMode = federatedNetworkOrder.getConfigurationMode();
 
-        String hostIp = currentMode.equals(ConfigurationMode.DFNS) ?
+        if(federatedNetworkOrder != null) {
+            //maybe it should come from a conf file
+            String hostIp = currentMode.equals(ConfigurationMode.DFNS) ?
                 this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses()) : null;
 
-        ServiceDriverFactory.getInstance().getServiceDriver(currentMode).terminateCompute(federatedNetworkOrder, hostIp);
+            ServiceDriverFactory.getInstance().getServiceDriver(currentMode).cleanup(federatedNetworkOrder, hostIp);
+        }
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
@@ -274,5 +279,17 @@ public class ApplicationFacade {
         }
 
         return null;
+    }
+
+    private void addUserData(FederatedCompute compute, UserData userData) {
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
+        List<UserData> userDataList = rasCompute.getUserData();
+
+        if (userDataList == null) {
+            userDataList = new ArrayList<>();
+            rasCompute.setUserData((ArrayList<UserData>) userDataList);
+        }
+
+        userDataList.add(userData);
     }
 }

@@ -1,88 +1,28 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-import cloud.fogbow.common.constants.HttpConstants;
-import cloud.fogbow.common.constants.HttpMethod;
-import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.BashScriptRunner;
-import cloud.fogbow.common.util.GsonHolder;
-import cloud.fogbow.common.util.connectivity.HttpRequestClient;
-import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
-import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-public abstract class DfnsServiceConnector implements ServiceConnector {
+public abstract class DfnsServiceConnector extends DefaultServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
 
     protected BashScriptRunner runner;
-
-    public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
-    public static final String VLAN_ID_ENDPOINT = "/vlanId";
-    public static final int PUBLIC_KEY_INDEX = 0;
-    public static final int PRIVATE_KEY_INDEX = 1;
-    private final String GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN = "/bin/agent-scripts/dfns/generateSshKeyPair";
-    private final String GEN_KEY_PAIR_SCRIPT_WHOLE_PATH = Paths.get("").toAbsolutePath().toString() + GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN;
-    private final String KEY_PAIR_SEPARATOR = "KEY SEPARATOR";
-    private final String KEY_SIZE = "1024";
 
     public DfnsServiceConnector(BashScriptRunner runner) {
         this.runner = runner;
     }
 
-    @Override
-    public int acquireVlanId() throws FogbowException {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
-        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
-        String acquireVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
-
-        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
-
-        if (response.getHttpCode() == HttpStatus.NOT_ACCEPTABLE.value()) {
-            throw new NoVlanIdsLeftException();
-        }
-
-        VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
-        return vlanId.vlanId;
-    }
-
-    @Override
-    public boolean releaseVlanId(int vlanId) throws FogbowException {
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
-        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
-
-        String jsonBody = GsonHolder.getInstance().toJson(new VlanId(vlanId));
-        HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
-
-        String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
-
-        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.POST, releaseVlanIdEndpoint, headers, body);
-
-        if (response.getHttpCode() == HttpStatus.NOT_FOUND.value()) {
-            LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
-            return true;
-        }
-
-        return response.getHttpCode() == HttpStatus.OK.value();
-    }
-
-    @Override
     public final UserData getTunnelCreationInitScript(String federatedIp, FederatedCompute compute, FederatedNetworkOrder order) throws UnexpectedException {
         try {
             String[] keys = generateSshKeyPair();
@@ -97,18 +37,6 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-    }
-
-    protected String[] generateSshKeyPair() throws UnexpectedException {
-        BashScriptRunner runner = new BashScriptRunner();
-        String keyName = String.valueOf(UUID.randomUUID());
-
-        // The key's size is passed as parameter and set to 1024 to keep the key small.
-        String[] genCommand = {"bash", GEN_KEY_PAIR_SCRIPT_WHOLE_PATH, keyName, KEY_SIZE};
-        BashScriptRunner.Output createCommandResult = runner.runtimeRun(genCommand);
-
-        return new String[]{createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PUBLIC_KEY_INDEX],
-            createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PRIVATE_KEY_INDEX]};
     }
 
     /**

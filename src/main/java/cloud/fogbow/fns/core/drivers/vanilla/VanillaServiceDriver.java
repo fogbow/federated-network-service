@@ -7,15 +7,15 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.ServiceDriver;
-import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
+import cloud.fogbow.fns.core.serviceconnector.DefaultServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
+import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
@@ -24,16 +24,25 @@ import java.io.IOException;
 public class VanillaServiceDriver implements ServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
-
     private final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
+    private ServiceConnector defaultServiceConnetor;
 
-    @Override
-    public void processOpen(FederatedNetworkOrder order) throws FogbowException {
-        order.setVlanId(-1);
+    public VanillaServiceDriver() {
+        defaultServiceConnetor = new DefaultServiceConnector();
     }
 
     @Override
-    public void processSpawningOrder(FederatedNetworkOrder order) throws FogbowException {
+    public void processOpen(FederatedNetworkOrder order) throws FogbowException {
+        try {
+            order.setVlanId(defaultServiceConnetor.acquireVlanId());
+        } catch(FogbowException ex) {
+            LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
+            throw new FogbowException(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void processSpawning(FederatedNetworkOrder order) throws FogbowException {
         try {
             SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
             AgentCommunicatorUtil.createFederatedNetwork(order.getCidr(), subnetInfo.getLowAddress());
@@ -44,7 +53,7 @@ public class VanillaServiceDriver implements ServiceDriver {
     }
 
     @Override
-    public void processClosingOrder(FederatedNetworkOrder order) throws FogbowException {
+    public void processClosed(FederatedNetworkOrder order) throws FogbowException {
         if (order.getOrderState() != OrderState.FAILED) {
             for (String provider : order.getProviders().keySet()) {
                 if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
@@ -52,10 +61,7 @@ public class VanillaServiceDriver implements ServiceDriver {
                 }
             }
 
-            ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                    order.getConfigurationMode(), LOCAL_MEMBER_NAME);
-            connector.releaseVlanId(order.getVlanId());
-            order.setVlanId(-1);
+            defaultServiceConnetor.releaseVlanId(order.getVlanId());
         }
     }
 
@@ -64,21 +70,21 @@ public class VanillaServiceDriver implements ServiceDriver {
             AgentCommunicatorUtil.deleteFederatedNetwork(order.getCidr());
             order.getProviders().put(provider, MemberConfigurationState.REMOVED);
         } catch(FogbowException ex) {
-            throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommunicationException());
+            throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, ex);
         }
     }
 
     @Override
-    public void setupCompute(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
+    public UserData getComputeUserData(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
-            compute.addUserData(FederatedComputeUtil.getVanillaUserData(instanceIp, order.getCidr()));
+            return FederatedComputeUtil.getVanillaUserData(instanceIp, order.getCidr());
         } catch (IOException e) {
             throw new FogbowException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void terminateCompute(FederatedNetworkOrder order, String hostIp) throws FogbowException{
+    public void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException{
 
     }
 }

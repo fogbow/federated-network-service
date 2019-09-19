@@ -59,15 +59,6 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
-    @Override
-    public boolean remove(FederatedNetworkOrder order) throws UnexpectedException {
-        // NOTE(pauloewerton): the current logic creates the tunnels among sites at deployment time, so no need to implement
-        // remove by now, we just transition the order to closed and then deactivated; maybe, in the future,
-        // we should call the "remove tunnels among sites" script in here.
-        return true;
-    }
-
-    @Override
     public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
