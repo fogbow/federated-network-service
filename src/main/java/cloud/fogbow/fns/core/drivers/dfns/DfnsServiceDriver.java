@@ -98,6 +98,31 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         }
     }
 
+    @Override
+    public UserData getComputeUserData(AgentConfiguration configuration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
+        try {
+            String privateIpAddress = configuration.getPrivateIpAddress();
+            return FederatedComputeUtil.getDfnsUserData(configuration, instanceIp, privateIpAddress,
+                    order.getVlanId(), configuration.getPrivateKey());
+        } catch (IOException | GeneralSecurityException e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException {
+        try {
+            if(!isRemote()) {
+                removeAgentToComputeTunnel(order, hostIp);
+            } else {
+                new RemoteDfnsServiceConnector(memberName).removeAgentToComputeTunnel(order, hostIp);
+            }
+        } catch (FogbowException ex) {
+            LOGGER.error(ex.getMessage());
+            throw new FogbowException(ex.getMessage());
+        }
+    }
+
     private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
@@ -142,20 +167,40 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         return new AgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
 
-    @Override
-    public UserData getComputeUserData(AgentConfiguration configuration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
+    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
+        String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
+                (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
+
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+
+        SSHClient client = new SSHClient();
+        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
+
         try {
-            String privateIpAddress = configuration.getPrivateIpAddress();
-            return FederatedComputeUtil.getDfnsUserData(configuration, instanceIp, privateIpAddress,
-                    order.getVlanId(), configuration.getPrivateKey());
-        } catch (IOException | GeneralSecurityException e) {
+            try {
+                // connects to the DMZ host
+                client.connect(agentPublicIp, AGENT_SSH_PORT);
+
+                // authorizes using the DMZ private key
+                client.authPublickey(agentUser, permissionFilePath);
+
+                try (Session session = client.startSession()) {
+                    Session.Command c = session.exec(removeTunnelCommand);
+
+                    // waits for the command to finish
+                    c.join();
+
+                    return c.getExitStatus() == SUCCESS_EXIT_CODE;
+                }
+            } finally {
+                client.disconnect();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
             throw new UnexpectedException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException {
-
     }
 
     private boolean isRemote() {

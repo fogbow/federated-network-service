@@ -40,23 +40,21 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
-    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
+    public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
         RemoteRemoveAgentToComputeTunnelRequest request = new RemoteRemoveAgentToComputeTunnelRequest(
                 this.memberToBeConfigured, order, hostIp);
         try {
             request.send();
-            return true;
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException {
+    public void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException {
         RemoteAllowAccessFromComputeToAgentRequest request = new RemoteAllowAccessFromComputeToAgentRequest(this.memberToBeConfigured, publicKey);
         try {
             request.send();
-            return true;
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
