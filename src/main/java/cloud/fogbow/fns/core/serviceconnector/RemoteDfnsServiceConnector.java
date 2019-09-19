@@ -1,10 +1,10 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.BashScriptRunner;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.utils.BashScriptRunner;
+import cloud.fogbow.fns.core.model.MemberConfigurationState;;
 import org.apache.log4j.Logger;
 
 public class RemoteDfnsServiceConnector extends DfnsServiceConnector {

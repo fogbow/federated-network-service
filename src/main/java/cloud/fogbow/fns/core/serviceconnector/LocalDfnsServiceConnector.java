@@ -1,18 +1,17 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.BashScriptRunner;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.utils.BashScriptRunner;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -140,7 +139,7 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException {
+    public DfnsAgentConfiguration getDfnsAgentConfiguration() {
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
@@ -148,13 +147,6 @@ public class LocalDfnsServiceConnector extends DfnsServiceConnector {
         String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
         return new DfnsAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
-    }
-
-    private List<String> getConfigureCommand(Collection<String> providersIps) {
-        List<String> command = new ArrayList<>();
-        command.add("bash");
-        command.addAll(providersIps);
-        return command;
     }
 
     private Collection<String> excludeLocalProvider(Collection<String> allProviders) {

@@ -11,7 +11,7 @@ import cloud.fogbow.ras.core.models.UserData;
 import java.io.IOException;
 
 public interface ServiceConnector {
-    int acquireVlanId() throws NoVlanIdsLeftException, FogbowException;
+    int acquireVlanId() throws FogbowException;
 
     boolean releaseVlanId(int vlanId) throws FogbowException;
 

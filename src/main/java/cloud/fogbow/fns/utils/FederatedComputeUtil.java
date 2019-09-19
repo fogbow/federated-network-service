@@ -43,18 +43,6 @@ public class FederatedComputeUtil {
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
 
-    public static void addUserData(FederatedCompute fnsCompute, String federatedComputeIp,
-                                           String cidr) throws IOException {
-        UserData newUserData = getVanillaUserData(federatedComputeIp, cidr);
-        cloud.fogbow.ras.api.parameters.Compute rasCompute = fnsCompute.getCompute();
-        List<UserData> userDataList = rasCompute.getUserData();
-        if (userDataList == null) {
-            userDataList = new ArrayList<>();
-            rasCompute.setUserData((ArrayList<UserData>) userDataList);
-        }
-        userDataList.add(newUserData);
-    }
-
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);

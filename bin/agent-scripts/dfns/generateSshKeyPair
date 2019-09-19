@@ -1,0 +1,11 @@
+#!/bin/sh
+key_name=$1
+key_size=$2
+ssh-keygen -t rsa -b $key_size -f $key_name -q -N ""
+private_key=`cat $key_name`
+public_key=`cat $key_name.pub`
+
+echo $private_key
+echo "KEY SEPARATOR"
+echo $public_key
+rm $key_name $key_name.pub
