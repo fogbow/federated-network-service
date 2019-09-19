@@ -9,10 +9,7 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
-import cloud.fogbow.fns.core.serviceconnector.RemoteDfnsServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.fns.core.serviceconnector.*;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
 import net.schmizz.sshj.SSHClient;
@@ -20,7 +17,9 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
+import java.util.*;
 
 public class DfnsServiceDriver extends GeneralServiceDriver {
 
@@ -39,7 +38,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
     @Override
     public void processOpen(FederatedNetworkOrder order) throws FogbowException {
         try {
-            order.setVlanId(dfnsServiceConnetor.acquireVlanId());
+            order.setVlanId(acquireVlanId());
         } catch(FogbowException ex) {
             LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
             throw new FogbowException(ex.getMessage());
@@ -49,8 +48,16 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
     @Override
     public void processSpawning(FederatedNetworkOrder order) throws FogbowException {
         for (String provider : order.getProviders().keySet()) {
-            MemberConfigurationState memberState = dfnsServiceConnetor.configure(order);
-            order.getProviders().put(provider, memberState);
+            try {
+                if(!isRemote()) {
+                    configure(order)
+                }
+                MemberConfigurationState memberState = dfnsServiceConnetor.configure(order);
+                order.getProviders().put(provider, memberState);
+            } catch (FogbowException ex) {
+
+            }
+
         }
     }
 
@@ -83,7 +90,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
     @Override
     public AgentConfiguration configureAgent() {
         try {
-            AgentConfiguration dfnsAgentConfiguration = null;
+            SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
             if(!isRemote()) {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
@@ -101,9 +108,10 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
     @Override
     public UserData getComputeUserData(AgentConfiguration configuration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
-            String privateIpAddress = configuration.getPrivateIpAddress();
-            return FederatedComputeUtil.getDfnsUserData(configuration, instanceIp, privateIpAddress,
-                    order.getVlanId(), configuration.getPrivateKey());
+            SSAgentConfiguration dfnsAgentConfiguration = (SSAgentConfiguration) configuration;
+            String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
+            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, instanceIp, privateIpAddress,
+                    order.getVlanId(), dfnsAgentConfiguration.getPrivateKey());
         } catch (IOException | GeneralSecurityException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
@@ -156,7 +164,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         }
     }
 
-    public AgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
+    public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
         String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
@@ -164,7 +172,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
-        return new AgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
+        return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
 
     public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
@@ -200,6 +208,30 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new UnexpectedException(e.getMessage(), e);
+        }
+    }
+
+    public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String sshCredentials = agentUser + "@" + agentPublicIp;
+
+        try {
+            // FIXME(pauloewerton): we decided not to run any scripts when creating a new fednet; we should decide what
+            // to do with this code later on; by now, it runs a shallow script at the agent.
+            String[] commandFirstPart = {"echo", CREATE_TUNNELS_SCRIPT_PATH, "|", "ssh", "-o", "UserKnownHostsFile=/dev/null",
+                    "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-t", "-t"};
+            List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
+            Set<String> allProviders = order.getProviders().keySet();
+
+            Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
+
+            BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[]{}));
+            return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
+        } catch (UnknownHostException e) {
+            LOGGER.error(e.getMessage(), e);
+            return MemberConfigurationState.FAILED;
         }
     }
 

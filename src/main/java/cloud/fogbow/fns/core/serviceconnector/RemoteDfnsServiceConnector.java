@@ -70,11 +70,11 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
     }
 
     @Override
-    public AgentConfiguration getDfnsAgentConfiguration() throws UnexpectedException {
+    public SSAgentConfiguration getDfnsAgentConfiguration() throws UnexpectedException {
         RemoteGetDfnsAgentConfigurationRequest request = new RemoteGetDfnsAgentConfigurationRequest(this.memberToBeConfigured);
 
         try {
-            AgentConfiguration dfnsAgentConfiguration = request.send();
+            SSAgentConfiguration dfnsAgentConfiguration = request.send();
             return dfnsAgentConfiguration;
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);

@@ -20,6 +20,7 @@ import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
@@ -33,7 +34,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
-import sun.management.Agent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

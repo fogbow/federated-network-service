@@ -28,7 +28,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
             String[] keys = generateSshKeyPair();
             addKeyToAgentAuthorizedPublicKeys(keys[PUBLIC_KEY_INDEX]);
 
-            AgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
+            SSAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
             dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
 
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
@@ -49,7 +49,7 @@ public abstract class DfnsServiceConnector implements ServiceConnector {
     public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
 
     // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
-    public abstract AgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException;
+    public abstract SSAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException;
 
     protected Collection<String> getIpAddresses(Collection<String> serverNames) throws UnknownHostException {
         Set<String> ipAddresses = new HashSet<>();

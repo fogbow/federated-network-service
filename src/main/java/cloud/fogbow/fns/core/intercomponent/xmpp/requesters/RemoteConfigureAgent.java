@@ -5,6 +5,7 @@ import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppErrorConditionToExceptionTranslator;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
@@ -43,6 +44,6 @@ public class RemoteConfigureAgent {
     private AgentConfiguration unmarshal(IQ response) {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
         Element agentConfiguration = queryElement.element(IqElement.DFNS_AGENT_CONFIGURATION.toString());
-        return GsonHolder.getInstance().fromJson(agentConfiguration.getText(), AgentConfiguration.class);
+        return GsonHolder.getInstance().fromJson(agentConfiguration.getText(), SSAgentConfiguration.class);
     }
 }

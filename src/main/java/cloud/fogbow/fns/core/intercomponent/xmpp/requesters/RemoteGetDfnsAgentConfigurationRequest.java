@@ -2,7 +2,7 @@ package cloud.fogbow.fns.core.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.GsonHolder;
-import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
@@ -11,7 +11,7 @@ import cloud.fogbow.ras.core.intercomponent.xmpp.requesters.RemoteRequest;
 import org.dom4j.Element;
 import org.xmpp.packet.IQ;
 
-public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<AgentConfiguration> {
+public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<SSAgentConfiguration> {
     private String provider;
 
     public RemoteGetDfnsAgentConfigurationRequest(String provider) {
@@ -19,12 +19,12 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Age
     }
 
     @Override
-    public AgentConfiguration send() throws Exception {
+    public SSAgentConfiguration send() throws Exception {
         IQ iq = marshal(this.provider);
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
-        AgentConfiguration dfnsAgentConfiguration = unmarshalInstance(response);
+        SSAgentConfiguration dfnsAgentConfiguration = unmarshalInstance(response);
 
         return dfnsAgentConfiguration;
     }
@@ -40,15 +40,15 @@ public class RemoteGetDfnsAgentConfigurationRequest implements RemoteRequest<Age
         return iq;
     }
 
-    private AgentConfiguration unmarshalInstance(IQ response) throws UnexpectedException {
+    private SSAgentConfiguration unmarshalInstance(IQ response) throws UnexpectedException {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
         String instanceStr = queryElement.element(IqElement.DFNS_AGENT_CONFIGURATION.toString()).getText();
 
         String instanceClassName = queryElement.element(IqElement.DFNS_AGENT_CONFIGURATION_CLASS.toString()).getText();
 
-        AgentConfiguration dfnsAgentConfiguration = null;
+        SSAgentConfiguration dfnsAgentConfiguration = null;
         try {
-            dfnsAgentConfiguration = (AgentConfiguration) GsonHolder.getInstance().fromJson(instanceStr, Class.forName(instanceClassName));
+            dfnsAgentConfiguration = (SSAgentConfiguration) GsonHolder.getInstance().fromJson(instanceStr, Class.forName(instanceClassName));
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage());
         }

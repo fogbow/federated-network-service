@@ -8,7 +8,7 @@ import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
 import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.core.serviceconnector.DfnsServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
 import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
@@ -57,13 +57,13 @@ public class RemoteFacade {
         return serviceConnector.addKeyToAgentAuthorizedPublicKeys(publicKey);
     }
 
-    public AgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException {
+    public SSAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException {
         DfnsServiceConnector serviceConnector = (DfnsServiceConnector) ServiceConnectorFactory.getInstance().getServiceConnector(
                 ConfigurationMode.DFNS, LOCAL_MEMBER_NAME);
         return serviceConnector.getDfnsAgentConfiguration();
     }
 
-    public AgentConfiguration configureAgent(String publicKey) throws FogbowException {
+    public SSAgentConfiguration configureAgent(String publicKey) throws FogbowException {
         DfnsServiceDriver serviceDriver = new DfnsServiceDriver(LOCAL_MEMBER_NAME);
         return serviceDriver.doConfigureAgent(publicKey);
     }

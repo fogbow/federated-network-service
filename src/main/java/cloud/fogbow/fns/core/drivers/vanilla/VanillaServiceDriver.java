@@ -9,6 +9,7 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;

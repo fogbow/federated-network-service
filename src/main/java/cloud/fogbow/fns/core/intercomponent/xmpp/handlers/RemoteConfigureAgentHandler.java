@@ -1,11 +1,9 @@
 package cloud.fogbow.fns.core.intercomponent.xmpp.handlers;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppExceptionToErrorConditionTranslator;
 import com.google.gson.Gson;
@@ -37,8 +35,8 @@ public class RemoteConfigureAgentHandler extends AbstractQueryHandler {
 
     private void marshalConfiguration(IQ response, AgentConfiguration configuration) {
         Element queryElement = response.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_CONFIGURE_AGENT.toString());
-        Element memberConfigurationState = queryElement.addElement(IqElement.DFNS_AGENT_CONFIGURATION.toString());
-        memberConfigurationState.setText(new Gson().toJson(configuration));
+        Element agentConfiguration = queryElement.addElement(IqElement.DFNS_AGENT_CONFIGURATION.toString());
+        agentConfiguration.setText(new Gson().toJson(configuration));
     }
 
     private String unmarshalPublicKey(IQ iq) {
