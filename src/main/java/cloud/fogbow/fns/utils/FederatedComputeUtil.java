@@ -1,25 +1,20 @@
 package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
-import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
-import cloud.fogbow.fns.api.parameters.FederatedCompute;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FederatedComputeUtil {
@@ -57,7 +52,7 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getDfnsUserData(DfnsAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
+    public static UserData getDfnsUserData(AgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
         String scriptKey = ConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
         String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);

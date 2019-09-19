@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.core.serviceconnector;
+package cloud.fogbow.fns.core.drivers;
 
 import cloud.fogbow.common.constants.HttpConstants;
 import cloud.fogbow.common.constants.HttpMethod;
@@ -14,6 +14,7 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.fns.core.serviceconnector.DefaultServiceConnector;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
@@ -21,8 +22,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class DefaultServiceConnector implements ServiceConnector {
-    private static final Logger LOGGER = Logger.getLogger(DefaultServiceConnector.class);
+public abstract class GeneralServiceDriver implements ServiceDriver {
+    private static final Logger LOGGER = Logger.getLogger(GeneralServiceDriver.class);
 
     public static final String VLAN_ID_SERVICE_URL = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
@@ -33,7 +34,6 @@ public class DefaultServiceConnector implements ServiceConnector {
     protected static final int PUBLIC_KEY_INDEX = 0;
     protected static final int PRIVATE_KEY_INDEX = 1;
 
-    @Override
     public int acquireVlanId() throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
@@ -46,17 +46,16 @@ public class DefaultServiceConnector implements ServiceConnector {
             throw new NoVlanIdsLeftException();
         }
 
-        DefaultServiceConnector.VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), DefaultServiceConnector.VlanId.class);
+        GeneralServiceDriver.VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), GeneralServiceDriver.VlanId.class);
         return vlanId.vlanId;
     }
 
-    @Override
     public void releaseVlanId(int vlanId) throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
 
-        String jsonBody = GsonHolder.getInstance().toJson(new DefaultServiceConnector.VlanId(vlanId));
+        String jsonBody = GsonHolder.getInstance().toJson(new GeneralServiceDriver.VlanId(vlanId));
         HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
 
         String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
@@ -67,11 +66,6 @@ public class DefaultServiceConnector implements ServiceConnector {
             LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
             throw new UnexpectedException(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
         }
-    }
-
-    @Override
-    public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
-        return null;
     }
 
     protected String[] generateSshKeyPair() throws UnexpectedException {

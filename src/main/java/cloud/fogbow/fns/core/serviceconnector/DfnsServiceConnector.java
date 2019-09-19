@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-public abstract class DfnsServiceConnector extends DefaultServiceConnector {
+public abstract class DfnsServiceConnector implements ServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceConnector.class);
 
     protected BashScriptRunner runner;
@@ -28,7 +28,7 @@ public abstract class DfnsServiceConnector extends DefaultServiceConnector {
             String[] keys = generateSshKeyPair();
             addKeyToAgentAuthorizedPublicKeys(keys[PUBLIC_KEY_INDEX]);
 
-            DfnsAgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
+            AgentConfiguration dfnsAgentConfiguration = getDfnsAgentConfiguration();
             dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
 
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
@@ -49,7 +49,7 @@ public abstract class DfnsServiceConnector extends DefaultServiceConnector {
     public abstract boolean addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException;
 
     // TODO we might want to include the cloud here, since RAS is multi cloud and there might be multiple default networks
-    public abstract DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException;
+    public abstract AgentConfiguration getDfnsAgentConfiguration() throws UnknownHostException, UnexpectedException;
 
     protected Collection<String> getIpAddresses(Collection<String> serverNames) throws UnknownHostException {
         Set<String> ipAddresses = new HashSet<>();

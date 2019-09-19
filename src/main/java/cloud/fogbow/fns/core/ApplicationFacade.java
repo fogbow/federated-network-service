@@ -19,6 +19,7 @@ import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.*;
+import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
@@ -32,6 +33,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
+import sun.management.Agent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -140,8 +142,9 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             instanceIp = federatedNetworkOrder.getFreeIp();
+            AgentConfiguration agentConfiguration = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode()).configureAgent();
             UserData userData = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode())
-                .getComputeUserData(federatedCompute, federatedNetworkOrder, instanceIp);
+                .getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
             addUserData(federatedCompute, userData);
         }
 

@@ -7,7 +7,8 @@ public enum RemoteMethod {
     REMOTE_REMOVE_FEDNET("removeFederatedNetwork"),
     REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL("removeAgentToComputeTunnel"),
     REMOTE_ADD_INSTANCE_PUBLIC_KEY("addInstancePublicKey"),
-    REMOTE_GET_DFNS_AGENT_CONFIGURATION("getDfnsAgentConfiguration");
+    REMOTE_GET_DFNS_AGENT_CONFIGURATION("getDfnsAgentConfiguration"),
+    REMOTE_CONFIGURE_AGENT("remoteConfigureAgent");
 
     private final String namespace;
 

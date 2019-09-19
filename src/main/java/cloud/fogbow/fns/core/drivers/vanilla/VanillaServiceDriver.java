@@ -3,15 +3,12 @@ package cloud.fogbow.fns.core.drivers.vanilla;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.drivers.ServiceDriver;
+import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.core.serviceconnector.DefaultServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
+import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -21,20 +18,18 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-public class VanillaServiceDriver implements ServiceDriver {
+public class VanillaServiceDriver extends GeneralServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
-    private final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
-    private ServiceConnector defaultServiceConnetor;
 
     public VanillaServiceDriver() {
-        defaultServiceConnetor = new DefaultServiceConnector();
+
     }
 
     @Override
     public void processOpen(FederatedNetworkOrder order) throws FogbowException {
         try {
-            order.setVlanId(defaultServiceConnetor.acquireVlanId());
+            order.setVlanId(acquireVlanId());
         } catch(FogbowException ex) {
             LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
             throw new FogbowException(ex.getMessage());
@@ -54,14 +49,14 @@ public class VanillaServiceDriver implements ServiceDriver {
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
-        if (order.getOrderState() != OrderState.FAILED) {
+        if (!order.getOrderState().equals(OrderState.FAILED)) {
             for (String provider : order.getProviders().keySet()) {
                 if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
                    remove(order, provider);
                 }
             }
 
-            defaultServiceConnetor.releaseVlanId(order.getVlanId());
+            releaseVlanId(order.getVlanId());
         }
     }
 
@@ -75,7 +70,12 @@ public class VanillaServiceDriver implements ServiceDriver {
     }
 
     @Override
-    public UserData getComputeUserData(FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
+    public AgentConfiguration configureAgent() {
+        return null;
+    }
+
+    @Override
+    public UserData getComputeUserData(AgentConfiguration agentConfiguration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
             return FederatedComputeUtil.getVanillaUserData(instanceIp, order.getCidr());
         } catch (IOException e) {

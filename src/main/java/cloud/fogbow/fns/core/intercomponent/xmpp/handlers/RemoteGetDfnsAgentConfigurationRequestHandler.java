@@ -4,7 +4,7 @@ import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
-import cloud.fogbow.fns.core.serviceconnector.DfnsAgentConfiguration;
+import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppExceptionToErrorConditionTranslator;
 import org.dom4j.Element;
 import org.jamppa.component.handler.AbstractQueryHandler;
@@ -22,7 +22,7 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
         IQ response = IQ.createResultIQ(iq);
 
         try {
-            DfnsAgentConfiguration dfnsAgentConfiguration = RemoteFacade.getInstance().getDfnsAgentConfiguration();
+            AgentConfiguration dfnsAgentConfiguration = RemoteFacade.getInstance().getDfnsAgentConfiguration();
             updateResponse(response, dfnsAgentConfiguration);
         } catch (Exception e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
@@ -31,7 +31,7 @@ public class RemoteGetDfnsAgentConfigurationRequestHandler extends AbstractQuery
         return response;
     }
 
-    private void updateResponse(IQ response, DfnsAgentConfiguration dfnsAgentConfiguration) {
+    private void updateResponse(IQ response, AgentConfiguration dfnsAgentConfiguration) {
         Element queryElement = response.getElement().addElement(IqElement.QUERY.toString(), REMOTE_GET_DFNS_AGENT_CONFIGURATION);
         Element dfnsAgentConfigurationElement = queryElement.addElement(IqElement.DFNS_AGENT_CONFIGURATION.toString());
         Element dfnsAgentConfigurationClassElement = queryElement.addElement(IqElement.DFNS_AGENT_CONFIGURATION_CLASS.toString());

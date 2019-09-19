@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.BashScriptRunner;
 import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.*;
@@ -61,12 +62,21 @@ public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
         }
     }
 
+    public AgentConfiguration configureAgent(String publicKey) throws FogbowException {
+        RemoteConfigureAgent remoteConfigureAgentRequest = new RemoteConfigureAgent(this.memberToBeConfigured, publicKey);
+        try {
+            return remoteConfigureAgentRequest.send();
+        } catch (Exception e) {
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+    }
+
     @Override
-    public DfnsAgentConfiguration getDfnsAgentConfiguration() throws UnexpectedException {
+    public AgentConfiguration getDfnsAgentConfiguration() throws UnexpectedException {
         RemoteGetDfnsAgentConfigurationRequest request = new RemoteGetDfnsAgentConfigurationRequest(this.memberToBeConfigured);
 
         try {
-            DfnsAgentConfiguration dfnsAgentConfiguration = request.send();
+            AgentConfiguration dfnsAgentConfiguration = request.send();
             return dfnsAgentConfiguration;
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);

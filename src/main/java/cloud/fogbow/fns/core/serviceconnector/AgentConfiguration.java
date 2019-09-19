@@ -1,14 +1,15 @@
 package cloud.fogbow.fns.core.serviceconnector;
 
-public class DfnsAgentConfiguration {
+public class AgentConfiguration {
     private String defaultNetworkCidr;
     private String agentUser;
     private String publicKey;
+    private String privateKey;
 
     private String privateIpAddress;
     private String publicIpAddress;
 
-    public DfnsAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String privateIpAddress, String publicIpAddress) {
+    public AgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String privateIpAddress, String publicIpAddress) {
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
         this.publicKey = publicKey;
@@ -16,7 +17,7 @@ public class DfnsAgentConfiguration {
         this.publicIpAddress = publicIpAddress;
     }
 
-    public DfnsAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress) {
+    public AgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress) {
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
         this.privateIpAddress = privateIpAddress;
@@ -45,5 +46,13 @@ public class DfnsAgentConfiguration {
 
     public String getPublicIpAddress() {
         return publicIpAddress;
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
     }
 }
