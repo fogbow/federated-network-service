@@ -8,13 +8,12 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;;
 import org.apache.log4j.Logger;
 
-public class RemoteDfnsServiceConnector extends DfnsServiceConnector {
+public class RemoteDfnsServiceConnector {
     private static final Logger LOGGER = Logger.getLogger(RemoteDfnsServiceConnector.class);
 
     private String memberToBeConfigured;
 
     public RemoteDfnsServiceConnector(String memberToBeConfigured) {
-        super(new BashScriptRunner());
         this.memberToBeConfigured = memberToBeConfigured;
     }
 

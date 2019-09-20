@@ -9,6 +9,7 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.core.serviceconnector.*;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
@@ -24,9 +25,15 @@ import java.util.*;
 public class DfnsServiceDriver extends GeneralServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceDriver.class);
+    public static final int SUCCESS_EXIT_CODE = 0;
+    public static final int AGENT_SSH_PORT = 22;
 
+    public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
+    public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
+    public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
     private final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
     private String memberName;
+
 
     public DfnsServiceDriver() {
     }
@@ -46,49 +53,26 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
     }
 
     @Override
-    public void processSpawning(FederatedNetworkOrder order) throws FogbowException {
+    public void processSpawning(FederatedNetworkOrder order) {
         for (String provider : order.getProviders().keySet()) {
-            try {
-                if(!isRemote()) {
-                    configure(order)
-                }
-                MemberConfigurationState memberState = dfnsServiceConnetor.configure(order);
-                order.getProviders().put(provider, memberState);
-            } catch (FogbowException ex) {
-
-            }
-
+            //Here we used to run a script responsible for configure each
+            //provider, but once we do that in deployment time it is not necessary
+            //anymore.
+            order.getProviders().put(provider, MemberConfigurationState.SUCCESS);
         }
     }
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
-        if (order.getOrderState().equals(OrderState.FAILED)) {
-            for (String provider : federatedNetwork.getProviders().keySet()) {
-                ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                        federatedNetwork.getConfigurationMode(), provider);
-                if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-                    if (connector.remove(federatedNetwork)) {
-                        federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
-                    }
-                }
-            }
-
-            boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
-            if (!providersRemovedTheConfiguration) {
-                LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
-            }
-
-            ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                    federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
-            connector.releaseVlanId(federatedNetwork.getVlanId());
-            federatedNetwork.setVlanId(-1);
+        for (String provider : order.getProviders().keySet()) {
+            order.getProviders().put(provider, MemberConfigurationState.REMOVED);
         }
+        releaseVlanId(order.getVlanId());
+        order.setVlanId(-1);
     }
 
     @Override
-    public AgentConfiguration configureAgent() {
+    public AgentConfiguration configureAgent() throws FogbowException {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
@@ -96,12 +80,13 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                dfnsAgentConfiguration = new RemoteDfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX]);
+                dfnsAgentConfiguration = (SSAgentConfiguration) new RemoteDfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX]);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
         } catch(FogbowException ex) {
-
+            LOGGER.error(ex.getMessage());
+            throw new FogbowException(ex.getMessage());
         }
     }
 
@@ -153,7 +138,9 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
                     // waits for the command to finish
                     c.join();
 
-                    return c.getExitStatus() == SUCCESS_EXIT_CODE;
+                    if(c.getExitStatus() != SUCCESS_EXIT_CODE) {
+                        throw new UnexpectedException("Unable to add key in the agent's authorized keys");
+                    }
                 }
             } finally {
                 client.disconnect();
@@ -208,30 +195,6 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new UnexpectedException(e.getMessage(), e);
-        }
-    }
-
-    public MemberConfigurationState configure(FederatedNetworkOrder order) throws UnexpectedException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String sshCredentials = agentUser + "@" + agentPublicIp;
-
-        try {
-            // FIXME(pauloewerton): we decided not to run any scripts when creating a new fednet; we should decide what
-            // to do with this code later on; by now, it runs a shallow script at the agent.
-            String[] commandFirstPart = {"echo", CREATE_TUNNELS_SCRIPT_PATH, "|", "ssh", "-o", "UserKnownHostsFile=/dev/null",
-                    "-o", "StrictHostKeyChecking=no", sshCredentials, "-i", permissionFilePath, "-t", "-t"};
-            List<String> command = new ArrayList<>(Arrays.asList(commandFirstPart));
-            Set<String> allProviders = order.getProviders().keySet();
-
-            Collection<String> ipAddresses = getIpAddresses(excludeLocalProvider(allProviders));
-
-            BashScriptRunner.Output output = this.runner.runtimeRun(command.toArray(new String[]{}));
-            return (output.getExitCode() == SUCCESS_EXIT_CODE) ? MemberConfigurationState.SUCCESS : MemberConfigurationState.FAILED;
-        } catch (UnknownHostException e) {
-            LOGGER.error(e.getMessage(), e);
-            return MemberConfigurationState.FAILED;
         }
     }
 
