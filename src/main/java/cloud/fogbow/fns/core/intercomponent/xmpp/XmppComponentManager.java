@@ -12,12 +12,8 @@ public class XmppComponentManager extends XMPPComponent {
     public XmppComponentManager(String jid, String password, String xmppServerIp, int xmppServerPort, long timeout) {
         super(jid, password, xmppServerIp, xmppServerPort, timeout);
         // instantiate set handlers here
-        addSetHandler(new RemoteConfigureMemberRequestHandler());
-        addSetHandler(new RemoteRemoveFedNetRequestHandler());
+        addSetHandler(new RemoteConfigureAgentHandler());
         addSetHandler(new RemoteRemoveAgentToComputeTunnelRequestHandler());
-        addSetHandler(new RemoteRemoveAgentToComputeTunnelRequestHandler());
-        addSetHandler(new RemoteAllowAccessFromComputeToAgentRequestHandler());
         // instantiate get handlers here
-        addGetHandler(new RemoteGetDfnsAgentConfigurationRequestHandler());
     }
 }

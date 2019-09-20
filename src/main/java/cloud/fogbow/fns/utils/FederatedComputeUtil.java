@@ -3,7 +3,7 @@ package cloud.fogbow.fns.utils;
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.serviceconnector.SSAgentConfiguration;
+import cloud.fogbow.fns.core.intercomponent.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;

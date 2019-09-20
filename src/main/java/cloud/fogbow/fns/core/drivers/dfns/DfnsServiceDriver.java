@@ -9,8 +9,7 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.core.serviceconnector.*;
+import cloud.fogbow.fns.core.intercomponent.serviceconnector.*;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
 import net.schmizz.sshj.SSHClient;
@@ -18,9 +17,7 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
-import java.util.*;
 
 public class DfnsServiceDriver extends GeneralServiceDriver {
 
@@ -80,7 +77,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                dfnsAgentConfiguration = (SSAgentConfiguration) new RemoteDfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX]);
+                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX]);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
@@ -108,7 +105,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
             if(!isRemote()) {
                 removeAgentToComputeTunnel(order, hostIp);
             } else {
-                new RemoteDfnsServiceConnector(memberName).removeAgentToComputeTunnel(order, hostIp);
+                new DfnsServiceConnector(memberName).removeAgentToComputeTunnel(order, hostIp);
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());

@@ -4,7 +4,7 @@ import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
 import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
-import cloud.fogbow.fns.core.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.intercomponent.serviceconnector.AgentConfiguration;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppExceptionToErrorConditionTranslator;
 import com.google.gson.Gson;
 import org.dom4j.Element;

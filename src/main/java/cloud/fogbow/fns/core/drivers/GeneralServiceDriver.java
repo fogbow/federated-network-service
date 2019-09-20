@@ -12,9 +12,6 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
-import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.serviceconnector.DefaultServiceConnector;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 

@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.core.serviceconnector;
+package cloud.fogbow.fns.core.intercomponent.serviceconnector;
 
 public class SSAgentConfiguration implements AgentConfiguration {
     private String defaultNetworkCidr;
