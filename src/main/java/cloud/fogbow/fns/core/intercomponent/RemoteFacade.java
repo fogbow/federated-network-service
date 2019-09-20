@@ -4,6 +4,7 @@ import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
+import cloud.fogbow.fns.core.intercomponent.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 
 public class RemoteFacade {

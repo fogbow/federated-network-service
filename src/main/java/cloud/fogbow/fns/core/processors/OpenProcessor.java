@@ -9,8 +9,6 @@ import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.ServiceConnectorFactory;
 import org.apache.log4j.Logger;
 
 public class OpenProcessor implements Runnable {

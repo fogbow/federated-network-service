@@ -99,8 +99,8 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
                 "requestingMember", "providingMember"));
         federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
+//        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+//        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
         when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(true);
