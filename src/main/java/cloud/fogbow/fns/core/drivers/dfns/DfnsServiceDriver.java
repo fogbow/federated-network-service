@@ -7,13 +7,13 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
+import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.intercomponent.serviceconnector.*;
+import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
-import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -22,8 +22,6 @@ import java.security.GeneralSecurityException;
 public class DfnsServiceDriver extends GeneralServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceDriver.class);
-    public static final int SUCCESS_EXIT_CODE = 0;
-    public static final int AGENT_SSH_PORT = 22;
 
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
@@ -113,44 +111,13 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         }
     }
 
-    private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws UnexpectedException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-
-        SSHClient client = new SSHClient();
-        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
-
-        try {
-            try {
-                // connects to the DMZ host
-                client.connect(agentPublicIp, AGENT_SSH_PORT);
-
-                // authorizes using the DMZ private key
-                client.authPublickey(agentUser, permissionFilePath);
-
-                try (Session session = client.startSession()) {
-                    Session.Command c = session.exec(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey));
-
-                    // waits for the command to finish
-                    c.join();
-
-                    if(c.getExitStatus() != SUCCESS_EXIT_CODE) {
-                        throw new UnexpectedException("Unable to add key in the agent's authorized keys");
-                    }
-                }
-            } finally {
-                client.disconnect();
-            }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new UnexpectedException(e.getMessage(), e);
-        }
+    private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
+        AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT);
     }
 
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, ConfigurationMode.DFNS);
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
@@ -159,40 +126,11 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
 
-    public boolean removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws UnexpectedException {
+    public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-
-        SSHClient client = new SSHClient();
-        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
-
-        try {
-            try {
-                // connects to the DMZ host
-                client.connect(agentPublicIp, AGENT_SSH_PORT);
-
-                // authorizes using the DMZ private key
-                client.authPublickey(agentUser, permissionFilePath);
-
-                try (Session session = client.startSession()) {
-                    Session.Command c = session.exec(removeTunnelCommand);
-
-                    // waits for the command to finish
-                    c.join();
-
-                    return c.getExitStatus() == SUCCESS_EXIT_CODE;
-                }
-            } finally {
-                client.disconnect();
-            }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new UnexpectedException(e.getMessage(), e);
-        }
+        AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL);
     }
 
     private boolean isRemote() {

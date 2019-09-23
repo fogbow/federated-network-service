@@ -7,4 +7,6 @@ public class SystemConstants {
 
     // CONFIGURATION FILES PATHS
     public static final String FNS_CONF_FILE = "fns.conf";
+    public static final String DFNS_CONF_FILE = "services/dfns/dfns.conf";
+    public static final String VANILLA_CONF_FILE = "services/vanilla/vanilla.conf";
 }

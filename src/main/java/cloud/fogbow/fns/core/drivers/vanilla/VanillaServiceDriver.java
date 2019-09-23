@@ -7,9 +7,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.core.intercomponent.serviceconnector.AgentConfiguration;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.SSAgentConfiguration;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -50,15 +48,13 @@ public class VanillaServiceDriver extends GeneralServiceDriver {
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
-        if (!order.getOrderState().equals(OrderState.FAILED)) {
-            for (String provider : order.getProviders().keySet()) {
-                if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-                   remove(order, provider);
-                }
+        for (String provider : order.getProviders().keySet()) {
+            if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
+               remove(order, provider);
             }
-
-            releaseVlanId(order.getVlanId());
         }
+
+        releaseVlanId(order.getVlanId());
     }
 
     private void remove(FederatedNetworkOrder order, String provider) throws FogbowException{

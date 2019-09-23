@@ -270,7 +270,7 @@ public class ApplicationFacade {
     }
 
     private String getComputeIpFromDefaultNetwork(List<String> computeIps) throws InvalidCidrException {
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, ConfigurationMode.DFNS);
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
 
         if (computeIps != null) {
