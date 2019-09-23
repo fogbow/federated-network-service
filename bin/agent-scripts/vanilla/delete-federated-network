@@ -15,3 +15,4 @@ cat $absoluteIpsecTmpPath > $absoluteIpsecConfPath
 rm $absoluteIpsecTmpPath
 
 ipsec restart
+rm $0

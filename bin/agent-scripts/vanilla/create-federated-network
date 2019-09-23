@@ -61,3 +61,4 @@ sysctl net.ipv6.conf.all.forwarding=1
 
 sudo ipsec rereadsecrets
 sudo ipsec restart
+rm $0

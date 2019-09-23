@@ -27,6 +27,7 @@ public class ConfigurationPropertyKeys {
     public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY = "federated_network_agent_private_address";
     public static final String FEDERATED_NETWORK_AGENT_ADDRESS_KEY = "federated_network_agent_address";
     public static final String FEDERATED_NETWORK_PRE_SHARED_KEY_KEY = "federated_network_agent_pre_shared_key";
+    public static final String AGENT_SCRIPTS_PATH_KEY = "agent_scripts_path";
 
     // DFNS configuration
     public static final String VLAN_ID_SERVICE_URL_KEY = "vlan_id_service_url";

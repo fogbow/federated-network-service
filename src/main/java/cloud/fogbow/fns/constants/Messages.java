@@ -60,5 +60,6 @@ public class Messages {
         public static final String TRYING_TO_DELETE_AGENT_OUTPUT = "Trying to delete agent with atts (%s). Output : %s.";
         public static final String UNABLE_TO_CALL_AGENT = "Unable to call agent; process command: %s";
         public static final String UNABLE_TO_DELETE_AGENT = "Unable to delete agent; process command: %s";
+        public static final String UNABLE_TO_COPY_FILE_REMOTLY = "Unable to copy file remotly";
     }
 }
