@@ -4,6 +4,7 @@ import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
+import cloud.fogbow.fns.core.model.ConfigurationMode;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import org.apache.log4j.Logger;
@@ -27,7 +28,7 @@ public class AgentCommunicatorUtil {
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
+        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, ConfigurationMode.VANILLA);
 
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
@@ -54,7 +55,7 @@ public class AgentCommunicatorUtil {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
+        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, ConfigurationMode.VANILLA);
 
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
