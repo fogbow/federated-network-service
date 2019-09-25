@@ -24,20 +24,14 @@ import java.util.Properties;
 public class VanillaServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
-    private Properties properties;
-
+    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "vanilla" + File.separator + "driver.conf");
+    private final int DEFAULT_VLAN_ID = -1;
     public VanillaServiceDriver() {
-        properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "vanilla" + File.separator + "driver.conf");
     }
 
     @Override
-    public void processOpen(FederatedNetworkOrder order) throws FogbowException {
-        try {
-            order.setVlanId(acquireVlanId());
-        } catch(FogbowException ex) {
-            LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
-            throw new FogbowException(ex.getMessage());
-        }
+    public void processOpen(FederatedNetworkOrder order) {
+        order.setVlanId(DEFAULT_VLAN_ID);
     }
 
     @Override
@@ -58,8 +52,6 @@ public class VanillaServiceDriver extends CommonServiceDriver {
                remove(order, provider);
             }
         }
-
-        releaseVlanId(order.getVlanId());
     }
 
     private void remove(FederatedNetworkOrder order, String provider) throws FogbowException{
@@ -86,7 +78,12 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException{
+    public void cleanup(FederatedNetworkOrder order, String hostIp){
 
+    }
+
+    @Override
+    public String getHostIp() {
+        return properties.getProperty(VanillaConfigurationPropertyKeys.HOST_IP_KEY);
     }
 }

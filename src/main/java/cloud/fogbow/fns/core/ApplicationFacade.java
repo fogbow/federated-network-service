@@ -15,8 +15,7 @@ import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
-import cloud.fogbow.fns.core.drivers.dfns.DfnsConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.drivers.ServiceDriver;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
@@ -141,10 +140,10 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             instanceIp = federatedNetworkOrder.getFreeIp();
-            String serviceName = federatedNetworkOrder.getConfigurationMode().getValue();
-            AgentConfiguration agentConfiguration = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode()).configureAgent();
-            UserData userData = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode())
-                .getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
+            String serviceName = federatedNetworkOrder.getServiceName();
+            ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
+            AgentConfiguration agentConfiguration = driver.configureAgent();
+            UserData userData = driver.getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
             addUserData(federatedCompute, userData);
         }
 
@@ -201,10 +200,8 @@ public class ApplicationFacade {
 
         if(federatedNetworkOrder != null) {
             //maybe it should come from a conf file
-            String hostIp = currentMode.equals(ConfigurationMode.DFNS) ?
-                this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses()) : null;
-
-            ServiceDriverFactory.getInstance().getServiceDriver(currentMode).cleanup(federatedNetworkOrder, hostIp);
+            ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
+            driver.cleanup(federatedNetworkOrder, driver.getHostIp());
         }
     }
 
@@ -267,21 +264,6 @@ public class ApplicationFacade {
             throw new UnauthorizedRequestException(Messages.Exception.REQUESTER_DOES_NOT_OWN_REQUEST);
         }
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
-    }
-
-    private String getComputeIpFromDefaultNetwork(List<String> computeIps) throws InvalidCidrException {
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, "dfns");
-        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
-
-        if (computeIps != null) {
-            for (String ip : computeIps) {
-                if (subnetInfo.isInRange(ip)) {
-                    return ip;
-                }
-            }
-        }
-
-        return null;
     }
 
     private void addUserData(FederatedCompute compute, UserData userData) {

@@ -69,6 +69,9 @@ public class FederatedNetworkOrder implements Serializable {
     @Enumerated(EnumType.STRING)
     private ConfigurationMode configurationMode;
 
+    @Column
+    private String serviceName;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
     @Column
@@ -97,45 +100,49 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps = new ArrayList<>();
     }
 
-    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider) {
+    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider, String serviceName) {
         this();
         this.id = String.valueOf(UUID.randomUUID());
         this.systemUser = systemUser;
         this.requester = requester;
         this.provider = provider;
+        this.serviceName = serviceName;
     }
 
     /**
      * Creating Order with predefined Id.
      */
-    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester, String provider) {
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester, String provider, String serviceName) {
         this(id);
         this.systemUser = systemUser;
         this.requester = requester;
         this.provider = provider;
+        this.serviceName = serviceName;
     }
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requester,
                                  String provider, String cidr, String name, HashMap<String, MemberConfigurationState> providers,
-                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState) {
-        this(id, systemUser, requester, provider);
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState, String serviceName) {
+        this(id, systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
         this.orderState = orderState;
+        this.serviceName = serviceName;
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider,
                                  String cidr, String name, HashMap<String, MemberConfigurationState> providers,
-                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps) {
-        this(systemUser, requester, provider);
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, String serviceName) {
+        this(systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
+        this.serviceName = serviceName;
     }
 
     public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws UnexpectedException {
@@ -426,5 +433,13 @@ public class FederatedNetworkOrder implements Serializable {
     public String toString() {
         return "Order [id=" + this.id + ", orderState=" + this.orderState + ", requester=" +
                 this.requester + ", provider=" + this.provider + "]";
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

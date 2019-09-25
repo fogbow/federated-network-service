@@ -6,7 +6,7 @@ import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
-import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
+import cloud.fogbow.fns.core.ServiceDriverConnector;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.apache.log4j.Logger;
@@ -55,7 +55,7 @@ public class OpenProcessor implements Runnable {
             }
 
             try {
-                ServiceDriverFactory.getInstance().getServiceDriver(order.getConfigurationMode()).processOpen(order);
+                new ServiceDriverConnector(order.getServiceName()).getDriver().processOpen(order);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
             } catch (FogbowException e) {
                 LOGGER.error(e.getMessage(), e);

@@ -123,6 +123,11 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         }
     }
 
+    @Override
+    public String getHostIp() {
+        return properties.getProperty(DfnsConfigurationPropertyKeys.HOST_IP_KEY);
+    }
+
     private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
         AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT);
     }
@@ -145,7 +150,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL);
     }
 
-    public int acquireVlanId() throws FogbowException {
+    private int acquireVlanId() throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
@@ -161,7 +166,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return vlanId.vlanId;
     }
 
-    public void releaseVlanId(int vlanId) throws FogbowException {
+    private void releaseVlanId(int vlanId) throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);

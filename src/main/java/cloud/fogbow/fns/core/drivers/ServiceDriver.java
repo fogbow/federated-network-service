@@ -18,4 +18,6 @@ public interface ServiceDriver {
     UserData getComputeUserData(AgentConfiguration agentConfiguration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException;
 
     void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException;
+
+    String getHostIp() throws FogbowException;
 }
