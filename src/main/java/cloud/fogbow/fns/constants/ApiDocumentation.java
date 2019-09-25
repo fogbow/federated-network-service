@@ -46,5 +46,11 @@ public class ApiDocumentation {
         public static final String IP = "188.140.0.5";
         public static final String IP_NOTE = "(the IPs assigned to the compute)";
         public static final String DFNS_EXAMPLE = "dfns";
+        public static final String SERVICE_LIST = "[{\"serviceNames:\" \"[dfns, vanilla]\"}]";
+    }
+
+    public static class Service {
+        public static final String API = "Handle operations related to the available services";
+        public static final String GET_OPERATION = "Returns the service names available in the site";
     }
 }

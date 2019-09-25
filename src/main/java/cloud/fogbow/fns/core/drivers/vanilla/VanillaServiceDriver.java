@@ -78,12 +78,12 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanup(FederatedNetworkOrder order, String hostIp){
+    public void cleanupAgent(FederatedNetworkOrder order, String hostIp){
 
     }
 
     @Override
-    public String getHostIp() {
+    public String getAgentIp() {
         return properties.getProperty(VanillaConfigurationPropertyKeys.HOST_IP_KEY);
     }
 }

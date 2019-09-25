@@ -27,7 +27,7 @@ public class RemoteFacade {
 
     public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
         DfnsServiceDriver serviceDriver = new DfnsServiceDriver(LOCAL_MEMBER_NAME);
-        serviceDriver.cleanup(order, hostIp);
+        serviceDriver.cleanupAgent(order, hostIp);
     }
 
     public SSAgentConfiguration configureAgent(String publicKey) throws FogbowException {

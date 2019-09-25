@@ -201,7 +201,7 @@ public class ApplicationFacade {
         if(federatedNetworkOrder != null) {
             //maybe it should come from a conf file
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
-            driver.cleanup(federatedNetworkOrder, driver.getHostIp());
+            driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
         }
     }
 
@@ -227,6 +227,13 @@ public class ApplicationFacade {
         ComputeInstance computeInstance = gson.fromJson(responseEntity.getBody(), ComputeInstance.class);
         this.computeRequestsController.addFederatedIpInGetInstanceIfApplied(computeInstance, computeId);
         return computeInstance;
+    }
+
+    public List<String> getServiceNames(String systemUserToken) throws FogbowException{
+        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        FnsOperation fnsOperation = new FnsOperation(Operation.GET, ResourceType.SERVICE_NAMES);
+        this.authorizationPlugin.isAuthorized(requester, fnsOperation);
+        return this.serviceListController.getServiceNames();
     }
 
     public void setFederatedNetworkOrderController(FederatedNetworkOrderController federatedNetworkOrderController) {

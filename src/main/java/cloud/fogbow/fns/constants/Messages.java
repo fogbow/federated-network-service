@@ -47,6 +47,7 @@ public class Messages {
         public static final String STARTING_THREADS = "Starting threads.";
         public static final String NO_REMOTE_COMMUNICATION_CONFIGURED = "No remote communication configured.";
         public static final String INITIALIZING_DELETE_METHOD = "Initializing delete method, federated network id: %s.";
+        public static final String RECEIVING_GET_SERVICES_REQUEST = "Receiving get services request";
     }
 
     public static class Error {

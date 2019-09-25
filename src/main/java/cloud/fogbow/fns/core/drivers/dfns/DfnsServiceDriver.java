@@ -110,7 +110,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanup(FederatedNetworkOrder order, String hostIp) throws FogbowException {
+    public void cleanupAgent(FederatedNetworkOrder order, String hostIp) throws FogbowException {
         try {
             if(!isRemote()) {
                 removeAgentToComputeTunnel(order, hostIp);
@@ -124,7 +124,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public String getHostIp() {
+    public String getAgentIp() {
         return properties.getProperty(DfnsConfigurationPropertyKeys.HOST_IP_KEY);
     }
 
