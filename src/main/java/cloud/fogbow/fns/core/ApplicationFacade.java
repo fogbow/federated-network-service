@@ -12,6 +12,7 @@ import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
+import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
@@ -56,7 +57,7 @@ public class ApplicationFacade {
 
     private ApplicationFacade() {
         this.asPublicKey = null;
-        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY);
+        this.buildNumber = PropertiesHolder.getInstance().getPropertyOrDefault(ConfigurationPropertyKeys.BUILD_NUMBER_KEY, ConfigurationPropertyDefaults.BUILD_NUMBER);
     }
 
     public static ApplicationFacade getInstance() {

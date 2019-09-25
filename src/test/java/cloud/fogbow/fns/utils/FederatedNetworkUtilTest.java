@@ -40,7 +40,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         String cidr = "10.0.0.0/24";
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "name", allowedMembers, freedIps, computesIp));
+                "name", allowedMembers, freedIps, computesIp, "vanilla"));
 
         //exercise
         String freeIp = federatedNetwork.getFreeIp();
@@ -86,7 +86,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
         String cidr = "10.0.0.0/" + mask;
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "name", allowedMembers, freedIps, computesIp);
+                "name", allowedMembers, freedIps, computesIp, "vanilla");
 
         //exercise
         fillInFederatedNetwork(federatedNetwork, mask);
@@ -111,7 +111,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
         String cidr = "10.0.0.0/" + mask;
         FederatedNetworkOrder federatedNetwork = new FederatedNetworkOrder(user, MEMBER, MEMBER, cidr,
-                "name", allowedMembers, freedIps, computesIp);
+                "name", allowedMembers, freedIps, computesIp, "vanilla");
         //exercise
         federatedNetwork.fillCacheOfFreeIps();
         //verify

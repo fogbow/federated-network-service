@@ -28,8 +28,6 @@ public class FederatedComputeUtil {
     public static final String PRE_SHARED_KEY_KEY = "#PRE_SHARED_KEY#";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
-    public static final String AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-    public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY);
 
     // DFNS TOKENS
     public static final String CIDR_KEY = "#CIDR#";
@@ -40,6 +38,8 @@ public class FederatedComputeUtil {
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
     public static final String DFNS_SERVICE_NAME = "dfns";
+    public static final String AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, DFNS_SERVICE_NAME);
+    public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, DFNS_SERVICE_NAME);
 
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {

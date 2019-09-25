@@ -15,8 +15,6 @@ import cloud.fogbow.fns.constants.Messages;
 import java.io.IOException;
 import java.util.UUID;
 
-import static cloud.fogbow.fns.constants.ConfigurationPropertyKeys.*;
-
 public class AgentCommunicatorUtil {
 
     private static final Logger LOGGER = Logger.getLogger(AgentCommunicatorUtil.class);
@@ -28,12 +26,12 @@ public class AgentCommunicatorUtil {
     public static final String VANILLA_SERVICE_NAME = "vanilla";
 
     public static void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
+        String agentUser = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
+        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, VANILLA_SERVICE_NAME);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
         String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(addFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
@@ -59,11 +57,11 @@ public class AgentCommunicatorUtil {
     }
 
     public static void deleteFederatedNetwork(String cidr) throws FogbowException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
+        String agentUser = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
         String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(removeFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
@@ -108,10 +106,10 @@ public class AgentCommunicatorUtil {
         return remoteFilePath;
     }
 
-    public static void executeAgentCommand(String command, String exceptionMessage) throws FogbowException{
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+    public static void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
+        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
 
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);

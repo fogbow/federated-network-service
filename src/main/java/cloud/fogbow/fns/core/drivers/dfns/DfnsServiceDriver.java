@@ -10,10 +10,8 @@ import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -132,16 +130,16 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
-        AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT);
+        AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
     }
 
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, properties.getProperty(DfnsConfigurationPropertyKeys.SERVICE_NAME_KEY));
+        String defaultNetworkCidr = properties.getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
 
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
-        String publicIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String agentUser = properties.getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPrivateIpAddress = properties.getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
+        String publicIpAddress = properties.getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
@@ -150,7 +148,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
-        AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL);
+        AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL, SERVICE_NAME);
     }
 
     private int acquireVlanId() throws FogbowException {
@@ -197,6 +195,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     private boolean isRemote() {
-        return LOCAL_MEMBER_NAME.equals(memberName);
+        return memberName != null && LOCAL_MEMBER_NAME.equals(memberName);
     }
 }

@@ -59,7 +59,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         this.systemUser = new SystemUser(USER_ID, USER_NAME, TOKEN_PROVIDER);
         this.federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN);
+                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla");
     }
 
     //test case: Tests if the activation order made in federatedNetworkOrderController will call the expected methods
@@ -96,7 +96,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
-                "requestingMember", "providingMember"));
+                "requestingMember", "providingMember", "vanilla"));
         federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
 //        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
@@ -121,7 +121,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
-                "requestingMember", "providingMember"));
+                "requestingMember", "providingMember", "vanilla"));
         federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
@@ -237,7 +237,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla"));
         federatedNetwork.setOrderState(OrderState.OPEN);
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -480,11 +480,11 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         SystemUser unusedUser = new SystemUser("unusedUser", USER_NAME, TOKEN_PROVIDER);
 
         String id1 = "fake-id-1";
-        FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member);
+        FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member, "vanilla");
         order1.setOrderStateInTestMode(OrderState.FULFILLED);
 
         String id2 = "fake-id-2";
-        FederatedNetworkOrder order2 = new FederatedNetworkOrder(id2, unusedUser, member, member);
+        FederatedNetworkOrder order2 = new FederatedNetworkOrder(id2, unusedUser, member, member, "vanilla");
         order2.setOrderStateInTestMode(OrderState.FULFILLED);
 
         List<FederatedNetworkOrder> expectedFilteredOrders = new ArrayList<>();
@@ -530,7 +530,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla"));
         federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);
     }
 

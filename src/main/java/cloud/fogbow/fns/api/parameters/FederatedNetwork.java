@@ -22,6 +22,8 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
     private Set<String> providers;
     @ApiModelProperty(position = 3, example = ApiDocumentation.Model.DFNS_EXAMPLE)
     private ConfigurationMode mode;
+    @ApiModelProperty(position = 3, example = ApiDocumentation.Model.DFNS_EXAMPLE)
+    private String serviceName;
 
     @Override
     public FederatedNetworkOrder getOrder() {
@@ -32,6 +34,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         order.setName(this.name == null ? SystemConstants.FOGBOW_INSTANCE_NAME_PREFIX+UUID.randomUUID() : this.name);
         order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
         order.setConfigurationMode((this.mode == null ? ConfigurationMode.VANILLA : this.mode));
+        order.setServiceName(this.serviceName);
         return order;
     }
 
@@ -49,5 +52,13 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
 
     public ConfigurationMode getMode() {
         return mode;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

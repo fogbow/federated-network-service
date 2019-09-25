@@ -24,6 +24,7 @@ public class Messages {
 
     public static class Fatal {
         public static final String UNABLE_TO_FIND_CLASS_S = "Unable to find class %s.";
+        public static final String NO_SERVICE_SPECIFIED = "No service has been specified";
     }
 
     public static class Warn {
