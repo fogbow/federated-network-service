@@ -48,6 +48,9 @@ public class SpawningProcessor implements Runnable {
             if(!order.getOrderState().equals(OrderState.SPAWNING)) return;
 
             try {
+                //The driver, with this call, must do all the operations needed to make the order able to move
+                //to fulfilled state, according to its specification. If it can't be done a FogbowException
+                //must be thrown.
                 new ServiceDriverConnector(order.getServiceName()).getDriver().processSpawning(order);
                 OrderStateTransitioner.transition(order, OrderState.FULFILLED);
             } catch (FogbowException ex) {

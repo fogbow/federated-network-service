@@ -65,7 +65,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         for (String provider : order.getProviders().keySet()) {
             //Here we used to run a script responsible for configure each
             //provider, but once we do that in deployment time it is not necessary
-            //anymore.
+            //anymore. Thus, the only operation to be done is to change the
+            //member's state to SUCCESS for each member. Once it can't result
+            //in an Exception, it is not necessary to handle edge cases.
             order.getProviders().put(provider, MemberConfigurationState.SUCCESS);
         }
     }

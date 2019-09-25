@@ -55,6 +55,8 @@ public class OpenProcessor implements Runnable {
             }
 
             try {
+                //The driver, with this call, must do all the operations needed to make the order able to move
+                //to spawning state, according to its specification. If it can't be done, a FogbowException must be thrown.
                 new ServiceDriverConnector(order.getServiceName()).getDriver().processOpen(order);
                 OrderStateTransitioner.transition(order, OrderState.SPAWNING);
             } catch (FogbowException e) {
