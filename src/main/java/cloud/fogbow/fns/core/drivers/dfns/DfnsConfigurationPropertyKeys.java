@@ -7,4 +7,5 @@ public class DfnsConfigurationPropertyKeys {
     public static final String CREATE_TUNNELS_SCRIPT_PATH_KEY = "create_federated_network_script_path";
     public static final String CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY = "create_tunnel_from_compute_to_agent_script_path";
     public static final String HOST_IP_KEY = "host_ip";
+    public static final String SERVICE_NAME_KEY = "service_name";
 }

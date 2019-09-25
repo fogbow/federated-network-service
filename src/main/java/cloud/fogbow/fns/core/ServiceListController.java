@@ -23,7 +23,7 @@ public class ServiceListController {
         for (String serviceName : serviceNamesList.split(",")) {
             serviceName = serviceName.trim();
             // Here we populate the list of clouds configured and, at the same time, check if all
-            // clouds have been correctly configured. If not, the RAS won't even start, and will throw a
+            // clouds have been correctly configured. If not, FNS won't even start, and will throw a
             // fatal exception.
             new ServiceDriverConnector(serviceName);
             this.serviceNames.add(serviceName);

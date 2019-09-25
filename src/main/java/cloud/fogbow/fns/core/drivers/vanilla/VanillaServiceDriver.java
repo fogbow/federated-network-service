@@ -6,6 +6,7 @@ import cloud.fogbow.common.util.HomeDir;
 import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -24,7 +25,8 @@ import java.util.Properties;
 public class VanillaServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
-    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "vanilla" + File.separator + "driver.conf");
+    private static final String SERVICE_NAME = "vanilla";
+    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + SystemConstants.SERVICES_DIRECTORY + File.separator + SERVICE_NAME + File.separator + SystemConstants.DRIVER_CONF_FILE);
     private final int DEFAULT_VLAN_ID = -1;
     public VanillaServiceDriver() {
     }

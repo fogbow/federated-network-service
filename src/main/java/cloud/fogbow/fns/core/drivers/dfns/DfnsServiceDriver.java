@@ -12,6 +12,7 @@ import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
@@ -32,7 +33,9 @@ import java.util.Properties;
 public class DfnsServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceDriver.class);
-    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "dfns" + File.separator + "driver.conf");;
+    private static final String SERVICE_NAME = "dfns";
+    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + SystemConstants.SERVICES_DIRECTORY +
+        File.separator + SERVICE_NAME + File.separator + SystemConstants.DRIVER_CONF_FILE);
     public static final String VLAN_ID_SERVICE_URL = properties.getProperty(DfnsConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
@@ -134,7 +137,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, "dfns");
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, properties.getProperty(DfnsConfigurationPropertyKeys.SERVICE_NAME_KEY));
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);

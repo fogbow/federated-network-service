@@ -39,6 +39,7 @@ public class FederatedComputeUtil {
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
+    public static final String DFNS_SERVICE_NAME = "dfns";
 
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
@@ -56,7 +57,7 @@ public class FederatedComputeUtil {
     @NotNull
     public static UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
         String scriptKey = DfnsConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
-        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, "dfns");
+        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DFNS_SERVICE_NAME);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
 

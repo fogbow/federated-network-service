@@ -25,14 +25,15 @@ public class AgentCommunicatorUtil {
     public static final int AGENT_SSH_PORT = 22;
     public static final String DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX = "delete-federated-network";
     public static final String CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX = "create-federated-network";
+    public static final String VANILLA_SERVICE_NAME = "vanilla";
 
     public static void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "vanilla");
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, "vanilla") + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(addFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
@@ -61,8 +62,8 @@ public class AgentCommunicatorUtil {
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
-        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "vanilla");
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, "vanilla") + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(removeFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
