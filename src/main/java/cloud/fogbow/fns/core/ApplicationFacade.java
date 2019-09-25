@@ -12,15 +12,14 @@ import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.ServiceDriverFactory;
+import cloud.fogbow.fns.core.drivers.dfns.DfnsConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.*;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.AgentConfiguration;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.SSAgentConfiguration;
+import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
@@ -54,11 +53,11 @@ public class ApplicationFacade {
     private AuthorizationPlugin<FnsOperation> authorizationPlugin;
     private RSAPublicKey asPublicKey;
     private String buildNumber;
+    private ServiceListController serviceListController;
 
     private ApplicationFacade() {
         this.asPublicKey = null;
-        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY,
-                ConfigurationPropertyDefaults.BUILD_NUMBER);
+        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY);
     }
 
     public static ApplicationFacade getInstance() {
@@ -142,6 +141,7 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             instanceIp = federatedNetworkOrder.getFreeIp();
+            String serviceName = federatedNetworkOrder.getConfigurationMode().getValue();
             AgentConfiguration agentConfiguration = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode()).configureAgent();
             UserData userData = ServiceDriverFactory.getInstance().getServiceDriver(federatedNetworkOrder.getConfigurationMode())
                 .getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
@@ -270,7 +270,7 @@ public class ApplicationFacade {
     }
 
     private String getComputeIpFromDefaultNetwork(List<String> computeIps) throws InvalidCidrException {
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, ConfigurationMode.DFNS);
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, "dfns");
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
 
         if (computeIps != null) {
@@ -294,5 +294,13 @@ public class ApplicationFacade {
         }
 
         userDataList.add(userData);
+    }
+
+    public ServiceListController getServiceListController() {
+        return serviceListController;
+    }
+
+    public void setServiceListController(ServiceListController serviceListController) {
+        this.serviceListController = serviceListController;
     }
 }

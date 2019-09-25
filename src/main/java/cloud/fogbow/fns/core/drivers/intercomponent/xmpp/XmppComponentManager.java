@@ -1,6 +1,6 @@
-package cloud.fogbow.fns.core.intercomponent.xmpp;
+package cloud.fogbow.fns.core.drivers.intercomponent.xmpp;
 
-import cloud.fogbow.fns.core.intercomponent.xmpp.handlers.*;
+import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.handlers.*;
 import org.apache.log4j.Logger;
 import org.jamppa.component.XMPPComponent;
 

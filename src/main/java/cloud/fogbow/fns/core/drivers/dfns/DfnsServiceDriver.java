@@ -1,32 +1,44 @@
 package cloud.fogbow.fns.core.drivers.dfns;
 
+import cloud.fogbow.common.constants.HttpConstants;
+import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.common.util.HomeDir;
+import cloud.fogbow.common.util.PropertiesUtil;
+import cloud.fogbow.common.util.connectivity.HttpRequestClient;
+import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
-import cloud.fogbow.fns.core.model.ConfigurationMode;
+import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
+import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.*;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
+import org.springframework.http.HttpStatus;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.Properties;
 
-public class DfnsServiceDriver extends GeneralServiceDriver {
+public class DfnsServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceDriver.class);
-
+    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "dfns" + File.separator + "driver.conf");;
+    public static final String VLAN_ID_SERVICE_URL = properties.getProperty(DfnsConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
+    public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
     public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
-    private final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
+    private final String LOCAL_MEMBER_NAME = properties.getProperty(DfnsConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
     private String memberName;
 
 
@@ -117,7 +129,7 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
 
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, ConfigurationMode.DFNS);
+        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY, "dfns");
 
         String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
@@ -131,6 +143,49 @@ public class DfnsServiceDriver extends GeneralServiceDriver {
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
         AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL);
+    }
+
+    public int acquireVlanId() throws FogbowException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        String acquireVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
+
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.GET, acquireVlanIdEndpoint, headers, new HashMap<>());
+
+        if (response.getHttpCode() == HttpStatus.NOT_ACCEPTABLE.value()) {
+            throw new NoVlanIdsLeftException();
+        }
+
+        VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
+        return vlanId.vlanId;
+    }
+
+    public void releaseVlanId(int vlanId) throws FogbowException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+        headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
+
+        String jsonBody = GsonHolder.getInstance().toJson(new VlanId(vlanId));
+        HashMap<String, String> body = GsonHolder.getInstance().fromJson(jsonBody, HashMap.class);
+
+        String releaseVlanIdEndpoint = VLAN_ID_SERVICE_URL + VLAN_ID_ENDPOINT;
+
+        HttpResponse response = HttpRequestClient.doGenericRequest(HttpMethod.POST, releaseVlanIdEndpoint, headers, body);
+
+        if (response.getHttpCode() == HttpStatus.NOT_FOUND.value()) {
+            LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
+            throw new UnexpectedException(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
+        }
+    }
+
+    private class VlanId {
+
+        private int vlanId;
+
+        public VlanId(int vlanId) {
+            this.vlanId = vlanId;
+        }
     }
 
     private boolean isRemote() {

@@ -2,12 +2,14 @@ package cloud.fogbow.fns.core.drivers.vanilla;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.HomeDir;
+import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.drivers.GeneralServiceDriver;
+import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.core.intercomponent.serviceconnector.AgentConfiguration;
+import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -15,14 +17,17 @@ import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
-public class VanillaServiceDriver extends GeneralServiceDriver {
+public class VanillaServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
+    private Properties properties;
 
     public VanillaServiceDriver() {
-
+        properties = PropertiesUtil.readProperties(HomeDir.getPath() + "services"+ File.separator + "vanilla" + File.separator + "driver.conf");
     }
 
     @Override

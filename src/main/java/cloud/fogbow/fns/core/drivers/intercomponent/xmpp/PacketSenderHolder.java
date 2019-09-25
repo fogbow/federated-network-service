@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.core.intercomponent.xmpp;
+package cloud.fogbow.fns.core.drivers.intercomponent.xmpp;
 
 import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;

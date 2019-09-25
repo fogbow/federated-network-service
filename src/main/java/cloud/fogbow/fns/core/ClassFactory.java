@@ -11,7 +11,7 @@ import java.lang.reflect.Constructor;
 public class ClassFactory {
     private static final Logger LOGGER = Logger.getLogger(ClassFactory.class);
 
-    public Object createPluginInstance(String pluginClassName, String parameter1, String parameter2)
+    public Object createInstance(String pluginClassName, String parameter1, String parameter2)
             throws FatalErrorException {
 
         Object pluginInstance = null;
@@ -33,7 +33,7 @@ public class ClassFactory {
         return pluginInstance;
     }
 
-    public Object createPluginInstance(String pluginClassName, String parameter) throws FatalErrorException {
+    public Object createInstance(String pluginClassName, String parameter) throws FatalErrorException {
 
         Object pluginInstance = null;
 
@@ -54,7 +54,7 @@ public class ClassFactory {
         return pluginInstance;
     }
 
-    public Object createPluginInstance(String pluginClassName) throws FatalErrorException {
+    public Object createInstance(String className) throws FatalErrorException {
 
         Object pluginInstance = null;
 
@@ -62,12 +62,12 @@ public class ClassFactory {
         Constructor<?> constructor;
 
         try {
-            classpath = Class.forName(pluginClassName);
+            classpath = Class.forName(className);
             constructor = classpath.getConstructor();
             pluginInstance = constructor.newInstance();
         } catch (ClassNotFoundException e) {
             String msg = Messages.Fatal.UNABLE_TO_FIND_CLASS_S;
-            throw new FatalErrorException(String.format(msg, pluginClassName));
+            throw new FatalErrorException(String.format(msg, className));
         } catch (Exception e) {
             throw new FatalErrorException(e.getMessage(), e);
         }

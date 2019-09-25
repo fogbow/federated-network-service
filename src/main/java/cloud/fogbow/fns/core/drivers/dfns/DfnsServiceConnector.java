@@ -1,8 +1,8 @@
-package cloud.fogbow.fns.core.intercomponent.serviceconnector;
+package cloud.fogbow.fns.core.drivers.dfns;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.core.intercomponent.xmpp.requesters.*;
+import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.requesters.*;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 ;
 import org.apache.log4j.Logger;

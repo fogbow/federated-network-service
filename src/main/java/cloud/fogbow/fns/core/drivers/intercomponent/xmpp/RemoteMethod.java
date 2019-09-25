@@ -1,4 +1,4 @@
-package cloud.fogbow.fns.core.intercomponent.xmpp;
+package cloud.fogbow.fns.core.drivers.intercomponent.xmpp;
 
 public enum RemoteMethod {
     REMOTE_CONFIGURE_MEMBER("remoteConfigureMember"),

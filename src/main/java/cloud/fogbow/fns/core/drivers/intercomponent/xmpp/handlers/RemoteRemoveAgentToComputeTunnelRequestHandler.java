@@ -1,9 +1,9 @@
-package cloud.fogbow.fns.core.intercomponent.xmpp.handlers;
+package cloud.fogbow.fns.core.drivers.intercomponent.xmpp.handlers;
 
 import cloud.fogbow.common.util.GsonHolder;
-import cloud.fogbow.fns.core.intercomponent.RemoteFacade;
-import cloud.fogbow.fns.core.intercomponent.xmpp.IqElement;
-import cloud.fogbow.fns.core.intercomponent.xmpp.RemoteMethod;
+import cloud.fogbow.fns.core.drivers.intercomponent.RemoteFacade;
+import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.IqElement;
+import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.RemoteMethod;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.ras.core.intercomponent.xmpp.XmppExceptionToErrorConditionTranslator;
 import org.dom4j.Element;
