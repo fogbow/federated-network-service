@@ -10,6 +10,7 @@ import java.util.List;
 public class ServiceListController {
 
     private List<String> serviceNames;
+    private final int FIRST_SERVICE_POSITION = 0;
 
     public ServiceListController() {
         this.serviceNames = new ArrayList<>();
@@ -36,4 +37,6 @@ public class ServiceListController {
     public void setServiceNames(List<String> serviceNames) {
         this.serviceNames = serviceNames;
     }
+
+    public String getDefaultService() { return serviceNames.get(FIRST_SERVICE_POSITION);}
 }

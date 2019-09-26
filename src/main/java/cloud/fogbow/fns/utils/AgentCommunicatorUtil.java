@@ -2,7 +2,7 @@ package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.drivers.vanilla.VanillaConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import net.schmizz.sshj.SSHClient;
@@ -107,9 +107,9 @@ public class AgentCommunicatorUtil {
     }
 
     public static void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
-        String agentUser = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
+        String agentUser = PropertiesHolder.getInstance().getProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
 
         SSHClient client = new SSHClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);

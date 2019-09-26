@@ -9,8 +9,9 @@ public enum IqElement {
     VLAN_ID_CLASS_NAME("vlanIdClassName"),
     HOST_IP("hostIp"),
     INSTANCE_PUBLIC_KEY("instancePublicKey"),
-    DFNS_AGENT_CONFIGURATION("dfnsAgentConfiguration"),
-    DFNS_AGENT_CONFIGURATION_CLASS("dfnsAgentConfigurationClass");
+    REMOTE_AGENT_CONFIGURATION("remoteAgentConfiguration"),
+    DFNS_AGENT_CONFIGURATION_CLASS("dfnsAgentConfigurationClass"),
+    SERVICE_NAME("serviceName");
 
     private final String element;
 

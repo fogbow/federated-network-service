@@ -197,8 +197,6 @@ public class ApplicationFacade {
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
-        ConfigurationMode currentMode = federatedNetworkOrder.getConfigurationMode();
-
         if(federatedNetworkOrder != null) {
             //maybe it should come from a conf file
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();

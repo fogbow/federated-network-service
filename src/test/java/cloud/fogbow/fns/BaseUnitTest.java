@@ -5,6 +5,7 @@ import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.core.datastore.orderstorage.OrderRepository;
+import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.drivers.vanilla.VanillaConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -30,11 +31,11 @@ public class BaseUnitTest {
 
     public Properties setProperties() {
         Properties p = new Properties();
-        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
-        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
-        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
-        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
-        p.setProperty(ConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
+        p.setProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
+        p.setProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
+        p.setProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
+        p.setProperty(CommonServiceDriver.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
+        p.setProperty(CommonServiceDriver.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
         p.setProperty(VanillaConfigurationPropertyKeys.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         p.setProperty(VanillaConfigurationPropertyKeys.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         return p;

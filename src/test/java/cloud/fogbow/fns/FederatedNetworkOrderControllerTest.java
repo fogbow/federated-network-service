@@ -97,7 +97,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember", "vanilla"));
-        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
 //        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
 //        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
@@ -122,7 +121,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
                 "requestingMember", "providingMember", "vanilla"));
-        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
         when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(false);

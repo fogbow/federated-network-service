@@ -1,11 +1,12 @@
 package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.dfns.DfnsConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
 import cloud.fogbow.fns.core.drivers.dfns.SSAgentConfiguration;
-import cloud.fogbow.fns.core.model.ConfigurationMode;
+import cloud.fogbow.fns.core.drivers.vanilla.VanillaConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -15,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +28,6 @@ public class FederatedComputeUtil {
     public static final String PRE_SHARED_KEY_KEY = "#PRE_SHARED_KEY#";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
-
     // DFNS TOKENS
     public static final String CIDR_KEY = "#CIDR#";
     public static final String GATEWAY_IP_KEY = "#GATEWAY_IP#";
@@ -37,15 +36,14 @@ public class FederatedComputeUtil {
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
-    public static final String DFNS_SERVICE_NAME = "dfns";
-    public static final String AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, DFNS_SERVICE_NAME);
-    public static final String PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(DfnsConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, DFNS_SERVICE_NAME);
+    public static final String VANILLA_AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VanillaServiceDriver.SERVICE_NAME);
+    public static final String VANILLA_PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, VanillaServiceDriver.SERVICE_NAME);
 
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
         String cloudInitScript = IOUtils.toString(inputStream);
-        String newScript = replaceScriptValues(cloudInitScript, federatedIp, AGENT_PUBLIC_IP, cidr, PRE_SHARED_KEY);
+        String newScript = replaceScriptValues(cloudInitScript, federatedIp, VANILLA_AGENT_PUBLIC_IP, cidr, VANILLA_PRE_SHARED_KEY);
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
@@ -55,9 +53,9 @@ public class FederatedComputeUtil {
     }
 
     @NotNull
-    public static UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException, GeneralSecurityException {
+    public static UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
         String scriptKey = DfnsConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
-        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DFNS_SERVICE_NAME);
+        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
 

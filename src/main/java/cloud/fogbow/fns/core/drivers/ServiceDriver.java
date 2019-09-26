@@ -75,6 +75,18 @@ public interface ServiceDriver {
     void cleanupAgent(FederatedNetworkOrder order, String hostIp) throws FogbowException;
 
     /**
+     * This method is necessary because on remote call
+     * the whole configureAgent can't be executed once the keys
+     * must be kept. Thus, the remoteFacade will call doConfigureAgent
+     * instead of configureAgent, avoiding a new and out of context key pair.
+     * The driver that implements this method must setup the AgentConfiguration
+     * or throw a FogbowException if it is not possible.
+     * @param publicKey
+     * @return
+     */
+    AgentConfiguration doConfigureAgent(String publicKey) throws FogbowException;
+
+    /**
      * The driver that implements this method must return
      * the AgentIp that comes from its conf file.
      * @return

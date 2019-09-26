@@ -9,6 +9,10 @@ public class ServiceDriverConnector {
         this.driver = new ServiceDriverInstantiator().getDriver(serviceName);
     }
 
+    public ServiceDriverConnector(String serviceName, String memberName) {
+        this.driver = new ServiceDriverInstantiator().getDriver(serviceName, memberName);
+    }
+
     public ServiceDriver getDriver() {
         return driver;
     }

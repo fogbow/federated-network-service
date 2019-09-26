@@ -5,7 +5,6 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.model.ConfigurationMode;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
@@ -26,7 +25,6 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
         FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
                 "provider", "10.0.30.1/20", "name", new HashMap<>(), new LinkedList<>(), new ArrayList<>(), null, "vanilla");
-        order.setConfigurationMode(ConfigurationMode.VANILLA);
 
         orderController.activateOrder(order);
 
@@ -53,7 +51,6 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
         SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
         FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
                 "provider", "10.0.30.1/20", "name", new HashMap<>(), new LinkedList<>(), new ArrayList<>(), null, "vanilla");
-        order.setConfigurationMode(ConfigurationMode.VANILLA);
 
         orderController.activateOrder(order);
 

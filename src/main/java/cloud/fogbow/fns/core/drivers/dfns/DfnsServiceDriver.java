@@ -12,6 +12,7 @@ import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -31,9 +32,8 @@ import java.util.Properties;
 public class DfnsServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(DfnsServiceDriver.class);
-    private static final String SERVICE_NAME = "dfns";
-    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + SystemConstants.SERVICES_DIRECTORY +
-        File.separator + SERVICE_NAME + File.separator + SystemConstants.DRIVER_CONF_FILE);
+    public static final String SERVICE_NAME = "dfns";
+    private static Properties properties = PropertiesHolder.getInstance().getProperties(SERVICE_NAME);
     public static final String VLAN_ID_SERVICE_URL = properties.getProperty(DfnsConfigurationPropertyKeys.VLAN_ID_SERVICE_URL_KEY);
     public static final String VLAN_ID_ENDPOINT = "/vlanId";
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
@@ -90,7 +90,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX]);
+                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
@@ -107,7 +107,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
             return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, instanceIp, privateIpAddress,
                     order.getVlanId(), dfnsAgentConfiguration.getPrivateKey());
-        } catch (IOException | GeneralSecurityException e) {
+        } catch (IOException e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
     }
@@ -135,6 +135,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
     }
 
+    @Override
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
         String defaultNetworkCidr = properties.getProperty(DfnsConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);

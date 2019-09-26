@@ -14,10 +14,12 @@ public class RemoteConfigureAgent {
 
     private final String provider;
     private final String publicKey;
+    private final String serviceName;
 
-    public RemoteConfigureAgent(String provider, String publicKey) {
+    public RemoteConfigureAgent(String provider, String publicKey, String serviceName) {
         this.provider = provider;
         this.publicKey = publicKey;
+        this.serviceName = serviceName;
     }
 
     public AgentConfiguration send() throws Exception {
@@ -38,12 +40,15 @@ public class RemoteConfigureAgent {
         Element instancePublicKeyElement = queryElement.addElement(IqElement.INSTANCE_PUBLIC_KEY.toString());
         instancePublicKeyElement.setText(publicKey);
 
+        Element serviceNameElement = queryElement.addElement(IqElement.SERVICE_NAME.toString());
+        serviceNameElement.setText(this.serviceName);
+
         return iq;
     }
 
     private AgentConfiguration unmarshal(IQ response) {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
-        Element agentConfiguration = queryElement.element(IqElement.DFNS_AGENT_CONFIGURATION.toString());
+        Element agentConfiguration = queryElement.element(IqElement.REMOTE_AGENT_CONFIGURATION.toString());
         return GsonHolder.getInstance().fromJson(agentConfiguration.getText(), SSAgentConfiguration.class);
     }
 }

@@ -10,4 +10,5 @@ public class VanillaConfigurationPropertyKeys {
     public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY = "federated_network_agent_private_address";
     public static final String FEDERATED_NETWORK_AGENT_ADDRESS_KEY = "federated_network_agent_address";
     public static final String AGENT_SCRIPTS_PATH_KEY = "agent_scripts_path";
+    public static final String FEDERATED_NETWORK_PRE_SHARED_KEY_KEY = "federated_network_agent_pre_shared_key";
 }

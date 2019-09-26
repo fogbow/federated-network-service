@@ -7,7 +7,13 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 public abstract class CommonServiceDriver implements ServiceDriver {
-    private final String GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN = "/bin/agent-scripts/dfns/generateSshKeyPair";
+    public static final String FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY = "federated_network_agent_permission_file_path";
+    public static final String FEDERATED_NETWORK_AGENT_USER_KEY = "federated_network_agent_user";
+    public static final String FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY = "federated_network_agent_private_address";
+    public static final String FEDERATED_NETWORK_AGENT_ADDRESS_KEY = "federated_network_agent_address";
+    public static final String FEDERATED_NETWORK_PRE_SHARED_KEY_KEY = "federated_network_agent_pre_shared_key";
+    public static final String AGENT_SCRIPTS_PATH_KEY = "agent_scripts_path";
+    private final String GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN = "/bin/agent-scripts/generateSshKeyPair";
     private final String GEN_KEY_PAIR_SCRIPT_WHOLE_PATH = Paths.get("").toAbsolutePath().toString() + GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN;
     private final String KEY_PAIR_SEPARATOR = "KEY SEPARATOR";
     private final String KEY_SIZE = "1024";

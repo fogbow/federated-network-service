@@ -26,8 +26,8 @@ public class DfnsServiceConnector {
         }
     }
 
-    public AgentConfiguration configureAgent(String publicKey) throws FogbowException {
-        RemoteConfigureAgent remoteConfigureAgentRequest = new RemoteConfigureAgent(this.memberToBeConfigured, publicKey);
+    public AgentConfiguration configureAgent(String publicKey, String serviceName) throws FogbowException {
+        RemoteConfigureAgent remoteConfigureAgentRequest = new RemoteConfigureAgent(this.memberToBeConfigured, publicKey, serviceName);
         try {
             return remoteConfigureAgentRequest.send();
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
+import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -18,15 +19,14 @@ import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
 public class VanillaServiceDriver extends CommonServiceDriver {
 
     private static final Logger LOGGER = Logger.getLogger(VanillaServiceDriver.class);
-    private static final String SERVICE_NAME = "vanilla";
-    private static Properties properties = PropertiesUtil.readProperties(HomeDir.getPath() + SystemConstants.SERVICES_DIRECTORY + File.separator + SERVICE_NAME + File.separator + SystemConstants.DRIVER_CONF_FILE);
+    public static final String SERVICE_NAME = "vanilla";
+    private static Properties properties = PropertiesHolder.getInstance().getProperties(SERVICE_NAME);
     private final int DEFAULT_VLAN_ID = -1;
     public VanillaServiceDriver() {
     }
@@ -69,6 +69,8 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     public AgentConfiguration configureAgent() {
         return null;
     }
+    @Override
+    public AgentConfiguration doConfigureAgent(String publicKey) { return null; }
 
     @Override
     public UserData getComputeUserData(AgentConfiguration agentConfiguration, FederatedCompute compute, FederatedNetworkOrder order, String instanceIp) throws FogbowException {

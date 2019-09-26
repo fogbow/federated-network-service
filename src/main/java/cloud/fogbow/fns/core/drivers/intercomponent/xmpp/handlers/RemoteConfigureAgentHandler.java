@@ -20,11 +20,12 @@ public class RemoteConfigureAgentHandler extends AbstractQueryHandler {
     @Override
     public IQ handle(IQ iq) {
         String publicKey = unmarshalPublicKey(iq);
+        String serviceName = unmarshalServiceName(iq);
         IQ response = iq.createResultIQ(iq);
 
         AgentConfiguration configuration;
         try {
-            configuration = RemoteFacade.getInstance().configureAgent(publicKey);
+            configuration = RemoteFacade.getInstance().configureAgent(publicKey, serviceName);
             marshalConfiguration(response, configuration);
         } catch (FogbowException e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
@@ -35,14 +36,20 @@ public class RemoteConfigureAgentHandler extends AbstractQueryHandler {
 
     private void marshalConfiguration(IQ response, AgentConfiguration configuration) {
         Element queryElement = response.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_CONFIGURE_AGENT.toString());
-        Element agentConfiguration = queryElement.addElement(IqElement.DFNS_AGENT_CONFIGURATION.toString());
+        Element agentConfiguration = queryElement.addElement(IqElement.REMOTE_AGENT_CONFIGURATION.toString());
         agentConfiguration.setText(new Gson().toJson(configuration));
     }
 
     private String unmarshalPublicKey(IQ iq) {
         Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
-        Element hostIpElement = queryElement.element(IqElement.INSTANCE_PUBLIC_KEY.toString());
-        return hostIpElement.getText();
+        Element keyElement = queryElement.element(IqElement.INSTANCE_PUBLIC_KEY.toString());
+        return keyElement.getText();
+    }
+
+    private String unmarshalServiceName(IQ iq) {
+        Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
+        Element serviceNameElement = queryElement.element(IqElement.SERVICE_NAME.toString());
+        return serviceNameElement.getText();
     }
 
 }

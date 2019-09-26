@@ -5,7 +5,6 @@ import cloud.fogbow.common.util.HomeDir;
 import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.core.model.ConfigurationMode;
 
 import java.io.File;
 import java.util.*;
@@ -48,5 +47,9 @@ public class PropertiesHolder {
             propertyValue = defaultValue;
         }
         return propertyValue;
+    }
+
+    public Properties getProperties(String serviceName) {
+        return properties.get(serviceName);
     }
 }
