@@ -5,13 +5,10 @@ import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.GsonHolder;
-import cloud.fogbow.common.util.HomeDir;
-import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
@@ -23,9 +20,7 @@ import cloud.fogbow.ras.core.models.UserData;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
 
-import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -40,14 +35,8 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
     public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
     private final String LOCAL_MEMBER_NAME = properties.getProperty(DfnsConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
-    private String memberName;
-
 
     public DfnsServiceDriver() {
-    }
-
-    public DfnsServiceDriver(String memberName) {
-        this.memberName = memberName;
     }
 
     @Override
@@ -82,15 +71,15 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public AgentConfiguration configureAgent() throws FogbowException {
+    public AgentConfiguration configureAgent(String provider) throws FogbowException {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
-            if(!isRemote()) {
+            if(!isRemote(provider)) {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(memberName).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
+                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
@@ -115,10 +104,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     @Override
     public void cleanupAgent(FederatedNetworkOrder order, String hostIp) throws FogbowException {
         try {
-            if(!isRemote()) {
+            if(!isRemote(order.getProvider())) {
                 removeAgentToComputeTunnel(order, hostIp);
             } else {
-                new DfnsServiceConnector(memberName).removeAgentToComputeTunnel(order, hostIp);
+                new DfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, hostIp);
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());
@@ -197,7 +186,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private boolean isRemote() {
-        return memberName != null && LOCAL_MEMBER_NAME.equals(memberName);
+    private boolean isRemote(String provider) {
+        return ! LOCAL_MEMBER_NAME.equals(provider);
     }
 }

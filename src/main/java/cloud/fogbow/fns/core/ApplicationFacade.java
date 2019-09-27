@@ -18,6 +18,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.ServiceDriver;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
+import cloud.fogbow.fns.core.exceptions.NotSupportedServiceException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -88,6 +89,10 @@ public class ApplicationFacade {
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder order, String systemUserToken)
             throws FogbowException {
+        ServiceListController serviceListController = new ServiceListController();
+        if(!serviceListController.getServiceNames().contains(order.getServiceName())) {
+            throw new NotSupportedServiceException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE, order.getServiceName()));
+        }
 
         // Check order consistency
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
@@ -143,7 +148,7 @@ public class ApplicationFacade {
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();
             ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
-            AgentConfiguration agentConfiguration = driver.configureAgent();
+            AgentConfiguration agentConfiguration = driver.configureAgent(federatedNetworkOrder.getProvider());
             UserData userData = driver.getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
             addUserData(federatedCompute, userData);
         }
@@ -170,12 +175,7 @@ public class ApplicationFacade {
         return computeId.getId();
     }
 
-    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException,
-            URISyntaxException {
-        // NOTE(pauloewerton): since FNS has no cache of the created computes, we need to get the instance data from RAS in case
-        // it was associated to a DFNS network.
-        ComputeInstance computeInstance = this.getComputeById(computeId, systemUserToken);
-
+    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -186,7 +186,7 @@ public class ApplicationFacade {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
                     body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
+
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
@@ -198,7 +198,6 @@ public class ApplicationFacade {
         this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
         if(federatedNetworkOrder != null) {
-            //maybe it should come from a conf file
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
             driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
         }
@@ -216,7 +215,7 @@ public class ApplicationFacade {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
                     body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
+
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.

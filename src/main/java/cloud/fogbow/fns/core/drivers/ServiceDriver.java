@@ -48,7 +48,7 @@ public interface ServiceDriver {
      * @return
      * @throws FogbowException
      */
-    AgentConfiguration configureAgent() throws FogbowException;
+    AgentConfiguration configureAgent(String provider) throws FogbowException;
 
     /**
      * The driver that implements this method must return

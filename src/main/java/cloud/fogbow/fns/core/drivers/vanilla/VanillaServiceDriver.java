@@ -66,7 +66,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public AgentConfiguration configureAgent() {
+    public AgentConfiguration configureAgent(String provider) {
         return null;
     }
     @Override

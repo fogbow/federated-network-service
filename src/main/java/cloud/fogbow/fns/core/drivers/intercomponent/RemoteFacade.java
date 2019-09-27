@@ -11,9 +11,6 @@ import cloud.fogbow.fns.core.drivers.dfns.SSAgentConfiguration;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 
 public class RemoteFacade {
-    private static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(
-            ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
-
     private static RemoteFacade instance;
 
     private RemoteFacade() {
@@ -29,12 +26,12 @@ public class RemoteFacade {
     }
 
     public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
-        ServiceDriver driver = new ServiceDriverConnector(order.getServiceName(), LOCAL_MEMBER_NAME).getDriver();
+        ServiceDriver driver = new ServiceDriverConnector(order.getServiceName()).getDriver();
         driver.cleanupAgent(order, hostIp);
     }
 
     public AgentConfiguration configureAgent(String publicKey, String serviceName) throws FogbowException {
-        ServiceDriver driver = new ServiceDriverConnector(serviceName, LOCAL_MEMBER_NAME).getDriver();
+        ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
         return driver.doConfigureAgent(publicKey);
     }
 }

@@ -20,6 +20,7 @@ public class Messages {
         public static final String UNABLE_TO_DESERIALIZE_SYSTEM_USER = "Unable to deserialize system user.";
         public static final String UNABLE_TO_ADD_KEY_IN_AGGENT = "Unable to add key in the agent's authorized keys";
         public static final String UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL = "Unable to remove agent to compute tunnel";
+        public static final String NOT_SUPPORTED_SERVICE = "The service %s is not supported yet.";
     }
 
     public static class Fatal {

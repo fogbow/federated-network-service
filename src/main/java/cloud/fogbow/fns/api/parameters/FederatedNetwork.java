@@ -3,10 +3,10 @@ package cloud.fogbow.fns.api.parameters;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
+import cloud.fogbow.fns.core.ServiceListController;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.constants.ApiDocumentation;
-import cloud.fogbow.ras.core.CloudListController;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -31,7 +31,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         order.setProvider(order.getRequester());
         order.setName(this.name == null ? SystemConstants.FOGBOW_INSTANCE_NAME_PREFIX+UUID.randomUUID() : this.name);
         order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
-        order.setServiceName(this.serviceName == null ? new CloudListController().getDefaultCloudName(): this.serviceName);
+        order.setServiceName(this.serviceName == null ? new ServiceListController().getDefaultService() : this.serviceName);
         return order;
     }
 

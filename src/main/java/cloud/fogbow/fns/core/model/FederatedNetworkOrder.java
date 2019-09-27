@@ -26,7 +26,6 @@ public class FederatedNetworkOrder implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final int FIELDS_MAX_SIZE = 255;
     public static final int FREE_IP_CACHE_MAX_SIZE = 16;
-    private static final String DFNS_SERVICE_NAME = "dfns";
 
     @Column
     @Id
@@ -326,7 +325,7 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public int getVlanId() {
-        return this.serviceName == DFNS_SERVICE_NAME ? this.vlanId : -1;
+        return this.vlanId;
     }
 
     public void setVlanId(int vlanId) {
