@@ -4,6 +4,7 @@ import cloud.fogbow.common.constants.HttpConstants;
 import cloud.fogbow.common.constants.HttpMethod;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
@@ -15,14 +16,21 @@ import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.ras.core.models.UserData;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class DfnsServiceDriver extends CommonServiceDriver {
@@ -36,6 +44,16 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
     public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
     private static final String LOCAL_MEMBER_NAME = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY);
+    public static final int SUCCESS_EXIT_CODE = 0;
+    public static final int AGENT_SSH_PORT = 22;
+    public static final String CIDR_KEY = "#CIDR#";
+    public static final String GATEWAY_IP_KEY = "#GATEWAY_IP#";
+    public static final String VLAN_ID_KEY = "#VLAN_ID#";
+    public static final String FEDERATED_IP_KEY = "#FEDERATED_IP#";
+    public static final String AGENT_USER_KEY = "#AGENT_USER#";
+    public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
+    public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
+    public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
 
     public DfnsServiceDriver() {
     }
@@ -95,7 +113,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = (SSAgentConfiguration) configuration;
             String privateIpAddress = dfnsAgentConfiguration.getPrivateIpAddress();
-            return FederatedComputeUtil.getDfnsUserData(dfnsAgentConfiguration, instanceIp, privateIpAddress,
+            return getDfnsUserData(dfnsAgentConfiguration, instanceIp, privateIpAddress,
                     order.getVlanId(), dfnsAgentConfiguration.getPrivateKey());
         } catch (IOException e) {
             throw new UnexpectedException(e.getMessage(), e);
@@ -122,7 +140,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
-        AgentCommunicatorUtil.executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
+        executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
     }
 
     @Override
@@ -141,7 +159,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
-        AgentCommunicatorUtil.executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL, SERVICE_NAME);
+        executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL, SERVICE_NAME);
     }
 
     private int acquireVlanId() throws FogbowException {
@@ -176,6 +194,75 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
             throw new UnexpectedException(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId));
         }
+    }
+
+    private void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
+        String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
+
+        SSHClient client = new SSHClient();
+        client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
+
+        try {
+            try {
+                // connects to the DMZ host
+                client.connect(agentPublicIp, AGENT_SSH_PORT);
+
+                // authorizes using the DMZ private key
+                client.authPublickey(agentUser, permissionFilePath);
+
+                try (Session session = client.startSession()) {
+                    Session.Command c = session.exec(command);
+
+                    // waits for the command to finish
+                    c.join();
+
+                    if(c.getExitStatus() != SUCCESS_EXIT_CODE) {
+                        throw new UnexpectedException(exceptionMessage);
+                    }
+                }
+            } finally {
+                client.disconnect();
+            }
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new UnexpectedException(e.getMessage(), e);
+        }
+    }
+
+    @NotNull
+    private UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
+        String scriptKey = DriversConfigurationPropertyKeys.Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
+        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
+        InputStream inputStream = new FileInputStream(createTunnelScriptPath);
+        String templateScript = IOUtils.toString(inputStream);
+
+        Map<String, String> scriptTokenValues = new HashMap<>();
+        scriptTokenValues.put(CIDR_KEY, configuration.getDefaultNetworkCidr());
+        scriptTokenValues.put(GATEWAY_IP_KEY, agentIp);
+        scriptTokenValues.put(VLAN_ID_KEY, String.valueOf(vlanId));
+        scriptTokenValues.put(FEDERATED_IP_KEY, federatedIp);
+        scriptTokenValues.put(AGENT_USER_KEY, configuration.getAgentUser());
+        scriptTokenValues.put(PRIVATE_KEY_KEY, accessKey);
+        scriptTokenValues.put(PUBLIC_KEY_KEY, configuration.getPublicKey());
+
+        String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
+
+        byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
+        byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
+        String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
+
+        return new UserData(encryptedScript,
+                CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
+    }
+
+    private String replaceScriptTokens(String scriptTemplate, Map<String, String> scriptTokenValues) {
+        String result = scriptTemplate;
+        for (String scriptToken : scriptTokenValues.keySet()) {
+            result = result.replace(scriptToken, scriptTokenValues.get(scriptToken));
+        }
+        return result;
     }
 
     private class VlanId {
