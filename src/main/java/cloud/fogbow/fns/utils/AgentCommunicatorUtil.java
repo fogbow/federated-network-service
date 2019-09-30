@@ -25,12 +25,12 @@ public class AgentCommunicatorUtil {
     public static final String VANILLA_SERVICE_NAME = "vanilla";
 
     public static void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
-        String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
-        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, VANILLA_SERVICE_NAME);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
+        String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
+        String agentPrivateIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, VANILLA_SERVICE_NAME);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
         String addFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(addFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
@@ -56,11 +56,11 @@ public class AgentCommunicatorUtil {
     }
 
     public static void deleteFederatedNetwork(String cidr) throws FogbowException {
-        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
-        String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, VANILLA_SERVICE_NAME);
+        String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, VANILLA_SERVICE_NAME);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VANILLA_SERVICE_NAME);
         String removeFederatedNetworkScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, VANILLA_SERVICE_NAME);
-        String hostScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, VANILLA_SERVICE_NAME) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(removeFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 

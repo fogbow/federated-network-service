@@ -35,7 +35,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
     public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
-    private final String LOCAL_MEMBER_NAME = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY);
+    private static final String LOCAL_MEMBER_NAME = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY);
 
     public DfnsServiceDriver() {
     }
@@ -118,7 +118,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @Override
     public String getAgentIp() {
-        return properties.getProperty(DriversConfigurationPropertyKeys.Dfns.HOST_IP_KEY);
+        return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
     }
 
     private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
@@ -130,9 +130,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         addKeyToAgentAuthorizedPublicKeys(publicKey);
         String defaultNetworkCidr = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.DEFAULT_NETWORK_CIDR_KEY);
 
-        String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPrivateIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
-        String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
+        String agentPrivateIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
+        String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
 
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }

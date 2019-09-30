@@ -86,6 +86,6 @@ public class VanillaServiceDriver extends CommonServiceDriver {
 
     @Override
     public String getAgentIp() {
-        return properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.HOST_IP_KEY);
+        return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
     }
 }

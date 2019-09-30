@@ -35,8 +35,8 @@ public class FederatedComputeUtil {
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
-    public static final String VANILLA_AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VanillaServiceDriver.SERVICE_NAME);
-    public static final String VANILLA_PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, VanillaServiceDriver.SERVICE_NAME);
+    public static final String VANILLA_AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VanillaServiceDriver.SERVICE_NAME);
+    public static final String VANILLA_PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, VanillaServiceDriver.SERVICE_NAME);
 
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
