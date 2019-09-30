@@ -2,10 +2,9 @@ package cloud.fogbow.fns.utils;
 
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.drivers.dfns.DfnsConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
 import cloud.fogbow.fns.core.drivers.dfns.SSAgentConfiguration;
-import cloud.fogbow.fns.core.drivers.vanilla.VanillaConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.drivers.vanilla.VanillaServiceDriver;
 import cloud.fogbow.ras.core.models.UserData;
 import org.apache.commons.codec.binary.Base64;
@@ -36,8 +35,8 @@ public class FederatedComputeUtil {
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
-    public static final String VANILLA_AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VanillaServiceDriver.SERVICE_NAME);
-    public static final String VANILLA_PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(VanillaConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, VanillaServiceDriver.SERVICE_NAME);
+    public static final String VANILLA_AGENT_PUBLIC_IP = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, VanillaServiceDriver.SERVICE_NAME);
+    public static final String VANILLA_PRE_SHARED_KEY = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, VanillaServiceDriver.SERVICE_NAME);
 
     @NotNull
     public static UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
@@ -54,7 +53,7 @@ public class FederatedComputeUtil {
 
     @NotNull
     public static UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
-        String scriptKey = DfnsConfigurationPropertyKeys.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
+        String scriptKey = DriversConfigurationPropertyKeys.Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
         String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);

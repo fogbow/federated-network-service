@@ -195,9 +195,10 @@ public class ApplicationFacade {
         }
 
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
-        this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
         if(federatedNetworkOrder != null) {
+            federatedNetworkOrder.removeAssociatedIp(computeId);
+            ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
             driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
         }

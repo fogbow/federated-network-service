@@ -2,13 +2,11 @@ package cloud.fogbow.fns.core.drivers.vanilla;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.util.HomeDir;
-import cloud.fogbow.common.util.PropertiesUtil;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
+import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
@@ -88,6 +86,6 @@ public class VanillaServiceDriver extends CommonServiceDriver {
 
     @Override
     public String getAgentIp() {
-        return properties.getProperty(VanillaConfigurationPropertyKeys.HOST_IP_KEY);
+        return properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.HOST_IP_KEY);
     }
 }
