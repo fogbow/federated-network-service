@@ -6,14 +6,12 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
-import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import org.apache.commons.net.util.SubnetUtils;
@@ -25,7 +23,6 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.sql.SQLException;
@@ -38,7 +35,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AgentCommunicatorUtil.class)
 public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkUnitTests {
     private final String FEDERATED_NETWORK_ID = "fake-network-id";
     private final String FEDERATED_COMPUTE_ID = "fake-compute-id";
@@ -59,7 +55,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         this.systemUser = new SystemUser(USER_ID, USER_NAME, TOKEN_PROVIDER);
         this.federatedNetworkOrder = new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN);
+                MEMBER, CIDR, NET_NAME, allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla");
     }
 
     //test case: Tests if the activation order made in federatedNetworkOrderController will call the expected methods
@@ -91,16 +87,15 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test
-    public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+    public void testDeleteEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommunicationException,
             SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
-                "requestingMember", "providingMember"));
-        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
+                "requestingMember", "providingMember", "vanilla"));
 
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
-        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
+//        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
+//        Mockito.when(AgentCommunicatorUtil.deleteFederatedNetwork(Mockito.anyString())).thenReturn(true);
 
         federatedNetwork.setOrderState(OrderState.OPEN);
         when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(true);
@@ -116,13 +111,12 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 
     //test case: Tests if a delete operation deletes federatedNetwork from activeFederatedNetworks.
     @Test(expected = NotEmptyFederatedNetworkException.class)
-    public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommucationException,
+    public void testDeleteNotEmptyFederatedNetwork() throws FederatedNetworkNotFoundException, AgentCommunicationException,
             SQLException, FogbowException, NotEmptyFederatedNetworkException {
         //set up
         mockOnlyDatabase();
         FederatedNetworkOrder federatedNetwork = Mockito.spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, this.systemUser,
-                "requestingMember", "providingMember"));
-        federatedNetwork.setConfigurationMode(ConfigurationMode.VANILLA);
+                "requestingMember", "providingMember", "vanilla"));
 
         federatedNetwork.setOrderState(OrderState.OPEN);
         when(federatedNetwork.isAssignedIpsEmpty()).thenReturn(false);
@@ -237,7 +231,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla"));
         federatedNetwork.setOrderState(OrderState.OPEN);
         federatedNetworkOrdersHolder.insertNewOrder(federatedNetwork);
 
@@ -246,7 +240,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        computeOrder.setId(FEDERATED_COMPUTE_ID);
 
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
-        PowerMockito.mockStatic(FederatedComputeUtil.class);
 
 //        UserData fakeUserData = new UserData("", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
 //
@@ -480,11 +473,11 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         SystemUser unusedUser = new SystemUser("unusedUser", USER_NAME, TOKEN_PROVIDER);
 
         String id1 = "fake-id-1";
-        FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member);
+        FederatedNetworkOrder order1 = new FederatedNetworkOrder(id1, user, member, member, "vanilla");
         order1.setOrderStateInTestMode(OrderState.FULFILLED);
 
         String id2 = "fake-id-2";
-        FederatedNetworkOrder order2 = new FederatedNetworkOrder(id2, unusedUser, member, member);
+        FederatedNetworkOrder order2 = new FederatedNetworkOrder(id2, unusedUser, member, member, "vanilla");
         order2.setOrderStateInTestMode(OrderState.FULFILLED);
 
         List<FederatedNetworkOrder> expectedFilteredOrders = new ArrayList<>();
@@ -530,7 +523,7 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         FederatedNetworkOrder federatedNetwork = spy(new FederatedNetworkOrder(FEDERATED_NETWORK_ID, systemUser, MEMBER,
-                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN));
+                MEMBER, cidr, "test", allowedMembers, freedIps, computesIp, OrderState.OPEN, "vanilla"));
         federatedNetworkOrdersHolder.getInstance().insertNewOrder(federatedNetwork);
     }
 

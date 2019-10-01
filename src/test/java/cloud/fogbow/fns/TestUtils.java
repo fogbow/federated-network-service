@@ -27,7 +27,7 @@ public class TestUtils {
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp, state);
+                "name", allowedMembers, freedIps, computesIp, state, "vanilla");
         return federatedNetworkOrder;
     }
 

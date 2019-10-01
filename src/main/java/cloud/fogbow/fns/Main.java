@@ -2,7 +2,6 @@ package cloud.fogbow.fns;
 
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.constants.Messages;
@@ -10,7 +9,7 @@ import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
-import cloud.fogbow.fns.core.intercomponent.xmpp.PacketSenderHolder;
+import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.model.FnsOperation;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
@@ -55,6 +54,7 @@ public class Main implements ApplicationRunner {
             this.applicationFacade.setFederatedNetworkOrderController(federatedNetworkOrderController);
             this.applicationFacade.setComputeRequestsController(computeRequestsController);
             this.applicationFacade.setAuthorizationPlugin(authorizationPlugin);
+            this.applicationFacade.setServiceListController(new ServiceListController());
 
             // Setting up order processors
             ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);

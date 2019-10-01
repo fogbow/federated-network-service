@@ -4,11 +4,9 @@ import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.SerializedEntityHolder;
-import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
@@ -68,8 +66,7 @@ public class FederatedNetworkOrder implements Serializable {
     private Integer vlanId;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private ConfigurationMode configurationMode;
+    private String serviceName;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn
@@ -99,52 +96,55 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps = new ArrayList<>();
     }
 
-    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider) {
+    public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider, String serviceName) {
         this();
         this.id = String.valueOf(UUID.randomUUID());
         this.systemUser = systemUser;
         this.requester = requester;
         this.provider = provider;
+        this.serviceName = serviceName;
     }
 
     /**
      * Creating Order with predefined Id.
      */
-    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester, String provider) {
+    public FederatedNetworkOrder(String id, SystemUser systemUser, String requester, String provider, String serviceName) {
         this(id);
         this.systemUser = systemUser;
         this.requester = requester;
         this.provider = provider;
+        this.serviceName = serviceName;
     }
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requester,
                                  String provider, String cidr, String name, HashMap<String, MemberConfigurationState> providers,
-                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState) {
-        this(id, systemUser, requester, provider);
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState, String serviceName) {
+        this(id, systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
         this.orderState = orderState;
+        this.serviceName = serviceName;
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider,
                                  String cidr, String name, HashMap<String, MemberConfigurationState> providers,
-                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps) {
-        this(systemUser, requester, provider);
+                                 Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, String serviceName) {
+        this(systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
         this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
+        this.serviceName = serviceName;
     }
 
     public synchronized void addAssociatedIp(String computeId, String ipToBeAttached) throws UnexpectedException {
         this.assignedIps.add(new AssignedIp(computeId, ipToBeAttached));
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
-        ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, this.getId());
     }
 
     public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
@@ -155,7 +155,6 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps.remove(associatedIpIndex);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
-        ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
     }
 
     private int containsKey(String computeId) {
@@ -325,16 +324,8 @@ public class FederatedNetworkOrder implements Serializable {
         this.assignedIps = assignedIps;
     }
 
-    public ConfigurationMode getConfigurationMode() {
-        return configurationMode;
-    }
-
-    public void setConfigurationMode(ConfigurationMode configurationMode) {
-        this.configurationMode = configurationMode;
-    }
-
     public int getVlanId() {
-        return this.configurationMode == ConfigurationMode.DFNS ? this.vlanId : -1;
+        return this.vlanId;
     }
 
     public void setVlanId(int vlanId) {
@@ -430,5 +421,13 @@ public class FederatedNetworkOrder implements Serializable {
     public String toString() {
         return "Order [id=" + this.id + ", orderState=" + this.orderState + ", requester=" +
                 this.requester + ", provider=" + this.provider + "]";
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

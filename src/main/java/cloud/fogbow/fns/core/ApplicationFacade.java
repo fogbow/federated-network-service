@@ -16,13 +16,11 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyDefaults;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
+import cloud.fogbow.fns.core.drivers.ServiceDriver;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
+import cloud.fogbow.fns.core.exceptions.NotSupportedServiceException;
 import cloud.fogbow.fns.core.model.*;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
+import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
 import cloud.fogbow.ras.api.http.ExceptionResponse;
@@ -48,6 +46,7 @@ import java.util.List;
 public class ApplicationFacade {
     private final Logger LOGGER = Logger.getLogger(ApplicationFacade.class);
     private Gson gson = new Gson();
+    private final String FAILED_REQUEST_BODY = "{\"message\":\"" + "%s" + "\"}";
 
     private static ApplicationFacade instance;
     private FederatedNetworkOrderController federatedNetworkOrderController;
@@ -55,11 +54,11 @@ public class ApplicationFacade {
     private AuthorizationPlugin<FnsOperation> authorizationPlugin;
     private RSAPublicKey asPublicKey;
     private String buildNumber;
+    private ServiceListController serviceListController;
 
     private ApplicationFacade() {
         this.asPublicKey = null;
-        this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY,
-                ConfigurationPropertyDefaults.BUILD_NUMBER);
+        this.buildNumber = PropertiesHolder.getInstance().getPropertyOrDefault(ConfigurationPropertyKeys.BUILD_NUMBER_KEY, ConfigurationPropertyDefaults.BUILD_NUMBER);
     }
 
     public static ApplicationFacade getInstance() {
@@ -89,7 +88,11 @@ public class ApplicationFacade {
     // federated network requests need not be synchronized because synchronization is done at the order object level
     // (see FederatedNetworkOrderController).
     public String createFederatedNetwork(FederatedNetworkOrder order, String systemUserToken)
-            throws FogbowException, InvalidCidrException {
+            throws FogbowException {
+        ServiceListController serviceListController = new ServiceListController();
+        if(!serviceListController.getServiceNames().contains(order.getServiceName())) {
+            throw new NotSupportedServiceException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE, order.getServiceName()));
+        }
 
         // Check order consistency
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
@@ -109,7 +112,7 @@ public class ApplicationFacade {
     }
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
-            throws FogbowException, FederatedNetworkNotFoundException {
+            throws FogbowException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
@@ -124,7 +127,7 @@ public class ApplicationFacade {
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
-            throws FogbowException, NotEmptyFederatedNetworkException, FederatedNetworkNotFoundException {
+            throws FogbowException {
         SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
@@ -134,8 +137,7 @@ public class ApplicationFacade {
     // federatedCompute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
     public synchronized String createCompute(FederatedCompute federatedCompute, String systemUserToken)
-            throws FogbowException, InvalidCidrException, SubnetAddressesCapacityReachedException,
-            FederatedNetworkNotFoundException {
+            throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = federatedCompute.getFederatedNetworkId();
         FederatedNetworkOrder federatedNetworkOrder = null;
@@ -144,15 +146,11 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             instanceIp = federatedNetworkOrder.getFreeIp();
-        }
-
-        if (federatedNetworkOrder != null && instanceIp != null) {
-            ConfigurationMode mode = federatedNetworkOrder.getConfigurationMode();
-            String provider = federatedCompute.getCompute().getProvider();
-            ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(mode, provider);
-
-            UserData userData = serviceConnector.getTunnelCreationInitScript(instanceIp, federatedCompute, federatedNetworkOrder);
-            addUserDataToCompute(federatedCompute, userData);
+            String serviceName = federatedNetworkOrder.getServiceName();
+            ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
+            AgentConfiguration agentConfiguration = driver.configureAgent(federatedNetworkOrder.getProvider());
+            UserData userData = driver.getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
+            addUserData(federatedCompute, userData);
         }
 
         ResponseEntity<String> responseEntity = null;
@@ -163,7 +161,7 @@ public class ApplicationFacade {
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -177,24 +175,7 @@ public class ApplicationFacade {
         return computeId.getId();
     }
 
-    private void addUserDataToCompute(cloud.fogbow.fns.api.parameters.FederatedCompute compute, UserData userData) {
-        cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
-        List<UserData> userDataList = rasCompute.getUserData();
-
-        if (userDataList == null) {
-            userDataList = new ArrayList<>();
-            rasCompute.setUserData((ArrayList<UserData>) userDataList);
-        }
-
-        userDataList.add(userData);
-    }
-
-    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException,
-            URISyntaxException, InvalidCidrException {
-        // NOTE(pauloewerton): since FNS has no cache of the created computes, we need to get the instance data from RAS in case
-        // it was associated to a DFNS network.
-        ComputeInstance computeInstance = this.getComputeById(computeId, systemUserToken);
-
+    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -203,9 +184,9 @@ public class ApplicationFacade {
                     HttpMethod.DELETE, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
+
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
@@ -214,18 +195,17 @@ public class ApplicationFacade {
         }
 
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
-        this.computeRequestsController.removeIpToComputeAllocation(computeId);
 
-        if (federatedNetworkOrder != null) {
-            String hostIp = federatedNetworkOrder.getConfigurationMode().equals(ConfigurationMode.DFNS) ?
-                    this.getComputeIpFromDefaultNetwork(computeInstance.getIpAddresses()) : null;
-
-            this.removeAgentToComputeTunnel(federatedNetworkOrder, computeInstance.getProvider(), hostIp);
+        if(federatedNetworkOrder != null) {
+            federatedNetworkOrder.removeAssociatedIp(computeId);
+            ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
+            ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
+            driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
         }
     }
 
     public synchronized ComputeInstance getComputeById(String computeId, String systemUserToken)
-            throws FogbowException, URISyntaxException {
+            throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -234,9 +214,9 @@ public class ApplicationFacade {
                     "", HttpMethod.GET, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND);
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
-        // if response status was not successful, return the status and rollback, undoing the latest modifications
+
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
@@ -246,6 +226,13 @@ public class ApplicationFacade {
         ComputeInstance computeInstance = gson.fromJson(responseEntity.getBody(), ComputeInstance.class);
         this.computeRequestsController.addFederatedIpInGetInstanceIfApplied(computeInstance, computeId);
         return computeInstance;
+    }
+
+    public List<String> getServiceNames(String systemUserToken) throws FogbowException{
+        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        FnsOperation fnsOperation = new FnsOperation(Operation.GET, ResourceType.SERVICE_NAMES);
+        this.authorizationPlugin.isAuthorized(requester, fnsOperation);
+        return this.serviceListController.getServiceNames();
     }
 
     public void setFederatedNetworkOrderController(FederatedNetworkOrderController federatedNetworkOrderController) {
@@ -285,28 +272,23 @@ public class ApplicationFacade {
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 
-    private void removeAgentToComputeTunnel(FederatedNetworkOrder order, String provider, String hostIp)
-            throws UnexpectedException {
-        ServiceConnector serviceConnector = ServiceConnectorFactory.getInstance().getServiceConnector(order.getConfigurationMode(), provider);
-        boolean isAgentToComputeTunnelRemoved = serviceConnector.removeAgentToComputeTunnel(order, hostIp);
+    private void addUserData(FederatedCompute compute, UserData userData) {
+        cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
+        List<UserData> userDataList = rasCompute.getUserData();
 
-        if (!isAgentToComputeTunnelRemoved) {
-            LOGGER.warn(String.format(Messages.Warn.UNABLE_TO_DELETE_TUNNEL, hostIp, order.getVlanId()));
+        if (userDataList == null) {
+            userDataList = new ArrayList<>();
+            rasCompute.setUserData((ArrayList<UserData>) userDataList);
         }
+
+        userDataList.add(userData);
     }
 
-    private String getComputeIpFromDefaultNetwork(List<String> computeIps) throws InvalidCidrException {
-        String defaultNetworkCidr = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.DEFAULT_NETWORK_CIDR_KEY);
-        SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(defaultNetworkCidr);
+    public ServiceListController getServiceListController() {
+        return serviceListController;
+    }
 
-        if (computeIps != null) {
-            for (String ip : computeIps) {
-                if (subnetInfo.isInRange(ip)) {
-                    return ip;
-                }
-            }
-        }
-
-        return null;
+    public void setServiceListController(ServiceListController serviceListController) {
+        this.serviceListController = serviceListController;
     }
 }

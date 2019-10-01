@@ -1,8 +1,9 @@
 package cloud.fogbow.fns.core.exceptions;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.constants.Messages;
 
-public class SubnetAddressesCapacityReachedException extends Exception {
+public class SubnetAddressesCapacityReachedException extends FogbowException {
 	private static final long serialVersionUID = 1L;
 
 	public SubnetAddressesCapacityReachedException() {

@@ -1,14 +1,13 @@
 package cloud.fogbow.fns.core.processors;
 
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
-import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
+import cloud.fogbow.fns.core.ServiceDriverConnector;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import org.apache.log4j.Logger;
 
 public class ClosedProcessor implements Runnable {
@@ -35,7 +34,7 @@ public class ClosedProcessor implements Runnable {
                     this.orders.resetPointer();
                     Thread.sleep(this.sleepTime);
                 }
-            } catch (UnexpectedException e) {
+            } catch (FogbowException e) {
                 LOGGER.error("", e);
             } catch (InterruptedException e) {
                 LOGGER.error(Messages.Exception.THREAD_HAS_BEEN_INTERRUPTED, e);
@@ -44,8 +43,11 @@ public class ClosedProcessor implements Runnable {
         }
     }
 
-    protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
+    protected void processOrder(FederatedNetworkOrder order) throws FogbowException {
         synchronized (order) {
+            //The driver, with this call, must do all the operations needed to make the order able to move
+            //to deactivated state, according to its specification.
+            new ServiceDriverConnector(order.getServiceName()).getDriver().processClosed(order);
             // No need to check the state of the order because no other thread will attempt to change the
             // state of an order that is in the CLOSED state.
             this.orderController.deactivateOrder(order);

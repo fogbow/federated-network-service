@@ -3,7 +3,7 @@ package cloud.fogbow.fns.api.parameters;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
-import cloud.fogbow.fns.core.model.ConfigurationMode;
+import cloud.fogbow.fns.core.ServiceListController;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.constants.ApiDocumentation;
@@ -21,7 +21,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
     @ApiModelProperty(position = 2, example = ApiDocumentation.Model.PROVIDERS)
     private Set<String> providers;
     @ApiModelProperty(position = 3, example = ApiDocumentation.Model.DFNS_EXAMPLE)
-    private ConfigurationMode mode;
+    private String serviceName;
 
     @Override
     public FederatedNetworkOrder getOrder() {
@@ -31,7 +31,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         order.setProvider(order.getRequester());
         order.setName(this.name == null ? SystemConstants.FOGBOW_INSTANCE_NAME_PREFIX+UUID.randomUUID() : this.name);
         order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
-        order.setConfigurationMode((this.mode == null ? ConfigurationMode.VANILLA : this.mode));
+        order.setServiceName(this.serviceName == null ? new ServiceListController().getDefaultService() : this.serviceName);
         return order;
     }
 
@@ -47,7 +47,11 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         return providers;
     }
 
-    public ConfigurationMode getMode() {
-        return mode;
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

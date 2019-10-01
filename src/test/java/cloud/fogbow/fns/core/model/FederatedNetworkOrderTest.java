@@ -131,6 +131,6 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         Queue<String> cacheOfFreeIps = new LinkedList<>();
         ArrayList<AssignedIp> computeIdsAndIps = new ArrayList<>();
         return new FederatedNetworkOrder(systemUser, null, null, cidr,
-                null, providers, cacheOfFreeIps, computeIdsAndIps);
+                null, providers, cacheOfFreeIps, computeIdsAndIps, "vanilla");
     }
 }

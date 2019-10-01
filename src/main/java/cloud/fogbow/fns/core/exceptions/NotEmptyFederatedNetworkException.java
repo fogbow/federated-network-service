@@ -1,8 +1,9 @@
 package cloud.fogbow.fns.core.exceptions;
 
+import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.constants.Messages;
 
-public class NotEmptyFederatedNetworkException extends Exception {
+public class NotEmptyFederatedNetworkException extends FogbowException {
 	private static final long serialVersionUID = 1L;
 
 	public NotEmptyFederatedNetworkException() {

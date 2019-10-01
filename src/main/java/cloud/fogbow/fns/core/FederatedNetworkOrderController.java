@@ -7,12 +7,9 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.exceptions.AgentCommucationException;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnector;
-import cloud.fogbow.fns.core.serviceconnector.ServiceConnectorFactory;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -41,7 +38,7 @@ public class FederatedNetworkOrderController {
     }
 
     public void deleteFederatedNetwork(FederatedNetworkOrder federatedNetwork)
-            throws NotEmptyFederatedNetworkException, FogbowException {
+            throws FogbowException {
         synchronized (federatedNetwork) {
             if (!(federatedNetwork.getOrderState().equals(OrderState.CLOSED) ||
                     federatedNetwork.getOrderState().equals(OrderState.DEACTIVATED))) {
@@ -53,29 +50,6 @@ public class FederatedNetworkOrderController {
 
                 LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, federatedNetwork.toString()));
 
-                if (federatedNetwork.getOrderState() != OrderState.FAILED) {
-                    for (String provider : federatedNetwork.getProviders().keySet()) {
-                        ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                                federatedNetwork.getConfigurationMode(), provider);
-                        if (!federatedNetwork.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-                            if (connector.remove(federatedNetwork)) {
-                                federatedNetwork.getProviders().put(provider, MemberConfigurationState.REMOVED);
-                            }
-                        }
-                    }
-
-                    boolean providersRemovedTheConfiguration = allProvidersRemovedTheConfiguration(federatedNetwork.getProviders().values());
-                    if (!providersRemovedTheConfiguration) {
-                        LOGGER.info(String.format(Messages.Info.DELETED_FEDERATED_NETWORK, federatedNetwork.toString()));
-                        throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, new AgentCommucationException());
-                    }
-
-                    ServiceConnector connector = ServiceConnectorFactory.getInstance().getServiceConnector(
-                            federatedNetwork.getConfigurationMode(), LOCAL_MEMBER_NAME);
-                    connector.releaseVlanId(federatedNetwork.getVlanId());
-                    federatedNetwork.setVlanId(-1);
-                }
-
                 // If the state of the order is still FAILED, this is because in the creation, it was not possible to
                 // connect to the Agent. Thus, there is nothing to remove at the Agent, and an exception does not
                 // need to be thrown.
@@ -85,15 +59,6 @@ public class FederatedNetworkOrderController {
                 throw new InstanceNotFoundException(message);
             }
         }
-    }
-
-    private boolean allProvidersRemovedTheConfiguration(Collection<MemberConfigurationState> values) {
-        for (MemberConfigurationState state : values) {
-            if (!state.equals(MemberConfigurationState.REMOVED)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {

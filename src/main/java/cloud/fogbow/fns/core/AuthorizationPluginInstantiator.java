@@ -7,6 +7,6 @@ public class AuthorizationPluginInstantiator {
     private static ClassFactory classFactory = new ClassFactory();
 
     public static AuthorizationPlugin<FnsOperation> getAuthorizationPlugin(String className) {
-        return (AuthorizationPlugin<FnsOperation>) AuthorizationPluginInstantiator.classFactory.createPluginInstance(className);
+        return (AuthorizationPlugin<FnsOperation>) AuthorizationPluginInstantiator.classFactory.createInstance(className);
     }
 }

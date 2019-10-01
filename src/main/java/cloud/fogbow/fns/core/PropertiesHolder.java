@@ -3,19 +3,27 @@ package cloud.fogbow.fns.core;
 import cloud.fogbow.common.exceptions.FatalErrorException;
 import cloud.fogbow.common.util.HomeDir;
 import cloud.fogbow.common.util.PropertiesUtil;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.SystemConstants;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.io.File;
+import java.util.*;
 
 public class PropertiesHolder {
-    private Properties properties;
     private static PropertiesHolder instance;
+    private Map<String, Properties> properties;
 
     private PropertiesHolder() throws FatalErrorException {
+        properties = new HashMap<>();
         String path = HomeDir.getPath();
-        this.properties = PropertiesUtil.readProperties(path + SystemConstants.FNS_CONF_FILE);
+        String serviceNames = PropertiesUtil.readProperties(path + SystemConstants.FNS_CONF_FILE).getProperty(ConfigurationPropertyKeys.SERVICE_NAMES_KEY);
+
+        for(String serviceName : serviceNames.split(",")) {
+            properties.put(serviceName, PropertiesUtil.readProperties(path + SystemConstants.SERVICES_DIRECTORY +
+                File.separator + serviceName + File.separator + SystemConstants.DRIVER_CONF_FILE));
+        }
+
+        properties.put("fns", PropertiesUtil.readProperties(path + SystemConstants.FNS_CONF_FILE));
     }
 
     public static synchronized PropertiesHolder getInstance() throws FatalErrorException {
@@ -26,18 +34,22 @@ public class PropertiesHolder {
     }
 
     public String getProperty(String propertyName) {
-        return properties.getProperty(propertyName);
+        return properties.get("fns").getProperty(propertyName);
     }
 
-    public String getProperty(String propertyName, String defaultPropertyValue) {
-        String propertyValue = this.properties.getProperty(propertyName, defaultPropertyValue);
+    public String getProperty(String propertyName, String serviceName) {
+        return this.properties.get(serviceName).getProperty(propertyName);
+    }
+
+    public String getPropertyOrDefault(String propertyName, String defaultValue) {
+        String propertyValue = this.properties.get("fns").getProperty(propertyName, defaultValue);
         if (propertyValue.trim().isEmpty()) {
-            propertyValue = defaultPropertyValue;
+            propertyValue = defaultValue;
         }
         return propertyValue;
     }
 
-    public Properties getProperties() {
-        return this.properties;
+    public Properties getProperties(String serviceName) {
+        return properties.get(serviceName);
     }
 }
