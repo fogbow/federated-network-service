@@ -6,8 +6,6 @@ import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
@@ -25,8 +23,7 @@ This class should be ignored because it doesn't test
  */
 @Ignore
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AgentCommunicatorUtil.class, FederatedNetworkUtil.class, FederatedComputeUtil.class,
-        DatabaseManager.class, FederatedNetworkOrdersHolder.class})
+@PrepareForTest({FederatedNetworkUtil.class, DatabaseManager.class, FederatedNetworkOrdersHolder.class})
 public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
     protected FederatedNetworkOrderController federatedNetworkOrderController;
     protected FederatedNetworkOrdersHolder federatedNetworkOrdersHolder;

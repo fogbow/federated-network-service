@@ -12,8 +12,6 @@ import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
-import cloud.fogbow.fns.utils.FederatedComputeUtil;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import org.apache.commons.net.util.SubnetUtils;
@@ -25,7 +23,6 @@ import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.sql.SQLException;
@@ -38,7 +35,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AgentCommunicatorUtil.class)
 public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkUnitTests {
     private final String FEDERATED_NETWORK_ID = "fake-network-id";
     private final String FEDERATED_COMPUTE_ID = "fake-compute-id";
@@ -244,7 +240,6 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
 //        computeOrder.setId(FEDERATED_COMPUTE_ID);
 
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
-        PowerMockito.mockStatic(FederatedComputeUtil.class);
 
 //        UserData fakeUserData = new UserData("", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
 //

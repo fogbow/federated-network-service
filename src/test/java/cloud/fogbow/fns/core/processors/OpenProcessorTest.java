@@ -7,11 +7,8 @@ import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
-import cloud.fogbow.fns.utils.AgentCommunicatorUtil;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 
 import java.util.*;
 
@@ -30,15 +27,11 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
 
         OpenProcessor openProcessor = new OpenProcessor(1000L);
         SpawningProcessor spawningProcessor = new SpawningProcessor(1000L);
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
 //        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
 //
 //        // exercise
 //        openProcessor.processOrder(order);
 //        spawningProcessor.processOrder(order);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
 
         Assert.assertEquals(OrderState.FAILED, order.getOrderState());
     }
@@ -56,15 +49,11 @@ public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
 
         OpenProcessor openProcessor = new OpenProcessor(1000L);
         SpawningProcessor spawningProcessor = new SpawningProcessor(1000L);
-        PowerMockito.mockStatic(AgentCommunicatorUtil.class);
 //        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 //
 //        // exercise
 //        openProcessor.processOrder(order);
 //        spawningProcessor.processOrder(order);
-
-        // verify
-        PowerMockito.verifyStatic(AgentCommunicatorUtil.class, Mockito.times(1));
 
         Assert.assertEquals(OrderState.FULFILLED, order.getOrderState());
     }
