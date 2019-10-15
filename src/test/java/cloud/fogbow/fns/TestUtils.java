@@ -20,6 +20,7 @@ public class TestUtils {
     public static final String FAKE_COMPUTE_ID = "fake-compute-id";
     public static final String FAKE_IP = "192.168.1.0";
     public static final String MEMBER = "member";
+    public static final String NAME = "name";
     public static final String USER_ID = "user-id";
     public static final String USER_NAME = "user-name";
     public static final String FAKE_TOKEN = "fake-token";
@@ -35,7 +36,7 @@ public class TestUtils {
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
         computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
         FederatedNetworkOrder federatedNetworkOrder = Mockito.spy(new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp, state));
+                NAME, allowedMembers, freedIps, computesIp, state));
         return federatedNetworkOrder;
     }
 

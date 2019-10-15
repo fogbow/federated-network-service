@@ -52,6 +52,8 @@ public class ApplicationFacade {
     private RSAPublicKey asPublicKey;
     private String buildNumber;
 
+    private String MESSAGE_JSON_PATTERN = "{\"message\": \"%s\"}";
+
     private ApplicationFacade() {
         this.asPublicKey = null;
         this.buildNumber = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.BUILD_NUMBER_KEY,
@@ -150,7 +152,7 @@ public class ApplicationFacade {
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body("{\"message\":\"" + Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND + "\"}");
+                    body(String.format(MESSAGE_JSON_PATTERN, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
@@ -189,7 +191,7 @@ public class ApplicationFacade {
                     HttpMethod.DELETE, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body("{\"message\":\"" + Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND + "\"}");
+                    body(String.format(MESSAGE_JSON_PATTERN, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {

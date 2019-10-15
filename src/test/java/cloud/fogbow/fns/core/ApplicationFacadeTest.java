@@ -42,7 +42,16 @@ import java.util.List;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AuthenticationUtil.class, RedirectToRasUtil.class, ServiceConnectorFactory.class})
 public class ApplicationFacadeTest extends BaseUnitTest {
-    private final String FEDERATED_NETWORK_ID = "fake-network-id";
+
+    private static final int RUN_TWICE = 2;
+    private static final String ANY_iP = "127.0.0.1";
+    private static final String FAKE_FILE_1 = "Fake file";
+    private static final String FAKE_FILE_2 = "fake second file";
+    private static final String FAKE_ID = "fake-id";
+    private static final String FAKE_NAME = "fake-name";
+    private static final String FAKE_PROVIDER = "fake-provider";
+    private static final String FEDERATED_NETWORK_ID = "fake-network-id";
+    private static final String PATH_SEPARATOR = "/";
 
     private ApplicationFacade applicationFacade;
     private FederatedNetworkOrderController federatedNetworkOrderController;
@@ -141,7 +150,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     public void testCreateCompute() throws FogbowException {
         //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(FEDERATED_NETWORK_ID, OrderState.FULFILLED);
-        Mockito.doReturn("127.0.0.1").when(order).getFreeIp();
+        Mockito.doReturn(ANY_iP).when(order).getFreeIp();
         Mockito.doReturn(ConfigurationMode.VANILLA).when(order).getConfigurationMode();
         Mockito.doReturn(order).when(federatedNetworkOrderController).getFederatedNetwork(Mockito.any());
         Mockito.doNothing().when(applicationFacade).addUserDataToCompute(Mockito.any(), Mockito.any());
@@ -156,7 +165,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.verify(federatedNetworkOrderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).addUserDataToCompute(Mockito.any(), Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas("/" + Compute.COMPUTE_ENDPOINT, testUtils.gson.toJson(compute.getCompute()),
+        RedirectToRasUtil.createAndSendRequestToRas(PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT, testUtils.gson.toJson(compute.getCompute()),
             HttpMethod.POST, TestUtils.FAKE_TOKEN, String.class);
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
     }
@@ -178,6 +187,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         try {
             //exercise
             applicationFacade.createCompute(compute, TestUtils.FAKE_TOKEN);
+            Assert.fail();
         } catch (FogbowException ex) {
             //verify
             Assert.assertEquals(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND, ex.getMessage());
@@ -186,7 +196,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.verify(federatedNetworkOrderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).addUserDataToCompute(Mockito.any(), Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas("/" + Compute.COMPUTE_ENDPOINT, testUtils.gson.toJson(compute.getCompute()),
+        RedirectToRasUtil.createAndSendRequestToRas(PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT, testUtils.gson.toJson(compute.getCompute()),
                 HttpMethod.POST, TestUtils.FAKE_TOKEN, String.class);
     }
 
@@ -196,14 +206,14 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         //setup
         FederatedCompute federatedCompute = testUtils.createFederatedCompute(FEDERATED_NETWORK_ID);
         ArrayList<UserData> userData = new ArrayList<>();
-        UserData userData1 = new UserData("Fake file", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+        UserData userData1 = new UserData(FAKE_FILE_1, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
         userData.add(userData1);
         federatedCompute.getCompute().setUserData(userData);
-        UserData userData2 = new UserData("fake second file", CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
+        UserData userData2 = new UserData(FAKE_FILE_2, CloudInitUserDataBuilder.FileType.SHELL_SCRIPT);
         //exercise
         applicationFacade.addUserDataToCompute(federatedCompute, userData2);
         //verify
-        Assert.assertEquals(2, federatedCompute.getCompute().getUserData().size());
+        Assert.assertEquals(RUN_TWICE, federatedCompute.getCompute().getUserData().size());
         Assert.assertTrue(federatedCompute.getCompute().getUserData().contains(userData2));
         Assert.assertTrue(federatedCompute.getCompute().getUserData().contains(userData1));
     }
@@ -240,7 +250,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         applicationFacade.deleteCompute(TestUtils.FAKE_COMPUTE_ID, TestUtils.FAKE_TOKEN);
         //verify
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + TestUtils.FAKE_COMPUTE_ID), "",
+        RedirectToRasUtil.createAndSendRequestToRas((PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT + PATH_SEPARATOR + TestUtils.FAKE_COMPUTE_ID), "",
                 HttpMethod.DELETE, TestUtils.FAKE_TOKEN, String.class);
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).removeIpToComputeAllocation(Mockito.any());
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
@@ -261,10 +271,11 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         try {
             //exercise
             applicationFacade.deleteCompute(TestUtils.FAKE_COMPUTE_ID, TestUtils.FAKE_TOKEN);
+            Assert.fail();
         } catch (FogbowException ex) {
             //verify
             PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-            RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + TestUtils.FAKE_COMPUTE_ID), "",
+            RedirectToRasUtil.createAndSendRequestToRas((PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT + PATH_SEPARATOR + TestUtils.FAKE_COMPUTE_ID), "",
                     HttpMethod.DELETE, TestUtils.FAKE_TOKEN, String.class);
             Assert.assertEquals(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND, ex.getMessage());
         }
@@ -288,7 +299,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         applicationFacade.deleteCompute(TestUtils.FAKE_COMPUTE_ID, TestUtils.FAKE_TOKEN);
         //verify
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + TestUtils.FAKE_COMPUTE_ID), "",
+        RedirectToRasUtil.createAndSendRequestToRas((PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT + PATH_SEPARATOR + TestUtils.FAKE_COMPUTE_ID), "",
                 HttpMethod.DELETE, TestUtils.FAKE_TOKEN, String.class);
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).removeIpToComputeAllocation(Mockito.any());
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
@@ -308,7 +319,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         applicationFacade.getComputeById(TestUtils.FAKE_COMPUTE_ID, TestUtils.FAKE_TOKEN);
         //verify
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + TestUtils.FAKE_COMPUTE_ID), "",
+        RedirectToRasUtil.createAndSendRequestToRas((PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT + PATH_SEPARATOR + TestUtils.FAKE_COMPUTE_ID), "",
                 HttpMethod.GET, TestUtils.FAKE_TOKEN, String.class);
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).addFederatedIpInGetInstanceIfApplied(Mockito.any(), Mockito.any());
     }
@@ -324,10 +335,11 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         try {
             //exercise
             applicationFacade.getComputeById(TestUtils.FAKE_COMPUTE_ID, TestUtils.FAKE_TOKEN);
+            Assert.fail();
         } catch (FogbowException ex) {
             //verify
             PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-            RedirectToRasUtil.createAndSendRequestToRas(("/" + Compute.COMPUTE_ENDPOINT + "/" + TestUtils.FAKE_COMPUTE_ID), "",
+            RedirectToRasUtil.createAndSendRequestToRas((PATH_SEPARATOR + Compute.COMPUTE_ENDPOINT + PATH_SEPARATOR + TestUtils.FAKE_COMPUTE_ID), "",
                     HttpMethod.GET, TestUtils.FAKE_TOKEN, String.class);
             Assert.assertEquals(Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND, ex.getMessage());
         }
@@ -354,7 +366,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         order.setSystemUser(testUtils.user);
         Mockito.doReturn(true).when(authPlugin).isAuthorized(Mockito.any(), Mockito.any());
         //exercise
-        applicationFacade.authorizeOrder(new SystemUser("fake-id", "fake-name", "fake-provider"),
+        applicationFacade.authorizeOrder(new SystemUser(FAKE_ID, FAKE_NAME, FAKE_PROVIDER),
             Operation.GET, ResourceType.FEDERATED_NETWORK, order);
     }
 
