@@ -101,7 +101,7 @@ public class ApplicationFacade {
             throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
         }
         // Check if the user is authentic
-        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser requester = authenticate(systemUserToken);
         // Set requester field in the order
         order.setSystemUser(requester);
         // Check if the authenticated user is authorized to perform the requested operation
@@ -136,7 +136,7 @@ public class ApplicationFacade {
 
     // federatedCompute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
-    public synchronized String createCompute(FederatedCompute federatedCompute, String systemUserToken)
+    public String createCompute(FederatedCompute federatedCompute, String systemUserToken)
             throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = federatedCompute.getFederatedNetworkId();
@@ -145,6 +145,9 @@ public class ApplicationFacade {
 
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
+            if(!federatedNetworkOrder.getSystemUser().equals(authenticate(systemUserToken))) {
+                throw new FogbowException("Only the fednet's owner can create federateds computes");
+            }
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();
             ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
@@ -175,7 +178,7 @@ public class ApplicationFacade {
         return computeId.getId();
     }
 
-    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
+    public void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -290,5 +293,10 @@ public class ApplicationFacade {
 
     public void setServiceListController(ServiceListController serviceListController) {
         this.serviceListController = serviceListController;
+    }
+
+    protected SystemUser authenticate(String userToken) throws FogbowException {
+        RSAPublicKey keyRSA = getAsPublicKey();
+        return AuthenticationUtil.authenticate(keyRSA, userToken);
     }
 }
