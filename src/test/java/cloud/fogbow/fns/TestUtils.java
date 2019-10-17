@@ -19,7 +19,8 @@ public class TestUtils {
     public final String MEMBER = "member";
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
-    public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+
+    private SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {
@@ -40,5 +41,9 @@ public class TestUtils {
             service.put(order);
         }
         return orders;
+    }
+
+    public SystemUser createSystemUser() {
+        return user;
     }
 }

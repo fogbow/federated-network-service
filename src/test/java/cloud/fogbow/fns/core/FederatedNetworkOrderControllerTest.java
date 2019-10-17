@@ -3,8 +3,10 @@ package cloud.fogbow.fns.core;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
+import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
@@ -171,5 +173,35 @@ public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkU
         this.controller.deactivateOrder(order);
 
         Assert.fail();
+    }
+
+    //test case: Tests if get all federated networks will return all federated networks added by this user
+    @Test
+    public void testGetFederatedNetworksStatusByUser() throws UnexpectedException {
+        // setup
+        Collection<FederatedNetworkOrder> orders = createOrdersFor(testUtils.createSystemUser());
+        Map<String, FederatedNetworkOrder> activeOrders = Mockito.mock(Map.class);
+        Mockito.when(activeOrders.values()).thenReturn(orders);
+
+        Mockito.when(ordersHolder.getActiveOrders()).thenReturn(activeOrders);
+        SystemUser currentUser = testUtils.createSystemUser();
+
+
+        // exercise
+        Collection<InstanceStatus> statuses = this.controller.getFederatedNetworksStatusByUser(currentUser);
+
+        // verify
+        Assert.assertFalse(statuses.isEmpty());
+    }
+
+    private Collection<FederatedNetworkOrder> createOrdersFor(SystemUser systemUser) throws UnexpectedException {
+        Collection<FederatedNetworkOrder> orders = new ArrayList<>();
+        for (OrderState state : OrderState.values()) {
+            FederatedNetworkOrder federatedNetworkOrder = Mockito.mock(FederatedNetworkOrder.class);
+            Mockito.when(federatedNetworkOrder.getSystemUser()).thenReturn(systemUser);
+            Mockito.when(federatedNetworkOrder.getOrderState()).thenReturn(state);
+            orders.add(federatedNetworkOrder);
+        }
+        return orders;
     }
 }
