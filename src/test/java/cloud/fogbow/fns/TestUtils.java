@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class TestUtils {
+    public static final String ANY_STRING = "any-string";
     public static final String CIDR = "10.150.0.0/28";
     public final String FAKE_COMPUTE_ID = "fake-compute-id";
     public final String FAKE_IP = "192.168.1.0";
