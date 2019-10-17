@@ -113,7 +113,7 @@ public class ApplicationFacade {
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
         return order;
@@ -121,14 +121,14 @@ public class ApplicationFacade {
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.GET_ALL, ResourceType.FEDERATED_NETWORK));
         return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
         this.federatedNetworkOrderController.deleteFederatedNetwork(order);
@@ -136,7 +136,7 @@ public class ApplicationFacade {
 
     // federatedCompute requests that involve federated network need to be synchronized because there is no order object to
     // synchronize to.
-    public String createCompute(FederatedCompute federatedCompute, String systemUserToken)
+    public synchronized String createCompute(FederatedCompute federatedCompute, String systemUserToken)
             throws FogbowException {
         // Authentication and authorization is performed by the RAS.
         String federatedNetworkId = federatedCompute.getFederatedNetworkId();
@@ -146,7 +146,7 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             if(!federatedNetworkOrder.getSystemUser().equals(authenticate(systemUserToken))) {
-                throw new FogbowException("Only the fednet's owner can create federateds computes");
+                throw new FogbowException("Only the fednet's owner can create federated computes");
             }
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();
@@ -174,11 +174,14 @@ public class ApplicationFacade {
             throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
-        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
+        if(federatedNetworkId != null) {
+            this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
+        }
+
         return computeId.getId();
     }
 
-    public void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
+    public synchronized void deleteCompute(String computeId, String systemUserToken) throws FogbowException{
         // Authentication and authorization is performed by the RAS.
         ResponseEntity<String> responseEntity = null;
         // We need a try-catch here, because a connect exception may be thrown, if RAS is offline.
@@ -275,7 +278,7 @@ public class ApplicationFacade {
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 
-    private void addUserData(FederatedCompute compute, UserData userData) {
+    protected void addUserData(FederatedCompute compute, UserData userData) {
         cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
 
