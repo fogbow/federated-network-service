@@ -235,7 +235,7 @@ public class ApplicationFacade {
     }
 
     public List<String> getServiceNames(String systemUserToken) throws FogbowException{
-        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser requester = authenticate(systemUserToken);
         FnsOperation fnsOperation = new FnsOperation(Operation.GET, ResourceType.SERVICE_NAMES);
         this.authorizationPlugin.isAuthorized(requester, fnsOperation);
         return this.serviceListController.getServiceNames();
@@ -269,7 +269,7 @@ public class ApplicationFacade {
     }
 
     protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
-                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
+        FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
         // Check whether requester owns order
         SystemUser orderOwner = order.getSystemUser();
         if (!orderOwner.equals(requester)) {
