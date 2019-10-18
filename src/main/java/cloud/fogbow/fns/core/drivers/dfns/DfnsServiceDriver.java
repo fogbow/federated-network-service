@@ -64,7 +64,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             order.setVlanId(acquireVlanId());
         } catch(FogbowException ex) {
             LOGGER.error(Messages.Exception.NO_MORE_VLAN_IDS_AVAILABLE);
-            throw new FogbowException(ex.getMessage());
+            throw ex;
         }
     }
 
@@ -104,7 +104,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             return dfnsAgentConfiguration;
         } catch(FogbowException ex) {
             LOGGER.error(ex.getMessage());
-            throw new FogbowException(ex.getMessage());
+            throw ex;
         }
     }
 
@@ -130,7 +130,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());
-            throw new FogbowException(ex.getMessage());
+            throw ex;
         }
     }
 
@@ -162,7 +162,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL, SERVICE_NAME);
     }
 
-    private int acquireVlanId() throws FogbowException {
+    protected int acquireVlanId() throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
