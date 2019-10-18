@@ -98,7 +98,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                dfnsAgentConfiguration = (SSAgentConfiguration) new DfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
+                dfnsAgentConfiguration = (SSAgentConfiguration) getDfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
@@ -126,7 +126,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             if(!isRemote(order.getProvider())) {
                 removeAgentToComputeTunnel(order, hostIp);
             } else {
-                new DfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, hostIp);
+                getDfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, hostIp);
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());
@@ -178,7 +178,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return vlanId.vlanId;
     }
 
-    private void releaseVlanId(int vlanId) throws FogbowException {
+    protected void releaseVlanId(int vlanId) throws FogbowException {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(HttpConstants.CONTENT_TYPE_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
         headers.put(HttpConstants.ACCEPT_KEY, HttpConstants.JSON_CONTENT_TYPE_KEY);
@@ -257,6 +257,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
     }
 
+    protected DfnsServiceConnector getDfnsServiceConnector(String provider) {
+        return new DfnsServiceConnector(provider);
+    }
+
     private String replaceScriptTokens(String scriptTemplate, Map<String, String> scriptTokenValues) {
         String result = scriptTemplate;
         for (String scriptToken : scriptTokenValues.keySet()) {
@@ -274,7 +278,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private boolean isRemote(String provider) {
+    protected boolean isRemote(String provider) {
         return ! LOCAL_MEMBER_NAME.equals(provider);
     }
 }

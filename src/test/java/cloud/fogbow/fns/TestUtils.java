@@ -13,6 +13,10 @@ import java.util.*;
 
 public class TestUtils {
     public static final String CIDR = "10.150.0.0/28";
+    public static final String FAKE_VLAN_ID_SERVICE_URL = "http://fake.vlan.service";
+    public static final String FAKE_LOCAL_MEMBER_NAME = "fake-local-member";
+    public static final String FAKE_PROVIDER = "fake-provider";
+    public static final int FAKE_VLAN_ID = 42;
     public final String FAKE_COMPUTE_ID = "fake-compute-id";
     public final String FAKE_IP = "192.168.1.0";
     public final String MEMBER = "member";
