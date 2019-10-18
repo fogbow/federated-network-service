@@ -4,6 +4,7 @@ import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
@@ -29,7 +30,7 @@ import java.util.*;
         PropertiesHolder.class,
         OrderStateTransitioner.class
 })
-public class FederatedNetworkOrderControllerTest extends MockedFederatedNetworkUnitTests {
+public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     private FederatedNetworkOrderController controller;
     private FederatedNetworkOrdersHolder ordersHolder;
