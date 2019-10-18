@@ -3,10 +3,12 @@ package cloud.fogbow.fns.core.drivers.dfns;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
+import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
+import cloud.fogbow.ras.core.models.UserData;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -30,6 +33,9 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
     private PropertiesHolder propertiesHolderMock;
     private Properties propertiesMock;
     private DfnsServiceDriver driver;
+
+    private String ANY_STRING = "any-string";
+    private int ANY_INT = 42;
 
     @Before
     public void setupTest() {
@@ -135,6 +141,90 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
 
         // verify
         Mockito.verify(mockedAgentConfiguration).configureAgent(Mockito.anyString(), Mockito.anyString());
+    }
+
+    // test case: the getDfnsUserData should delegate part of the work to getDfnsUserData
+    @Test
+    public void testGetComputeUserData() throws IOException, FogbowException {
+        // setup
+        AgentConfiguration configuration = Mockito.mock(SSAgentConfiguration.class);
+        FederatedCompute compute = Mockito.mock(FederatedCompute.class);
+        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        String instanceIp = TestUtils.FAKE_INSTANCE_ID;
+
+        UserData userData = Mockito.mock(UserData.class);
+        Mockito.doReturn(userData).when(this.driver).getDfnsUserData(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyString());
+
+        // exercise
+        this.driver.getComputeUserData(configuration, compute, order, instanceIp);
+
+        // verify
+        Mockito.verify(this.driver).getDfnsUserData(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.anyString());
+    }
+
+    // test case: during a local cleanup, it should remove local agent
+    @Test
+    public void testCleanupAgentLocal() throws FogbowException {
+        // setup
+        Mockito.doReturn(false).when(this.driver).isRemote(Mockito.anyString());
+        Mockito.doNothing().when(this.driver).removeAgentToComputeTunnel(Mockito.any(), Mockito.anyString());
+        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        String hostIp = TestUtils.FAKE_HOST_IP;
+
+        // exercise
+        this.driver.cleanupAgent(order, hostIp);
+
+        // verify
+        Mockito.verify(this.driver).removeAgentToComputeTunnel(Mockito.any(), Mockito.anyString());
+    }
+
+    // test case: during a local cleanup, it should remove remote agent
+    @Test
+    public void testCleanupAgentRemote() throws FogbowException {
+        // setup
+        Mockito.doReturn(true).when(this.driver).isRemote(Mockito.anyString());
+
+        DfnsServiceConnector connector = getMockedDfnsServiceConnector();
+        Mockito.doReturn(connector).when(this.driver).getDfnsServiceConnector(Mockito.anyString());
+
+        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        String hostIp = TestUtils.FAKE_HOST_IP;
+
+        // exercise
+        this.driver.cleanupAgent(order, hostIp);
+
+        // verify
+        Mockito.verify(this.driver).getDfnsServiceConnector(Mockito.anyString());
+    }
+
+    // test case: call to doConfigureAgent, should perform appropriate invocations
+    @Test
+    public void testDoConfigureAgent() throws FogbowException {
+        // setup
+        Mockito.doNothing().when(this.driver).addKeyToAgentAuthorizedPublicKeys(Mockito.anyString());
+        Mockito.when(propertiesMock.getProperty(Mockito.anyString())).thenReturn(ANY_STRING);
+
+        // exercise
+        this.driver.doConfigureAgent(TestUtils.FAKE_PUBLIC_KEY);
+
+        // verify
+        Mockito.verify(this.driver).addKeyToAgentAuthorizedPublicKeys(Mockito.anyString());
+    }
+
+    // test case: the removeAgentToComputeTunnel should delegate his task to executeAgentCommand
+    @Test
+    public void testExecuteAgentCommand() throws FogbowException {
+        // setup
+        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        Mockito.when(order.getVlanId()).thenReturn(ANY_INT);
+
+        Mockito.doNothing().when(this.driver).executeAgentCommand(Mockito.any(), Mockito.any(), Mockito.any());
+
+        // exercise
+        this.driver.removeAgentToComputeTunnel(order, TestUtils.FAKE_HOST_IP);
+
+        // verify
+        Mockito.verify(this.driver).executeAgentCommand(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
     private SSAgentConfiguration getMockedSSAgentConfiguration() {

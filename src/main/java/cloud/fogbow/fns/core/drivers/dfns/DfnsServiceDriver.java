@@ -139,10 +139,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
     }
 
-    private void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
-        executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
-    }
-
     @Override
     public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
         addKeyToAgentAuthorizedPublicKeys(publicKey);
@@ -155,7 +151,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
 
-    public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
+    protected void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
                 (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
 
@@ -196,7 +192,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
+    void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
         String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
@@ -232,7 +228,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @NotNull
-    private UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
+    protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
         String scriptKey = DriversConfigurationPropertyKeys.Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
         String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         InputStream inputStream = new FileInputStream(createTunnelScriptPath);
@@ -255,6 +251,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
         return new UserData(encryptedScript,
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
+    }
+
+    protected void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
+        executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
     }
 
     protected DfnsServiceConnector getDfnsServiceConnector(String provider) {
