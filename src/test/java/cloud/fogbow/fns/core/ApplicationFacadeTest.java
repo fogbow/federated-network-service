@@ -57,32 +57,38 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         applicationFacade.setServiceListController(serviceListController);
     }
 
-    @Test(expected = NotSupportedServiceException.class)
+    //test case: Check if an exception is thrown when a not supported service is requested
+    @Test(expected = NotSupportedServiceException.class) //verify
     public void testCreateFederatedNetworkWithNotSupportedService() throws FogbowException {
+        //setup
         FederatedNetworkOrder order = new FederatedNetworkOrder();
         order.setServiceName(NON_EXISTENT_SERVICE_NAME);
+        //exercise
         applicationFacade.createFederatedNetwork(order, TestUtils.FAKE_USER_TOKEN);
-
     }
 
-    @Test(expected = InvalidCidrException.class)
+    //test case: Check create fednet with invalid cidr
+    @Test(expected = InvalidCidrException.class)//verify
     public void testCreateFederatedNetworkWithNotValidSubnet() throws Exception{
+        //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         PowerMockito.doReturn(false).when(FederatedNetworkUtil.class, "isSubnetValid", Mockito.any());
-
+        //exercise
         applicationFacade.createFederatedNetwork(order, TestUtils.FAKE_USER_TOKEN);
     }
 
+    //test case: Successful case of createFederatedNetwork
     @Test
-    public void testCreateFederatedNetwork() throws Exception{
+    public void testCreateFederatedNetwork() throws Exception {
+        //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         PowerMockito.doReturn(true).when(FederatedNetworkUtil.class, "isSubnetValid", Mockito.any());
         Mockito.doReturn(true).when(authorizationPlugin).isAuthorized(Mockito.any(), Mockito.any());
         Mockito.doNothing().when(orderController).activateOrder(Mockito.any());
-
+        //exercise
         String orderId = applicationFacade.createFederatedNetwork(order, TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals(testUtils.user, order.getSystemUser());
         Assert.assertEquals(order.getId(), orderId);
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
@@ -90,23 +96,27 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
     }
 
+    //test case: Check if getFederatedNetwork makes the expected calls.
     @Test
-    public void testGetFederatedNetwork() throws Exception{
+    public void testGetFederatedNetwork() throws Exception {
+        //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doNothing().when(applicationFacade).authorizeOrder(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        //exercise
         FederatedNetworkOrder returnedOrder = applicationFacade.getFederatedNetwork(order.getId(), TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals(order, returnedOrder);
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authorizeOrder(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
     }
 
+    //test case: Check if the method makes the expected call in the successful case
     @Test
-    public void testGetFederatedNetworksStatus() throws Exception{
+    public void testGetFederatedNetworksStatus() throws Exception {
+        //setup
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doReturn(true).when(authorizationPlugin).isAuthorized(Mockito.any(), Mockito.any());
 
@@ -118,25 +128,27 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         ordersStatus.add(secondInstanceStatus);
 
         Mockito.doReturn(ordersStatus).when(orderController).getFederatedNetworksStatusByUser(Mockito.any());
-
+        //exercise
         Collection<InstanceStatus> returnedStatus = applicationFacade.getFederatedNetworksStatus(TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals(ordersStatus, returnedStatus);
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworksStatusByUser(Mockito.any());
     }
 
+    //test case: Check if the method makes the expected calls
     @Test
-    public void testDeleteFederatedNetwork() throws Exception{
+    public void testDeleteFederatedNetwork() throws Exception {
+        //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doNothing().when(applicationFacade).authorizeOrder(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doNothing().when(orderController).deleteFederatedNetwork(Mockito.any());
-
+        //exercise
         applicationFacade.deleteFederatedNetwork(order.getId(), TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authorizeOrder(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
@@ -144,8 +156,10 @@ public class ApplicationFacadeTest extends BaseUnitTest {
 
     }
 
+    //test case: Check if the method makes the expected calls in the successful case
     @Test
-    public void testCreateComputeWithoutFednetInSuccessCase() throws Exception{
+    public void testCreateComputeWithoutFednetInSuccessCase() throws Exception {
+        //setup
         FederatedCompute federatedCompute = new FederatedCompute();
         Compute compute = new Compute();
         compute.setUserData(new ArrayList<>());
@@ -154,9 +168,9 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        //exercise
         String computeId = applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals("fake-id", computeId);
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes"), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
@@ -164,8 +178,10 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.verify(computeRequestsController, Mockito.times(0)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
     }
 
-    @Test(expected = FogbowException.class)
+    //test case: check if an exception is thrown when ras is offline
+    @Test(expected = FogbowException.class) //verify
     public void testCreateComputeWithoutFednetInFailureCase() throws Exception{
+        //setup
         FederatedCompute federatedCompute = new FederatedCompute();
         Compute compute = new Compute();
         compute.setUserData(new ArrayList<>());
@@ -173,12 +189,14 @@ public class ApplicationFacadeTest extends BaseUnitTest {
 
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         PowerMockito.doThrow(new RestClientException("")).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        //exercise
         applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
     }
 
+    //test case: Check if the method makes the expected calls in success case
     @Test
     public void testCreateComputeWithFednetInSuccessCase() throws Exception{
+        //setup
         FederatedNetworkOrder order = Mockito.spy(testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN));
         FederatedCompute federatedCompute = new FederatedCompute();
         Compute compute = new Compute();
@@ -194,9 +212,9 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doNothing().when(applicationFacade).addUserData(Mockito.any(), Mockito.any());
         Mockito.doReturn("192.168.15.10").when(order).getFreeIp();
-
+        //exercise
         String computeId = applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals("fake-id", computeId);
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes"), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
@@ -207,8 +225,10 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).addUserData(Mockito.any(), Mockito.any());
     }
 
-    @Test(expected = FogbowException.class)
+    //test case: check if an exception is thrown when the requester is different from the fednet's owner
+    @Test(expected = FogbowException.class)//verify
     public void testCreateComputeWithFednetInFailureCaseBecauseTheUsersAreDifferents() throws Exception{
+        //setup
         FederatedNetworkOrder order = Mockito.spy(testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN));
         FederatedCompute federatedCompute = new FederatedCompute();
         Compute compute = new Compute();
@@ -218,12 +238,14 @@ public class ApplicationFacadeTest extends BaseUnitTest {
 
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doReturn(new SystemUser("", "", "")).when(applicationFacade).authenticate(Mockito.any());
-
+        //exercise
         applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
     }
 
+    //test case: check if the expected calls are made when ras is offline and there is a fednetId
     @Test
     public void testCreateComputeWithFednetInFailureCase() throws Exception {
+        //setup
         FederatedNetworkOrder order = Mockito.spy(testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN));
         FederatedCompute federatedCompute = new FederatedCompute();
         Compute compute = new Compute();
@@ -239,110 +261,131 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.doReturn("192.168.15.10").when(order).getFreeIp();
 
         try {
+            //exercise
             applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
+            //verify
+            Assert.fail();
         } catch (FogbowException ex) { }
-
+        //verify
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).addUserData(Mockito.any(), Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
     }
 
-    @Test(expected = FogbowException.class)
+    //test case: check if an exception is thrown when ras is offline
+    @Test(expected = FogbowException.class)//verify
     public void testDeleteComputeInFailureCase() throws Exception {
+        //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         PowerMockito.doThrow(new RestClientException("")).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        //verify
         applicationFacade.deleteCompute(TestUtils.FAKE_ID, TestUtils.FAKE_USER_TOKEN);
     }
 
+    //test case: check if the expected calls are made when there is no fednet
     @Test
-    public void testDeleteComputeInSuccessCaseWithoutFedNet() throws Exception{
+    public void testDeleteComputeInSuccessCaseWithoutFedNet() throws Exception {
+        //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(null).when(computeRequestsController).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
-
+        //exercise
         applicationFacade.deleteCompute("fake-id", TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
                 Mockito.eq(HttpMethod.DELETE), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
+    //test case: check if the method makes the expected calls when there is a fednet
     @Test
     public void testDeleteComputeInSuccessCaseWithFedNet() throws Exception {
+        //setup
         FederatedNetworkOrder order = Mockito.spy(testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN));
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(computeRequestsController).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         Mockito.doNothing().when(order).removeAssociatedIp(Mockito.any());
-
+        //exercise
         applicationFacade.deleteCompute("fake-id", TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
                 Mockito.eq(HttpMethod.DELETE), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
-    @Test(expected = FogbowException.class)
+    //test case: check if an exception is thrown when ras is offline
+    @Test(expected = FogbowException.class)//verify
     public void testGetComputeByIdOnFailureCase() throws Exception{
+        //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         PowerMockito.doThrow(new RestClientException("")).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-
+        //exercise
         applicationFacade.getComputeById(TestUtils.FAKE_ID, TestUtils.FAKE_USER_TOKEN);
     }
 
+    //test case: check if the expected calls are made in the success case
     @Test
-    public void testGetComputeByIdOnSuccessCase() throws Exception{
+    public void testGetComputeByIdOnSuccessCase() throws Exception {
+        //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(computeRequestsController).addFederatedIpInGetInstanceIfApplied(Mockito.any(), Mockito.any());
-
+        //exercise
         applicationFacade.getComputeById("fake-id", TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).addFederatedIpInGetInstanceIfApplied(Mockito.any(), Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
                 Mockito.eq(HttpMethod.GET), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
+    //test case: check if the expected calls are made and the result is ok
     @Test
     public void testGetServiceNames() throws Exception {
+        //setup
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doReturn(true).when(authorizationPlugin).isAuthorized(Mockito.any(), Mockito.any());
         Mockito.doCallRealMethod().when(serviceListController).getServiceNames();
-
+        //exercise
         List<String> serviceNames = applicationFacade.getServiceNames(TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
         Assert.assertTrue(serviceNames.contains("vanilla") && serviceNames.contains("dfns"));
     }
 
-    @Test(expected = FogbowException.class)
+    //test case: check if an exception is thrown when the order's owner is different from the requester
+    @Test(expected = FogbowException.class)//verify
     public void testAuthorizeOrderOnFailureCase() throws Exception {
+        //setup
         FederatedNetworkOrder order = Mockito.spy(new FederatedNetworkOrder());
         Mockito.doReturn(new SystemUser("", "", "")).when(order).getSystemUser();
-
+        //exercise
         applicationFacade.authorizeOrder(testUtils.user, null, null, order);
     }
 
+    //test case: check if the expected calls are made in the success case
     @Test
-    public void testAuthorizeOrderOnSuccessCase() throws Exception{
+    public void testAuthorizeOrderOnSuccessCase() throws Exception {
+        //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         Mockito.doReturn(true).when(authorizationPlugin).isAuthorized(Mockito.any(), Mockito.any());
-
+        //exercise
         applicationFacade.authorizeOrder(testUtils.user, null, null, order);
-
+        //verify
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
     }
 
+    //test case: check if the method add the userData
     @Test
     public void testAddUserData() {
+        //setup
         FederatedCompute fedCompute = new FederatedCompute();
         Compute compute = new Compute();
         fedCompute.setCompute(compute);
@@ -350,20 +393,22 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Assert.assertTrue(compute.getUserData() == null);
 
         UserData userData = new UserData();
-
+        //exercise
         applicationFacade.addUserData(fedCompute, userData);
-
+        //verify
         Assert.assertTrue(compute.getUserData() != null && !compute.getUserData().isEmpty());
     }
 
+    //test case: check if the method makes the expected calls and returns the expected object
     @Test
-    public void testAuthenticate() throws Exception{
+    public void testAuthenticate() throws Exception {
+        //setup
         PowerMockito.mockStatic(AuthenticationUtil.class);
         PowerMockito.doReturn(testUtils.user).when(AuthenticationUtil.class, "authenticate", Mockito.any(), Mockito.any());
         Mockito.doReturn(null).when(applicationFacade).getAsPublicKey();
-
+        //exercise
         SystemUser user = applicationFacade.authenticate(TestUtils.FAKE_USER_TOKEN);
-
+        //verify
         Assert.assertEquals(testUtils.user, user);
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).getAsPublicKey();
         PowerMockito.verifyStatic(AuthenticationUtil.class, Mockito.times(TestUtils.RUN_ONCE));
