@@ -36,6 +36,15 @@ import java.util.List;
 @PrepareForTest({ FederatedNetworkUtil.class, RedirectToRasUtil.class, AuthenticationUtil.class })
 public class ApplicationFacadeTest extends BaseUnitTest {
     public static final String NON_EXISTENT_SERVICE_NAME = "Non existent service name";
+    public static final String FNS_VANILLA_SERVICE = "vanilla";
+    public static final String FNS_DFNS_SERVICE = "dfns";
+    public static final String COMPUTES_ENDPOINT = "/ras/computes";
+    public static final String FAKE_ID = "fake-id";
+    public static final String FAKE_BODY = "{\"id\":\"fake-id\"}";
+    public static final String SECOND_ORDER_ID = "second order id";
+    public static final String FAKE_PROVIDER =  "fake provider";
+    public static final String FAKE_IP = "192.168.15.10";
+
 
     private ApplicationFacade applicationFacade = Mockito.spy(ApplicationFacade.getInstance());
     private AuthorizationPlugin authorizationPlugin;
@@ -121,7 +130,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.doReturn(true).when(authorizationPlugin).isAuthorized(Mockito.any(), Mockito.any());
 
         InstanceStatus instanceStatus = new InstanceStatus(TestUtils.FAKE_ID, testUtils.MEMBER, InstanceState.OPEN);
-        InstanceStatus secondInstanceStatus = new InstanceStatus("second order id", "fake provider", InstanceState.FAILED);
+        InstanceStatus secondInstanceStatus = new InstanceStatus(SECOND_ORDER_ID, FAKE_PROVIDER, InstanceState.FAILED);
 
         Collection<InstanceStatus> ordersStatus = new ArrayList<>();
         ordersStatus.add(instanceStatus);
@@ -166,14 +175,14 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         federatedCompute.setCompute(compute);
 
         PowerMockito.mockStatic(RedirectToRasUtil.class);
-        ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
+        ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         //exercise
         String computeId = applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
         //verify
-        Assert.assertEquals("fake-id", computeId);
+        Assert.assertEquals(FAKE_ID, computeId);
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes"), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
+        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
             Mockito.eq(HttpMethod.POST), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
         Mockito.verify(computeRequestsController, Mockito.times(0)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
     }
@@ -205,19 +214,19 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         federatedCompute.setFederatedNetworkId(order.getId());
 
         PowerMockito.mockStatic(RedirectToRasUtil.class);
-        ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
+        ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(computeRequestsController).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doNothing().when(applicationFacade).addUserData(Mockito.any(), Mockito.any());
-        Mockito.doReturn("192.168.15.10").when(order).getFreeIp();
+        Mockito.doReturn(FAKE_IP).when(order).getFreeIp();
         //exercise
         String computeId = applicationFacade.createCompute(federatedCompute, TestUtils.FAKE_USER_TOKEN);
         //verify
-        Assert.assertEquals("fake-id", computeId);
+        Assert.assertEquals(FAKE_ID, computeId);
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes"), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
+        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
                 Mockito.eq(HttpMethod.POST), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
         Mockito.verify(computeRequestsController, Mockito.times(1)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
@@ -258,7 +267,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doNothing().when(applicationFacade).addUserData(Mockito.any(), Mockito.any());
-        Mockito.doReturn("192.168.15.10").when(order).getFreeIp();
+        Mockito.doReturn(FAKE_IP).when(order).getFreeIp();
 
         try {
             //exercise
@@ -287,15 +296,15 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     public void testDeleteComputeInSuccessCaseWithoutFedNet() throws Exception {
         //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
-        ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
+        ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(null).when(computeRequestsController).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         //exercise
-        applicationFacade.deleteCompute("fake-id", TestUtils.FAKE_USER_TOKEN);
+        applicationFacade.deleteCompute(FAKE_ID, TestUtils.FAKE_USER_TOKEN);
         //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
+        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT+"/"+FAKE_ID), Mockito.eq(""),
                 Mockito.eq(HttpMethod.DELETE), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
@@ -305,16 +314,16 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         //setup
         FederatedNetworkOrder order = Mockito.spy(testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN));
         PowerMockito.mockStatic(RedirectToRasUtil.class);
-        ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
+        ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(computeRequestsController).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         Mockito.doNothing().when(order).removeAssociatedIp(Mockito.any());
         //exercise
-        applicationFacade.deleteCompute("fake-id", TestUtils.FAKE_USER_TOKEN);
+        applicationFacade.deleteCompute(FAKE_ID, TestUtils.FAKE_USER_TOKEN);
         //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
+        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT+"/"+FAKE_ID), Mockito.eq(""),
                 Mockito.eq(HttpMethod.DELETE), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
@@ -333,15 +342,15 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     public void testGetComputeByIdOnSuccessCase() throws Exception {
         //setup
         PowerMockito.mockStatic(RedirectToRasUtil.class);
-        ResponseEntity<String> responseEntity = new ResponseEntity("{\"id\":\"fake-id\"}", null, HttpStatus.CREATED);
+        ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doNothing().when(computeRequestsController).addFederatedIpInGetInstanceIfApplied(Mockito.any(), Mockito.any());
         //exercise
-        applicationFacade.getComputeById("fake-id", TestUtils.FAKE_USER_TOKEN);
+        applicationFacade.getComputeById(FAKE_ID, TestUtils.FAKE_USER_TOKEN);
         //verify
         Mockito.verify(computeRequestsController, Mockito.times(TestUtils.RUN_ONCE)).addFederatedIpInGetInstanceIfApplied(Mockito.any(), Mockito.any());
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
-        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq("/ras/computes/fake-id"), Mockito.eq(""),
+        RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT+"/"+FAKE_ID), Mockito.eq(""),
                 Mockito.eq(HttpMethod.GET), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
     }
 
@@ -357,7 +366,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         //verify
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
-        Assert.assertTrue(serviceNames.contains("vanilla") && serviceNames.contains("dfns"));
+        Assert.assertTrue(serviceNames.contains(FNS_VANILLA_SERVICE) && serviceNames.contains(FNS_DFNS_SERVICE));
     }
 
     //test case: check if an exception is thrown when the order's owner is different from the requester
