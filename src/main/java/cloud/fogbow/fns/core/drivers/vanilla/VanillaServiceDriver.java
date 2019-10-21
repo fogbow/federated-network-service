@@ -72,7 +72,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private void remove(FederatedNetworkOrder order, String provider) throws FogbowException{
+    protected void remove(FederatedNetworkOrder order, String provider) throws FogbowException{
         try {
             deleteFederatedNetwork(order.getCidr());
             order.getProviders().put(provider, MemberConfigurationState.REMOVED);
@@ -107,7 +107,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
     }
 
-    private void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
+    protected void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
         String permissionFilePath = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
@@ -138,7 +138,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private void deleteFederatedNetwork(String cidr) throws FogbowException {
+    protected void deleteFederatedNetwork(String cidr) throws FogbowException {
         String permissionFilePath = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
@@ -168,7 +168,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
     }
 
-    private String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException{
+    protected String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException{
         String randomScriptSuffix = UUID.randomUUID().toString();
         String remoteFilePath = hostScriptPath + randomScriptSuffix;
         ProcessBuilder builder = new ProcessBuilder("scp", "-i", permissionFile, scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
@@ -189,7 +189,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @NotNull
-    private UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
+    protected UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
         String cloudInitScript = IOUtils.toString(inputStream);
         String newScript = replaceScriptValues(cloudInitScript, federatedIp, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY),
@@ -202,7 +202,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
     }
 
-    private String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp,
+    protected String replaceScriptValues(String script, String federatedComputeIp, String agentPublicIp,
             String cidr, String preSharedKey) {
         String isFederatedVM = "true";
         String scriptReplaced = script.replace(IS_FEDERATED_VM_KEY, isFederatedVM);

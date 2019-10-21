@@ -19,6 +19,7 @@ public class TestUtils {
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
     public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    public static final int RUN_ONCE = 1;
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {

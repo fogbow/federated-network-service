@@ -63,7 +63,7 @@ public class FederatedNetworkOrder implements Serializable {
     private String name;
 
     @Column
-    private Integer vlanId;
+    private int vlanId;
 
     @Column
     private String serviceName;

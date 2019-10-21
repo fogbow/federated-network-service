@@ -9,6 +9,8 @@ public class SSAgentConfiguration implements AgentConfiguration {
     private String privateIpAddress;
     private String publicIpAddress;
 
+    public SSAgentConfiguration() {}
+
     public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String privateIpAddress, String publicIpAddress) {
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
