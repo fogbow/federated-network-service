@@ -8,5 +8,5 @@ cache:
     - .autoconf
     - $HOME/.m2
 
-notifications:
-  slack: fogbow:STADNJdZ8M5dszVw545vNXbW
+dist:
+  trusty
