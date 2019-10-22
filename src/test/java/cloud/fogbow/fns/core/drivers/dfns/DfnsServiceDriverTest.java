@@ -1,14 +1,21 @@
 package cloud.fogbow.fns.core.drivers.dfns;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.common.util.connectivity.HttpRequestClient;
+import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
+import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.ras.core.models.UserData;
+import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +25,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,7 +34,8 @@ import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
-        PropertiesHolder.class
+        PropertiesHolder.class,
+        HttpRequestClient.class
 })
 public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
 
@@ -225,6 +234,91 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
 
         // verify
         Mockito.verify(this.driver).executeAgentCommand(Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    // test case: the acquireVlanId should return an integer for the vlanId
+    @Test
+    public void testAcquireVlanIdSuccessful() throws FogbowException {
+        // setup
+        HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+        Mockito.when(responseMock.getContent()).thenReturn(ANY_STRING);
+        Mockito.when(responseMock.getHttpCode()).thenReturn(HttpStatus.OK.value());
+
+        PowerMockito.mockStatic(HttpRequestClient.class);
+        BDDMockito.given(HttpRequestClient.doGenericRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(Map.class)))
+                .willReturn(responseMock);
+
+        int currentVlanId = ANY_INT;
+        Mockito.doReturn(currentVlanId).when(driver).getVlanIdFromResponse(Mockito.any());
+
+        // exercise
+        int actualId = driver.acquireVlanId();
+
+        // verify
+        Assert.assertEquals(currentVlanId, actualId);
+    }
+
+    // test case: the acquireVlanId should throw an exception for a http error status code
+    @Test(expected = NoVlanIdsLeftException.class)
+    public void testAcquireVlanIdUnsuccessful() throws FogbowException {
+        // setup
+        HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+        Mockito.when(responseMock.getContent()).thenReturn(ANY_STRING);
+        Mockito.when(responseMock.getHttpCode()).thenReturn(HttpStatus.NOT_ACCEPTABLE.value());
+
+        PowerMockito.mockStatic(HttpRequestClient.class);
+        BDDMockito.given(HttpRequestClient.doGenericRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(Map.class)))
+                .willReturn(responseMock);
+
+        // exercise
+        driver.acquireVlanId();
+        Assert.fail();
+    }
+
+    // test case: the releaseVlanId should perform the appropriate request to clean up
+    // the resource. No exception must be thrown
+    @Test
+    public void testReleaseVlanIdSuccessful() throws FogbowException {
+        // setup
+        int vlanId = ANY_INT;
+
+        HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+        Mockito.when(responseMock.getHttpCode()).thenReturn(HttpStatus.OK.value());
+
+        PowerMockito.mockStatic(HttpRequestClient.class);
+        BDDMockito.given(HttpRequestClient.doGenericRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(Map.class)))
+                .willReturn(responseMock);
+
+        // exercise
+        this.driver.releaseVlanId(vlanId);
+
+        // verify
+        PowerMockito.verifyStatic(HttpRequestClient.class);
+        HttpRequestClient.doGenericRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(Map.class));
+    }
+
+    // test case: the releaseVlanId should throw an exception when the cloud informs that
+    // the vlanId doesn't exists
+    @Test
+    public void testReleaseVlanIdUnsuccessful() throws FogbowException {
+        // setup
+        int vlanId = ANY_INT;
+
+        HttpResponse responseMock = Mockito.mock(HttpResponse.class);
+        Mockito.when(responseMock.getHttpCode()).thenReturn(HttpStatus.NOT_FOUND.value());
+
+        PowerMockito.mockStatic(HttpRequestClient.class);
+        BDDMockito.given(HttpRequestClient.doGenericRequest(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(Map.class)))
+                .willReturn(responseMock);
+
+        // exercise
+        try {
+            this.driver.releaseVlanId(vlanId);
+            Assert.fail();
+        } catch (UnexpectedException ex) {
+            // verify
+            Assert.assertEquals(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId), ex.getMessage());
+        }
     }
 
     private SSAgentConfiguration getMockedSSAgentConfiguration() {

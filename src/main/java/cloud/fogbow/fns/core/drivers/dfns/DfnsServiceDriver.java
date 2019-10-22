@@ -170,8 +170,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             throw new NoVlanIdsLeftException();
         }
 
-        VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
-        return vlanId.vlanId;
+        return getVlanIdFromResponse(response);
     }
 
     protected void releaseVlanId(int vlanId) throws FogbowException {
@@ -269,7 +268,12 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return result;
     }
 
-    private class VlanId {
+    protected int getVlanIdFromResponse(HttpResponse response) {
+        VlanId vlanId = GsonHolder.getInstance().fromJson(response.getContent(), VlanId.class);
+        return vlanId.vlanId;
+    }
+
+    protected static class VlanId {
 
         private int vlanId;
 
