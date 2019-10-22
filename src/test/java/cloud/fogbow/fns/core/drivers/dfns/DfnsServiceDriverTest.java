@@ -16,6 +16,12 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.ras.core.models.UserData;
 import com.google.gson.Gson;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.ConnectionException;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.transport.TransportException;
+import net.schmizz.sshj.transport.verification.HostKeyVerifier;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -35,7 +42,8 @@ import java.util.Properties;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({
         PropertiesHolder.class,
-        HttpRequestClient.class
+        HttpRequestClient.class,
+        IOUtils.class
 })
 public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
 
@@ -52,10 +60,10 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         this.propertiesMock = Mockito.mock(Properties.class);
         this.propertiesHolderMock = Mockito.mock(PropertiesHolder.class);
 
-        Mockito.when(propertiesHolderMock.getProperties(Mockito.anyString())).thenReturn(propertiesMock);
-
         Mockito.when(propertiesMock.getProperty(DriversConfigurationPropertyKeys.Dfns.VLAN_ID_SERVICE_URL_KEY)).thenReturn(TestUtils.FAKE_VLAN_ID_SERVICE_URL);
         Mockito.when(propertiesMock.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY)).thenReturn(TestUtils.FAKE_LOCAL_MEMBER_NAME);
+
+        Mockito.when(propertiesHolderMock.getProperties(Mockito.anyString())).thenReturn(propertiesMock);
 
         PowerMockito.mockStatic(PropertiesHolder.class);
         BDDMockito.given(PropertiesHolder.getInstance()).willReturn(propertiesHolderMock);
@@ -222,7 +230,7 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
 
     // test case: the removeAgentToComputeTunnel should delegate his task to executeAgentCommand
     @Test
-    public void testExecuteAgentCommand() throws FogbowException {
+    public void testRemoveAgentToComputeTunnel() throws FogbowException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
         Mockito.when(order.getVlanId()).thenReturn(ANY_INT);
@@ -319,6 +327,125 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
             // verify
             Assert.assertEquals(String.format(Messages.Warn.UNABLE_TO_RELEASE_VLAN_ID, vlanId), ex.getMessage());
         }
+    }
+
+    // test case: the executeAgentCommand should connect to the agent and perform the given command
+    @Test
+    public void testExecuteAgentCommandSuccessful() throws IOException, FogbowException {
+        // setup
+        String command = ANY_STRING;
+        String exceptionMessage = ANY_STRING;
+        String serviceName = ANY_STRING;
+
+        Session.Command commandMock = Mockito.mock(Session.Command.class);
+        Mockito.when(commandMock.getExitStatus()).thenReturn(DfnsServiceDriver.SUCCESS_EXIT_CODE);
+
+        Session sessionMock = Mockito.mock(Session.class);
+        Mockito.when(sessionMock.exec(Mockito.anyString())).thenReturn(commandMock);
+
+        SSHClient clientMock = Mockito.mock(SSHClient.class);
+        Mockito.when(clientMock.startSession()).thenReturn(sessionMock);
+        Mockito.doReturn(clientMock).when(driver).getSshClient();
+
+        // exercise
+        driver.executeAgentCommand(command, exceptionMessage, serviceName);
+
+        // verify
+        Mockito.verify(clientMock).addHostKeyVerifier(Mockito.any(HostKeyVerifier.class));
+        Mockito.verify(clientMock).connect(Mockito.anyString(), Mockito.anyInt());
+        Mockito.verify(clientMock).authPublickey(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(clientMock).startSession();
+        Mockito.verify(sessionMock).exec(Mockito.anyString());
+        Mockito.verify(commandMock).join();
+        Mockito.verify(clientMock).disconnect();
+        Mockito.verify(commandMock).getExitStatus();
+    }
+
+    // test case: attempt to connect the client when the agent is not available
+    // should throw an UnexpectedException
+    @Test
+    public void testExecuteAgentCommandWithConnectionFail() throws FogbowException, IOException {
+        // setup
+        String command = ANY_STRING;
+        String exceptionMessage = ANY_STRING;
+        String serviceName = ANY_STRING;
+
+        SSHClient clientMock = Mockito.mock(SSHClient.class);
+        Mockito.doThrow(IOException.class)
+                .when(clientMock).connect(Mockito.anyString(), Mockito.anyInt());
+        Mockito.doReturn(clientMock).when(driver).getSshClient();
+
+        // exercise
+        try {
+            driver.executeAgentCommand(command, exceptionMessage, serviceName);
+            Assert.fail();
+        } catch (UnexpectedException ex) {
+            // verify
+            Mockito.verify(clientMock).addHostKeyVerifier(Mockito.any(HostKeyVerifier.class));
+            Mockito.verify(clientMock).connect(Mockito.anyString(), Mockito.anyInt());
+            Mockito.verify(clientMock).disconnect();
+        }
+
+    }
+
+    // test case: failed command execution should throw an UnexpectedException
+    @Test
+    public void testExecuteAgentCommandWithCommandExecutionFail() throws FogbowException, IOException {
+        // setup
+        String command = ANY_STRING;
+        String exceptionMessage = ANY_STRING;
+        String serviceName = ANY_STRING;
+
+        Session.Command commandMock = Mockito.mock(Session.Command.class);
+        int unsuccessExitCode = -11;
+        Mockito.when(commandMock.getExitStatus()).thenReturn(unsuccessExitCode);
+
+        Session sessionMock = Mockito.mock(Session.class);
+        Mockito.when(sessionMock.exec(Mockito.anyString())).thenReturn(commandMock);
+
+        SSHClient clientMock = Mockito.mock(SSHClient.class);
+        Mockito.when(clientMock.startSession()).thenReturn(sessionMock);
+        Mockito.doReturn(clientMock).when(driver).getSshClient();
+
+        // exercise
+        try {
+            driver.executeAgentCommand(command, exceptionMessage, serviceName);
+            Assert.fail();
+        } catch (UnexpectedException ex) {
+            // verify
+            Assert.assertEquals(exceptionMessage, ex.getMessage());
+            Mockito.verify(clientMock).addHostKeyVerifier(Mockito.any(HostKeyVerifier.class));
+            Mockito.verify(clientMock).connect(Mockito.anyString(), Mockito.anyInt());
+            Mockito.verify(clientMock).disconnect();
+        }
+    }
+
+    // test case: the getDfnsUserData method should make the appropriate calls to
+    // return an UserData object
+    @Test
+    public void testGetDfnsUserData() throws IOException {
+        // setup
+        PowerMockito.mockStatic(IOUtils.class);
+        BDDMockito.given(IOUtils.toString(Mockito.any(InputStream.class))).willReturn(ANY_STRING);
+
+        SSAgentConfiguration configuration = getMockedSSAgentConfiguration();
+        String federatedIp = TestUtils.FAKE_HOST_IP;
+        String agentIp = TestUtils.FAKE_HOST_IP;
+        int vlanId = ANY_INT;
+        String accessKey = ANY_STRING;
+        Mockito.doReturn(ANY_STRING).when(driver).replaceScriptTokens(Mockito.anyString(), Mockito.any());
+
+        Mockito.when(propertiesMock.getProperty(Mockito.eq(DriversConfigurationPropertyKeys
+                .Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY), Mockito.anyString())).thenReturn(ANY_STRING);
+
+        InputStream inputStream = Mockito.mock(InputStream.class);
+        Mockito.doReturn(inputStream).when(driver).getInputStream(Mockito.anyString());
+
+        // exercise
+        UserData userData = driver.getDfnsUserData(configuration, federatedIp, agentIp, vlanId, accessKey);
+
+        // verify
+        Assert.assertNotNull(userData);
     }
 
     private SSAgentConfiguration getMockedSSAgentConfiguration() {

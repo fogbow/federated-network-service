@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -191,12 +192,12 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         }
     }
 
-    void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
+    protected void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
         String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
         String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
 
-        SSHClient client = new SSHClient();
+        SSHClient client = getSshClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
 
         try {
@@ -229,8 +230,8 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     @NotNull
     protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
         String scriptKey = DriversConfigurationPropertyKeys.Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
-        String createTunnelScriptPath = PropertiesHolder.getInstance().getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
-        InputStream inputStream = new FileInputStream(createTunnelScriptPath);
+        String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
+        InputStream inputStream = getInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
 
         Map<String, String> scriptTokenValues = new HashMap<>();
@@ -252,6 +253,16 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                 CloudInitUserDataBuilder.FileType.SHELL_SCRIPT, FEDERATED_NETWORK_USER_DATA_TAG);
     }
 
+    @NotNull
+    protected InputStream getInputStream(String createTunnelScriptPath) throws FileNotFoundException {
+        return new FileInputStream(createTunnelScriptPath);
+    }
+
+    @NotNull
+    protected SSHClient getSshClient() {
+        return new SSHClient();
+    }
+
     protected void addKeyToAgentAuthorizedPublicKeys(String publicKey) throws FogbowException {
         executeAgentCommand(String.format(ADD_AUTHORIZED_KEY_COMMAND_FORMAT, publicKey), Messages.Exception.UNABLE_TO_ADD_KEY_IN_AGGENT, SERVICE_NAME);
     }
@@ -260,7 +271,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return new DfnsServiceConnector(provider);
     }
 
-    private String replaceScriptTokens(String scriptTemplate, Map<String, String> scriptTokenValues) {
+    protected String replaceScriptTokens(String scriptTemplate, Map<String, String> scriptTokenValues) {
         String result = scriptTemplate;
         for (String scriptToken : scriptTokenValues.keySet()) {
             result = result.replace(scriptToken, scriptTokenValues.get(scriptToken));
