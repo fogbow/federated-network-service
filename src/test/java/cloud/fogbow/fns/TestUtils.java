@@ -20,7 +20,10 @@ public class TestUtils {
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
 
-    private SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    public static final String FAKE_USER_TOKEN = "fake-user-token";
+    public static final String FAKE_ID = "Fake-id";
+    public static final int RUN_ONCE = 1;
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {

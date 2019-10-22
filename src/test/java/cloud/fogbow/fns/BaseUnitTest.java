@@ -3,12 +3,14 @@ package cloud.fogbow.fns;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
 import java.util.*;
 
+@Ignore
 @RunWith(PowerMockRunner.class)
 public class BaseUnitTest {
     public static final String TEST_DATABASE_FILE_PATH = "federated-networks-test.db";
