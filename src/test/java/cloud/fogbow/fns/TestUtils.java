@@ -12,12 +12,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class TestUtils {
+    public static final String ANY_STRING = "any-string";
     public static final String CIDR = "10.150.0.0/28";
     public final String FAKE_COMPUTE_ID = "fake-compute-id";
     public final String FAKE_IP = "192.168.1.0";
     public final String MEMBER = "member";
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
+
     public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
     public static final String FAKE_USER_TOKEN = "fake-user-token";
     public static final String FAKE_ID = "Fake-id";
@@ -42,5 +44,9 @@ public class TestUtils {
             service.put(order);
         }
         return orders;
+    }
+
+    public SystemUser createSystemUser() {
+        return user;
     }
 }
