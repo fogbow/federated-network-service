@@ -147,17 +147,17 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         // setup
         Mockito.doReturn(true).when(this.driver).isRemote(Mockito.anyString());
 
-        DfnsServiceConnector mockedAgentConfiguration = getMockedDfnsServiceConnector();
-        Mockito.when(mockedAgentConfiguration.configureAgent(Mockito.anyString(), Mockito.anyString()))
+        DfnsServiceConnector mockedConnector = getMockedDfnsServiceConnector();
+        Mockito.when(mockedConnector.configureAgent(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(getMockedSSAgentConfiguration());
 
-        Mockito.doReturn(mockedAgentConfiguration).when(this.driver).getDfnsServiceConnector(Mockito.anyString());
+        Mockito.doReturn(mockedConnector).when(this.driver).getDfnsServiceConnector(Mockito.anyString());
 
         // exercise
         this.driver.configureAgent(TestUtils.FAKE_PROVIDER);
 
         // verify
-        Mockito.verify(mockedAgentConfiguration).configureAgent(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(mockedConnector).configureAgent(Mockito.anyString(), Mockito.anyString());
     }
 
     // test case: the getDfnsUserData should delegate part of the work to getDfnsUserData
