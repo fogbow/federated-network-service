@@ -6,12 +6,13 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import org.apache.log4j.Logger;
 import org.jamppa.component.PacketSender;
+import org.jetbrains.annotations.NotNull;
 import org.xmpp.component.ComponentException;
 
 public class PacketSenderHolder {
     private final static Logger LOGGER = Logger.getLogger(PacketSenderHolder.class);
 
-    private static PacketSender packetSender = null;
+    protected static PacketSender packetSender = null;
 
     public static void init() {
         if (packetSender == null) {
@@ -22,8 +23,7 @@ public class PacketSenderHolder {
                     getPropertyOrDefault(ConfigurationPropertyKeys.XMPP_C2C_PORT_KEY, ConfigurationPropertyDefaults.XMPP_CSC_PORT));
             long xmppTimeout = Long.parseLong(PropertiesHolder.getInstance()
                     .getPropertyOrDefault(ConfigurationPropertyKeys.XMPP_TIMEOUT_KEY, ConfigurationPropertyDefaults.XMPP_TIMEOUT));
-            XmppComponentManager xmppComponentManager = new XmppComponentManager(xmppJid, xmppPassword,
-                    xmppServerIp, xmppServerPort, xmppTimeout);
+            XmppComponentManager xmppComponentManager = getXmppComponentManager(xmppJid, xmppPassword, xmppServerIp, xmppServerPort, xmppTimeout);
             if (xmppServerIp != null && !xmppServerIp.isEmpty()) {
                 try {
                     xmppComponentManager.connect();
@@ -42,9 +42,10 @@ public class PacketSenderHolder {
         return packetSender;
     }
 
-    // Used in tests only
-    public static void setPacketSender(PacketSender thePacketSender) {
-        packetSender = thePacketSender;
+    protected static XmppComponentManager getXmppComponentManager(String xmppJid, String xmppPassword,
+                                                                  String xmppServerIp, int xmppServerPort, long xmppTimeout) {
+        return new XmppComponentManager(xmppJid, xmppPassword,
+                xmppServerIp, xmppServerPort, xmppTimeout);
     }
 }
 
