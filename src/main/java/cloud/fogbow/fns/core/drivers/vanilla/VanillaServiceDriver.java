@@ -171,7 +171,8 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     private String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException{
         String randomScriptSuffix = UUID.randomUUID().toString();
         String remoteFilePath = hostScriptPath + randomScriptSuffix;
-        ProcessBuilder builder = new ProcessBuilder("scp", "-o StrictHostKeyChecking=no", "-i", permissionFile, scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
+        ProcessBuilder builder = new ProcessBuilder("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFile,
+            scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
 
         int resultCode = 0;
         try {
