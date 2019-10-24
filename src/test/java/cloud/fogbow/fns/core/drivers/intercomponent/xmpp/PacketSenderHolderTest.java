@@ -77,7 +77,6 @@ public class PacketSenderHolderTest extends BaseUnitTest {
     }
 
     private void mockXmppProperties() {
-        Mockito.when(propertiesHolderMock.getProperty(ConfigurationPropertyKeys.XMPP_JID_KEY)).thenReturn(XMPP_JID);
         Mockito.when(propertiesHolderMock.getProperty(ConfigurationPropertyKeys.XMPP_PASSWORD_KEY)).thenReturn(XMPP_PASSWORD);
         Mockito.when(propertiesHolderMock.getPropertyOrDefault(Mockito.eq(ConfigurationPropertyKeys.XMPP_C2C_PORT_KEY), Mockito.anyString())).thenReturn(XMPP_C2C_PORT);
         Mockito.when(propertiesHolderMock.getPropertyOrDefault(Mockito.eq(ConfigurationPropertyKeys.XMPP_TIMEOUT_KEY), Mockito.anyString())).thenReturn(XMPP_TIMEOUT);

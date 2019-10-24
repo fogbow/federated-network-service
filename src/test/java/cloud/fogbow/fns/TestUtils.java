@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class TestUtils {
+    public static final String ANY_STRING = "any-string";
     public static final String CIDR = "10.150.0.0/28";
     public static final String FAKE_INSTANCE_ID = "intance-id";
     public static final String FAKE_LOCAL_MEMBER_NAME = "fake-local-member";
@@ -25,7 +26,11 @@ public class TestUtils {
     public final String MEMBER = "member";
     public final String USER_ID = "user-id";
     public final String USER_NAME = "user-name";
+
     public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+    public static final String FAKE_USER_TOKEN = "fake-user-token";
+    public static final String FAKE_ID = "Fake-id";
+    public static final int RUN_ONCE = 1;
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {
@@ -46,5 +51,9 @@ public class TestUtils {
             service.put(order);
         }
         return orders;
+    }
+
+    public SystemUser createSystemUser() {
+        return user;
     }
 }

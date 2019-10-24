@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.drivers.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.RemoteMethod;
@@ -32,7 +33,7 @@ public class RemoteConfigureAgent {
 
     private IQ marshal() {
         IQ iq = new IQ(IQ.Type.set);
-        iq.setTo(this.provider);
+        iq.setTo(SystemConstants.JID_SERVICE_NAME + SystemConstants.JID_CONNECTOR + SystemConstants.XMPP_SERVER_NAME_PREFIX + this.provider);
 
         Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(),
                 RemoteMethod.REMOTE_CONFIGURE_AGENT.toString());

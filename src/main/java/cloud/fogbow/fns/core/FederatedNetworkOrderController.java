@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class FederatedNetworkOrderController {
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
 
-    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.LOCAL_MEMBER_NAME_KEY);
+    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.PROVIDER_ID_KEY);
 
     // Federated Network methods
     public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {
@@ -86,7 +86,7 @@ public class FederatedNetworkOrderController {
         synchronized (order) {
             if (!order.getOrderState().equals(OrderState.CLOSED)) {
                 String message = Messages.Exception.ORDER_SHOULD_BE_CLOSED_BEFORE_DEACTIVATED;
-                throw new RuntimeException(String.format(message, order.getId()));
+                throw new UnexpectedException(String.format(message, order.getId()));
             }
             FederatedNetworkOrdersHolder.getInstance().removeOrder(order);
         }
