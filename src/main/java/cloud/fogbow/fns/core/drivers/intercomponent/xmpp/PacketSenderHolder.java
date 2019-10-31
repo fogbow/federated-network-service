@@ -7,12 +7,13 @@ import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import org.apache.log4j.Logger;
 import org.jamppa.component.PacketSender;
+import org.jetbrains.annotations.NotNull;
 import org.xmpp.component.ComponentException;
 
 public class PacketSenderHolder {
     private final static Logger LOGGER = Logger.getLogger(PacketSenderHolder.class);
 
-    private static PacketSender packetSender = null;
+    protected static PacketSender packetSender = null;
 
     public static void init() {
         if (packetSender == null) {
@@ -24,11 +25,12 @@ public class PacketSenderHolder {
             String xmppServerIp = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.XMPP_SERVER_IP_KEY);
             int xmppServerPort = Integer.parseInt(PropertiesHolder.getInstance().
                     getPropertyOrDefault(ConfigurationPropertyKeys.XMPP_C2C_PORT_KEY, ConfigurationPropertyDefaults.XMPP_CSC_PORT));
-            long xmppTimeout =
-                    Long.parseLong(PropertiesHolder.getInstance().getPropertyOrDefault(ConfigurationPropertyKeys.XMPP_TIMEOUT_KEY,
-                            ConfigurationPropertyDefaults.XMPP_TIMEOUT));
-            XmppComponentManager xmppComponentManager = new XmppComponentManager(jidServiceName + jidConnector +
-                    jidPrefix + providerId, xmppPassword, xmppServerIp, xmppServerPort, xmppTimeout);
+
+            long xmppTimeout = Long.parseLong(PropertiesHolder.getInstance()
+                    .getPropertyOrDefault(ConfigurationPropertyKeys.XMPP_TIMEOUT_KEY, ConfigurationPropertyDefaults.XMPP_TIMEOUT));
+            String completeJid = jidServiceName + jidConnector + jidPrefix + providerId;
+            XmppComponentManager xmppComponentManager = getXmppComponentManager(completeJid, xmppPassword, xmppServerIp, xmppServerPort, xmppTimeout);
+
             if (xmppServerIp != null && !xmppServerIp.isEmpty()) {
                 try {
                     xmppComponentManager.connect();
@@ -42,14 +44,14 @@ public class PacketSenderHolder {
         }
     }
 
+    @NotNull
+    protected static XmppComponentManager getXmppComponentManager(String completeJid, String xmppPassword, String xmppServerIp, int xmppServerPort, long xmppTimeout) {
+        return new XmppComponentManager(completeJid, xmppPassword, xmppServerIp, xmppServerPort, xmppTimeout);
+    }
+
     public static synchronized PacketSender getPacketSender() {
         init();
         return packetSender;
-    }
-
-    // Used in tests only
-    public static void setPacketSender(PacketSender thePacketSender) {
-        packetSender = thePacketSender;
     }
 }
 
