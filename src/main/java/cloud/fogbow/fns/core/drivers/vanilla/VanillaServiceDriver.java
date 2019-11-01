@@ -8,6 +8,7 @@ import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
+import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -115,7 +116,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String agentPrivateIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
         String addFederatedNetworkScriptPath = ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY;
-        String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, DriversConfigurationPropertyDefaults.AGENT_SCRIPTS_PATH) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(addFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 
@@ -145,7 +146,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
         String removeFederatedNetworkScriptPath = REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY;
-        String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
+        String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, DriversConfigurationPropertyDefaults.AGENT_SCRIPTS_PATH) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(removeFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
 

@@ -13,6 +13,7 @@ import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
+import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
@@ -151,7 +152,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
+    public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException {
         addKeyToAgentAuthorizedPublicKeys(publicKey);
         String defaultNetworkCidr = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.DEFAULT_NETWORK_CIDR_KEY);
 
@@ -160,7 +161,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
 
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, SERVICE_NAME);
-        String hostScriptsPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY);
+        String hostScriptsPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, DriversConfigurationPropertyDefaults.AGENT_SCRIPTS_PATH);
         String scriptName = pasteScript(CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH, publicIpAddress, hostScriptsPath, permissionFilePath, agentUser);
 
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress, scriptName);
