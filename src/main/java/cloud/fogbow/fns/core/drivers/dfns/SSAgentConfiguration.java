@@ -8,11 +8,12 @@ public class SSAgentConfiguration implements AgentConfiguration {
 
     private String privateIpAddress;
     private String publicIpAddress;
+    private String scriptName;
 
-    public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String privateIpAddress, String publicIpAddress) {
+    public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress, String scriptName) {
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
-        this.publicKey = publicKey;
+        this.scriptName = scriptName;
         this.privateIpAddress = privateIpAddress;
         this.publicIpAddress = publicIpAddress;
     }
@@ -22,6 +23,14 @@ public class SSAgentConfiguration implements AgentConfiguration {
         this.agentUser = agentUser;
         this.privateIpAddress = privateIpAddress;
         this.publicIpAddress = publicIpAddress;
+    }
+
+    public String getScriptName() {
+        return scriptName;
+    }
+
+    public void setScriptName(String scriptName) {
+        this.scriptName = scriptName;
     }
 
     public String getDefaultNetworkCidr() {

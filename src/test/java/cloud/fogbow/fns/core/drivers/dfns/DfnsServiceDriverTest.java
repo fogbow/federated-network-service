@@ -435,8 +435,8 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         String accessKey = ANY_STRING;
         Mockito.doReturn(ANY_STRING).when(driver).replaceScriptTokens(Mockito.anyString(), Mockito.any());
 
-        Mockito.when(propertiesMock.getProperty(Mockito.eq(DriversConfigurationPropertyKeys
-                .Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY), Mockito.anyString())).thenReturn(ANY_STRING);
+        // Mockito.when(propertiesMock.getProperty(Mockito.eq(DriversConfigurationPropertyKeys
+         //       .Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY), Mockito.anyString())).thenReturn(ANY_STRING);
 
         InputStream inputStream = Mockito.mock(InputStream.class);
         Mockito.doReturn(inputStream).when(driver).getInputStream(Mockito.anyString());

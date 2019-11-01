@@ -14,6 +14,7 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
+import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -34,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 public class DfnsServiceDriver extends CommonServiceDriver {
 
@@ -55,7 +57,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     public static final String AGENT_USER_KEY = "#AGENT_USER#";
     public static final String PRIVATE_KEY_KEY = "#PRIVATE_KEY#";
     public static final String PUBLIC_KEY_KEY = "#PUBLIC_KEY#";
+    public static final String SCRIPT_NAME_KEY = "#SCRIPT_NAME#";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
+    public static final String CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH = "bin/agent-scripts/dfns/create-tunnel-from-agent-to-compute.sh";
+    public static final String CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH = "bin/agent-scripts/dfns/create-tunnel-from-compute-to-agent.sh";
 
     public DfnsServiceDriver() {
     }
@@ -96,6 +101,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
+            String privKey = keys[PRIVATE_KEY_INDEX].replace("-----END PRIVATE KEY-----", "");
+            privKey = privKey.replace("-----BEGIN PRIVATE KEY-----", "");
+            keys[PRIVATE_KEY_INDEX] = privKey;
             if(!isRemote(provider)) {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
@@ -151,7 +159,11 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         String agentPrivateIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
 
-        return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
+        String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, SERVICE_NAME);
+        String hostScriptsPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY);
+        String scriptName = pasteScript(CREATE_TUNNEL_FROM_AGENT_TO_COMPUTE_SCRIPT_PATH, publicIpAddress, hostScriptsPath, permissionFilePath, agentUser);
+
+        return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress, scriptName);
     }
 
     protected void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
@@ -231,7 +243,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @NotNull
     protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
-        String scriptKey = DriversConfigurationPropertyKeys.Dfns.CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH_KEY;
+        String scriptKey = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
         String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         InputStream inputStream = getInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
@@ -244,6 +256,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         scriptTokenValues.put(AGENT_USER_KEY, configuration.getAgentUser());
         scriptTokenValues.put(PRIVATE_KEY_KEY, accessKey);
         scriptTokenValues.put(PUBLIC_KEY_KEY, configuration.getPublicKey());
+        scriptTokenValues.put(SCRIPT_NAME_KEY, configuration.getScriptName());
 
         String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
 
