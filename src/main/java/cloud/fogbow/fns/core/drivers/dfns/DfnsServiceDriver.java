@@ -143,7 +143,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException{
+    public SSAgentConfiguration doConfigureAgent(String publicKey) throws FogbowException {
         addKeyToAgentAuthorizedPublicKeys(publicKey);
         String defaultNetworkCidr = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.DEFAULT_NETWORK_CIDR_KEY);
 
