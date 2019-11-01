@@ -29,8 +29,8 @@ public class BaseUnitTest {
         p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, "fake-file.pem");
         p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, "fake-user");
         p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY, "fake-private-ip");
-        p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, "fake-public-ip");
-        p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
+        p.setProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY, "fake-public-ip");
+        p.setProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY, "fake-psk");
         p.setProperty(DriversConfigurationPropertyKeys.Vanilla.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         p.setProperty(DriversConfigurationPropertyKeys.Vanilla.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY, "fake-script-path");
         return p;

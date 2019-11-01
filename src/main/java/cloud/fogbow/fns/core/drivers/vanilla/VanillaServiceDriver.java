@@ -104,14 +104,15 @@ public class VanillaServiceDriver extends CommonServiceDriver {
 
     @Override
     public String getAgentIp() {
-        return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
+        // Vanilla uses the public IP of the agent to establish the tunnel between the VM and the agent
+        return properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
     }
 
     private void createFederatedNetwork(String cidrNotation, String virtualIpAddress) throws FogbowException {
         String permissionFilePath = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
-        String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
         String addFederatedNetworkScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
         String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
@@ -141,7 +142,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     private void deleteFederatedNetwork(String cidr) throws FogbowException {
         String permissionFilePath = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
-        String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
         String removeFederatedNetworkScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
         String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
@@ -193,8 +194,8 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     private UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);
         String cloudInitScript = IOUtils.toString(inputStream);
-        String newScript = replaceScriptValues(cloudInitScript, federatedIp, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY),
-                cidr, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
+        String newScript = replaceScriptValues(cloudInitScript, federatedIp, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY),
+                cidr, properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);

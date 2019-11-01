@@ -146,7 +146,7 @@ public class ApplicationFacade {
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
             if(!federatedNetworkOrder.getSystemUser().equals(authenticate(systemUserToken))) {
-                throw new FogbowException("Only the fednet's owner can create federated computes");
+                throw new UnauthorizedRequestException();
             }
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();

@@ -9,6 +9,7 @@ import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
@@ -44,7 +45,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     public static final String ADD_AUTHORIZED_KEY_COMMAND_FORMAT = "touch ~/.ssh/authorized_keys && sed -i '1i%s' ~/.ssh/authorized_keys";
     public static final String PORT_TO_REMOVE_FORMAT = "gre-vm-%s-vlan-%s";
     public static final String REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT = "sudo ovs-vsctl del-port %s";
-    private static final String LOCAL_MEMBER_NAME = properties.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY);
+    private static final String PROVIDER_ID = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.PROVIDER_ID_KEY);
     public static final int SUCCESS_EXIT_CODE = 0;
     public static final int AGENT_SSH_PORT = 22;
     public static final String CIDR_KEY = "#CIDR#";
@@ -137,7 +138,8 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @Override
     public String getAgentIp() {
-        return properties.getProperty(DriversConfigurationPropertyKeys.HOST_IP_KEY);
+        // DFNS uses the private IP of the agent to establish the tunnel between the VM and the agent
+        return properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
     }
 
     @Override
@@ -147,7 +149,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
-        String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY);
+        String publicIpAddress = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
 
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress);
     }
@@ -195,7 +197,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     protected void executeAgentCommand(String command, String exceptionMessage, String serviceName) throws FogbowException{
         String permissionFilePath = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY, serviceName);
         String agentUser = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY, serviceName);
-        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_ADDRESS_KEY, serviceName);
+        String agentPublicIp = PropertiesHolder.getInstance().getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY, serviceName);
 
         SSHClient client = getSshClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
@@ -294,6 +296,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     protected boolean isRemote(String provider) {
-        return ! LOCAL_MEMBER_NAME.equals(provider);
+        return ! PROVIDER_ID.equals(provider);
     }
 }

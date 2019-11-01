@@ -8,6 +8,7 @@ import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
+import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
@@ -61,7 +62,6 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         this.propertiesHolderMock = Mockito.mock(PropertiesHolder.class);
 
         Mockito.when(propertiesMock.getProperty(DriversConfigurationPropertyKeys.Dfns.VLAN_ID_SERVICE_URL_KEY)).thenReturn(TestUtils.FAKE_VLAN_ID_SERVICE_URL);
-        Mockito.when(propertiesMock.getProperty(DriversConfigurationPropertyKeys.Dfns.LOCAL_MEMBER_NAME_KEY)).thenReturn(TestUtils.FAKE_LOCAL_MEMBER_NAME);
 
         Mockito.when(propertiesHolderMock.getProperties(Mockito.anyString())).thenReturn(propertiesMock);
 
