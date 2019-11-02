@@ -17,6 +17,6 @@ type=gre options:remote_ip=$host_ip options:key=$vlanID
 sudo ovs-vsctl set port $prefix$index tag=$vlanID
 
 #deleting the public key from the authorized keys
-#sed -i "\:$keyToBeRemoved:d" ~/.ssh/authorized_keys
+sed -i "\:$keyToBeRemoved:d" ~/.ssh/authorized_keys
 
-#rm $0
+rm $0

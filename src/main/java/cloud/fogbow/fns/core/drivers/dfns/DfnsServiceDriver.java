@@ -218,10 +218,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         LOGGER.info("Executing command: " + command);
         try {
             try {
-                // connects to the DMZ host
+                // connects to the Agent host
                 client.connect(agentPublicIp, AGENT_SSH_PORT);
 
-                // authorizes using the DMZ private key
+                // authorizes using the Agent private key
                 client.authPublickey(agentUser, permissionFilePath);
 
                 try (Session session = client.startSession()) {
@@ -262,6 +262,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         scriptTokenValues.put(SCRIPT_NAME_KEY, configuration.getScriptName());
 
         String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
+        LOGGER.info("CloudInitScript: " + cloudInitScript);
 
         byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);

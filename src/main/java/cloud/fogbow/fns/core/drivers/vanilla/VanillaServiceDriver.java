@@ -177,6 +177,8 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String cloudInitScript = IOUtils.toString(inputStream);
         String newScript = replaceScriptValues(cloudInitScript, federatedIp, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY),
                 cidr, properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
+
+        LOGGER.info("CloudInitScript: " + newScript);
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);
