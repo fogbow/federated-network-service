@@ -110,9 +110,11 @@ public class DfnsServiceDriver extends CommonServiceDriver {
             privKey = privKey.replace("-----BEGIN RSA PRIVATE KEY----- ", "");
             keys[PRIVATE_KEY_INDEX] = privKey;
             if(!isRemote(provider)) {
+                LOGGER.info("LocalProvider: " + provider);
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
                 dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
+                LOGGER.info("RemoteProvider: " + provider);
                 dfnsAgentConfiguration = (SSAgentConfiguration) getDfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
@@ -318,6 +320,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     protected boolean isRemote(String provider) {
+        LOGGER.info("LocalPorvider: " + PROVIDER_ID + " : " + provider);
         return ! PROVIDER_ID.equals(provider);
     }
 }
