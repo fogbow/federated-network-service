@@ -102,8 +102,12 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
-            String privKey = keys[PRIVATE_KEY_INDEX].replace("-----END PRIVATE KEY-----", "");
-            privKey = privKey.replace("-----BEGIN PRIVATE KEY-----", "");
+            LOGGER.info("PublicKey:" + keys[PUBLIC_KEY_INDEX]);
+            LOGGER.info("PrivateKey:" + keys[PRIVATE_KEY_INDEX]);
+            //String privKey = keys[PRIVATE_KEY_INDEX].replace("-----END PRIVATE KEY-----", "");
+            //privKey = privKey.replace("-----BEGIN PRIVATE KEY-----", "");
+            String privKey = keys[PRIVATE_KEY_INDEX].replace(" -----END RSA PRIVATE KEY-----", "");
+            privKey = privKey.replace("-----BEGIN RSA PRIVATE KEY----- ", "");
             keys[PRIVATE_KEY_INDEX] = privKey;
             if(!isRemote(provider)) {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
@@ -247,8 +251,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @NotNull
     protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
-//        String scriptKey = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
-//        String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         String createTunnelScriptPath = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
         InputStream inputStream = getInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
