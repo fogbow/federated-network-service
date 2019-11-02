@@ -116,6 +116,8 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                 dfnsAgentConfiguration = (SSAgentConfiguration) getDfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
+            LOGGER.info("PublicKey:" + dfnsAgentConfiguration.getPublicKey());
+            LOGGER.info("PrivateKey:" + dfnsAgentConfiguration.getPrivateKey());
             return dfnsAgentConfiguration;
         } catch(FogbowException ex) {
             LOGGER.error(ex.getMessage());
