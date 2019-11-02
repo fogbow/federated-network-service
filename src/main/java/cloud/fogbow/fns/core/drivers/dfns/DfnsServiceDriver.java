@@ -102,24 +102,16 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
-            LOGGER.info("PublicKey:" + keys[PUBLIC_KEY_INDEX]);
-            LOGGER.info("PrivateKey:" + keys[PRIVATE_KEY_INDEX]);
-            //String privKey = keys[PRIVATE_KEY_INDEX].replace("-----END PRIVATE KEY-----", "");
-            //privKey = privKey.replace("-----BEGIN PRIVATE KEY-----", "");
             String privKey = keys[PRIVATE_KEY_INDEX].replace(" -----END RSA PRIVATE KEY-----", "");
             privKey = privKey.replace("-----BEGIN RSA PRIVATE KEY----- ", "");
             keys[PRIVATE_KEY_INDEX] = privKey;
             if(!isRemote(provider)) {
-                LOGGER.info("LocalProvider: " + provider);
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
-                dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
-                LOGGER.info("RemoteProvider: " + provider);
                 dfnsAgentConfiguration = (SSAgentConfiguration) getDfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
+            dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
-            LOGGER.info("PublicKey:" + dfnsAgentConfiguration.getPublicKey());
-            LOGGER.info("PrivateKey:" + dfnsAgentConfiguration.getPrivateKey());
             return dfnsAgentConfiguration;
         } catch(FogbowException ex) {
             LOGGER.error(ex.getMessage());
@@ -320,7 +312,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     protected boolean isRemote(String provider) {
-        LOGGER.info("LocalPorvider: " + PROVIDER_ID + " : " + provider);
         return ! PROVIDER_ID.equals(provider);
     }
 }
