@@ -244,8 +244,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @NotNull
     protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
-        String scriptKey = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
-        String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
+//        String scriptKey = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
+//        String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
+        String createTunnelScriptPath = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
         InputStream inputStream = getInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
 
