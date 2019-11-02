@@ -37,6 +37,7 @@ public abstract class CommonServiceDriver implements ServiceDriver {
         String remoteFilePath = hostScriptPath + randomScriptSuffix;
         ProcessBuilder builder = new ProcessBuilder("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFile,
                 scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
+        LOGGER.info("Trying to copy script (" + remoteFilePath + "): " + builder.command());
 
         int resultCode = 0;
         try {

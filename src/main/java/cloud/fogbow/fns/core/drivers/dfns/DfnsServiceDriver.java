@@ -215,6 +215,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         SSHClient client = getSshClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
 
+        LOGGER.info("Executing command: " + command);
         try {
             try {
                 // connects to the DMZ host
@@ -229,7 +230,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                     // waits for the command to finish
                     c.join();
 
+                    LOGGER.info("Returned: " + c.getExitStatus());
                     if(c.getExitStatus() != SUCCESS_EXIT_CODE) {
+                        LOGGER.info("Error: " + c.getExitErrorMessage());
                         throw new UnexpectedException(exceptionMessage);
                     }
                 }
