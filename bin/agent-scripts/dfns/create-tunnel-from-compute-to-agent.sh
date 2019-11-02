@@ -8,6 +8,7 @@ host_fn_ip=#FEDERATED_IP# # the private address for the host in the federated ne
 agent_user=#AGENT_USER# # the user to ssh into the agent machine
 private_key=#PRIVATE_KEY#
 public_key=#PUBLIC_KEY#
+script_name=#SCRIPT_NAME#
 
 # install grepcidr to discover host ip
 sudo apt-get update
@@ -37,4 +38,4 @@ chmod 644 ~/.ssh/access-agent-key.pub
 chmod 600 ~/.ssh/access-agent-key
 
 #ssh to agent in order to execute the create tunnel from agent to compute script
-ssh -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $agent_user@$gateway_ip -i ~/.ssh/access-agent-key -T "bash /home/$agent_user/fogbow-components/federated-network-agent/create-tunnel-from-agent-to-compute.sh $local_ip $vlanID $public_key"
+ssh -o "UserKnownHostsFile=/dev/null" -o StrictHostKeyChecking=no $agent_user@$gateway_ip -i ~/.ssh/access-agent-key -T "bash /home/$agent_user/fogbow-components/federated-network-agent/$script_name $local_ip $vlanID $public_key"

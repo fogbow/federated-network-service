@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import java.util.UUID;
 
 public class VanillaServiceDriver extends CommonServiceDriver {
 
@@ -37,13 +36,15 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     private final int DEFAULT_VLAN_ID = -1;
     public static final String DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX = "delete-federated-network";
     public static final String CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX = "create-federated-network";
-    public static final String IPSEC_INSTALLATION_PATH = "bin/ipsec-configuration";
+    public static final String IPSEC_INSTALLATION_PATH = "bin/agent-scripts/vanilla/ipsec-configuration";
     public static final String FEDERATED_NETWORK_USER_DATA_TAG = "FNS_SCRIPT";
     public static final String LEFT_SOURCE_IP_KEY = "#LEFT_SOURCE_IP#";
     public static final String RIGHT_IP = "#RIGHT_IP#";
     public static final String RIGHT_SUBNET_KEY = "#RIGHT_SUBNET#";
     public static final String IS_FEDERATED_VM_KEY = "#IS_FEDERATED_VM#";
     public static final String PRE_SHARED_KEY_KEY = "#PRE_SHARED_KEY#";
+    public static final String REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY = "bin/agent-scripts/vanilla/delete-federated-network";
+    public static final String ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY = "bin/agent-scripts/vanilla/create-federated-network";
 
     public VanillaServiceDriver() {
     }
@@ -114,7 +115,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPrivateIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PRIVATE_ADDRESS_KEY);
         String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
-        String addFederatedNetworkScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
+        String addFederatedNetworkScriptPath = ADD_FEDERATED_NETWORK_SCRIPT_PATH_KEY;
         String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, DriversConfigurationPropertyDefaults.AGENT_SCRIPTS_PATH) + CREATE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(addFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
@@ -144,7 +145,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String permissionFilePath = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PERMISSION_FILE_PATH_KEY);
         String agentUser = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_USER_KEY);
         String agentPublicIp = properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY);
-        String removeFederatedNetworkScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY);
+        String removeFederatedNetworkScriptPath = REMOVE_FEDERATED_NETWORK_SCRIPT_PATH_KEY;
         String hostScriptPath = properties.getProperty(DriversConfigurationPropertyKeys.AGENT_SCRIPTS_PATH_KEY, DriversConfigurationPropertyDefaults.AGENT_SCRIPTS_PATH) + DELETE_FEDERATED_NETWORK_SCRIPT_PREFIX;
 
         String remoteFilePath = pasteScript(removeFederatedNetworkScriptPath, agentPublicIp, hostScriptPath, permissionFilePath, agentUser);
@@ -168,27 +169,6 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         if(resultCode != 0) {
             throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
         }
-    }
-
-    private String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException{
-        String randomScriptSuffix = UUID.randomUUID().toString();
-        String remoteFilePath = hostScriptPath + randomScriptSuffix;
-        ProcessBuilder builder = new ProcessBuilder("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFile,
-            scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
-
-        int resultCode = 0;
-        try {
-            Process process = builder.start();
-            resultCode = process.waitFor();
-        } catch (Exception e) {
-            LOGGER.error(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode), e);
-        }
-
-        if(resultCode != 0) {
-            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode));
-        }
-
-        return remoteFilePath;
     }
 
     @NotNull
