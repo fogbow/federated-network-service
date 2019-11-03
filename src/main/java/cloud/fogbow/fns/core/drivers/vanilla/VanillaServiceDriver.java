@@ -3,7 +3,6 @@ package cloud.fogbow.fns.core.drivers.vanilla;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
-import cloud.fogbow.common.util.ProcessUtil;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
@@ -100,7 +99,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanupAgent(FederatedNetworkOrder order, String hostIp) {
+    public void cleanupAgent(String computeInstanceProvider, FederatedNetworkOrder order, String hostIp) {
     }
 
     @Override

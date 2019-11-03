@@ -1,15 +1,17 @@
 #!/bin/bash
 
+#the IP in the fednet
+fednet_ip=$1
 #the IP address of the host (assigned by the DC)
-host_ip=$1
+host_ip=$2
 #vlanID of the network federation
-vlanID=$2
+vlanID=$3
 #publicKey to be removed from the authorized keys
-keyToBeRemoved=$3
+keyToBeRemoved=$4
 
 prefix="gre-vm-"
 #get progressive index
-index="${host_ip}-vlan-${vlanID}"
+index="${fednet_ip}-vlan-${vlanID}"
 #add the gre tunnel
 sudo ovs-vsctl add-port br-dc $prefix$index -- set interface $prefix$index \
 type=gre options:remote_ip=$host_ip options:key=$vlanID

@@ -3,7 +3,6 @@ package cloud.fogbow.fns.core.drivers.intercomponent;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.core.drivers.ServiceDriver;
-import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,10 +40,10 @@ public class RemoteFacadeTest {
         Mockito.when(federatedNetworkOrder.getServiceName()).thenReturn(TestUtils.ANY_STRING);
 
         // exercise
-        remoteFacade.removeAgentToComputeTunnel(federatedNetworkOrder, TestUtils.FAKE_HOST_IP);
+        remoteFacade.removeAgentToComputeTunnel(TestUtils.FAKE_PROVIDER_ID, federatedNetworkOrder, TestUtils.FAKE_HOST_IP);
 
         // verify
-        Mockito.verify(driverMock).cleanupAgent(Mockito.eq(federatedNetworkOrder), Mockito.eq(TestUtils.FAKE_HOST_IP));
+        Mockito.verify(driverMock).cleanupAgent(TestUtils.FAKE_PROVIDER_ID, Mockito.eq(federatedNetworkOrder), Mockito.eq(TestUtils.FAKE_HOST_IP));
     }
 
 

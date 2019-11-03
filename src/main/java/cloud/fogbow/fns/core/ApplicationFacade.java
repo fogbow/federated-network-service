@@ -9,6 +9,7 @@ import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
@@ -36,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
@@ -175,7 +175,8 @@ public class ApplicationFacade {
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
         if(federatedNetworkId != null) {
-            this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
+            AssignedIp assignedIp = new AssignedIp(computeId.getId(), federatedCompute.getCompute().getProvider(), instanceIp);
+            this.computeRequestsController.addIpToComputeAllocation(assignedIp, federatedCompute.getFederatedNetworkId());
         }
 
         return computeId.getId();
@@ -203,10 +204,10 @@ public class ApplicationFacade {
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
 
         if(federatedNetworkOrder != null) {
-            String instanceIp = federatedNetworkOrder.removeAssociatedIp(computeId);
+            AssignedIp assignedIp = federatedNetworkOrder.removeAssociatedIp(computeId);
             ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
-            driver.cleanupAgent(federatedNetworkOrder, instanceIp);
+            driver.cleanupAgent(assignedIp.getProviderId(), federatedNetworkOrder, assignedIp.getIp());
         }
     }
 

@@ -24,6 +24,8 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
     Properties properties;
 
     private final String MEMBER = "fake-member";
+    private static final String FAKE_IP = "fake-ip";
+    private static final String FAKE_PROVIDER_ID = "fake-provider-id";
 
     @Before
     public void setUp() {
@@ -157,7 +159,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         String computeId = "id-";
         for (int i = 0; i < freeIps; i++) {
             String ip = federatedNetwork.getFreeIp();
-            federatedNetwork.addAssociatedIp(computeId + i, ip);
+            federatedNetwork.addAssociatedIp(new AssignedIp((computeId + i), FAKE_PROVIDER_ID, FAKE_IP));
         }
     }
 }

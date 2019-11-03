@@ -21,6 +21,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     private static final String FAKE_IP = "fake-ip";
     private static final String FAKE_COMPUTE_ID = "fake-compute-id";
+    private static final String FAKE_PROVIDER_ID = "fake-provider-id";
     public static final String CIDR_EXAMPLE = "10.0.0.0/29";
 
     @Test
@@ -34,7 +35,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         fakeFederatedNetworkOrder.setAssignedIps(fakeAssociatedIps);
 
         // exercise
-        fakeFederatedNetworkOrder.addAssociatedIp(FAKE_COMPUTE_ID, FAKE_IP);
+        fakeFederatedNetworkOrder.addAssociatedIp(new AssignedIp(FAKE_COMPUTE_ID, FAKE_PROVIDER_ID, FAKE_IP));
 
         // verify
         List<AssignedIp> fednetAssociatedIps = fakeFederatedNetworkOrder.getAssignedIps();
@@ -49,7 +50,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         super.mockSingletons();
         ArrayList<AssignedIp> fakeAssociatedIps;
         fakeAssociatedIps = new ArrayList<>();
-        fakeAssociatedIps.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
+        fakeAssociatedIps.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_PROVIDER_ID, FAKE_IP));
 
         FederatedNetworkOrder fakeFederatedNetworkOrder = new FederatedNetworkOrder();
         fakeFederatedNetworkOrder.setAssignedIps(fakeAssociatedIps);
@@ -89,7 +90,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
             // associating an IP address to a VM is a two step process in the order
             String freeIp = federatedNetwork.getFreeIp();
             String uniqueComputeId = FAKE_COMPUTE_ID + i;
-            federatedNetwork.addAssociatedIp(uniqueComputeId, freeIp);
+            federatedNetwork.addAssociatedIp(new AssignedIp(uniqueComputeId, FAKE_PROVIDER_ID, FAKE_IP));
         }
 
         //exercise
@@ -113,7 +114,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         Assert.assertEquals(null, federatedNetwork.getAssociatedIp(fakeComputeId));
 
         // exercise
-        federatedNetwork.addAssociatedIp(fakeComputeId, fakeIpAddress);
+        federatedNetwork.addAssociatedIp(new AssignedIp(fakeComputeId, FAKE_PROVIDER_ID, FAKE_IP));
 
         // verify
         Assert.assertEquals(fakeIpAddress, federatedNetwork.getAssociatedIp(fakeComputeId));

@@ -15,7 +15,6 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
-import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
@@ -36,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 public class DfnsServiceDriver extends CommonServiceDriver {
 
@@ -132,12 +130,12 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanupAgent(FederatedNetworkOrder order, String instanceIp) throws FogbowException {
+    public void cleanupAgent(String computeInstanceProvider, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
-            if(!isRemote(order.getProvider())) {
+            if(!isRemote(computeInstanceProvider)) {
                 removeAgentToComputeTunnel(order, instanceIp);
             } else {
-                getDfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, instanceIp);
+                getDfnsServiceConnector(computeInstanceProvider).removeAgentToComputeTunnel(order, instanceIp);
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());

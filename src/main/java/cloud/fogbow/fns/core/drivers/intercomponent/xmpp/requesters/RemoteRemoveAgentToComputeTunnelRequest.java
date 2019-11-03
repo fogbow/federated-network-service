@@ -27,7 +27,7 @@ public class RemoteRemoveAgentToComputeTunnelRequest implements RemoteRequest<Vo
 
     @Override
     public Void send() throws Exception {
-        IQ iq = marshal(this.order, this.hostIp);
+        IQ iq = marshal(this.provider, this.order, this.hostIp);
         IQ response = (IQ) PacketSenderHolder.getPacketSender().syncSendPacket(iq);
 
         XmppErrorConditionToExceptionTranslator.handleError(response, this.provider);
@@ -35,11 +35,13 @@ public class RemoteRemoveAgentToComputeTunnelRequest implements RemoteRequest<Vo
         return null;
     }
 
-    public IQ marshal(FederatedNetworkOrder order, String hostIp) {
+    public IQ marshal(String providerId, FederatedNetworkOrder order, String hostIp) {
         IQ iq = new IQ(IQ.Type.set);
         iq.setTo(SystemConstants.JID_SERVICE_NAME + SystemConstants.JID_CONNECTOR + SystemConstants.XMPP_SERVER_NAME_PREFIX + this.provider);
 
         Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(), RemoteMethod.REMOTE_REMOVE_AGENT_TO_COMPUTE_TUNNEL.toString());
+        Element providerIdElement = queryElement.addElement(IqElement.PROVIDER_ID.toString());
+        providerIdElement.setText(providerId);
         Element orderElement = queryElement.addElement(IqElement.FEDERATED_NETWORK_ORDER.toString());
         Element hostIpElement = queryElement.addElement(IqElement.HOST_IP.toString());
         hostIpElement.setText(hostIp);

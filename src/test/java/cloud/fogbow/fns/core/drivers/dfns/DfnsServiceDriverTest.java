@@ -2,13 +2,11 @@ package cloud.fogbow.fns.core.drivers.dfns;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
-import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.connectivity.HttpRequestClient;
 import cloud.fogbow.common.util.connectivity.HttpResponse;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
@@ -16,11 +14,8 @@ import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.ras.core.models.UserData;
-import com.google.gson.Gson;
 import net.schmizz.sshj.SSHClient;
-import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.transport.verification.HostKeyVerifier;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -186,10 +181,11 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         Mockito.doReturn(false).when(this.driver).isRemote(Mockito.anyString());
         Mockito.doNothing().when(this.driver).removeAgentToComputeTunnel(Mockito.any(), Mockito.anyString());
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        String providerId = TestUtils.FAKE_PROVIDER_ID;
         String hostIp = TestUtils.FAKE_HOST_IP;
 
         // exercise
-        this.driver.cleanupAgent(order, hostIp);
+        this.driver.cleanupAgent(providerId, order, hostIp);
 
         // verify
         Mockito.verify(this.driver).removeAgentToComputeTunnel(Mockito.any(), Mockito.anyString());
@@ -205,10 +201,11 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         Mockito.doReturn(connector).when(this.driver).getDfnsServiceConnector(Mockito.anyString());
 
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
+        String providerId = TestUtils.FAKE_PROVIDER_ID;
         String hostIp = TestUtils.FAKE_HOST_IP;
 
         // exercise
-        this.driver.cleanupAgent(order, hostIp);
+        this.driver.cleanupAgent(providerId, order, hostIp);
 
         // verify
         Mockito.verify(this.driver).getDfnsServiceConnector(Mockito.anyString());

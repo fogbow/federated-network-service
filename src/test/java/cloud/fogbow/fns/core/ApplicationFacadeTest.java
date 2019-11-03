@@ -184,7 +184,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
             Mockito.eq(HttpMethod.POST), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
-        Mockito.verify(computeRequestsController, Mockito.times(0)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(computeRequestsController, Mockito.times(0)).addIpToComputeAllocation(Mockito.any(), Mockito.any());
     }
 
     //test case: check if an exception is thrown when ras is offline
@@ -216,7 +216,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         PowerMockito.mockStatic(RedirectToRasUtil.class);
         ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
-        Mockito.doNothing().when(computeRequestsController).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(computeRequestsController).addIpToComputeAllocation(Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(orderController).getFederatedNetwork(Mockito.any());
         Mockito.doReturn(testUtils.user).when(applicationFacade).authenticate(Mockito.any());
         Mockito.doNothing().when(applicationFacade).addUserData(Mockito.any(), Mockito.any());
@@ -228,7 +228,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         PowerMockito.verifyStatic(RedirectToRasUtil.class, Mockito.times(TestUtils.RUN_ONCE));
         RedirectToRasUtil.createAndSendRequestToRas(Mockito.eq(COMPUTES_ENDPOINT), Mockito.eq(new Gson().toJson(federatedCompute.getCompute())),
                 Mockito.eq(HttpMethod.POST), Mockito.eq(TestUtils.FAKE_USER_TOKEN), Mockito.eq(String.class));
-        Mockito.verify(computeRequestsController, Mockito.times(1)).addIpToComputeAllocation(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(computeRequestsController, Mockito.times(1)).addIpToComputeAllocation(Mockito.any(), Mockito.any());
         Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetwork(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).addUserData(Mockito.any(), Mockito.any());

@@ -1,20 +1,20 @@
 package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 
 public class ComputeRequestsController {
 
-    public void addIpToComputeAllocation(String instanceIp, String computeId, String federatedNetworkId)
-            throws UnexpectedException {
+    public void addIpToComputeAllocation(AssignedIp assignedIp, String federatedNetworkId) throws UnexpectedException {
         FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
                 getFederatedNetworkOrder(federatedNetworkId);
         if (federatedNetworkOrder == null) {
             throw new UnexpectedException();
         }
-        federatedNetworkOrder.addAssociatedIp(computeId, instanceIp);
-        ComputeIdToFederatedNetworkIdMapping.getInstance().put(computeId, federatedNetworkOrder.getId());
+        federatedNetworkOrder.addAssociatedIp(assignedIp);
+        ComputeIdToFederatedNetworkIdMapping.getInstance().put(assignedIp.getComputeId(), federatedNetworkOrder.getId());
     }
 
     public void addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String computeId) {
