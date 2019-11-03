@@ -132,6 +132,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     @Override
     public void cleanupAgent(String computeInstanceProvider, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
+            LOGGER.info("ComputeProvider: " + computeInstanceProvider);
+            LOGGER.info("NetworkProvider: " + order.getProvider());
+            LOGGER.info("InstanceIp: " + instanceIp);
             if(!isRemote(computeInstanceProvider)) {
                 removeAgentToComputeTunnel(order, instanceIp);
             } else {
