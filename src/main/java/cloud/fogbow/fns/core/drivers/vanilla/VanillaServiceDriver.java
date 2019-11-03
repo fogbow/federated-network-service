@@ -123,14 +123,10 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
                 "sudo", remoteFilePath, agentPrivateIp, agentPublicIp, cidrNotation, virtualIpAddress);
-        LOGGER.info("Trying to call agent with atts (" + cidrNotation + "): " + builder.command());
 
         int resultCode = 0;
         try {
             Process process = builder.start();
-            LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_OUTPUT, cidrNotation,
-                    ProcessUtil.getOutput(process)));
-            LOGGER.info(String.format(Messages.Error.TRYING_TO_CREATE_AGENT_ERROR, cidrNotation, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
         } catch (Exception e) {
             LOGGER.error(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode), e);
@@ -153,14 +149,10 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         ProcessBuilder builder = new ProcessBuilder("ssh", "-o", "UserKnownHostsFile=/dev/null", "-o",
                 "StrictHostKeyChecking=no", "-i", permissionFilePath, agentUser + "@" + agentPublicIp,
                 "sudo", remoteFilePath, cidr);
-        LOGGER.info("Trying to remove network on agent with atts (" + cidr + "): " + builder.command());
 
         int resultCode = 0;
         try {
             Process process = builder.start();
-            LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_OUTPUT, cidr,
-                    ProcessUtil.getOutput(process)));
-            LOGGER.info(String.format(Messages.Error.TRYING_TO_DELETE_AGENT_ERROR, cidr, ProcessUtil.getError(process)));
             resultCode = process.waitFor();
         } catch (Exception e) {
             LOGGER.error(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode), e);
@@ -178,7 +170,6 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         String newScript = replaceScriptValues(cloudInitScript, federatedIp, properties.getProperty(DriversConfigurationPropertyKeys.FEDERATED_NETWORK_AGENT_PUBLIC_ADDRESS_KEY),
                 cidr, properties.getProperty(DriversConfigurationPropertyKeys.Vanilla.FEDERATED_NETWORK_PRE_SHARED_KEY_KEY));
 
-        LOGGER.info("CloudInitScript: " + newScript);
         byte[] scriptBytes = newScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
         String encryptedScript = new String(encryptedScriptBytes, StandardCharsets.UTF_8);

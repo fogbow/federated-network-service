@@ -215,7 +215,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         SSHClient client = getSshClient();
         client.addHostKeyVerifier((arg0, arg1, arg2) -> true);
 
-        LOGGER.info("Executing command: " + command);
         try {
             try {
                 // connects to the Agent host
@@ -230,9 +229,7 @@ public class DfnsServiceDriver extends CommonServiceDriver {
                     // waits for the command to finish
                     c.join();
 
-                    LOGGER.info("Returned: " + c.getExitStatus());
                     if(c.getExitStatus() != SUCCESS_EXIT_CODE) {
-                        LOGGER.info("Error: " + c.getExitErrorMessage());
                         throw new UnexpectedException(exceptionMessage);
                     }
                 }
@@ -262,7 +259,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         scriptTokenValues.put(SCRIPT_NAME_KEY, configuration.getScriptName());
 
         String cloudInitScript = replaceScriptTokens(templateScript, scriptTokenValues);
-        LOGGER.info("CloudInitScript: " + cloudInitScript);
 
         byte[] scriptBytes = cloudInitScript.getBytes(StandardCharsets.UTF_8);
         byte[] encryptedScriptBytes = Base64.encodeBase64(scriptBytes);
