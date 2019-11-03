@@ -151,7 +151,7 @@ public class ApplicationFacade {
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();
             ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
-            AgentConfiguration agentConfiguration = driver.configureAgent(federatedNetworkOrder.getProvider());
+            AgentConfiguration agentConfiguration = driver.configureAgent(federatedCompute.getCompute().getProvider());
             UserData userData = driver.getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
             addUserData(federatedCompute, userData);
         }

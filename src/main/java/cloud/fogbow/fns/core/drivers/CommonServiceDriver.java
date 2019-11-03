@@ -17,8 +17,8 @@ public abstract class CommonServiceDriver implements ServiceDriver {
     private final String GEN_KEY_PAIR_SCRIPT_WHOLE_PATH = Paths.get("").toAbsolutePath().toString() + GEN_KEY_PAIR_SCRIPT_PATH_FROM_BIN;
     private final String KEY_PAIR_SEPARATOR = "KEY SEPARATOR";
     private final String KEY_SIZE = "1024";
-    protected static final int PUBLIC_KEY_INDEX = 0;
-    protected static final int PRIVATE_KEY_INDEX = 1;
+    protected static final int PRIVATE_KEY_INDEX = 0;
+    protected static final int PUBLIC_KEY_INDEX = 1;
 
     protected String[] generateSshKeyPair() throws UnexpectedException {
         BashScriptRunner runner = new BashScriptRunner();
@@ -28,8 +28,8 @@ public abstract class CommonServiceDriver implements ServiceDriver {
         String[] genCommand = {"bash", GEN_KEY_PAIR_SCRIPT_WHOLE_PATH, keyName, KEY_SIZE};
         BashScriptRunner.Output createCommandResult = runner.runtimeRun(genCommand);
 
-        return new String[]{createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PUBLIC_KEY_INDEX],
-                createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PRIVATE_KEY_INDEX]};
+        return new String[]{createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PRIVATE_KEY_INDEX],
+                createCommandResult.getContent().split(KEY_PAIR_SEPARATOR)[PUBLIC_KEY_INDEX]};
     }
 
     public String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException {
@@ -37,6 +37,7 @@ public abstract class CommonServiceDriver implements ServiceDriver {
         String remoteFilePath = hostScriptPath + randomScriptSuffix;
         ProcessBuilder builder = new ProcessBuilder("scp", "-o", "UserKnownHostsFile=/dev/null", "-o", "StrictHostKeyChecking=no", "-i", permissionFile,
                 scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
+        LOGGER.info("Trying to copy script (" + remoteFilePath + "): " + builder.command());
 
         int resultCode = 0;
         try {

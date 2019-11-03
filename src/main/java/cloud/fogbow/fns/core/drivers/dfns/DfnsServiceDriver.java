@@ -102,15 +102,15 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         try {
             SSAgentConfiguration dfnsAgentConfiguration = null;
             String[] keys = generateSshKeyPair();
-            String privKey = keys[PRIVATE_KEY_INDEX].replace("-----END PRIVATE KEY-----", "");
-            privKey = privKey.replace("-----BEGIN PRIVATE KEY-----", "");
+            String privKey = keys[PRIVATE_KEY_INDEX].replace(" -----END RSA PRIVATE KEY-----", "");
+            privKey = privKey.replace("-----BEGIN RSA PRIVATE KEY----- ", "");
             keys[PRIVATE_KEY_INDEX] = privKey;
             if(!isRemote(provider)) {
                 dfnsAgentConfiguration = doConfigureAgent(keys[PUBLIC_KEY_INDEX]);
-                dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             } else {
                 dfnsAgentConfiguration = (SSAgentConfiguration) getDfnsServiceConnector(provider).configureAgent(keys[PUBLIC_KEY_INDEX], SERVICE_NAME);
             }
+            dfnsAgentConfiguration.setPublicKey(keys[PUBLIC_KEY_INDEX]);
             dfnsAgentConfiguration.setPrivateKey(keys[PRIVATE_KEY_INDEX]);
             return dfnsAgentConfiguration;
         } catch(FogbowException ex) {
@@ -217,10 +217,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
         try {
             try {
-                // connects to the DMZ host
+                // connects to the Agent host
                 client.connect(agentPublicIp, AGENT_SSH_PORT);
 
-                // authorizes using the DMZ private key
+                // authorizes using the Agent private key
                 client.authPublickey(agentUser, permissionFilePath);
 
                 try (Session session = client.startSession()) {
@@ -244,8 +244,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @NotNull
     protected UserData getDfnsUserData(SSAgentConfiguration configuration, String federatedIp, String agentIp, int vlanId, String accessKey) throws IOException {
-//        String scriptKey = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
-//        String createTunnelScriptPath = properties.getProperty(scriptKey, DfnsServiceDriver.SERVICE_NAME);
         String createTunnelScriptPath = CREATE_TUNNEL_FROM_COMPUTE_TO_AGENT_SCRIPT_PATH;
         InputStream inputStream = getInputStream(createTunnelScriptPath);
         String templateScript = IOUtils.toString(inputStream);
