@@ -175,6 +175,7 @@ public class ApplicationFacade {
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
         if(federatedNetworkId != null) {
+            LOGGER.info("Adding: " + computeId.getId() + ", " + federatedCompute.getCompute().getProvider() + ", " + instanceIp);
             AssignedIp assignedIp = new AssignedIp(computeId.getId(), federatedCompute.getCompute().getProvider(), instanceIp);
             this.computeRequestsController.addIpToComputeAllocation(assignedIp, federatedCompute.getFederatedNetworkId());
         }
@@ -207,6 +208,7 @@ public class ApplicationFacade {
             AssignedIp assignedIp = federatedNetworkOrder.removeAssociatedIp(computeId);
             ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
+            LOGGER.info("Delete: " + assignedIp.getProviderId() + ", " + assignedIp.getComputeId() + ", " + assignedIp.getIp());
             driver.cleanupAgent(assignedIp.getProviderId(), federatedNetworkOrder, assignedIp.getIp());
         }
     }
