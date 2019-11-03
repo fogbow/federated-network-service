@@ -136,14 +136,14 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         ordersStatus.add(instanceStatus);
         ordersStatus.add(secondInstanceStatus);
 
-        Mockito.doReturn(ordersStatus).when(orderController).getFederatedNetworksStatusByUser(Mockito.any());
+        Mockito.doReturn(ordersStatus).when(orderController).getInstancesStatus(Mockito.any());
         //exercise
         Collection<InstanceStatus> returnedStatus = applicationFacade.getFederatedNetworksStatus(TestUtils.FAKE_USER_TOKEN);
         //verify
         Assert.assertEquals(ordersStatus, returnedStatus);
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
-        Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getFederatedNetworksStatusByUser(Mockito.any());
+        Mockito.verify(orderController, Mockito.times(TestUtils.RUN_ONCE)).getInstancesStatus(Mockito.any());
     }
 
     //test case: Check if the method makes the expected calls

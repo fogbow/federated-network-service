@@ -123,7 +123,7 @@ public class ApplicationFacade {
             throws FogbowException {
         SystemUser systemUser = authenticate(systemUserToken);
         this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.GET_ALL, ResourceType.FEDERATED_NETWORK));
-        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser);
+        return this.federatedNetworkOrderController.getInstancesStatus(systemUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
@@ -203,10 +203,10 @@ public class ApplicationFacade {
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
 
         if(federatedNetworkOrder != null) {
-            federatedNetworkOrder.removeAssociatedIp(computeId);
+            String instanceIp = federatedNetworkOrder.removeAssociatedIp(computeId);
             ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
-            driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
+            driver.cleanupAgent(federatedNetworkOrder, instanceIp);
         }
     }
 

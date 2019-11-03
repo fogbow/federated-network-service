@@ -147,14 +147,16 @@ public class FederatedNetworkOrder implements Serializable {
         databaseManager.put(this);
     }
 
-    public synchronized void removeAssociatedIp(String computeId) throws UnexpectedException {
+    public synchronized String removeAssociatedIp(String computeId) throws UnexpectedException {
         int associatedIpIndex = containsKey(computeId);
         if (associatedIpIndex == -1) {
             throw new IllegalArgumentException();
         }
+        String instanceIp = this.assignedIps.get(associatedIpIndex).getIp();
         this.assignedIps.remove(associatedIpIndex);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
+        return instanceIp;
     }
 
     private int containsKey(String computeId) {

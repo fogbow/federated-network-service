@@ -100,8 +100,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanupAgent(FederatedNetworkOrder order, String hostIp){
-
+    public void cleanupAgent(FederatedNetworkOrder order, String hostIp) {
     }
 
     @Override

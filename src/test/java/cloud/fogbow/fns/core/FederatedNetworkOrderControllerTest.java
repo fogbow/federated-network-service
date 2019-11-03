@@ -189,7 +189,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
 
         // exercise
-        Collection<InstanceStatus> statuses = this.controller.getFederatedNetworksStatusByUser(currentUser);
+        Collection<InstanceStatus> statuses = this.controller.getInstancesStatus(currentUser);
 
         // verify
         Assert.assertFalse(statuses.isEmpty());

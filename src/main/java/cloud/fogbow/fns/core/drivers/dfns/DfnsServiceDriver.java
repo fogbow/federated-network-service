@@ -132,12 +132,12 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     }
 
     @Override
-    public void cleanupAgent(FederatedNetworkOrder order, String hostIp) throws FogbowException {
+    public void cleanupAgent(FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
             if(!isRemote(order.getProvider())) {
-                removeAgentToComputeTunnel(order, hostIp);
+                removeAgentToComputeTunnel(order, instanceIp);
             } else {
-                getDfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, hostIp);
+                getDfnsServiceConnector(order.getProvider()).removeAgentToComputeTunnel(order, instanceIp);
             }
         } catch (FogbowException ex) {
             LOGGER.error(ex.getMessage());
@@ -167,9 +167,9 @@ public class DfnsServiceDriver extends CommonServiceDriver {
         return new SSAgentConfiguration(defaultNetworkCidr, agentUser, agentPrivateIpAddress, publicIpAddress, scriptName);
     }
 
-    protected void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
+    protected void removeAgentToComputeTunnel(FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         String removeTunnelCommand = String.format(REMOVE_TUNNEL_FROM_AGENT_TO_COMPUTE_FORMAT,
-                (String.format(PORT_TO_REMOVE_FORMAT, hostIp, order.getVlanId())));
+                (String.format(PORT_TO_REMOVE_FORMAT, instanceIp, order.getVlanId())));
 
         executeAgentCommand(removeTunnelCommand, Messages.Exception.UNABLE_TO_REMOVE_AGENT_TO_COMPUTE_TUNNEL, SERVICE_NAME);
     }
