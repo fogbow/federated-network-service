@@ -29,7 +29,7 @@ public class AssignedIp {
     }
 
     public String getProviderId() {
-        return this.computeId;
+        return this.providerId;
     }
 
     public String getIp() {
