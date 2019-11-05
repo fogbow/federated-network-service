@@ -48,11 +48,8 @@ public class OpenProcessor implements Runnable {
         // condition on order access. For example: a user can delete an open
         // order while this method is trying to create the federated network.
         synchronized (order) {
-            OrderState orderState = order.getOrderState();
             // Check if the order is still in the Open state (it could have been changed by another thread)
-            if (!orderState.equals(OrderState.OPEN)) {
-                return;
-            }
+            if(!order.getOrderState().equals(OrderState.OPEN)) return;
 
             try {
                 //The driver, with this call, must do all the operations needed to make the order able to move

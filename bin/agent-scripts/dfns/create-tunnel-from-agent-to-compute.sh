@@ -6,8 +6,6 @@ fednet_ip=$1
 host_ip=$2
 #vlanID of the network federation
 vlanID=$3
-#publicKey to be removed from the authorized keys
-keyToBeRemoved=$4
 
 prefix="gre-vm-"
 #get progressive index
@@ -19,6 +17,6 @@ type=gre options:remote_ip=$host_ip options:key=$vlanID
 sudo ovs-vsctl set port $prefix$index tag=$vlanID
 
 #deleting the public key from the authorized keys
-sed -i "\:$keyToBeRemoved:d" ~/.ssh/authorized_keys
+sed -i "/FNS-script-key/d" ~/.ssh/authorized_keys
 
 rm $0
