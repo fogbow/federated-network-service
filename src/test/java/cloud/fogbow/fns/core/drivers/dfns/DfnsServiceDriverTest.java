@@ -12,7 +12,6 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.ras.core.models.UserData;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -31,7 +30,6 @@ import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -77,46 +75,6 @@ public class DfnsServiceDriverTest extends MockedFederatedNetworkUnitTests {
         this.driver.processOpen(order);
 
         // verify
-        Mockito.verify(order).setVlanId(Mockito.anyInt());
-    }
-
-    // test case: processSpawning should move all providers configurations states to success
-    @Test
-    public void testProcessSpawning() {
-        // setup
-        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
-
-        Map<String, MemberConfigurationState> providers = new HashMap();
-        providers.put(TestUtils.FAKE_PROVIDER, MemberConfigurationState.UNDEFINED);
-
-        Mockito.when(order.getProviders()).thenReturn(providers);
-
-        // exercise
-        this.driver.processSpawning(order);
-
-        // verify
-        Assert.assertEquals(MemberConfigurationState.SUCCESS, providers.get(TestUtils.FAKE_PROVIDER));
-    }
-
-    // test case: processSpawning should move all providers configurations states to success
-    @Test
-    public void testProcessClosed() throws FogbowException {
-        // setup
-        FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
-
-        Map<String, MemberConfigurationState> providers = new HashMap();
-        providers.put(TestUtils.FAKE_PROVIDER, MemberConfigurationState.UNDEFINED);
-
-        Mockito.when(order.getProviders()).thenReturn(providers);
-
-        Mockito.doNothing().when(driver).releaseVlanId(Mockito.anyInt());
-
-        // exercise
-        this.driver.processClosed(order);
-
-        // verify
-        Assert.assertEquals(MemberConfigurationState.REMOVED, providers.get(TestUtils.FAKE_PROVIDER));
-        Mockito.verify(driver).releaseVlanId(Mockito.anyInt());
         Mockito.verify(order).setVlanId(Mockito.anyInt());
     }
 

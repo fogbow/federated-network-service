@@ -30,7 +30,6 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
         order.setRequester(PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.PROVIDER_ID_KEY));
         order.setProvider(order.getRequester());
         order.setName(this.name == null ? SystemConstants.FOGBOW_INSTANCE_NAME_PREFIX+UUID.randomUUID() : this.name);
-        order.setProviders(FederatedNetworkUtil.initializeMemberConfigurationMap(this.providers));
         order.setServiceName(this.serviceName == null ? new ServiceListController().getDefaultService() : this.serviceName);
         return order;
     }

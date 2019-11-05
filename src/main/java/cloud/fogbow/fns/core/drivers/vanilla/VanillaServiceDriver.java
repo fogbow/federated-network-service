@@ -1,7 +1,6 @@
 package cloud.fogbow.fns.core.drivers.vanilla;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
@@ -11,7 +10,6 @@ import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefau
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.ras.core.models.UserData;
@@ -66,20 +64,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
-        for (String provider : order.getProviders().keySet()) {
-            if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
-               remove(order, provider);
-            }
-        }
-    }
-
-    private void remove(FederatedNetworkOrder order, String provider) throws FogbowException{
-        try {
-            deleteFederatedNetwork(order.getCidr());
-            order.getProviders().put(provider, MemberConfigurationState.REMOVED);
-        } catch(FogbowException ex) {
-            throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, ex);
-        }
+        deleteFederatedNetwork(order.getCidr());
     }
 
     @Override

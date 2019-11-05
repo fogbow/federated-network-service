@@ -68,16 +68,11 @@ public class FederatedNetworkOrder implements Serializable {
     @Column
     private String serviceName;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @MapKeyColumn
-    @Column
-    @CollectionTable
-    private Map<String, MemberConfigurationState> providers;
-
     @Embedded
     @AttributeOverrides(value = {
-        @AttributeOverride(name = "compute_id", column = @Column(name = "compute_id")),
-        @AttributeOverride(name = "ip", column = @Column(name = "ip"))
+            @AttributeOverride(name = "compute_id", column = @Column(name = "compute_id")),
+            @AttributeOverride(name = "provider_id", column = @Column(name = "provider_id")),
+            @AttributeOverride(name = "ip", column = @Column(name = "ip"))
     })
     @ElementCollection(fetch = FetchType.EAGER)
     private List<AssignedIp> assignedIps;
@@ -91,7 +86,6 @@ public class FederatedNetworkOrder implements Serializable {
 
     public FederatedNetworkOrder(String id) {
         this.id = id;
-        this.providers = new HashMap<>();
         this.cacheOfFreeIps = new LinkedList<>();
         this.assignedIps = new ArrayList<>();
     }
@@ -117,12 +111,11 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(String id, SystemUser systemUser, String requester,
-                                 String provider, String cidr, String name, HashMap<String, MemberConfigurationState> providers,
+                                 String provider, String cidr, String name,
                                  Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, OrderState orderState, String serviceName) {
         this(id, systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
-        this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
         this.orderState = orderState;
@@ -130,12 +123,11 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     public FederatedNetworkOrder(SystemUser systemUser, String requester, String provider,
-                                 String cidr, String name, HashMap<String, MemberConfigurationState> providers,
+                                 String cidr, String name,
                                  Queue<String> cacheOfFreeIps, ArrayList<AssignedIp> assignedIps, String serviceName) {
         this(systemUser, requester, provider, serviceName);
         this.cidr = cidr;
         this.name = name;
-        this.providers = providers;
         this.cacheOfFreeIps = cacheOfFreeIps;
         this.assignedIps = assignedIps;
         this.serviceName = serviceName;
@@ -233,14 +225,6 @@ public class FederatedNetworkOrder implements Serializable {
         return this.orderState;
     }
 
-    public synchronized void setOrderStateInRecoveryMode(OrderState state) {
-        this.orderState = state;
-    }
-
-    public synchronized void setOrderStateInTestMode(OrderState state) {
-        this.orderState = state;
-    }
-
     public synchronized void setOrderState(OrderState state) throws UnexpectedException {
         this.orderState = state;
         DatabaseManager databaseManager = DatabaseManager.getInstance();
@@ -250,7 +234,7 @@ public class FederatedNetworkOrder implements Serializable {
     public FederatedNetworkInstance getInstance() {
         InstanceState instanceState = this.orderState == OrderState.FULFILLED ? InstanceState.READY : InstanceState.FAILED;
         FederatedNetworkInstance instance = new FederatedNetworkInstance(this.id, this.name, this.requester, this.provider,
-                this.cidr, this.providers.keySet(), this.assignedIps, instanceState);
+                this.cidr, this.assignedIps, instanceState);
         return instance;
     }
 
@@ -300,14 +284,6 @@ public class FederatedNetworkOrder implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Map<String, MemberConfigurationState> getProviders() {
-        return providers;
-    }
-
-    public void setProviders(Map<String, MemberConfigurationState> providers) {
-        this.providers = providers;
     }
 
     public Queue<String> getCacheOfFreeIps() {

@@ -17,7 +17,6 @@ import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefau
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.exceptions.NoVlanIdsLeftException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.ras.core.models.UserData;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -76,21 +75,10 @@ public class DfnsServiceDriver extends CommonServiceDriver {
 
     @Override
     public void processSpawning(FederatedNetworkOrder order) {
-        for (String provider : order.getProviders().keySet()) {
-            //Here we used to run a script responsible for configure each
-            //provider, but once we do that in deployment time it is not necessary
-            //anymore. Thus, the only operation to be done is to change the
-            //member's state to SUCCESS for each member. Once it can't result
-            //in an Exception, it is not necessary to handle edge cases.
-            order.getProviders().put(provider, MemberConfigurationState.SUCCESS);
-        }
     }
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
-        for (String provider : order.getProviders().keySet()) {
-            order.getProviders().put(provider, MemberConfigurationState.REMOVED);
-        }
         releaseVlanId(order.getVlanId());
         order.setVlanId(-1);
     }
@@ -132,9 +120,6 @@ public class DfnsServiceDriver extends CommonServiceDriver {
     @Override
     public void cleanupAgent(String computeInstanceProvider, FederatedNetworkOrder order, String instanceIp) throws FogbowException {
         try {
-            LOGGER.info("ComputeProvider: " + computeInstanceProvider);
-            LOGGER.info("NetworkProvider: " + order.getProvider());
-            LOGGER.info("InstanceIp: " + instanceIp);
             if(!isRemote(computeInstanceProvider)) {
                 removeAgentToComputeTunnel(order, instanceIp);
             } else {
