@@ -68,11 +68,13 @@ public interface ServiceDriver {
      * The driver that implements this method must clean up the agent
      * according to the driver specification.
      * If it can't be done, a FogbowException must be thrown.
+     *
+     * @param computeInstanceProvider
      * @param order
      * @param hostIp
      * @throws FogbowException
      */
-    void cleanupAgent(FederatedNetworkOrder order, String hostIp) throws FogbowException;
+    void cleanupAgent(String computeInstanceProvider, FederatedNetworkOrder order, String hostIp) throws FogbowException;
 
     /**
      * This method is necessary because on remote call

@@ -45,11 +45,11 @@ public class ClosedProcessor implements Runnable {
 
     protected void processOrder(FederatedNetworkOrder order) throws FogbowException {
         synchronized (order) {
+            // Check if the order is still CLOSED (its state may have been changed by another thread)
+            if(!order.getOrderState().equals(OrderState.CLOSED)) return;
             //The driver, with this call, must do all the operations needed to make the order able to move
             //to deactivated state, according to its specification.
             new ServiceDriverConnector(order.getServiceName()).getDriver().processClosed(order);
-            // No need to check the state of the order because no other thread will attempt to change the
-            // state of an order that is in the CLOSED state.
             this.orderController.deactivateOrder(order);
         }
     }

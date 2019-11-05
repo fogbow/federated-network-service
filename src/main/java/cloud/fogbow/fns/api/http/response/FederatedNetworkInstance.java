@@ -26,14 +26,13 @@ public class FederatedNetworkInstance {
     private InstanceState state;
 
     public FederatedNetworkInstance(String instanceId, String name, String requester, String provider,
-                                    String cidr, Set<String> providers, List<AssignedIp> assignedIps,
+                                    String cidr, List<AssignedIp> assignedIps,
                                     InstanceState state) {
         this.instanceId = instanceId;
         this.name = name;
         this.requester = requester;
         this.provider = provider;
         this.cidr = cidr;
-        this.providers = providers;
         this.assignedIps = assignedIps;
         this.state = state;
     }

@@ -5,7 +5,6 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.model.MemberConfigurationState;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +14,7 @@ public class TestUtils {
     public static final String ANY_STRING = "any-string";
     public static final String CIDR = "10.150.0.0/28";
     public static final String FAKE_INSTANCE_ID = "intance-id";
-    public static final String FAKE_LOCAL_MEMBER_NAME = "fake-local-member";
+    public static final String FAKE_PROVIDER_ID = "fake-local-member";
     public static final String FAKE_HOST_IP = "10.0.0.1";
     public static final String FAKE_PROVIDER = "fake-provider";
     public static final String FAKE_PUBLIC_KEY = "fake-public-key";
@@ -34,12 +33,11 @@ public class TestUtils {
 
     @NotNull
     public FederatedNetworkOrder createFederatedNetwork(String id, OrderState state) {
-        HashMap<String, MemberConfigurationState> allowedMembers = new HashMap<>();
         Queue<String> freedIps = new LinkedList<>();
         ArrayList<AssignedIp> computesIp = new ArrayList<>();
-        computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_IP));
+        computesIp.add(new AssignedIp(FAKE_COMPUTE_ID, FAKE_PROVIDER_ID, FAKE_IP));
         FederatedNetworkOrder federatedNetworkOrder = new FederatedNetworkOrder(id, user, MEMBER, MEMBER, CIDR,
-                "name", allowedMembers, freedIps, computesIp, state, "vanilla");
+                "name", freedIps, computesIp, state, "vanilla");
         return federatedNetworkOrder;
     }
 

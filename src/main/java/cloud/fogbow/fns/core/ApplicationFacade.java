@@ -9,6 +9,7 @@ import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
@@ -36,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ public class ApplicationFacade {
             throws FogbowException {
         SystemUser systemUser = authenticate(systemUserToken);
         this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.GET_ALL, ResourceType.FEDERATED_NETWORK));
-        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser);
+        return this.federatedNetworkOrderController.getInstancesStatus(systemUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
@@ -175,7 +175,9 @@ public class ApplicationFacade {
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
         if(federatedNetworkId != null) {
-            this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
+            LOGGER.info("Adding: " + computeId.getId() + ", " + federatedCompute.getCompute().getProvider() + ", " + instanceIp);
+            AssignedIp assignedIp = new AssignedIp(computeId.getId(), federatedCompute.getCompute().getProvider(), instanceIp);
+            this.computeRequestsController.addIpToComputeAllocation(assignedIp, federatedCompute.getFederatedNetworkId());
         }
 
         return computeId.getId();
@@ -203,10 +205,11 @@ public class ApplicationFacade {
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
 
         if(federatedNetworkOrder != null) {
-            federatedNetworkOrder.removeAssociatedIp(computeId);
+            AssignedIp assignedIp = federatedNetworkOrder.removeAssociatedIp(computeId);
             ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
-            driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
+            LOGGER.info("Delete: " + assignedIp.getProviderId() + ", " + assignedIp.getComputeId() + ", " + assignedIp.getIp());
+            driver.cleanupAgent(assignedIp.getProviderId(), federatedNetworkOrder, assignedIp.getIp());
         }
     }
 
