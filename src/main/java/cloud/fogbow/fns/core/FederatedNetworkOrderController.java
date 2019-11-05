@@ -5,7 +5,6 @@ import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
 import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
@@ -14,28 +13,25 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class FederatedNetworkOrderController {
     private static final Logger LOGGER = Logger.getLogger(FederatedNetworkOrderController.class);
 
-    public static final String LOCAL_MEMBER_NAME = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.PROVIDER_ID_KEY);
-
     // Federated Network methods
+    public void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
+        synchronized (order) {
+            order.setOrderState(OrderState.OPEN);
+            FederatedNetworkOrdersHolder.getInstance().putOrder(order);
+        }
+    }
+
     public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {
         FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
         if (requestedOrder == null) {
             throw new FederatedNetworkNotFoundException(orderId);
         }
         return requestedOrder;
-    }
-
-    public void activateOrder(FederatedNetworkOrder order) throws UnexpectedException {
-        synchronized (order) {
-            order.setOrderState(OrderState.OPEN);
-            FederatedNetworkOrdersHolder.getInstance().insertNewOrder(order);
-        }
     }
 
     public void deleteFederatedNetwork(FederatedNetworkOrder order)
@@ -62,22 +58,9 @@ public class FederatedNetworkOrderController {
         }
     }
 
-//    public Collection<InstanceStatus> getFederatedNetworksStatusByUser(SystemUser systemUser) {
-//        Collection<FederatedNetworkOrder> orders = FederatedNetworkOrdersHolder.getInstance().getActiveOrders().values();
-//
-//        // Filter all orders from systemUser that are not closed (closed orders have been deleted by
-//        // the user and should not be seen; they will disappear from the system) or deactivated.
-//        return orders.stream()
-//                .filter(order -> order.getSystemUser().equals(systemUser))
-//                .filter(order -> !order.getOrderState().equals(OrderState.CLOSED))
-//                .filter(order -> !order.getOrderState().equals(OrderState.DEACTIVATED))
-//                .map(orderToInstanceStatus())
-//                .collect(Collectors.toList());
-//    }
-
     public Collection<InstanceStatus> getInstancesStatus(SystemUser systemUser) {
         Collection<InstanceStatus> instanceStatusList = new ArrayList<>();
-        Collection<FederatedNetworkOrder> allOrders = getAllOrders(systemUser);
+        Collection<FederatedNetworkOrder> allOrders = getAllActiveOrdersFromUser(systemUser);
 
         for (FederatedNetworkOrder order : allOrders) {
             synchronized (order) {
@@ -98,7 +81,7 @@ public class FederatedNetworkOrderController {
         return instanceStatusList;
     }
 
-    private Collection<FederatedNetworkOrder> getAllOrders(SystemUser systemUser) {
+    private Collection<FederatedNetworkOrder> getAllActiveOrdersFromUser(SystemUser systemUser) {
         Collection<FederatedNetworkOrder> allOrders = FederatedNetworkOrdersHolder.getInstance().getActiveOrders().values();
         // Filter all orders of from the user systemUser that are not closed (closed orders have been deleted
         // by the user and should not be seen; they will disappear from the system as soon as the closedProcessor
@@ -110,15 +93,6 @@ public class FederatedNetworkOrderController {
 
         return requestedOrders;
     }
-
-
-//    public static Function<FederatedNetworkOrder, InstanceStatus> orderToInstanceStatus() {
-//        return order -> {
-//            InstanceState status = order.getInstanceStateFromOrderState();
-//            InstanceStatus instanceStatus = new InstanceStatus(order.getId(), order.getName(), LOCAL_MEMBER_NAME, status);
-//            return instanceStatus;
-//        };
-//    }
 
     public void deactivateOrder(FederatedNetworkOrder order) throws UnexpectedException {
         synchronized (order) {

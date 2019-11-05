@@ -6,12 +6,11 @@ import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FederatedNetworkOrdersHolder {
     private static FederatedNetworkOrdersHolder instance;
-
     private Map<String, FederatedNetworkOrder> activeOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> openOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> spawningOrders;
@@ -44,18 +43,13 @@ public class FederatedNetworkOrdersHolder {
         return this.activeOrders;
     }
 
-    public FederatedNetworkOrder insertNewOrder(FederatedNetworkOrder order) {
+    public FederatedNetworkOrder putOrder(FederatedNetworkOrder order) {
         getOrdersList(order.getOrderState()).addItem(order);
         return activeOrders.put(order.getId(), order);
     }
 
     public FederatedNetworkOrder getOrder(String id) {
         return activeOrders.get(id);
-    }
-
-    public FederatedNetworkOrder getFederatedNetworkOrder(String id) {
-        FederatedNetworkOrder order = activeOrders.get(id);
-        return order;
     }
 
     public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) throws UnexpectedException {
@@ -91,8 +85,8 @@ public class FederatedNetworkOrdersHolder {
         }
     }
 
-    private HashMap<String, FederatedNetworkOrder> initializeActiveOrders(SynchronizedDoublyLinkedList<FederatedNetworkOrder>... listsToBeAdded) {
-        HashMap<String, FederatedNetworkOrder> allOrders = new HashMap();
+    private Map<String, FederatedNetworkOrder> initializeActiveOrders(SynchronizedDoublyLinkedList<FederatedNetworkOrder>... listsToBeAdded) {
+        Map<String, FederatedNetworkOrder> allOrders = new ConcurrentHashMap<>();
         FederatedNetworkOrder order;
 
         for (SynchronizedDoublyLinkedList<FederatedNetworkOrder> listToBeAdded : listsToBeAdded) {

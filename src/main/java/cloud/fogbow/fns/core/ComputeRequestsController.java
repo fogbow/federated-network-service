@@ -8,8 +8,7 @@ import cloud.fogbow.ras.api.http.response.ComputeInstance;
 public class ComputeRequestsController {
 
     public void addIpToComputeAllocation(AssignedIp assignedIp, String federatedNetworkId) throws UnexpectedException {
-        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
-                getFederatedNetworkOrder(federatedNetworkId);
+        FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(federatedNetworkId);
         if (federatedNetworkOrder == null) {
             throw new UnexpectedException();
         }
@@ -20,8 +19,7 @@ public class ComputeRequestsController {
     public void addFederatedIpInGetInstanceIfApplied(ComputeInstance computeInstance, String computeId) {
         String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
         if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
-                    getFederatedNetworkOrder(federatedNetworkId);
+            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(federatedNetworkId);
             String instanceIp = federatedNetworkOrder.getAssociatedIp(computeId);
             if (instanceIp != null && computeInstance.getIpAddresses() != null) {
                 computeInstance.getIpAddresses().add(instanceIp);
@@ -30,11 +28,10 @@ public class ComputeRequestsController {
     }
 
     public FederatedNetworkOrder getFederatedNetworkOrderAssociatedToCompute(String computeId) {
-        String federatedNetworkId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
+        String fedNetId = ComputeIdToFederatedNetworkIdMapping.getInstance().get(computeId);
 
-        if (federatedNetworkId != null && !federatedNetworkId.isEmpty()) {
-            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().
-                    getFederatedNetworkOrder(federatedNetworkId);
+        if (fedNetId != null && !fedNetId.isEmpty()) {
+            FederatedNetworkOrder federatedNetworkOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(fedNetId);
 
             return federatedNetworkOrder;
         }
