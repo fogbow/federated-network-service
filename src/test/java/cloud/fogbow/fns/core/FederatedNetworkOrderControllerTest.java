@@ -5,7 +5,6 @@ import cloud.fogbow.common.exceptions.InstanceNotFoundException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.BaseUnitTest;
-import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
@@ -97,7 +96,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
         // verify
         Mockito.verify(order).setOrderState(Mockito.eq(OrderState.OPEN));
-        Mockito.verify(this.ordersHolder).insertNewOrder(Mockito.eq(order));
+        Mockito.verify(this.ordersHolder).putOrder(Mockito.eq(order));
     }
 
     // test case: When deleting a fednet with empty ips, it show transition it
