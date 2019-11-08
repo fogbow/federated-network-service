@@ -13,11 +13,13 @@ import java.util.*;
 public class TestUtils {
     public static final String ANY_STRING = "any-string";
     public static final String CIDR = "10.150.0.0/28";
+    public static final String EMPTY_JSON_OBJECT_TEXT = "{}";
     public static final String FAKE_INSTANCE_ID = "intance-id";
     public static final String FAKE_PROVIDER_ID = "fake-local-member";
     public static final String FAKE_HOST_IP = "10.0.0.1";
     public static final String FAKE_PROVIDER = "fake-provider";
     public static final String FAKE_PUBLIC_KEY = "fake-public-key";
+    public static final String FAKE_SERVICE_NAME = "service-name";
     public static final String FAKE_VLAN_ID_SERVICE_URL = "http://fake.vlan.service";
     public static final int FAKE_VLAN_ID = 42;
     public final String FAKE_COMPUTE_ID = "fake-compute-id";
