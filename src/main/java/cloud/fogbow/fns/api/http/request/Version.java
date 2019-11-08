@@ -28,7 +28,6 @@ public class Version {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<cloud.fogbow.fns.api.http.response.Version> getVersion() {
         try {
-            LOGGER.info(Messages.Info.GET_VERSION);
             String versionNumber = ApplicationFacade.getInstance().getVersionNumber();
             cloud.fogbow.fns.api.http.response.Version version = new cloud.fogbow.fns.api.http.response.Version(versionNumber);
             return new ResponseEntity<>(version, HttpStatus.OK);

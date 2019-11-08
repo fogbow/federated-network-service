@@ -56,7 +56,6 @@ public class FederatedNetwork {
             throws Exception {
 
         try {
-            LOGGER.info(Messages.Info.GET_FEDERATED_NETWORK_STATUS);
             Collection<InstanceStatus> federatedNetworks = ApplicationFacade.getInstance().
                     getFederatedNetworksStatus(systemUserToken);
             return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
