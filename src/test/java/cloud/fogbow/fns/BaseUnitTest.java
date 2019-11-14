@@ -36,15 +36,11 @@ public class BaseUnitTest {
 
     @Before
     public void setup() {
-        // mock properties
-        this.propertiesMock = Mockito.mock(Properties.class);
-        this.propertiesHolderMock = Mockito.mock(PropertiesHolder.class);
-
-        Mockito.when(propertiesHolderMock.getProperties(Mockito.anyString())).thenReturn(propertiesMock);
-        PowerMockito.mockStatic(PropertiesHolder.class);
-        BDDMockito.given(PropertiesHolder.getInstance()).willReturn(propertiesHolderMock);
-
         this.testUtils = new TestUtils();
+        try {
+            PowerMockito.mockStatic(PropertiesHolder.class);
+            PowerMockito.doCallRealMethod().when(PropertiesHolder.class, "getInstance");
+        } catch(Exception ex) { }
     }
 
     @After

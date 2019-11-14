@@ -6,6 +6,7 @@ import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.authorization.DefaultAuthorizationPlugin;
@@ -317,7 +318,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         ResponseEntity<String> responseEntity = new ResponseEntity(FAKE_BODY, null, HttpStatus.CREATED);
         PowerMockito.doReturn(responseEntity).when(RedirectToRasUtil.class, "createAndSendRequestToRas", Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(order).when(computeRequestsController).getFederatedNetworkOrderAssociatedToCompute(Mockito.any());
-        Mockito.doNothing().when(order).removeAssociatedIp(Mockito.any());
+        Mockito.doReturn(new AssignedIp()).when(order).removeAssociatedIp(Mockito.any());
         //exercise
         applicationFacade.deleteCompute(FAKE_ID, TestUtils.FAKE_USER_TOKEN);
         //verify
