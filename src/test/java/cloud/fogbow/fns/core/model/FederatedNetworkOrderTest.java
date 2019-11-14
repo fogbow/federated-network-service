@@ -15,7 +15,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
@@ -96,7 +95,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         //exercise
         try {
             String freeIp = federatedNetwork.getFreeIp();
-            fail();
+            Assert.fail();
         } catch (SubnetAddressesCapacityReachedException e) {
             //verify
         }
