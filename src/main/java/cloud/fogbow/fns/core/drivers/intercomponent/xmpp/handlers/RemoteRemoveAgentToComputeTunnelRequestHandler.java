@@ -17,17 +17,24 @@ public class RemoteRemoveAgentToComputeTunnelRequestHandler extends AbstractQuer
 
     @Override
     public IQ handle(IQ iq) {
+        String providerId = unmarshalProviderId(iq);
         FederatedNetworkOrder order = unmarshalOrder(iq);
         String hostIp = unmarshalHostIp(iq);
         IQ response = iq.createResultIQ(iq);
 
         try {
-            RemoteFacade.getInstance().removeAgentToComputeTunnel(order, hostIp);
+            RemoteFacade.getInstance().removeAgentToComputeTunnel(providerId, order, hostIp);
         } catch (Throwable e) {
             XmppExceptionToErrorConditionTranslator.updateErrorCondition(response, e);
         }
 
         return response;
+    }
+
+    private String unmarshalProviderId(IQ iq) {
+        Element queryElement = iq.getElement().element(IqElement.QUERY.toString());
+        Element providerIdElement = queryElement.element(IqElement.PROVIDER_ID.toString());
+        return providerIdElement.getText();
     }
 
     private FederatedNetworkOrder unmarshalOrder(IQ iq) {

@@ -1,19 +1,15 @@
 package cloud.fogbow.fns.core.drivers.intercomponent;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
-import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.ServiceDriverConnector;
 import cloud.fogbow.fns.core.drivers.ServiceDriver;
 import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
-import cloud.fogbow.fns.core.drivers.dfns.DfnsServiceDriver;
-import cloud.fogbow.fns.core.drivers.dfns.SSAgentConfiguration;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 
 public class RemoteFacade {
     private static RemoteFacade instance;
 
-    private RemoteFacade() {
+    protected RemoteFacade() {
     }
 
     public static RemoteFacade getInstance() {
@@ -25,13 +21,17 @@ public class RemoteFacade {
         }
     }
 
-    public void removeAgentToComputeTunnel(FederatedNetworkOrder order, String hostIp) throws FogbowException {
-        ServiceDriver driver = new ServiceDriverConnector(order.getServiceName()).getDriver();
-        driver.cleanupAgent(order, hostIp);
+    public void removeAgentToComputeTunnel(String providerId, FederatedNetworkOrder order, String hostIp) throws FogbowException {
+        ServiceDriver driver = getDriver(order.getServiceName());
+        driver.cleanupAgent(providerId, order, hostIp);
     }
 
     public AgentConfiguration configureAgent(String publicKey, String serviceName) throws FogbowException {
-        ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
+        ServiceDriver driver = getDriver(serviceName);
         return driver.doConfigureAgent(publicKey);
+    }
+
+    protected ServiceDriver getDriver(String serviceName) {
+        return new ServiceDriverConnector(serviceName).getDriver();
     }
 }

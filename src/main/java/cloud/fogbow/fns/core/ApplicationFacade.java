@@ -9,6 +9,7 @@ import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.CryptoUtil;
 import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
+import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.http.response.ResourceId;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
@@ -36,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
@@ -101,7 +101,7 @@ public class ApplicationFacade {
             throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
         }
         // Check if the user is authentic
-        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser requester = authenticate(systemUserToken);
         // Set requester field in the order
         order.setSystemUser(requester);
         // Check if the authenticated user is authorized to perform the requested operation
@@ -113,7 +113,7 @@ public class ApplicationFacade {
 
     public FederatedNetworkOrder getFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.GET, ResourceType.FEDERATED_NETWORK, order);
         return order;
@@ -121,14 +121,14 @@ public class ApplicationFacade {
 
     public Collection<InstanceStatus> getFederatedNetworksStatus(String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         this.authorizationPlugin.isAuthorized(systemUser, new FnsOperation(Operation.GET_ALL, ResourceType.FEDERATED_NETWORK));
-        return this.federatedNetworkOrderController.getFederatedNetworksStatusByUser(systemUser);
+        return this.federatedNetworkOrderController.getInstancesStatus(systemUser);
     }
 
     public void deleteFederatedNetwork(String federatedNetworkId, String systemUserToken)
             throws FogbowException {
-        SystemUser systemUser = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser systemUser = authenticate(systemUserToken);
         FederatedNetworkOrder order = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
         authorizeOrder(systemUser, Operation.DELETE, ResourceType.FEDERATED_NETWORK, order);
         this.federatedNetworkOrderController.deleteFederatedNetwork(order);
@@ -145,10 +145,13 @@ public class ApplicationFacade {
 
         if (federatedNetworkId != null) {
             federatedNetworkOrder = this.federatedNetworkOrderController.getFederatedNetwork(federatedNetworkId);
+            if(!federatedNetworkOrder.getSystemUser().equals(authenticate(systemUserToken))) {
+                throw new UnauthorizedRequestException();
+            }
             instanceIp = federatedNetworkOrder.getFreeIp();
             String serviceName = federatedNetworkOrder.getServiceName();
             ServiceDriver driver = new ServiceDriverConnector(serviceName).getDriver();
-            AgentConfiguration agentConfiguration = driver.configureAgent(federatedNetworkOrder.getProvider());
+            AgentConfiguration agentConfiguration = driver.configureAgent(federatedCompute.getCompute().getProvider());
             UserData userData = driver.getComputeUserData(agentConfiguration, federatedCompute, federatedNetworkOrder, instanceIp);
             addUserData(federatedCompute, userData);
         }
@@ -171,7 +174,12 @@ public class ApplicationFacade {
             throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
-        this.computeRequestsController.addIpToComputeAllocation(instanceIp, computeId.getId(), federatedCompute.getFederatedNetworkId());
+        if(federatedNetworkId != null) {
+            LOGGER.info("Adding: " + computeId.getId() + ", " + federatedCompute.getCompute().getProvider() + ", " + instanceIp);
+            AssignedIp assignedIp = new AssignedIp(computeId.getId(), federatedCompute.getCompute().getProvider(), instanceIp);
+            this.computeRequestsController.addIpToComputeAllocation(assignedIp, federatedCompute.getFederatedNetworkId());
+        }
+
         return computeId.getId();
     }
 
@@ -197,10 +205,11 @@ public class ApplicationFacade {
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
 
         if(federatedNetworkOrder != null) {
-            federatedNetworkOrder.removeAssociatedIp(computeId);
+            AssignedIp assignedIp = federatedNetworkOrder.removeAssociatedIp(computeId);
             ComputeIdToFederatedNetworkIdMapping.getInstance().remove(computeId);
             ServiceDriver driver = new ServiceDriverConnector(federatedNetworkOrder.getServiceName()).getDriver();
-            driver.cleanupAgent(federatedNetworkOrder, driver.getAgentIp());
+            LOGGER.info("Delete: " + assignedIp.getProviderId() + ", " + assignedIp.getComputeId() + ", " + assignedIp.getIp());
+            driver.cleanupAgent(assignedIp.getProviderId(), federatedNetworkOrder, assignedIp.getIp());
         }
     }
 
@@ -229,7 +238,7 @@ public class ApplicationFacade {
     }
 
     public List<String> getServiceNames(String systemUserToken) throws FogbowException{
-        SystemUser requester = AuthenticationUtil.authenticate(getAsPublicKey(), systemUserToken);
+        SystemUser requester = authenticate(systemUserToken);
         FnsOperation fnsOperation = new FnsOperation(Operation.GET, ResourceType.SERVICE_NAMES);
         this.authorizationPlugin.isAuthorized(requester, fnsOperation);
         return this.serviceListController.getServiceNames();
@@ -263,7 +272,7 @@ public class ApplicationFacade {
     }
 
     protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
-                                  FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
+        FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
         // Check whether requester owns order
         SystemUser orderOwner = order.getSystemUser();
         if (!orderOwner.equals(requester)) {
@@ -272,7 +281,7 @@ public class ApplicationFacade {
         this.authorizationPlugin.isAuthorized(requester, new FnsOperation(operation, type, order));
     }
 
-    private void addUserData(FederatedCompute compute, UserData userData) {
+    protected void addUserData(FederatedCompute compute, UserData userData) {
         cloud.fogbow.ras.api.parameters.Compute rasCompute = compute.getCompute();
         List<UserData> userDataList = rasCompute.getUserData();
 
@@ -290,5 +299,10 @@ public class ApplicationFacade {
 
     public void setServiceListController(ServiceListController serviceListController) {
         this.serviceListController = serviceListController;
+    }
+
+    protected SystemUser authenticate(String userToken) throws FogbowException {
+        RSAPublicKey keyRSA = getAsPublicKey();
+        return AuthenticationUtil.authenticate(keyRSA, userToken);
     }
 }

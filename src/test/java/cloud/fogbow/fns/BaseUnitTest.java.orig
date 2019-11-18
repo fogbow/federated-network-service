@@ -6,10 +6,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
+<<<<<<< HEAD
+=======
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+>>>>>>> develop
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
@@ -17,7 +20,10 @@ import java.util.*;
 
 @Ignore
 @RunWith(PowerMockRunner.class)
+<<<<<<< HEAD
+=======
 @PrepareForTest({PropertiesHolder.class})
+>>>>>>> develop
 public class BaseUnitTest {
     public static final String TEST_DATABASE_FILE_PATH = "federated-networks-test.db";
     protected TestUtils testUtils;

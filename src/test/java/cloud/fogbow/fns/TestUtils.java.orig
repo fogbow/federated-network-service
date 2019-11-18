@@ -29,8 +29,11 @@ public class TestUtils {
     public final String USER_NAME = "user-name";
 
     public SystemUser user = new SystemUser(USER_ID, USER_NAME, MEMBER);
+<<<<<<< HEAD
+=======
     public static final String FAKE_USER_TOKEN = "fake-user-token";
     public static final String FAKE_ID = "Fake-id";
+>>>>>>> develop
     public static final int RUN_ONCE = 1;
 
     @NotNull

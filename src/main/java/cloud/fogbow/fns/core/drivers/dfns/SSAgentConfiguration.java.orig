@@ -10,8 +10,13 @@ public class SSAgentConfiguration implements AgentConfiguration {
     private String publicIpAddress;
     private String scriptName;
 
-    public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress, String scriptName) {
+<<<<<<< HEAD
+    public SSAgentConfiguration() {}
 
+    public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String publicKey, String privateIpAddress, String publicIpAddress) {
+=======
+    public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress, String scriptName) {
+>>>>>>> develop
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
         this.scriptName = scriptName;

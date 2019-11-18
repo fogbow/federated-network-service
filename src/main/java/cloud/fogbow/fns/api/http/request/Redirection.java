@@ -30,7 +30,6 @@ public class Redirection {
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.STATUS_SUFFIX_ENDPOINT,
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.QUOTA_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.ALLOCATION_SUFFIX_ENDPOINT + "/**",
-//                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + GenericRequest.GENERIC_REQUEST_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Image.IMAGE_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Network.NETWORK_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + PublicIp.PUBLIC_IP_SUFFIX_ENDPOINT + "/**",
@@ -40,7 +39,6 @@ public class Redirection {
             FogbowException {
 
         try {
-            LOGGER.info(Messages.Info.REDIRECT_REQUEST);
             return RedirectToRasUtil.redirectRequestToRas(body, method, request, String.class);
         } catch (Exception e) {
             LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));

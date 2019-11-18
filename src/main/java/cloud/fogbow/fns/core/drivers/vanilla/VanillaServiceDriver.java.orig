@@ -64,7 +64,24 @@ public class VanillaServiceDriver extends CommonServiceDriver {
 
     @Override
     public void processClosed(FederatedNetworkOrder order) throws FogbowException {
+<<<<<<< HEAD
+        for (String provider : order.getProviders().keySet()) {
+            if (!order.getProviders().get(provider).equals(MemberConfigurationState.REMOVED)) {
+               remove(order, provider);
+            }
+        }
+    }
+
+    protected void remove(FederatedNetworkOrder order, String provider) throws FogbowException{
+        try {
+            deleteFederatedNetwork(order.getCidr());
+            order.getProviders().put(provider, MemberConfigurationState.REMOVED);
+        } catch(FogbowException ex) {
+            throw new UnexpectedException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK, ex);
+        }
+=======
         deleteFederatedNetwork(order.getCidr());
+>>>>>>> develop
     }
 
     @Override
@@ -146,6 +163,29 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
     }
 
+<<<<<<< HEAD
+    protected String pasteScript(String scriptFilePath, String hostIp, String hostScriptPath, String permissionFile, String remoteUser) throws FogbowException{
+        String randomScriptSuffix = UUID.randomUUID().toString();
+        String remoteFilePath = hostScriptPath + randomScriptSuffix;
+        ProcessBuilder builder = new ProcessBuilder("scp", "-i", permissionFile, scriptFilePath, remoteUser + "@" + hostIp + ":" + remoteFilePath);
+
+        int resultCode = 0;
+        try {
+            Process process = builder.start();
+            resultCode = process.waitFor();
+        } catch (Exception e) {
+            LOGGER.error(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode), e);
+        }
+
+        if(resultCode != 0) {
+            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode));
+        }
+
+        return remoteFilePath;
+    }
+
+=======
+>>>>>>> develop
     @NotNull
     protected UserData getVanillaUserData(String federatedIp, String cidr) throws IOException {
         InputStream inputStream = new FileInputStream(IPSEC_INSTALLATION_PATH);

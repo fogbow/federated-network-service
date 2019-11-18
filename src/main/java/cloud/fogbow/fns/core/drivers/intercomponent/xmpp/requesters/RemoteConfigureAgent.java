@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.drivers.intercomponent.xmpp.requesters;
 
 import cloud.fogbow.common.util.GsonHolder;
+import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.IqElement;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.RemoteMethod;
@@ -30,9 +31,9 @@ public class RemoteConfigureAgent {
         return unmarshal(response);
     }
 
-    private IQ marshal() {
-        IQ iq = new IQ(IQ.Type.set);
-        iq.setTo(this.provider);
+    protected IQ marshal() {
+        IQ iq = getIq(IQ.Type.set);
+        iq.setTo(SystemConstants.JID_SERVICE_NAME + SystemConstants.JID_CONNECTOR + SystemConstants.XMPP_SERVER_NAME_PREFIX + this.provider);
 
         Element queryElement = iq.getElement().addElement(IqElement.QUERY.toString(),
                 RemoteMethod.REMOTE_CONFIGURE_AGENT.toString());
@@ -46,9 +47,14 @@ public class RemoteConfigureAgent {
         return iq;
     }
 
-    private AgentConfiguration unmarshal(IQ response) {
+    protected AgentConfiguration unmarshal(IQ response) {
         Element queryElement = response.getElement().element(IqElement.QUERY.toString());
         Element agentConfiguration = queryElement.element(IqElement.REMOTE_AGENT_CONFIGURATION.toString());
         return GsonHolder.getInstance().fromJson(agentConfiguration.getText(), SSAgentConfiguration.class);
+    }
+
+    // For testing...
+    protected IQ getIq(IQ.Type type) {
+        return new IQ(type);
     }
 }

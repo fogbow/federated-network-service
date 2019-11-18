@@ -37,4 +37,8 @@ xmpp_server_ip=
 # Not required
 xmpp_c2c_port=
 # Not required
+<<<<<<< HEAD
 xmpp_timeout=
+=======
+xmpp_timeout=
+>>>>>>> develop
