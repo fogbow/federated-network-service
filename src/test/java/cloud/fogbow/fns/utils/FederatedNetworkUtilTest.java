@@ -91,8 +91,6 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         fillInFederatedNetwork(federatedNetwork, mask);
         try {
             federatedNetwork.fillCacheOfFreeIps();
-            //verify()
-            fail();
         } catch (SubnetAddressesCapacityReachedException e) {
         }
     }

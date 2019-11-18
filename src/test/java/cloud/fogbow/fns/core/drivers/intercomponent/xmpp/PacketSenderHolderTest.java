@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core.drivers.intercomponent.xmpp;
 
+import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.PropertiesHolder;
@@ -59,7 +60,6 @@ public class PacketSenderHolderTest extends BaseUnitTest {
         try {
             // exercise
             PacketSenderHolder.init();
-            Assert.fail();
         } catch (RuntimeException ex) {
             // verify
             Mockito.verify(xmppComponentManager).connect();

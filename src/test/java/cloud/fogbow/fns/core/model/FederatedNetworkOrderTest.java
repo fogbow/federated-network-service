@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
-    private static final String FAKE_IP = "fake-ip";
+    private static final String FAKE_IP = "10.0.1.4";
     private static final String FAKE_COMPUTE_ID = "fake-compute-id";
     private static final String FAKE_PROVIDER_ID = "fake-provider-id";
     public static final String CIDR_EXAMPLE = "10.0.0.0/29";
@@ -94,8 +94,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
         //exercise
         try {
-            String freeIp = federatedNetwork.getFreeIp();
-            Assert.fail();
+            federatedNetwork.getFreeIp();
         } catch (SubnetAddressesCapacityReachedException e) {
             //verify
         }
