@@ -10,7 +10,10 @@ public class SSAgentConfiguration implements AgentConfiguration {
     private String publicIpAddress;
     private String scriptName;
 
+    public SSAgentConfiguration() {}
+
     public SSAgentConfiguration(String defaultNetworkCidr, String agentUser, String privateIpAddress, String publicIpAddress, String scriptName) {
+
         this.defaultNetworkCidr = defaultNetworkCidr;
         this.agentUser = agentUser;
         this.scriptName = scriptName;
