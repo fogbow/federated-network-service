@@ -2,59 +2,69 @@ package cloud.fogbow.fns.core.processors;
 
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
+import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
+import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
+import cloud.fogbow.fns.core.OrderStateTransitioner;
 import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.*;
 
+@PrepareForTest({OrderStateTransitioner.class})
+public class OpenProcessorTest extends BaseUnitTest {
 
-public class OpenProcessorTest extends MockedFederatedNetworkUnitTests {
-    @Test
-    public void testFailureWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
-        // set up
-        FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
+    private OpenProcessor openProcessor;
+
+    @Before
+    public void setup() {
+        super.setup();
         mockOnlyDatabase();
-        SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
-        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
-                "provider", "10.0.30.1/20", "name", new LinkedList<>(), new ArrayList<>(), null, "vanilla");
-
-        orderController.activateOrder(order);
-
-        OpenProcessor openProcessor = new OpenProcessor(1000L);
-        SpawningProcessor spawningProcessor = new SpawningProcessor(1000L);
-//        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
-//
-//        // exercise
-//        openProcessor.processOrder(order);
-//        spawningProcessor.processOrder(order);
-
-        Assert.assertEquals(OrderState.FAILED, order.getOrderState());
+        this.openProcessor = Mockito.spy(new OpenProcessor(0L));
+        PowerMockito.mockStatic(OrderStateTransitioner.class);
     }
 
+    //test case: Checking if when the transition doesn't work the failed transition is done
     @Test
-    public void testSuccessWhileActivatingFederatedNetwork() throws InvalidCidrException, UnexpectedException {
-        // set up
-        FederatedNetworkOrderController orderController = new FederatedNetworkOrderController();
-        mockOnlyDatabase();
-        SystemUser systemUser = new SystemUser("userId", "userName", "identityProviderId");
-        FederatedNetworkOrder order = new FederatedNetworkOrder("id", systemUser, "requester",
-                "provider", "10.0.30.1/20", "name", new LinkedList<>(), new ArrayList<>(), null, "vanilla");
+    public void testFailureWhileActivatingFederatedNetwork() throws Exception {
+        //setup
+        PowerMockito.mockStatic(OrderStateTransitioner.class);
+        PowerMockito.doThrow(new UnexpectedException()).when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.eq(OrderState.SPAWNING));
+        PowerMockito.doNothing().when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.eq(OrderState.FAILED));
+        FederatedNetworkOrder federatedNetworkOrder = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
+        try {
+            //exercise
+            openProcessor.processOrder(federatedNetworkOrder);
+        } catch (UnexpectedException ex) {
+            //verify
+            Assert.assertEquals(federatedNetworkOrder.getVlanId(), -1);
+            PowerMockito.verifyStatic(OrderStateTransitioner.class, Mockito.times(TestUtils.RUN_ONCE));
+            OrderStateTransitioner.transition(federatedNetworkOrder, OrderState.FAILED);
+        }
 
-        orderController.activateOrder(order);
+    }
 
-        OpenProcessor openProcessor = new OpenProcessor(1000L);
-        SpawningProcessor spawningProcessor = new SpawningProcessor(1000L);
-//        Mockito.when(AgentCommunicatorUtil.createFederatedNetwork(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-//
-//        // exercise
-//        openProcessor.processOrder(order);
-//        spawningProcessor.processOrder(order);
-
-        Assert.assertEquals(OrderState.FULFILLED, order.getOrderState());
+    //test case: Check if the transition is called
+    @Test
+    public void testSuccessWhileActivatingFederatedNetwork() throws Exception {
+        //setup
+        PowerMockito.mockStatic(OrderStateTransitioner.class);
+        PowerMockito.doNothing().when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.any());
+        FederatedNetworkOrder federatedNetworkOrder = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
+        //exercise
+        openProcessor.processOrder(federatedNetworkOrder);
+        //verify
+        Assert.assertEquals(federatedNetworkOrder.getVlanId(), -1);
+        PowerMockito.verifyStatic(OrderStateTransitioner.class, Mockito.times(TestUtils.RUN_ONCE));
+        OrderStateTransitioner.transition(federatedNetworkOrder, OrderState.SPAWNING);
     }
 }

@@ -43,7 +43,7 @@ public class RemoteFacadeTest {
         remoteFacade.removeAgentToComputeTunnel(TestUtils.FAKE_PROVIDER_ID, federatedNetworkOrder, TestUtils.FAKE_HOST_IP);
 
         // verify
-        Mockito.verify(driverMock).cleanupAgent(TestUtils.FAKE_PROVIDER_ID, Mockito.eq(federatedNetworkOrder), Mockito.eq(TestUtils.FAKE_HOST_IP));
+        Mockito.verify(driverMock).cleanupAgent(Mockito.eq(TestUtils.FAKE_PROVIDER_ID), Mockito.eq(federatedNetworkOrder), Mockito.eq(TestUtils.FAKE_HOST_IP));
     }
 
 
