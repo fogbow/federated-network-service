@@ -33,6 +33,7 @@ public class Redirection {
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Image.IMAGE_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Network.NETWORK_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + PublicIp.PUBLIC_IP_SUFFIX_ENDPOINT + "/**",
+                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Quota.QUOTA_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Volume.VOLUME_SUFFIX_ENDPOINT + "/**"})
     public ResponseEntity redirectRequest(@RequestBody(required = false) String body, HttpMethod method,
                                      HttpServletRequest request) throws URISyntaxException, FatalErrorException,
