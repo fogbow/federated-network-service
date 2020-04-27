@@ -28,7 +28,6 @@ public class Redirection {
     @RequestMapping(value = {   "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Attachment.ATTACHMENT_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Cloud.CLOUD_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.STATUS_SUFFIX_ENDPOINT,
-                                "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.QUOTA_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Compute.COMPUTE_SUFFIX_ENDPOINT + "/" + Compute.ALLOCATION_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Image.IMAGE_SUFFIX_ENDPOINT + "/**",
                                 "/" + SystemConstants.SERVICE_BASE_ENDPOINT + Network.NETWORK_SUFFIX_ENDPOINT + "/**",
