@@ -9,9 +9,4 @@ public class SystemConstants {
     public static final String FNS_CONF_FILE = "fns.conf";
     public static final String SERVICES_DIRECTORY = "services";
     public static final String DRIVER_CONF_FILE = "driver.conf";
-
-    // SERVICE XMPP NAME
-    public static final String JID_SERVICE_NAME = "";
-    public static final String XMPP_SERVER_NAME_PREFIX = "fns-";
-    public static final String JID_CONNECTOR = "";
 }

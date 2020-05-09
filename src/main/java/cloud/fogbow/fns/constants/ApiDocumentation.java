@@ -16,8 +16,8 @@ public class ApiDocumentation {
         public static final String CREATE_OPERATION = "Creates a federated network instance.";
         public static final String CREATE_REQUEST_BODY = "The parameters for the creation of a federated network are " +
                 "the list of IDs of the providers that will be connected, the CIDR of the network, the name " +
-                "that will be given to the federated network, and the service mode. Currently, there are two " +
-                "options available: vanilla (the default), and dfns.";
+                "that will be given to the federated network, and the service mode. Currently, there is only " +
+                "one option available: vanilla (the default).";
         public static final String GET_OPERATION = "Lists all federated networks created by the user.";
         public static final String GET_BY_ID_OPERATION = "Lists a specific federated network.";
         public static final String ID = "The ID of the specific federated network.";
@@ -45,8 +45,8 @@ public class ApiDocumentation {
         public static final String CIDR = "10.10.0.0/16";
         public static final String IP = "188.140.0.5";
         public static final String IP_NOTE = "(the IPs assigned to the compute)";
-        public static final String DFNS_EXAMPLE = "dfns";
-        public static final String SERVICE_LIST = "[ \"vanilla\", \"dfns\" ]";
+        public static final String SERVICE_EXAMPLE = "vanilla";
+        public static final String SERVICE_LIST = "[ \"vanilla\", \"advanced\" ]";
     }
 
     public static class Service {

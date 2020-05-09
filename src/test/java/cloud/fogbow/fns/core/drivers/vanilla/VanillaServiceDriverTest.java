@@ -4,7 +4,6 @@ import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
-import cloud.fogbow.fns.core.drivers.dfns.SSAgentConfiguration;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -81,7 +80,7 @@ public class VanillaServiceDriverTest extends BaseUnitTest {
     public void testGetComputeUserData() throws Exception {
         Mockito.doReturn(new UserData()).when(serviceDriver).getVanillaUserData(Mockito.any(), Mockito.any());
 
-        serviceDriver.getComputeUserData(new SSAgentConfiguration(), new FederatedCompute(), new FederatedNetworkOrder(), testUtils.FAKE_IP);
+        serviceDriver.getComputeUserData(null, new FederatedCompute(), new FederatedNetworkOrder(), testUtils.FAKE_IP);
 
         Mockito.verify(serviceDriver, Mockito.times(TestUtils.RUN_ONCE)).getVanillaUserData(Mockito.any(), Mockito.any());
     }
@@ -90,7 +89,7 @@ public class VanillaServiceDriverTest extends BaseUnitTest {
     public void testGetComputeUserDataFailureCase() throws Exception {
         Mockito.doThrow(new IOException()).when(serviceDriver).getVanillaUserData(Mockito.any(), Mockito.any());
 
-        serviceDriver.getComputeUserData(new SSAgentConfiguration(), new FederatedCompute(), new FederatedNetworkOrder(), testUtils.FAKE_IP);
+        serviceDriver.getComputeUserData(null, new FederatedCompute(), new FederatedNetworkOrder(), testUtils.FAKE_IP);
     }
 
     @Test

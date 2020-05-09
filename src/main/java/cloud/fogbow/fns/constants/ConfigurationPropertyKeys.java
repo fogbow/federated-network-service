@@ -2,10 +2,6 @@ package cloud.fogbow.fns.constants;
 
 public class ConfigurationPropertyKeys {
     // FNS configuration
-    public static final String XMPP_PASSWORD_KEY = "xmpp_password";
-    public static final String XMPP_SERVER_IP_KEY = "xmpp_server_ip";
-    public static final String XMPP_C2C_PORT_KEY = "xmpp_c2c_port";
-    public static final String XMPP_TIMEOUT_KEY = "xmpp_timeout";
     public static final String SERVICE_NAMES_KEY = "service_names";
 
     public static final String BUILD_NUMBER_KEY = "build_number";

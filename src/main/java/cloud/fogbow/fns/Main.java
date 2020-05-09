@@ -4,12 +4,10 @@ import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
-import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.*;
 import cloud.fogbow.fns.constants.ConfigurationPropertyKeys;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
-import cloud.fogbow.fns.core.drivers.intercomponent.xmpp.PacketSenderHolder;
 import cloud.fogbow.fns.core.model.FnsOperation;
 import org.apache.log4j.Logger;
 import cloud.fogbow.fns.core.datastore.AuditService;
@@ -17,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class Main implements ApplicationRunner {
@@ -59,21 +55,6 @@ public class Main implements ApplicationRunner {
             // Setting up order processors
             ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);
             processorsThreadController.startFnsThreads();
-
-            // Starting PacketSender
-            while (true) {
-                try {
-                    PacketSenderHolder.init();
-                    break;
-                } catch (IllegalStateException e) {
-                    LOGGER.error(Messages.Error.NO_PACKET_SENDER, e);
-                    try {
-                        TimeUnit.SECONDS.sleep(10);
-                    } catch (InterruptedException e2) {
-                        LOGGER.error("", e2);
-                    }
-                }
-            }
         } catch (FatalErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();

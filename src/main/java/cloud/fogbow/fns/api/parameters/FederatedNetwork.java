@@ -5,7 +5,6 @@ import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.ServiceListController;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.constants.ApiDocumentation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,7 +19,7 @@ public class FederatedNetwork implements OrderApiParameter<FederatedNetworkOrder
     private String cidr;
     @ApiModelProperty(position = 2, example = ApiDocumentation.Model.PROVIDERS)
     private Set<String> providers;
-    @ApiModelProperty(position = 3, example = ApiDocumentation.Model.DFNS_EXAMPLE)
+    @ApiModelProperty(position = 3, example = ApiDocumentation.Model.SERVICE_EXAMPLE)
     private String serviceName;
 
     @Override

@@ -38,7 +38,6 @@ import java.util.List;
 public class ApplicationFacadeTest extends BaseUnitTest {
     public static final String NON_EXISTENT_SERVICE_NAME = "Non existent service name";
     public static final String FNS_VANILLA_SERVICE = "vanilla";
-    public static final String FNS_DFNS_SERVICE = "dfns";
     public static final String COMPUTES_ENDPOINT = "/ras/computes";
     public static final String FAKE_ID = "fake-id";
     public static final String FAKE_BODY = "{\"id\":\"fake-id\"}";
@@ -367,7 +366,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
         //verify
         Mockito.verify(applicationFacade, Mockito.times(TestUtils.RUN_ONCE)).authenticate(Mockito.any());
         Mockito.verify(authorizationPlugin, Mockito.times(TestUtils.RUN_ONCE)).isAuthorized(Mockito.any(), Mockito.any());
-        Assert.assertTrue(serviceNames.contains(FNS_VANILLA_SERVICE) && serviceNames.contains(FNS_DFNS_SERVICE));
+        Assert.assertTrue(serviceNames.contains(FNS_VANILLA_SERVICE));
     }
 
     //test case: check if an exception is thrown when the order's owner is different from the requester

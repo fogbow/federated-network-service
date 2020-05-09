@@ -3,7 +3,6 @@ package cloud.fogbow.fns.core.drivers;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
-import cloud.fogbow.fns.core.drivers.dfns.AgentConfiguration;
 import cloud.fogbow.ras.core.models.UserData;
 
 public interface ServiceDriver {
