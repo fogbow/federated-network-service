@@ -10,9 +10,8 @@ import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import org.apache.log4j.Logger;
 
-
 public class SpawningProcessor implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.ClosedProcessor.class);
+    private static final Logger LOGGER = Logger.getLogger(SpawningProcessor.class);
 
     private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;

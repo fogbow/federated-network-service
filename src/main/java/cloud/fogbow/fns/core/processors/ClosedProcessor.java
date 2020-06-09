@@ -11,7 +11,7 @@ import cloud.fogbow.fns.core.model.OrderState;
 import org.apache.log4j.Logger;
 
 public class ClosedProcessor implements Runnable {
-    private static final Logger LOGGER = Logger.getLogger(cloud.fogbow.ras.core.processors.ClosedProcessor.class);
+    private static final Logger LOGGER = Logger.getLogger(ClosedProcessor.class);
 
     private final Long sleepTime;
     private ChainedList<FederatedNetworkOrder> orders;
