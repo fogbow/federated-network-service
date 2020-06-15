@@ -42,14 +42,14 @@ public class HttpExceptionToErrorConditionTranslator extends ResponseEntityExcep
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(QuotaExceededException.class)
+    @ExceptionHandler(ConfigurationErrorException.class)
     public final ResponseEntity<ExceptionResponse> handleQuotaExceededException(Exception ex, WebRequest request) {
 
         ExceptionResponse errorDetails = new ExceptionResponse(ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(NoAvailableResourcesException.class)
+    @ExceptionHandler(UnacceptableOperationException.class)
     public final ResponseEntity<ExceptionResponse> handleNoAvailableResourcesException(
             Exception ex, WebRequest request) {
 
@@ -57,12 +57,12 @@ public class HttpExceptionToErrorConditionTranslator extends ResponseEntityExcep
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(UnavailableProviderException.class)
+    @ExceptionHandler({UnavailableProviderException.class})
     public final ResponseEntity<ExceptionResponse> handleUnavailableProviderException(
             Exception ex, WebRequest request) {
 
         ExceptionResponse errorDetails = new ExceptionResponse(ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.GATEWAY_TIMEOUT);
+        return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(UnexpectedException.class)
@@ -72,6 +72,9 @@ public class HttpExceptionToErrorConditionTranslator extends ResponseEntityExcep
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    /*
+    It should never happen because any Exception must be mapped to one of the above FogbowException extensions.
+     */
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<ExceptionResponse> handleAnyException(Exception ex, WebRequest request) {
 

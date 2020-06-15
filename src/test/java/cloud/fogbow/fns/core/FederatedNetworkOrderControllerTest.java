@@ -2,13 +2,12 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
-import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,7 +59,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     // test case: Given an existing order id, getFederatedNetwork should
     // return a FederatedNetworkOrder instance
     @Test
-    public void getFederatedNetworkSuccessful() throws FederatedNetworkNotFoundException {
+    public void getFederatedNetworkSuccessful() throws InstanceNotFoundException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
         Mockito.when(ordersHolder.getOrder(Mockito.anyString())).thenReturn(order);
@@ -74,8 +73,8 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     // test case: Given an non-existent order id, getFederatedNetwork should
     // thrown an Exception
-    @Test(expected = FederatedNetworkNotFoundException.class)
-    public void getFederatedNetworkUnsuccessful() throws FederatedNetworkNotFoundException {
+    @Test(expected = InstanceNotFoundException.class)
+    public void getFederatedNetworkUnsuccessful() throws InstanceNotFoundException {
         // setup
         Mockito.when(ordersHolder.getOrder(Mockito.anyString())).thenReturn(null);
 
@@ -119,8 +118,8 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     }
 
     // test case: When deleting a fednet with ips assigned, it
-    // show throw a NotEmptyFederatedNetworkException
-    @Test(expected = NotEmptyFederatedNetworkException.class)
+    // show throw a UnacceptableOperationException
+    @Test(expected = UnacceptableOperationException.class)
     public void testDeleteFederatedNetworkFailedByAssignedIps() throws FogbowException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
@@ -134,12 +133,12 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     }
 
     // test case: When deleting a fednet with ips assigned, it
-    // show throw a NotEmptyFederatedNetworkException
-    @Test(expected = InstanceNotFoundException.class)
+    // should throw a UnacceptableOperationException
+    @Test(expected = UnacceptableOperationException.class)
     public void testDeleteFederatedNetworkFailedByOrderAlreadyFinished() throws FogbowException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
-        Mockito.when(order.getOrderState()).thenReturn(OrderState.CLOSED);
+        Mockito.when(order.getOrderState()).thenReturn(OrderState.FULFILLED);
 
         // exercise
         this.controller.deleteFederatedNetwork(order);

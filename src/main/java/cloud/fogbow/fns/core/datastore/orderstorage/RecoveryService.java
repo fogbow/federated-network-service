@@ -1,12 +1,12 @@
 package cloud.fogbow.fns.core.datastore.orderstorage;
 
 import cloud.fogbow.common.datastore.FogbowDatabaseService;
+import cloud.fogbow.common.exceptions.InvalidParameterException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.OrderState;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -44,9 +44,9 @@ public class RecoveryService extends FogbowDatabaseService<FederatedNetworkOrder
                         mapper.put(ip.getComputeId(), order.getId());
                     }
                     order.fillCacheOfFreeIps();
-                } catch (SubnetAddressesCapacityReachedException e) {
+                } catch (UnacceptableOperationException e) {
                     LOGGER.info(Messages.Exception.NO_MORE_IPS_AVAILABLE);
-                } catch (InvalidCidrException e) {
+                } catch (InvalidParameterException e) {
                     LOGGER.error(Messages.Error.INVALID_CIDR);
                 }
             }

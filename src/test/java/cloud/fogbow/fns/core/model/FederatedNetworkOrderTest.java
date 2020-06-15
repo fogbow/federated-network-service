@@ -1,12 +1,12 @@
 package cloud.fogbow.fns.core.model;
 
+import cloud.fogbow.common.exceptions.InvalidParameterException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -78,7 +78,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testGetIpForNetworkWithNoFreeIps() throws InvalidCidrException, UnexpectedException, SubnetAddressesCapacityReachedException {
+    public void testGetIpForNetworkWithNoFreeIps() throws UnexpectedException, InvalidParameterException, UnacceptableOperationException {
         //set up
         mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
@@ -95,7 +95,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
         //exercise
         try {
             federatedNetwork.getFreeIp();
-        } catch (SubnetAddressesCapacityReachedException e) {
+        } catch (UnacceptableOperationException e) {
             //verify
         }
     }
