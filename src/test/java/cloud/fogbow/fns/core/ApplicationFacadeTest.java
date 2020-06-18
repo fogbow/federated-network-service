@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.fns.BaseUnitTest;
@@ -10,8 +11,6 @@ import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.core.authorization.DefaultAuthorizationPlugin;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.NotSupportedServiceException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.model.InstanceState;
 import cloud.fogbow.fns.core.model.OrderState;
@@ -67,7 +66,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     }
 
     //test case: Check if an exception is thrown when a not supported service is requested
-    @Test(expected = NotSupportedServiceException.class) //verify
+    @Test(expected = InvalidParameterException.class) //verify
     public void testCreateFederatedNetworkWithNotSupportedService() throws FogbowException {
         //setup
         FederatedNetworkOrder order = new FederatedNetworkOrder();
@@ -77,7 +76,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     }
 
     //test case: Check create fednet with invalid cidr
-    @Test(expected = InvalidCidrException.class)//verify
+    @Test(expected = InvalidParameterException.class)//verify
     public void testCreateFederatedNetworkWithNotValidSubnet() throws Exception{
         //setup
         FederatedNetworkOrder order = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);

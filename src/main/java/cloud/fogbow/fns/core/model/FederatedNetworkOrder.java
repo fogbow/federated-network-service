@@ -1,5 +1,7 @@
 package cloud.fogbow.fns.core.model;
 
+import cloud.fogbow.common.exceptions.InvalidParameterException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.util.GsonHolder;
@@ -9,8 +11,6 @@ import cloud.fogbow.fns.api.http.response.FederatedNetworkInstance;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.datastore.StableStorage;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import org.apache.commons.net.util.SubnetUtils;
 
@@ -175,8 +175,7 @@ public class FederatedNetworkOrder implements Serializable {
         return null;
     }
 
-    public synchronized String getFreeIp() throws InvalidCidrException, UnexpectedException,
-            SubnetAddressesCapacityReachedException {
+    public synchronized String getFreeIp() throws InvalidParameterException, UnexpectedException, UnacceptableOperationException {
         String ip = null;
         try {
             ip = this.cacheOfFreeIps.remove();
@@ -185,7 +184,7 @@ public class FederatedNetworkOrder implements Serializable {
             try {
                 ip = this.cacheOfFreeIps.remove();
             } catch (NoSuchElementException e2) {
-                // fillCacheOfFreeIps() throws a SubnetAddressesCapacityReachedException when there are no free
+                // fillCacheOfFreeIps() throws a UnacceptableOperationException when there are no free
                 // IPs left. Thus, it is not expected that the second call to this.cacheOfFreeIps.remove() throws
                 // a NoSuchElementException if it ever gets called.
                 throw new UnexpectedException(Messages.Exception.UNEXPECTED_EXCEPTION, e2);
@@ -350,8 +349,7 @@ public class FederatedNetworkOrder implements Serializable {
         }
     }
 
-    public synchronized void fillCacheOfFreeIps() throws InvalidCidrException,
-            SubnetAddressesCapacityReachedException {
+    public synchronized void fillCacheOfFreeIps() throws InvalidParameterException, UnacceptableOperationException {
         int index = 1;
         String freeIp = null;
         List<String> usedIPs = this.getUsedIps();
@@ -367,7 +365,7 @@ public class FederatedNetworkOrder implements Serializable {
             index++;
         }
 
-        if (cache.isEmpty()) throw new SubnetAddressesCapacityReachedException(this.getCidr());
+        if (cache.isEmpty()) throw new UnacceptableOperationException(Messages.Exception.NO_MORE_IPS_AVAILABLE);
     }
 
     private synchronized List<String> getUsedIps() {

@@ -2,13 +2,13 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.exceptions.FederatedNetworkNotFoundException;
-import cloud.fogbow.fns.core.exceptions.NotEmptyFederatedNetworkException;
 import cloud.fogbow.fns.core.model.*;
+import io.swagger.models.auth.In;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -26,23 +26,22 @@ public class FederatedNetworkOrderController {
         }
     }
 
-    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws FederatedNetworkNotFoundException {
+    public FederatedNetworkOrder getFederatedNetwork(String orderId) throws InstanceNotFoundException {
         FederatedNetworkOrder requestedOrder = FederatedNetworkOrdersHolder.getInstance().getOrder(orderId);
         if (requestedOrder == null) {
-            throw new FederatedNetworkNotFoundException(orderId);
+            throw new InstanceNotFoundException(String.format(Messages.Exception.UNABLE_TO_FIND_FEDERATED_NETWORK, orderId));
         }
         return requestedOrder;
     }
 
-    public void deleteFederatedNetwork(FederatedNetworkOrder order)
-            throws FogbowException {
+    public void deleteFederatedNetwork(FederatedNetworkOrder order) throws FogbowException {
         synchronized (order) {
             if (!(order.getOrderState().equals(OrderState.CLOSED) ||
                     order.getOrderState().equals(OrderState.DEACTIVATED))) {
                 LOGGER.info(String.format(Messages.Info.INITIALIZING_DELETE_METHOD, order.getId()));
 
                 if (!order.isAssignedIpsEmpty()) {
-                    throw new NotEmptyFederatedNetworkException();
+                    throw new UnacceptableOperationException(Messages.Exception.UNABLE_TO_REMOVE_FEDERATED_NETWORK);
                 }
 
                 LOGGER.info(String.format(Messages.Info.DELETING_FEDERATED_NETWORK, order.toString()));

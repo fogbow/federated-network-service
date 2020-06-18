@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.utils;
 
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
+import cloud.fogbow.common.exceptions.InvalidParameterException;
+import cloud.fogbow.fns.constants.Messages;
 import org.apache.commons.net.util.SubnetUtils;
 
 import java.math.BigInteger;
@@ -12,11 +13,11 @@ public class FederatedNetworkUtil {
     public static final int FREE_IP_CACHE_MAX_SIZE = 16;
     public static final int RESERVED_IPS = 2;
 
-    public static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) throws InvalidCidrException {
+    public static SubnetUtils.SubnetInfo getSubnetInfo(String cidrNotation) throws InvalidParameterException {
         try {
             return new SubnetUtils(cidrNotation).getInfo();
         } catch (IllegalArgumentException e) {
-            throw new InvalidCidrException(cidrNotation, e);
+            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR, cidrNotation), e);
         }
     }
 

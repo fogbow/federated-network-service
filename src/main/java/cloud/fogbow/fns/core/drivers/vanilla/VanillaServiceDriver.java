@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.drivers.vanilla;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.common.util.CloudInitUserDataBuilder;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
 import cloud.fogbow.fns.constants.Messages;
@@ -8,7 +9,6 @@ import cloud.fogbow.fns.core.PropertiesHolder;
 import cloud.fogbow.fns.core.drivers.CommonServiceDriver;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyDefaults;
 import cloud.fogbow.fns.core.drivers.constants.DriversConfigurationPropertyKeys;
-import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import cloud.fogbow.fns.core.drivers.AgentConfiguration;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
@@ -116,7 +116,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
 
         if(resultCode != 0) {
-            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
         }
     }
 
@@ -142,7 +142,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         }
 
         if(resultCode != 0) {
-            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
         }
     }
 

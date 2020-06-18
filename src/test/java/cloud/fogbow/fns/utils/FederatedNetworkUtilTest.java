@@ -1,11 +1,11 @@
 package cloud.fogbow.fns.utils;
 
+import cloud.fogbow.common.exceptions.InvalidParameterException;
+import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
 import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.SubnetAddressesCapacityReachedException;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
 import org.apache.commons.net.util.SubnetUtils;
 import org.junit.Assert;
@@ -33,7 +33,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
     //test case: Tests if networks are correctly returned, to a given ips served amount.
     @Test
-    public void testGetFreeIp() throws SubnetAddressesCapacityReachedException, InvalidCidrException, UnexpectedException {
+    public void testGetFreeIp() throws UnacceptableOperationException, UnexpectedException, InvalidParameterException {
         //set up
         SystemUser user = Mockito.mock(SystemUser.class);
         Queue<String> freedIps = new LinkedList<>();
@@ -67,15 +67,14 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         try {
             SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(malformedCidr);
             fail();
-        } catch (InvalidCidrException e) {
+        } catch (InvalidParameterException e) {
             //verify
         }
     }
 
     //test case: if a network is already filled in, it should throw an exception when trying to fill cache of free ips
     @Test
-    public void testFillCacheOfFreeIpsWithNoFreeIps() throws InvalidCidrException, UnexpectedException,
-            SubnetAddressesCapacityReachedException {
+    public void testFillCacheOfFreeIpsWithNoFreeIps() throws InvalidParameterException, UnexpectedException, UnacceptableOperationException {
         //set up
         mockOnlyDatabase();
         SystemUser user = mock(SystemUser.class);
@@ -91,13 +90,13 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         fillInFederatedNetwork(federatedNetwork, mask);
         try {
             federatedNetwork.fillCacheOfFreeIps();
-        } catch (SubnetAddressesCapacityReachedException e) {
+        } catch (UnacceptableOperationException e) {
         }
     }
 
     //test case: when calling fillCacheOfFreeIps, this should fill queue with FREE_IP_CACHE_MAX_SIZE elements
     @Test
-    public void testFillCacheOfFreeIps() throws SubnetAddressesCapacityReachedException, InvalidCidrException {
+    public void testFillCacheOfFreeIps() throws UnacceptableOperationException, InvalidParameterException {
         //set up
         mockOnlyDatabase();
         SystemUser user = mock(SystemUser.class);
@@ -116,7 +115,7 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
 
     //test case: networks should have at least 2 free ips
     @Test
-    public void testIsSubnetValid() throws InvalidCidrException {
+    public void testIsSubnetValid() throws InvalidParameterException {
         String cidr = "10.0.0.0/";
         for (int freeBits = 0; freeBits < MAX_CIDR_SUFFIX; freeBits++) {
             //set up
@@ -144,8 +143,8 @@ public class FederatedNetworkUtilTest extends MockedFederatedNetworkUnitTests {
         return 0;
     }
 
-    private void fillInFederatedNetwork(FederatedNetworkOrder federatedNetwork, int mask) throws InvalidCidrException,
-            UnexpectedException, SubnetAddressesCapacityReachedException {
+    private void fillInFederatedNetwork(FederatedNetworkOrder federatedNetwork, int mask) throws InvalidParameterException,
+            UnexpectedException, UnacceptableOperationException {
         double freeIps = Math.pow(2, MAX_CIDR_SUFFIX - mask) - FederatedNetworkUtil.RESERVED_IPS;
         // getFreeIp will give the second valid ip, because the first one is set to the agent,
         // so we need to decrement our freeIps variable.

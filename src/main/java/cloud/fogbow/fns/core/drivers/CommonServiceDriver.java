@@ -1,8 +1,8 @@
 package cloud.fogbow.fns.core.drivers;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.UnavailableProviderException;
 import cloud.fogbow.fns.constants.Messages;
-import cloud.fogbow.fns.core.exceptions.AgentCommunicationException;
 import org.apache.log4j.Logger;
 
 import java.util.UUID;
@@ -26,7 +26,7 @@ public abstract class CommonServiceDriver implements ServiceDriver {
         }
 
         if(resultCode != 0) {
-            throw new AgentCommunicationException(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode));
         }
 
         return remoteFilePath;

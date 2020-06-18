@@ -2,8 +2,10 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
 import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.http.ExceptionResponse;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.CryptoUtil;
@@ -19,12 +21,9 @@ import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.constants.SystemConstants;
 import cloud.fogbow.fns.core.drivers.AgentConfiguration;
 import cloud.fogbow.fns.core.drivers.ServiceDriver;
-import cloud.fogbow.fns.core.exceptions.InvalidCidrException;
-import cloud.fogbow.fns.core.exceptions.NotSupportedServiceException;
 import cloud.fogbow.fns.core.model.*;
 import cloud.fogbow.fns.utils.FederatedNetworkUtil;
 import cloud.fogbow.fns.utils.RedirectToRasUtil;
-import cloud.fogbow.ras.api.http.ExceptionResponse;
 import cloud.fogbow.ras.api.http.request.Compute;
 import cloud.fogbow.ras.api.http.response.ComputeInstance;
 import cloud.fogbow.ras.core.models.UserData;
@@ -91,14 +90,14 @@ public class ApplicationFacade {
             throws FogbowException {
         ServiceListController serviceListController = new ServiceListController();
         if(!serviceListController.getServiceNames().contains(order.getServiceName())) {
-            throw new NotSupportedServiceException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE, order.getServiceName()));
+            throw new InvalidParameterException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE, order.getServiceName()));
         }
 
         // Check order consistency
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
         if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
             LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
-            throw new InvalidCidrException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
+            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
         }
         // Check if the user is authentic
         SystemUser requester = authenticate(systemUserToken);
