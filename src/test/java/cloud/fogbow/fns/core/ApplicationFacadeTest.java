@@ -2,6 +2,7 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
@@ -51,7 +52,7 @@ public class ApplicationFacadeTest extends BaseUnitTest {
     private ComputeRequestsController computeRequestsController;
     private ServiceListController serviceListController;
 
-    public void setup() {
+    public void setup() throws InternalServerErrorException {
         super.setup();
         this.applicationFacade.setServiceListController(Mockito.spy(new ServiceListController()));
         PowerMockito.mockStatic(FederatedNetworkUtil.class);

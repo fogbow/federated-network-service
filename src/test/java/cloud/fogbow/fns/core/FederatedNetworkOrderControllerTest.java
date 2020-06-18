@@ -2,8 +2,8 @@ package cloud.fogbow.fns.core;
 
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InstanceNotFoundException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.exceptions.UnacceptableOperationException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
@@ -36,7 +36,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     private Properties propertiesMock;
 
     @Before
-    public void setupTest() {
+    public void setupTest() throws InternalServerErrorException {
         // mock properties
         this.propertiesMock = Mockito.mock(Properties.class);
         this.propertiesHolderMock = Mockito.mock(PropertiesHolder.class);
@@ -59,7 +59,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     // test case: Given an existing order id, getFederatedNetwork should
     // return a FederatedNetworkOrder instance
     @Test
-    public void getFederatedNetworkSuccessful() throws InstanceNotFoundException {
+    public void getFederatedNetworkSuccessful() throws InstanceNotFoundException, InternalServerErrorException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
         Mockito.when(ordersHolder.getOrder(Mockito.anyString())).thenReturn(order);
@@ -74,7 +74,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     // test case: Given an non-existent order id, getFederatedNetwork should
     // thrown an Exception
     @Test(expected = InstanceNotFoundException.class)
-    public void getFederatedNetworkUnsuccessful() throws InstanceNotFoundException {
+    public void getFederatedNetworkUnsuccessful() throws InstanceNotFoundException, InternalServerErrorException {
         // setup
         Mockito.when(ordersHolder.getOrder(Mockito.anyString())).thenReturn(null);
 
@@ -86,7 +86,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     // test case: When activating an order, the order should be set to
     // open state.
     @Test
-    public void testActivateOrder() throws UnexpectedException {
+    public void testActivateOrder() throws InternalServerErrorException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
 
@@ -148,7 +148,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     // test case: When deactivating a closed order, it should remove it from ordersHolder
     @Test
-    public void testDeactivateOrderSuccessful() throws UnexpectedException {
+    public void testDeactivateOrderSuccessful() throws InternalServerErrorException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
         Mockito.when(order.getOrderState()).thenReturn(OrderState.CLOSED);
@@ -161,9 +161,9 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
     }
 
     // test case: When deactivating an non-closed order, it should thw an
-    // UnexpectedException
-    @Test(expected = UnexpectedException.class)
-    public void testDeactivateOrderUnsuccessful() throws UnexpectedException {
+    // InternalServerErrorException
+    @Test(expected = InternalServerErrorException.class)
+    public void testDeactivateOrderUnsuccessful() throws InternalServerErrorException {
         // setup
         FederatedNetworkOrder order = Mockito.mock(FederatedNetworkOrder.class);
         Mockito.when(order.getOrderState()).thenReturn(OrderState.OPEN);
@@ -176,7 +176,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
 
     //test case: Tests if get all federated networks will return all federated networks added by this user
     @Test
-    public void testGetFederatedNetworksStatusByUser() throws UnexpectedException {
+    public void testGetFederatedNetworksStatusByUser() throws InternalServerErrorException {
         // setup
         Collection<FederatedNetworkOrder> orders = createOrdersFor(testUtils.createSystemUser());
         Map<String, FederatedNetworkOrder> activeOrders = Mockito.mock(Map.class);
@@ -193,7 +193,7 @@ public class FederatedNetworkOrderControllerTest extends BaseUnitTest {
         Assert.assertFalse(statuses.isEmpty());
     }
 
-    private Collection<FederatedNetworkOrder> createOrdersFor(SystemUser systemUser) throws UnexpectedException {
+    private Collection<FederatedNetworkOrder> createOrdersFor(SystemUser systemUser) throws InternalServerErrorException {
         Collection<FederatedNetworkOrder> orders = new ArrayList<>();
         for (OrderState state : OrderState.values()) {
             FederatedNetworkOrder federatedNetworkOrder = Mockito.mock(FederatedNetworkOrder.class);

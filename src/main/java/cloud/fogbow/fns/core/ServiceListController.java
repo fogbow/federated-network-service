@@ -17,7 +17,7 @@ public class ServiceListController {
         String serviceNamesList = PropertiesHolder.getInstance().getProperty(ConfigurationPropertyKeys.SERVICE_NAMES_KEY);
 
         if (serviceNamesList == null || serviceNamesList.isEmpty()) {
-            throw new FatalErrorException(Messages.Fatal.NO_SERVICE_SPECIFIED);
+            throw new FatalErrorException(Messages.Exception.NO_SERVICE_SPECIFIED);
         }
 
         for (String serviceName : serviceNamesList.split(",")) {

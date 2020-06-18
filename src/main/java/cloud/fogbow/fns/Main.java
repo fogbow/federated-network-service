@@ -2,6 +2,7 @@ package cloud.fogbow.fns;
 
 import cloud.fogbow.common.constants.FogbowConstants;
 import cloud.fogbow.common.exceptions.FatalErrorException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.core.*;
@@ -55,7 +56,7 @@ public class Main implements ApplicationRunner {
             // Setting up order processors
             ProcessorThreadsController processorsThreadController = new ProcessorThreadsController(federatedNetworkOrderController);
             processorsThreadController.startFnsThreads();
-        } catch (FatalErrorException e) {
+        } catch (FatalErrorException | InternalServerErrorException e) {
             LOGGER.fatal(e.getMessage(), e);
             tryExit();
         }

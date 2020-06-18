@@ -38,12 +38,12 @@ public class FederatedNetwork {
             throws Exception {
 
         try {
-            LOGGER.info(String.format(Messages.Info.CREATE_FEDERATED_NETWORK, federatedNetwork.getOrder()));
+            LOGGER.info(String.format(Messages.Log.CREATE_FEDERATED_NETWORK_REQUEST_S, federatedNetwork.getOrder()));
             String federatedNetworkId = ApplicationFacade.getInstance().
                     createFederatedNetwork(federatedNetwork.getOrder(), systemUserToken);
             return new ResponseEntity<>(new ResourceId(federatedNetworkId), HttpStatus.CREATED);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }
@@ -60,7 +60,7 @@ public class FederatedNetwork {
                     getFederatedNetworksStatus(systemUserToken);
             return federatedNetworks == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(federatedNetworks);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }
@@ -75,14 +75,14 @@ public class FederatedNetwork {
             throws Exception {
 
         try {
-            LOGGER.info(String.format(Messages.Info.GET_FEDERATED_NETWORK_BY_ID,
+            LOGGER.info(String.format(Messages.Log.GET_FEDERATED_NETWORK_WITH_ID_S,
                     (federatedNetworkId == null ? "null" : federatedNetworkId)));
             FederatedNetworkOrder federatedNetwork = ApplicationFacade.getInstance().
                     getFederatedNetwork(federatedNetworkId, systemUserToken);
             FederatedNetworkInstance instance = federatedNetwork.getInstance();
             return new ResponseEntity<FederatedNetworkInstance>(instance, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             return ResponseEntity.notFound().build();
         }
     }
@@ -97,12 +97,12 @@ public class FederatedNetwork {
             throws Exception {
 
         try {
-            LOGGER.info(String.format(Messages.Info.DELETE_FEDERATED_NETWORK,
+            LOGGER.info(String.format(Messages.Log.DELETE_FEDERATED_NETWORK_S,
                     (federatedNetworkId == null ? "null" : federatedNetworkId)));
             ApplicationFacade.getInstance().deleteFederatedNetwork(federatedNetworkId, systemUserToken);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }

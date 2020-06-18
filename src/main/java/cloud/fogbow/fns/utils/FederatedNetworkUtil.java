@@ -17,7 +17,7 @@ public class FederatedNetworkUtil {
         try {
             return new SubnetUtils(cidrNotation).getInfo();
         } catch (IllegalArgumentException e) {
-            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR, cidrNotation), e);
+            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR_S, cidrNotation));
         }
     }
 

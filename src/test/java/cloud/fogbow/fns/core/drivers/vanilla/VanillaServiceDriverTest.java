@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.drivers.vanilla;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.api.parameters.FederatedCompute;
@@ -26,7 +27,7 @@ public class VanillaServiceDriverTest extends BaseUnitTest {
     private VanillaServiceDriver serviceDriver;
 
     @Before
-    public void setup() {
+    public void setup() throws InternalServerErrorException {
         super.setup();
         serviceDriver = Mockito.spy(new VanillaServiceDriver());
     }
@@ -60,7 +61,7 @@ public class VanillaServiceDriverTest extends BaseUnitTest {
         FederatedNetworkOrder order = testUtils.createFederatedNetwork("fake-id", OrderState.SPAWNING);
         PowerMockito.mockStatic(FederatedNetworkUtil.class);
         PowerMockito.doReturn(new SubnetUtils(TestUtils.CIDR).getInfo()).when(FederatedNetworkUtil.class, "getSubnetInfo", Mockito.any());
-        Mockito.doThrow(new FogbowException()).when(serviceDriver).createFederatedNetwork(Mockito.any(), Mockito.any());
+        Mockito.doThrow(new FogbowException("")).when(serviceDriver).createFederatedNetwork(Mockito.any(), Mockito.any());
 
         serviceDriver.processSpawning(order);
     }

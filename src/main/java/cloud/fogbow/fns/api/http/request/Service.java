@@ -34,11 +34,11 @@ public class Service {
             @RequestHeader(required = false, value = CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY) String systemUserToken)
             throws FogbowException {
         try {
-            LOGGER.debug(Messages.Info.RECEIVING_GET_SERVICES_REQUEST);
+            LOGGER.debug(Messages.Log.RECEIVING_GET_SERVICES_REQUEST);
             List<String> serviceNames = ApplicationFacade.getInstance().getServiceNames(systemUserToken);
             return new ResponseEntity<>(new ServiceList(serviceNames), HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()), e);
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()), e);
             throw e;
         }
     }

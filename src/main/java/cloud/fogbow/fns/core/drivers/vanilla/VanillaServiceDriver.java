@@ -79,7 +79,7 @@ public class VanillaServiceDriver extends CommonServiceDriver {
         try {
             return getVanillaUserData(instanceIp, order.getCidr());
         } catch (IOException e) {
-            throw new FogbowException(e.getMessage(), e);
+            throw new FogbowException(e.getMessage());
         }
     }
 
@@ -112,11 +112,11 @@ public class VanillaServiceDriver extends CommonServiceDriver {
             Process process = builder.start();
             resultCode = process.waitFor();
         } catch (Exception e) {
-            LOGGER.error(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode), e);
+            LOGGER.error(String.format(Messages.Log.UNABLE_TO_CALL_AGENT_S, resultCode), e);
         }
 
         if(resultCode != 0) {
-            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_CALL_AGENT, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Exception.UNABLE_TO_CALL_AGENT, resultCode));
         }
     }
 
@@ -138,11 +138,11 @@ public class VanillaServiceDriver extends CommonServiceDriver {
             Process process = builder.start();
             resultCode = process.waitFor();
         } catch (Exception e) {
-            LOGGER.error(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode), e);
+            LOGGER.error(String.format(Messages.Log.UNABLE_TO_DELETE_AGENT_S, resultCode), e);
         }
 
         if(resultCode != 0) {
-            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_DELETE_AGENT, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Exception.UNABLE_TO_DELETE_AGENT, resultCode));
         }
     }
 

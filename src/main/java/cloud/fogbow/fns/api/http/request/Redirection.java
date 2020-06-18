@@ -41,7 +41,7 @@ public class Redirection {
         try {
             return RedirectToRasUtil.redirectRequestToRas(body, method, request, String.class);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }

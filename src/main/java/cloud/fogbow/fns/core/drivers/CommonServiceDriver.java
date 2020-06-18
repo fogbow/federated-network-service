@@ -22,11 +22,11 @@ public abstract class CommonServiceDriver implements ServiceDriver {
             Process process = builder.start();
             resultCode = process.waitFor();
         } catch (Exception e) {
-            LOGGER.error(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode), e);
+            LOGGER.error(String.format(Messages.Log.UNABLE_TO_COPY_FILE_REMOTELY, resultCode), e);
         }
 
         if(resultCode != 0) {
-            throw new UnavailableProviderException(String.format(Messages.Error.UNABLE_TO_COPY_FILE_REMOTLY, resultCode));
+            throw new UnavailableProviderException(String.format(Messages.Exception.UNABLE_TO_COPY_FILE_REMOTELY, resultCode));
         }
 
         return remoteFilePath;

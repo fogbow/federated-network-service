@@ -32,7 +32,7 @@ public class Version {
             cloud.fogbow.fns.api.http.response.Version version = new cloud.fogbow.fns.api.http.response.Version(versionNumber);
             return new ResponseEntity<>(version, HttpStatus.OK);
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }
