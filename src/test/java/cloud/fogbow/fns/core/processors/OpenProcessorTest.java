@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.core.processors;
 
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.fns.BaseUnitTest;
 import cloud.fogbow.fns.TestUtils;
 import cloud.fogbow.fns.core.OrderStateTransitioner;
@@ -9,12 +9,9 @@ import cloud.fogbow.fns.core.model.OrderState;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-
-import java.util.*;
 
 @PrepareForTest({OrderStateTransitioner.class})
 public class OpenProcessorTest extends BaseUnitTest {
@@ -22,7 +19,7 @@ public class OpenProcessorTest extends BaseUnitTest {
     private OpenProcessor openProcessor;
 
     @Before
-    public void setup() {
+    public void setup() throws InternalServerErrorException {
         super.setup();
         mockOnlyDatabase();
         this.openProcessor = Mockito.spy(new OpenProcessor(0L));
@@ -34,13 +31,13 @@ public class OpenProcessorTest extends BaseUnitTest {
     public void testFailureWhileActivatingFederatedNetwork() throws Exception {
         //setup
         PowerMockito.mockStatic(OrderStateTransitioner.class);
-        PowerMockito.doThrow(new UnexpectedException()).when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.eq(OrderState.SPAWNING));
+        PowerMockito.doThrow(new InternalServerErrorException()).when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.eq(OrderState.SPAWNING));
         PowerMockito.doNothing().when(OrderStateTransitioner.class, "transition", Mockito.any(), Mockito.eq(OrderState.FAILED));
         FederatedNetworkOrder federatedNetworkOrder = testUtils.createFederatedNetwork(TestUtils.FAKE_ID, OrderState.OPEN);
         try {
             //exercise
             openProcessor.processOrder(federatedNetworkOrder);
-        } catch (UnexpectedException ex) {
+        } catch (InternalServerErrorException ex) {
             //verify
             Assert.assertEquals(federatedNetworkOrder.getVlanId(), -1);
             PowerMockito.verifyStatic(OrderStateTransitioner.class, Mockito.times(TestUtils.RUN_ONCE));

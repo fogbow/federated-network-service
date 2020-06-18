@@ -1,5 +1,6 @@
 package cloud.fogbow.fns.core;
 
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.processors.ClosedProcessor;
 import cloud.fogbow.fns.core.processors.OpenProcessor;
@@ -19,7 +20,7 @@ public class ProcessorThreadsController {
     private final Thread spawningProcessorThread;
     private final Thread closedProcessorThread;
 
-    public ProcessorThreadsController(FederatedNetworkOrderController orderController) {
+    public ProcessorThreadsController(FederatedNetworkOrderController orderController) throws InternalServerErrorException {
         OpenProcessor openProcessor = new OpenProcessor(DEFAULT_SLEEP_TIME);
         SpawningProcessor spawningProcessor = new SpawningProcessor(DEFAULT_SLEEP_TIME);
         ClosedProcessor closedProcessor = new ClosedProcessor(orderController, DEFAULT_SLEEP_TIME);
@@ -34,7 +35,7 @@ public class ProcessorThreadsController {
      * operation require a new thread to run, you should start this thread at this method.
      */
     public void startFnsThreads() {
-        LOGGER.info(Messages.Info.STARTING_THREADS);
+        LOGGER.info(Messages.Log.STARTING_THREADS);
         this.openProcessorThread.start();
         this.spawningProcessorThread.start();
         this.closedProcessorThread.start();

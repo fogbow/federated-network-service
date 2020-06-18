@@ -1,6 +1,6 @@
 package cloud.fogbow.fns.core;
 
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.datastore.DatabaseManager;
 import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -19,7 +19,7 @@ public class FederatedNetworkOrdersHolder {
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> failedOrders;
     private SynchronizedDoublyLinkedList<FederatedNetworkOrder> closedOrders;
 
-    private FederatedNetworkOrdersHolder() {
+    private FederatedNetworkOrdersHolder() throws InternalServerErrorException {
         // retrieve from database
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         this.openOrders = databaseManager.readActiveOrders(OrderState.OPEN);
@@ -32,7 +32,7 @@ public class FederatedNetworkOrdersHolder {
         this.activeOrders = initializeActiveOrders(this.openOrders, this.spawningOrders, this.fulfilledOrders, this.partiallyFulfilledOrders, this.failedOrders, this.closedOrders);
     }
 
-    public static synchronized FederatedNetworkOrdersHolder getInstance() {
+    public static synchronized FederatedNetworkOrdersHolder getInstance() throws InternalServerErrorException {
         if (instance == null) {
             instance = new FederatedNetworkOrdersHolder();
         }
@@ -43,7 +43,7 @@ public class FederatedNetworkOrdersHolder {
         return this.activeOrders;
     }
 
-    public FederatedNetworkOrder putOrder(FederatedNetworkOrder order) {
+    public FederatedNetworkOrder putOrder(FederatedNetworkOrder order) throws InternalServerErrorException {
         getOrdersList(order.getOrderState()).addItem(order);
         return activeOrders.put(order.getId(), order);
     }
@@ -52,11 +52,11 @@ public class FederatedNetworkOrdersHolder {
         return activeOrders.get(id);
     }
 
-    public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) throws UnexpectedException {
+    public FederatedNetworkOrder removeOrder(FederatedNetworkOrder order) throws InternalServerErrorException {
         return removeOrder(order.getId());
     }
 
-    public FederatedNetworkOrder removeOrder(String id) throws UnexpectedException {
+    public FederatedNetworkOrder removeOrder(String id) throws InternalServerErrorException {
         FederatedNetworkOrder order = activeOrders.get(id);
 
         getOrdersList(order.getOrderState()).removeItem(order);

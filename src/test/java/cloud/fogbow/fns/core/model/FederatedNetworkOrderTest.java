@@ -1,10 +1,10 @@
 package cloud.fogbow.fns.core.model;
 
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.exceptions.UnacceptableOperationException;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.MockedFederatedNetworkUnitTests;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import org.junit.Assert;
@@ -24,7 +24,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     public static final String CIDR_EXAMPLE = "10.0.0.0/29";
 
     @Test
-    public void testAddAssociatedIp() throws UnexpectedException {
+    public void testAddAssociatedIp() throws InternalServerErrorException {
         // setup
         super.mockSingletons();
         ArrayList<AssignedIp> fakeAssociatedIps;
@@ -44,7 +44,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test
-    public void testRemoveAssociatedIp() throws UnexpectedException {
+    public void testRemoveAssociatedIp() throws InternalServerErrorException {
         // setup
         super.mockSingletons();
         ArrayList<AssignedIp> fakeAssociatedIps;
@@ -63,7 +63,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testRemoveAssociatedIpWithNoAssociatedIps() throws UnexpectedException {
+    public void testRemoveAssociatedIpWithNoAssociatedIps() throws InternalServerErrorException {
         // setup
         super.mockSingletons();
         ArrayList<AssignedIp> fakeAssociatedIps;
@@ -78,7 +78,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
 
     //test case: tests that if ips served is higher than the network mask allows, it must throw an exception, since this ip will be in a different network
     @Test
-    public void testGetIpForNetworkWithNoFreeIps() throws UnexpectedException, InvalidParameterException, UnacceptableOperationException {
+    public void testGetIpForNetworkWithNoFreeIps() throws InternalServerErrorException, InvalidParameterException, UnacceptableOperationException {
         //set up
         mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);
@@ -101,7 +101,7 @@ public class FederatedNetworkOrderTest extends MockedFederatedNetworkUnitTests {
     }
 
     @Test
-    public void testAddingAndRemovingAssociatedIps() throws UnexpectedException {
+    public void testAddingAndRemovingAssociatedIps() throws InternalServerErrorException {
         // set up
         mockDatabase(new SynchronizedDoublyLinkedList<>());
         FederatedNetworkOrder federatedNetwork = createFederatedNetworkOrder(CIDR_EXAMPLE);

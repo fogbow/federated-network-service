@@ -1,5 +1,6 @@
 package cloud.fogbow.fns;
 
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.models.linkedlists.SynchronizedDoublyLinkedList;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
@@ -61,7 +62,7 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
         }
     }
 
-    protected void mockOnlyDatabase() {
+    protected void mockOnlyDatabase() throws InternalServerErrorException {
         SynchronizedDoublyLinkedList<FederatedNetworkOrder> activeOrdersList = new SynchronizedDoublyLinkedList<>();
 
         this.database = mockDatabaseManager();
@@ -73,7 +74,7 @@ public class MockedFederatedNetworkUnitTests extends BaseUnitTest {
         federatedNetworkOrderController = new FederatedNetworkOrderController();
     }
 
-    private DatabaseManager mockDatabaseManager() {
+    private DatabaseManager mockDatabaseManager() throws InternalServerErrorException {
         DatabaseManager mockedDatabase = Mockito.mock(DatabaseManager.class);
         for (OrderState state : OrderState.values()) {
             Mockito.when(mockedDatabase.readActiveOrders(state)).thenReturn(new SynchronizedDoublyLinkedList<>());

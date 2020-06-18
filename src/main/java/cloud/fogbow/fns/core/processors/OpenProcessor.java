@@ -1,7 +1,7 @@
 package cloud.fogbow.fns.core.processors;
 
 import cloud.fogbow.common.exceptions.FogbowException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrdersHolder;
@@ -18,7 +18,7 @@ public class OpenProcessor implements Runnable {
 
     private ChainedList<FederatedNetworkOrder> orders;
 
-    public OpenProcessor(Long sleepTime) {
+    public OpenProcessor(Long sleepTime) throws InternalServerErrorException {
         this.sleepTime = sleepTime;
         this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.OPEN);
     }
@@ -34,16 +34,16 @@ public class OpenProcessor implements Runnable {
                     this.orders.resetPointer();
                     Thread.sleep(this.sleepTime);
                 }
-            } catch (UnexpectedException e) {
-                LOGGER.error("", e);
+            } catch (InternalServerErrorException e) {
+                LOGGER.error(e.getMessage(), e);
             } catch (InterruptedException e) {
-                LOGGER.error(Messages.Exception.THREAD_HAS_BEEN_INTERRUPTED, e);
+                LOGGER.error(Messages.Log.THREAD_HAS_BEEN_INTERRUPTED, e);
                 break;
             }
         }
     }
 
-    protected void processOrder(FederatedNetworkOrder order) throws UnexpectedException {
+    protected void processOrder(FederatedNetworkOrder order) throws InternalServerErrorException {
         // The order object synchronization is needed to prevent a race
         // condition on order access. For example: a user can delete an open
         // order while this method is trying to create the federated network.

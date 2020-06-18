@@ -1,6 +1,6 @@
 package cloud.fogbow.fns;
 
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.core.datastore.orderstorage.RecoveryService;
@@ -43,7 +43,7 @@ public class TestUtils {
         return federatedNetworkOrder;
     }
 
-    public List<FederatedNetworkOrder> populateFedNetDbWithState(OrderState state, int size, RecoveryService service) throws UnexpectedException {
+    public List<FederatedNetworkOrder> populateFedNetDbWithState(OrderState state, int size, RecoveryService service) throws InternalServerErrorException {
         List<FederatedNetworkOrder> orders = new ArrayList<>();
         for(int i = 0; i < size; i++) {
             FederatedNetworkOrder order = createFederatedNetwork(String.valueOf(UUID.randomUUID()), state);

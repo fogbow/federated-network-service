@@ -1,6 +1,6 @@
 //package cloud.fogbow.fns.core.datastore.orderstorage;
 //
-//import cloud.fogbow.common.exceptions.UnexpectedException;
+//import cloud.fogbow.common.exceptions.InternalServerErrorException;
 //import cloud.fogbow.fns.BaseUnitTest;
 //import cloud.fogbow.fns.core.ComputeIdToFederatedNetworkIdMapping;
 //import cloud.fogbow.fns.core.model.FederatedNetworkOrder;
@@ -49,7 +49,7 @@
 //
 //    //test case: test if the save operation works as expected by saving some objects and comparing the list returned by db.
 //    @Test
-//    public void testSaveOperation() throws UnexpectedException{
+//    public void testSaveOperation() throws InternalServerErrorException{
 //        // setup //exercise
 //        List<FederatedNetworkOrder> expectedFulfilledOrders = testUtils.populateFedNetDbWithState(OrderState.FULFILLED, ORDERS_AMOUNT, recoveryService);
 //        List<FederatedNetworkOrder> expectedOpenedOrders = testUtils.populateFedNetDbWithState(OrderState.OPEN, ORDERS_AMOUNT, recoveryService);

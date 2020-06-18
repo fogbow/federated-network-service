@@ -4,12 +4,12 @@ import cloud.fogbow.as.core.util.AuthenticationUtil;
 import cloud.fogbow.common.exceptions.FogbowException;
 import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.exceptions.UnauthorizedRequestException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.http.ExceptionResponse;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.plugins.authorization.AuthorizationPlugin;
 import cloud.fogbow.common.util.CryptoUtil;
-import cloud.fogbow.common.util.HttpErrorToFogbowExceptionMapper;
+import cloud.fogbow.common.util.connectivity.HttpErrorConditionToFogbowExceptionMapper;
 import cloud.fogbow.common.util.ServiceAsymmetricKeysHolder;
 import cloud.fogbow.fns.api.http.response.AssignedIp;
 import cloud.fogbow.fns.api.http.response.InstanceStatus;
@@ -75,12 +75,12 @@ public class ApplicationFacade {
     }
 
     // public key request
-    public String getPublicKey() throws UnexpectedException {
+    public String getPublicKey() throws InternalServerErrorException {
         // There is no need to authenticate the user or authorize this operation
         try {
             return CryptoUtil.toBase64(ServiceAsymmetricKeysHolder.getInstance().getPublicKey());
-        } catch (IOException | GeneralSecurityException e) {
-            throw new UnexpectedException(e.getMessage(), e);
+        } catch (GeneralSecurityException e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
     }
 
@@ -90,14 +90,14 @@ public class ApplicationFacade {
             throws FogbowException {
         ServiceListController serviceListController = new ServiceListController();
         if(!serviceListController.getServiceNames().contains(order.getServiceName())) {
-            throw new InvalidParameterException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE, order.getServiceName()));
+            throw new InvalidParameterException(String.format(Messages.Exception.NOT_SUPPORTED_SERVICE_S, order.getServiceName()));
         }
 
         // Check order consistency
         SubnetUtils.SubnetInfo subnetInfo = FederatedNetworkUtil.getSubnetInfo(order.getCidr());
         if (!FederatedNetworkUtil.isSubnetValid(subnetInfo)) {
-            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
-            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR, order.getCidr()));
+            LOGGER.error(String.format(Messages.Exception.INVALID_CIDR_S, order.getCidr()));
+            throw new InvalidParameterException(String.format(Messages.Exception.INVALID_CIDR_S, order.getCidr()));
         }
         // Check if the user is authentic
         SystemUser requester = authenticate(systemUserToken);
@@ -163,14 +163,14 @@ public class ApplicationFacade {
                     HttpMethod.POST, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Exception.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
         // if response status was not successful, return the status and rollback, undoing the latest modifications
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
             ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
+            throw HttpErrorConditionToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ResourceId computeId = gson.fromJson(responseEntity.getBody(), ResourceId.class);
         if(federatedNetworkId != null) {
@@ -191,14 +191,14 @@ public class ApplicationFacade {
                     HttpMethod.DELETE, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Exception.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
 
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
             ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
+            throw HttpErrorConditionToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
 
         FederatedNetworkOrder federatedNetworkOrder = this.computeRequestsController.getFederatedNetworkOrderAssociatedToCompute(computeId);
@@ -222,14 +222,14 @@ public class ApplicationFacade {
                     "", HttpMethod.GET, systemUserToken, String.class);
         } catch (RestClientException e) {
             responseEntity = ResponseEntity.status(HttpStatus.BAD_GATEWAY).
-                    body(String.format(FAILED_REQUEST_BODY, Messages.Error.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
+                    body(String.format(FAILED_REQUEST_BODY, Messages.Exception.RESOURCE_ALLOCATION_SERVICE_DOES_NOT_RESPOND));
         }
 
         if (responseEntity.getStatusCodeValue() >= HttpStatus.MULTIPLE_CHOICES.value()) {
             // Note that if an error occurs, the IP that was removed from the cached list does not need to be returned,
             // since it is eventually recovered when the cached list gets empty and is later refilled.
             ExceptionResponse response = gson.fromJson(responseEntity.getBody(), ExceptionResponse.class);
-            throw HttpErrorToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
+            throw HttpErrorConditionToFogbowExceptionMapper.map(responseEntity.getStatusCode().value(), response.getMessage());
         }
         ComputeInstance computeInstance = gson.fromJson(responseEntity.getBody(), ComputeInstance.class);
         this.computeRequestsController.addFederatedIpInGetInstanceIfApplied(computeInstance, computeId);
@@ -271,7 +271,7 @@ public class ApplicationFacade {
     }
 
     protected void authorizeOrder(SystemUser requester, Operation operation, ResourceType type,
-        FederatedNetworkOrder order) throws UnexpectedException, UnauthorizedRequestException {
+        FederatedNetworkOrder order) throws InternalServerErrorException, UnauthorizedRequestException {
         // Check whether requester owns order
         SystemUser orderOwner = order.getSystemUser();
         if (!orderOwner.equals(requester)) {

@@ -44,7 +44,7 @@ public class RedirectToRasUtil {
         try {
             uri = new URI(rasUrl);
         } catch (URISyntaxException e) {
-            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, rasUrl));
+            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL_S, rasUrl));
         }
         uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(replaceServiceName(requestUrl))
                 .query(request.getQueryString()).build(true).toUri();
@@ -58,11 +58,7 @@ public class RedirectToRasUtil {
                 // and then encrypted with the RAS public key, before being forwarded.
                 RSAPrivateKey myPrivateKey = null;
                 RSAPublicKey rasPublicKey = FnsPublicKeysHolder.getInstance().getRasPublicKey();
-                try {
-                    myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
-                } catch (IOException | GeneralSecurityException e) {
-                    throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
-                }
+                myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
                 String rasTokenValue = TokenProtector.rewrap(myPrivateKey, rasPublicKey,
                         request.getHeader(headerName), FogbowConstants.TOKEN_STRING_SEPARATOR);
                 headers.set(CommonKeys.SYSTEM_USER_TOKEN_HEADER_KEY, rasTokenValue);
@@ -79,7 +75,7 @@ public class RedirectToRasUtil {
             ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
             return response;
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }
@@ -93,7 +89,7 @@ public class RedirectToRasUtil {
         try {
             uri = new URI(rasUrl);
         } catch (URISyntaxException e) {
-            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL, rasUrl));
+            throw new ConfigurationErrorException(String.format(Messages.Exception.INVALID_URL_S, rasUrl));
         }
         uri = UriComponentsBuilder.fromUri(uri).port(rasPort).path(path).build(true).toUri();
 
@@ -101,12 +97,8 @@ public class RedirectToRasUtil {
         // the RAS public key, before being forwarded.
         RSAPrivateKey myPrivateKey = null;
         RSAPublicKey rasPublicKey = FnsPublicKeysHolder.getInstance().getRasPublicKey();
-        try {
-            myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
-        } catch (IOException | GeneralSecurityException e) {
-            throw new FatalErrorException(Messages.Exception.UNABLE_TO_LOAD_PUBLIC_KEY);
-        }
-        String rasTokenValue = TokenProtector.rewrap(myPrivateKey, rasPublicKey, systemUserToken,
+        myPrivateKey = ServiceAsymmetricKeysHolder.getInstance().getPrivateKey();
+       String rasTokenValue = TokenProtector.rewrap(myPrivateKey, rasPublicKey, systemUserToken,
                 FogbowConstants.TOKEN_STRING_SEPARATOR);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
@@ -120,7 +112,7 @@ public class RedirectToRasUtil {
             ResponseEntity<T> response = restTemplate.exchange(uri, method, httpEntity, responseType);
             return response;
         } catch (Exception e) {
-            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION, e.getMessage()));
+            LOGGER.info(String.format(Messages.Exception.GENERIC_EXCEPTION_S, e.getMessage()));
             throw e;
         }
     }

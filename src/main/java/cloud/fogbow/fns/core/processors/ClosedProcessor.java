@@ -1,6 +1,7 @@
 package cloud.fogbow.fns.core.processors;
 
 import cloud.fogbow.common.exceptions.FogbowException;
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.models.linkedlists.ChainedList;
 import cloud.fogbow.fns.constants.Messages;
 import cloud.fogbow.fns.core.FederatedNetworkOrderController;
@@ -17,7 +18,7 @@ public class ClosedProcessor implements Runnable {
     private ChainedList<FederatedNetworkOrder> orders;
     private FederatedNetworkOrderController orderController;
 
-    public ClosedProcessor(FederatedNetworkOrderController orderController, Long sleepTime) {
+    public ClosedProcessor(FederatedNetworkOrderController orderController, Long sleepTime) throws InternalServerErrorException {
         this.sleepTime = sleepTime;
         this.orders = FederatedNetworkOrdersHolder.getInstance().getOrdersList(OrderState.CLOSED);
         this.orderController = orderController;
@@ -35,9 +36,9 @@ public class ClosedProcessor implements Runnable {
                     Thread.sleep(this.sleepTime);
                 }
             } catch (FogbowException e) {
-                LOGGER.error("", e);
+                LOGGER.error(e.getMessage(), e);
             } catch (InterruptedException e) {
-                LOGGER.error(Messages.Exception.THREAD_HAS_BEEN_INTERRUPTED, e);
+                LOGGER.error(Messages.Log.THREAD_HAS_BEEN_INTERRUPTED, e);
                 break;
             }
         }

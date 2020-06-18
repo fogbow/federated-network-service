@@ -1,8 +1,8 @@
 package cloud.fogbow.fns.core.model;
 
+import cloud.fogbow.common.exceptions.InternalServerErrorException;
 import cloud.fogbow.common.exceptions.InvalidParameterException;
 import cloud.fogbow.common.exceptions.UnacceptableOperationException;
-import cloud.fogbow.common.exceptions.UnexpectedException;
 import cloud.fogbow.common.models.SystemUser;
 import cloud.fogbow.common.util.GsonHolder;
 import cloud.fogbow.common.util.SerializedEntityHolder;
@@ -133,13 +133,13 @@ public class FederatedNetworkOrder implements Serializable {
         this.serviceName = serviceName;
     }
 
-    public synchronized void addAssociatedIp(AssignedIp assignedIp) throws UnexpectedException {
+    public synchronized void addAssociatedIp(AssignedIp assignedIp) throws InternalServerErrorException {
         this.assignedIps.add(assignedIp);
         StableStorage databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
     }
 
-    public synchronized AssignedIp removeAssociatedIp(String computeId) throws UnexpectedException {
+    public synchronized AssignedIp removeAssociatedIp(String computeId) throws InternalServerErrorException {
         int associatedIpIndex = containsKey(computeId);
         if (associatedIpIndex == -1) {
             throw new IllegalArgumentException();
@@ -175,7 +175,7 @@ public class FederatedNetworkOrder implements Serializable {
         return null;
     }
 
-    public synchronized String getFreeIp() throws InvalidParameterException, UnexpectedException, UnacceptableOperationException {
+    public synchronized String getFreeIp() throws InvalidParameterException, InternalServerErrorException, UnacceptableOperationException {
         String ip = null;
         try {
             ip = this.cacheOfFreeIps.remove();
@@ -187,7 +187,7 @@ public class FederatedNetworkOrder implements Serializable {
                 // fillCacheOfFreeIps() throws a UnacceptableOperationException when there are no free
                 // IPs left. Thus, it is not expected that the second call to this.cacheOfFreeIps.remove() throws
                 // a NoSuchElementException if it ever gets called.
-                throw new UnexpectedException(Messages.Exception.UNEXPECTED_EXCEPTION, e2);
+                throw new InternalServerErrorException(e2.getMessage());
             }
         }
         return ip;
@@ -224,7 +224,7 @@ public class FederatedNetworkOrder implements Serializable {
         return this.orderState;
     }
 
-    public synchronized void setOrderState(OrderState state) throws UnexpectedException {
+    public synchronized void setOrderState(OrderState state) throws InternalServerErrorException {
         this.orderState = state;
         DatabaseManager databaseManager = DatabaseManager.getInstance();
         databaseManager.put(this);
@@ -339,13 +339,13 @@ public class FederatedNetworkOrder implements Serializable {
     }
 
     @PostLoad
-    private void deserializeSystemUser() throws UnexpectedException {
+    private void deserializeSystemUser() throws InternalServerErrorException {
         try {
             SerializedEntityHolder serializedSystemUserHolder = GsonHolder.getInstance().fromJson(
                     this.getSerializedSystemUser(), SerializedEntityHolder.class);
             this.setSystemUser((SystemUser) serializedSystemUserHolder.getSerializedEntity());
         } catch(ClassNotFoundException exception) {
-            throw new UnexpectedException(Messages.Exception.UNABLE_TO_DESERIALIZE_SYSTEM_USER);
+            throw new InternalServerErrorException(Messages.Exception.UNABLE_TO_DESERIALIZE_SYSTEM_USER);
         }
     }
 
