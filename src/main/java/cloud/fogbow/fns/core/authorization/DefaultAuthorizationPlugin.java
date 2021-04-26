@@ -10,4 +10,14 @@ public class DefaultAuthorizationPlugin implements AuthorizationPlugin<FnsOperat
     public boolean isAuthorized(SystemUser systemUser, FnsOperation operation) {
         return true;
     }
+
+    @Override
+    public void setPolicy(String policy) {
+        // Ignore
+    }
+
+    @Override
+    public void updatePolicy(String policy) {
+        // Ignore
+    }
 }
